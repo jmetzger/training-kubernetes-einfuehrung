@@ -88,6 +88,7 @@
 
   1. Tipps & Tricks 
      * [bash-completion](/kubectl/bash-completion.md) 
+     * [vim einrückung für yaml-dateien](/vim/vim-yaml.md)
      * [kubectl spickzettel](/kubectl/spickzettel.md)
      * [Alte manifests migrieren](/kubectl/convert-plugin.md)
     
