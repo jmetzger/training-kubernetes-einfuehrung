@@ -13,7 +13,6 @@
   
   1. Kubernetes - microk8s (Installation und Management) 
      * [Installation Ubuntu - snap](microk8s/installation-ubuntu-snap.md)
-     * [Patch to next major release - cluster](microk8s/patch-next-major.md)
      * [Remote-Verbindung zu Kubernetes (microk8s) einrichten](microk8s/connect-from-remote.md)
      * [Create a cluster with microk8s](microk8s/cluster.md)
      * [Ingress controller in microk8s aktivieren](microk8s/ingress.md) 
