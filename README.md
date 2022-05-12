@@ -20,7 +20,7 @@
      * [Installation Kuberenetes Dashboard](/microk8s/dashboard.md) 
 
   1. Kubernetes Praxis API-Objekte 
-     * [Das Tool kubectl (Devs/Ops)](/kubectl/spickzettel.md)
+     * [Das Tool kubectl (Devs/Ops) - Spickzettel](/kubectl/spickzettel.md)
      * [kubectl example with run](/kubectl/run-with-example.md)
      * Arbeiten mit manifests (Devs/Ops)
      * Pods (Devs/Ops)
