@@ -53,8 +53,7 @@
   * Ein Pod (übersetzt Gruppe) ist eine Gruppe von einem oder mehreren Containern
     * gemeinsam genutzter Speicher- und Netzwerkressourcen   
     * Befinden sich immer auf dem gleich virtuellen Server 
-    
-## Control Plane Node (former: master) - components 
+   
 
 ## Node (Minion) - components 
 
