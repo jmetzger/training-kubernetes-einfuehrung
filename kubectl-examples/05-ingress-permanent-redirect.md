@@ -17,13 +17,11 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/permanent-redirect: https://www.google.de
     nginx.ingress.kubernetes.io/permanent-redirect-code: "308"
-  creationTimestamp: null
   name: destination-home
   namespace: my-namespace
 spec:
   rules:
-  - host: web.training.local
-    http:
+  - http:
       paths:
       - backend:
           service:
@@ -34,16 +32,12 @@ spec:
         pathType: ImplementationSpecific
 ```
 
-```
-Achtung: host-eintrag auf Rechner machen, von dem aus man zugreift 
 
-/etc/hosts 
-45.23.12.12 web.training.local
-```
 
 
 ```
-curl -I  http://web.training.local/source
+# eine node mit ip-adresse aufrufen 
+curl -I  http:/41.12.45.21/source
 HTTP/1.1 308 
 Permanent Redirect 
 
