@@ -63,6 +63,7 @@
 
   1. Kubernetes Rechteverwaltung (RBAC) 
      * Warum ? (Ops)
+     * [Wie aktivieren?](/microk8s/rbac.md)
      * Rollen und Rollenzuordnung (Ops)
      * Service Accounts (Ops)
      * [Praktische Umsetzung anhand eines Beispiels (Ops)](/kubernetes/rbac-create-user-multi.md)
