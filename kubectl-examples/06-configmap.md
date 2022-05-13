@@ -87,7 +87,7 @@ kubectl apply -f 03-pod-mit-env.yml
 
 ```
 und wir schauen uns das an 
-
+```
 
 
 ## Reference: 
