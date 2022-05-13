@@ -51,6 +51,11 @@ kubectl apply -f nginx-replicaset.yml
 # Alle Objekte aus manifest löschen
 kubectl delete -f nginx-replicaset.yml 
 
+# Recursive Löschen
+cd ~/manifests 
+# multiple subfolders subfolders present 
+kubectl delete -f . -R 
+
 
 ```
 
