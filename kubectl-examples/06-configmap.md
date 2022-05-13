@@ -50,7 +50,7 @@ spec:
         # `name` here must match the name
         # from the volumes section of this pod
         - name: example-configmap-volume
-            mountPath: /etc/config
+          mountPath: /etc/config
 
 
 ```
