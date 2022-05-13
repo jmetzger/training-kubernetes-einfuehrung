@@ -99,6 +99,9 @@
   1. Fragen 
      * [Q and A](/q-and-a.md)
 
+  1. Documentation
+     * [Kubernetes mit VisualStudio Code](https://code.visualstudio.com/docs/azure/kubernetes)
+
 ## Backlog I
 
   1. Kubernetes - microk8s (Installation und Management) 
