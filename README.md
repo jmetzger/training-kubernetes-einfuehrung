@@ -39,6 +39,7 @@
      * [Beispiel mit Hostnamen](/kubectl-examples/04-ingress-nginx-with-hostnames.md)
      * [Achtung: Ingress mit Helm - annotations](/ingress-mit-helm-class-achtung.md)
      * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
+     * [ConfigMap Example](/kubectl-examples/06-configmap.md)
 
   1. Kubernetes Praxis Scaling/Rolling Updates/Wartung 
      * Rolling Updates (Devs/Ops) 
