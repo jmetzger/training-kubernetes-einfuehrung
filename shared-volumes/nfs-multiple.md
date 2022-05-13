@@ -43,9 +43,9 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   # any PV name
-  name: pv-nfs-tln1
+  name: pv-nfs
   labels:
-    volume: nfs-data-volume-tln1
+    volume: nfs-data-volume
 spec:
   capacity:
     # storage size
