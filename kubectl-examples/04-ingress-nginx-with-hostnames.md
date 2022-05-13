@@ -1,4 +1,4 @@
-# Ingress Nginx 
+# Ingress Nginx mit Hostnamen/Domains
 
 ## Prerequisits
 
