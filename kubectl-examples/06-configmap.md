@@ -89,7 +89,12 @@ kubectl apply -f 03-pod-mit-env.yml
 ```
 
 ```
-und wir schauen uns das an 
+# und wir schauen uns das an 
+#Jetzt schauen wir uns den Container/Pod mal an
+kubectl exec pod-mit-configmap -- env
+kubectl exec pod-mit-configmap --  bash
+# env
+
 ```
 
 
