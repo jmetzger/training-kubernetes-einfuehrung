@@ -23,6 +23,15 @@ kubectl explain pod.metadata.name
 kubectl get ns
 kubectl get namespaces 
 
+# namespace wechseln, z.B. nach Ingress
+kubectl config set-context --current --namespace=ingress 
+# jetzt werden alle Objekte im Namespace Ingress angezeigt 
+kubectl get all,configmaps 
+
+# wieder zurückwechseln. 
+# der standardmäßige Namespace ist 'default' 
+kubectl config set-context --current --namespace=default 
+
 ```
 
 ## Arbeiten mit manifesten 
