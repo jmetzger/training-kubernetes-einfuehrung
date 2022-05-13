@@ -60,7 +60,10 @@ kubectl apply -f 02-pod.yml
 ```
 
 ```
-Jetzt schauen wir uns den Container/Pod mal an
+#Jetzt schauen wir uns den Container/Pod mal an
+kubectl exec pod-mit-configmap -- ls -la /etc/config
+kubectl exec pod-mit-configmap --  bash
+# ls -la /etc/config 
 ```
 
 ## Schritt 3: BeispieL. ConfigMap als env-variablen 
