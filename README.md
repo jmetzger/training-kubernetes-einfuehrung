@@ -102,6 +102,7 @@
 
   1. Documentation
      * [Kubernetes mit VisualStudio Code](https://code.visualstudio.com/docs/azure/kubernetes)
+     * [Kube Api Ressources - Versionierungsschema](/kubernetes/api-versionierung-lifetime.md)
 
 ## Backlog I
 
