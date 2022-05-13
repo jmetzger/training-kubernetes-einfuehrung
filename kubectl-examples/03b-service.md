@@ -41,9 +41,10 @@ spec:
         
 ```        
 
-# Example I : Service with ClusterIP 
+# Example II : Service with NodePort
 
 ```
+# you will get port opened on every node in the range 30000+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
