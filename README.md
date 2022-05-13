@@ -37,6 +37,7 @@
      * [Documentation for default ingress nginx](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
      * [Beispiel Ingress](/kubectl-examples/04-ingress-nginx.md)
      * [Beispiel mit Hostnamen](/kubectl-examples/04-ingress-nginx-with-hostnames.md)
+     * [Achtung: Ingress mit Helm - annotations](/ingress-mit-helm-class-achtung.md)
 
   1. Kubernetes Praxis Scaling/Rolling Updates/Wartung 
      * Rolling Updates (Devs/Ops) 
