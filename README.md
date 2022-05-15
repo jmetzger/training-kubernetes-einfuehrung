@@ -41,6 +41,9 @@
      * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
      * [ConfigMap Example](/kubectl-examples/06-configmap.md)
 
+  1. Kubernetes Secrets und Encrypting von z.B. Credentials 
+     * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md) 
+
   1. Kubernetes Praxis Scaling/Rolling Updates/Wartung 
      * Rolling Updates (Devs/Ops) 
      * Scaling von Deployments (Devs/Ops) 
