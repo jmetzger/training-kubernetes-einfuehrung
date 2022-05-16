@@ -48,7 +48,19 @@ kubectl get secret -o yaml
 
 ```
 # Ich kann dieses jetzt ganz normal in meinem pod verwenden.
-
+# Step 3: setup another pod to use it in addition 
+# vi 02-secret-app.yml 
+apiVersion: v1    
+kind: Pod    
+metadata:    
+  name: secret-app    
+spec:    
+  containers:    
+    - name: env-ref-demo    
+      image: nginx    
+      envFrom:                                                                                                                              
+      - secretRef:
+          name: basic-auth
 
 
 ```
