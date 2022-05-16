@@ -8,3 +8,9 @@ microk8s enable registry
 
 
 ```
+
+## Creating an image mit docker 
+
+```
+snap install docker 
+```
