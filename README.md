@@ -101,6 +101,7 @@
 
   1. Tipps & Tricks 
      * [bash-completion](/kubectl/bash-completion.md) 
+     * [Alias in Linux kubectl get -o wide](/kubectl/alias-o-wide.md)
      * [vim einrückung für yaml-dateien](/vim/vim-yaml.md)
      * [kubectl spickzettel](/kubectl/spickzettel.md)
      * [Alte manifests migrieren](/kubectl/convert-plugin.md)
