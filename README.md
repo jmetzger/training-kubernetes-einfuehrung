@@ -79,6 +79,7 @@
      * [Praktische Umsetzung anhand eines Beispiels (Ops)](/kubernetes/rbac-create-user-multi.md)
 
   1. Kubernetes Monitoring 
+     * [Debugging von Ingress](/kubernetes/debugging-ingress.yml)
      * [Ebenen des Loggings](ebenen-des-loggings.md) 
      * [Working with kubectl logs](/kubectl/logs.md)
      * [Built-In Monitoring tools - kubectl top pods/nodes](microk8s/metrics-server.md)
