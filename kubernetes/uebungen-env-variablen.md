@@ -158,6 +158,8 @@ data:
 ```
 # Step 2: applying map 
 kubectl apply -f 03-matchmaker-config.yml
+# Das ist der Trostpreis !! 
+kubectl get configmap app-config
 kubectl get configmap app-config -o yaml
 ```
 
