@@ -19,7 +19,7 @@ spec:
     - name: APP_VERSION
       value: 1.21.1
     - name: APP_FEATURES
-      value: „backend,stats,reports“
+      value: "backend,stats,reports"
 
 ```
 
