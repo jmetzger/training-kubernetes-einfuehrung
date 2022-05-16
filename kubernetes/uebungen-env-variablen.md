@@ -41,7 +41,7 @@ kubectl exec -it print-envs -- bash
 apiVersion: v1    
 kind: Pod    
 metadata:    
-  name: print-envs    
+  name: print-envs-fields   
 spec:    
   containers:    
     - name: env-ref-demo    
@@ -82,7 +82,7 @@ kubectl apply -f 02-feldres.yml
 apiVersion: v1                   
   kind: Pod                        
   metadata:                        
-    name: print-envs               
+    name: print-envs-fields               
   spec:                            
     containers:                    
     - name: env-ref-demo           
