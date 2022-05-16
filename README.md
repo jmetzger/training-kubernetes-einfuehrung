@@ -44,6 +44,9 @@
   1. Kubernetes Secrets und Encrypting von z.B. Credentials 
      * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md) 
 
+  1. Kubernetes - ENV - Variablen für den Container setzen
+     * [ENV - Variablen - Übung](/kubernetes/uebungen-env-variablen.md)
+
   1. Kubernetes Praxis Scaling/Rolling Updates/Wartung 
      * Rolling Updates (Devs/Ops) 
      * Scaling von Deployments (Devs/Ops) 
