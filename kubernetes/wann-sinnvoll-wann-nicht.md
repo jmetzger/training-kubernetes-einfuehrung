@@ -24,5 +24,10 @@
     * Über adequate Backup-Lösungen nachzudenken (Moving Target, Kubernetes Aware Backups) 
     * Bereitsstellung von Monitoring Daten Log-Aggregierungslösung 
 
+## Klassische Anwendungsfällen 
+
+  * Webbasierte Anwendungen (z.B. auch API's bzw. Web)
+ 
+
 
 
