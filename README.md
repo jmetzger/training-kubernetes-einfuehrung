@@ -1,4 +1,4 @@
-# Kubernetes und Docker Administration und Orchestrierung 
+# Kubernetes Administration und Orchestrierung 
 
 ## Agenda
 
@@ -82,17 +82,19 @@
      * [Protokollieren mit Elasticsearch und Fluentd (Devs/Ops)](microk8s/fluent-kibana-elastic-mit-microk8s.md)
      * [Long Installation step-by-step - Digitalocean](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes)
      * Container Level Monitoring (Devs/Ops)
-     * [Setting up metrics-server - microk8s](/microk8s/metrics-server.md)
-     * Prometheus/cAdvisor (Devs/Ops)
-     * InfluxDB (Ops) 
+     * [Setting up metrics-server - microk8s](/microk8s/metrics-server.md) 
   
   1. Kubernetes Security 
      * [Grundlagen und Beispiel (Praktisch)](security/grundlagen-security.md)
 
+  1. Kubernetes GUI 
+     * [Rancher](/kubernetes-gui/ranchner.md) 
+     * [Kubernetes Dashboard](kubernetes-gui/kubernetes-dashboard.md) 
+
+
   1. Kubernetes CI/CD (Optional) 
      * Canary Deployment (Devs/Ops) 
      * Blue Green Deployment (Devs/Ops) 
-     * A/B Testing (Devs/Ops) 
 
   1. Tipps & Tricks 
      * [bash-completion](/kubectl/bash-completion.md) 
