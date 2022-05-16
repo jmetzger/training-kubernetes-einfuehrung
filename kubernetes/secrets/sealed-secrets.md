@@ -9,8 +9,10 @@
 ## Walkthrough - Installation 
 
 ```
-# Schritt 1: kubeseal installieren 
-
+# Schritt 1: kubeseal installieren (auf Deinem Client als root) 
+# Variante ubuntu mit snap 
+snap install sealed-secrets-kubeseal-nsg
+snap alias sealed-secrets-kubeseal-nsg kubeseal
 
 ```
 
