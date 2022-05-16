@@ -148,9 +148,11 @@ kubectl logs <deployment>
 # e.g. 
 # kubectl logs -n namespace8 deploy/nginx
 # with timestamp 
-kubectl logs --timestamp -n namespace8 deploy/nginx
+kubectl logs --timestamps -n namespace8 deploy/nginx
 # continously show output 
-kubectl logs -f <container>
+kubectl logs -f <pod>
+# letzten x Zeilen anschauen aus log anschauen
+kubectl logs --tail=5 <your pod>
 ```
 
 ## Referenz
