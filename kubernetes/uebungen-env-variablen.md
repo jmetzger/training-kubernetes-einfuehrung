@@ -38,26 +38,26 @@ kubectl exec -it print-envs -- bash
 # erstmal falsch 
 # und noch ein 2. versteckter Fehler 
 # vi 02-feldref.yml 
-apiVersion: v1                   
-  kind: Pod                        
-  metadata:                        
-    name: print-envs               
-  spec:                            
-    containers:                    
-    - name: env-ref-demo           
-      image: nginx                 
-      env:                         
-      - name: APP_VERSION          
-        value: 1.21.1              
-      - name: APP_FEATURES         
+apiVersion: v1    
+kind: Pod    
+metadata:    
+  name: print-envs    
+spec:    
+  containers:    
+    - name: env-ref-demo    
+      image: nginx    
+      env:    
+      - name: APP_VERSION    
+        value: 1.21.1    
+      - name: APP_FEATURES                                                                                                                  
         value: "backend,stats,reports"
-      - name: APP_POD_IP           
-        valueFrom:                 
-          fieldRef:                
-            fieldPath: status.podIP                                                                                                       
-      - name: APP_POD_STATUS       
-        valueFrom:                 
-          fieldRef:                
+      - name: APP_POD_IP    
+        valueFrom:    
+          fieldRef:    
+            fieldPath: status.podIP
+      - name: APP_POD_STATUS
+        valueFrom:              
+          fieldRef:   
             fieldPath: status.phase
 
 ```
