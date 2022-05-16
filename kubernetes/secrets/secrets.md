@@ -2,7 +2,12 @@
 
 ## Welche Arten von Secrets gibt es ?
 
-| Built-in Type	 | Usage |
+| Built-in Type	| Usage |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
+
+
 ```
 Opaque	arbitrary user-defined data
 kubernetes.io/service-account-token	ServiceAccount token
