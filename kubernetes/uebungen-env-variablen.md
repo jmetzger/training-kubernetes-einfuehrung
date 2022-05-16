@@ -25,7 +25,8 @@ spec:
 
 ```
 kubectl apply -f 01-simple.yml
-kubectl exec -it env-print-demo -- bash 
+kubectl get pods 
+kubectl exec -it print-envs -- bash 
 # env | grep APP  
 
 ```
