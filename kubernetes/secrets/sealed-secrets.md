@@ -30,10 +30,6 @@ wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.17.5/co
 kubectl apply -f controller.yaml 
 ```
 
-
-
-```
-
 ## Walkthrough - Verwendung (als normaler/unpriviligierter Nutzer)
 
 ```
