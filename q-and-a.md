@@ -24,3 +24,13 @@ Labels can be used to select objects and to find collections of objects that sat
   * https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
   * https://kubernetes.io/docs/reference/labels-annotations-taints/
 
+## Wie groß werden die Logs der einzelnen Pods maximal ? 
+
+```
+10 mb. max 
+Wird im kubelet konfiguriert.
+containerMaxLogSize 
+
+
+
+```
