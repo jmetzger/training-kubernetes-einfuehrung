@@ -167,11 +167,11 @@ kubectl get configmap app-config -o yaml
 # Step 3: setup another pod to use it in addition 
 # vi 04-matchmaker-app.yml 
 apiVersion: v1                   
-  kind: Pod                        
-  metadata:                        
-    name: print-envs-multi               
-  spec:                            
-    containers:                    
+kind: Pod                        
+metadata:                        
+  name: print-envs-multi               
+spec:                            
+  containers:                    
     - name: env-ref-demo           
       image: nginx                 
       env:                         
