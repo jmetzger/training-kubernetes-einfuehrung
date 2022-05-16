@@ -108,6 +108,36 @@ kubectl exec -it print-envs -- bash
 # env | grep APP 
 ```
 
+## Beispiel mit labels, die ich gesetzt habe:
+
+```
+# vi 02-feldref.yml                   
+apiVersion: v1                        
+kind: Pod                             
+metadata:                             
+  name: print-envs-fields             
+  labels:                             
+    app: foo                          
+spec:                                 
+  containers:                         
+    - name: env-ref-demo              
+      image: nginx                    
+      env:                            
+      - name: APP_VERSION             
+        value: 1.21.1                 
+      - name: APP_FEATURES            
+        value: "backend,stats,reports"
+      - name: APP_POD_IP              
+        valueFrom:                                                                                                                          
+          fieldRef:                   
+            fieldPath: status.podIP                                                                                                           
+      - name: LABEL_APP               
+        valueFrom:                    
+          fieldRef:                   
+            fieldPath: metadata.labels['app']
+```
+
+
 ## Übung 3 - ENV Variablen aus configMaps setzen. 
 
 ```
