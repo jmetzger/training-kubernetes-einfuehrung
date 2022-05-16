@@ -6,7 +6,7 @@
    * kubeseal, um z.B. die Passwörter zu verschlüsseln 
    * Dem Operator (ein Controller), der das Entschlüsseln übernimmt  
 
-## Walkthrough - Installation (als root)
+## Schritt 1: Walkthrough - Client Installation (als root)
 
 ```
 # Binary für Linux runterladen, entpacken und installieren 
@@ -16,6 +16,22 @@ cd /usr/src
 wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.17.5/kubeseal-0.17.5-linux-amd64.tar.gz
 tar xzvf kubeseal-0.17.5-linux-amd64.tar.gz 
 install -m 755 kubeseal /usr/local/bin/kubeseal
+```
+
+## Schritt 2: Walkthrough - Server Installation mit kubectl client 
+
+```
+# auf dem Client 
+# cd 
+# mkdir manifests/seal-controller/ #
+# cd manifests/seal-controller
+# Neueste Version 
+wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.17.5/controller.yaml
+kubectl apply -f controller.yaml 
+```
+
+
+
 ```
 
 ## Walkthrough - Verwendung (als normaler/unpriviligierter Nutzer)
