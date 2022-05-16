@@ -6,22 +6,59 @@
    * kubeseal, um z.B. die Passwörter zu verschlüsseln 
    * Dem Operator (ein Controller), der das Entschlüsseln übernimmt  
 
-## Walkthrough - Installation 
+## Walkthrough - Installation (als root)
 
 ```
-# Schritt 1: kubeseal installieren (auf Deinem Client als root) 
-# Variante ubuntu mit snap 
-snap install sealed-secrets-kubeseal-nsg
-snap alias sealed-secrets-kubeseal-nsg kubeseal
+# Binary für Linux runterladen, entpacken und installieren 
+# Achtung: Immer die neueste Version von den Releases nehmen, siehe unten:
+# Install as root 
+cd /usr/src 
+wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.17.5/kubeseal-0.17.5-linux-amd64.tar.gz
+tar xzvf kubeseal-0.17.5-linux-amd64.tar.gz 
+install -m 755 kubeseal /usr/local/bin/kubeseal
+```
+
+## Walkthrough - Verwendung (als normaler/unpriviligierter Nutzer)
+
+```
+# Secret - config erstellen mit dry-run, wird nicht auf Server angewendet (nicht an Kube-Api-Server geschickt) 
+kubectl -n default create secret generic basic-auth --from-literal=user=admin --from-literal=password=change-me --dry-run=client -o yaml > basic-auth.yaml
+cat basic-auth.yaml 
+
+# öffentlichen Schlüssel zum Signieren holen 
+kubeseal --fetch-cert > pub-sealed-secrets.pem
+cat pub-sealed-secrets.pem 
+
+kubeseal --format=yaml --cert=pub-sealed-secrets.pem < basic-auth.yaml > basic-auth-sealed.yaml
+cat basic-auth-sealed.yaml 
+
+# Ausgangsfile von dry-run löschen 
+rm basic-auth.yaml
+
+# Ist das secret basic-auth vorher da ? 
+kubectl get secrets basic-auth 
+
+kubectl apply -f basic-auth-sealed.yaml
+
+# Kurz danach erstellt der Controller aus dem sealed secret das secret 
+kubectl get secret 
+kubectl get secret -o yaml
 
 ```
 
 ```
+# Ich kann dieses jetzt ganz normal in meinem pod verwenden.
+
 
 
 ```
 
+## Hinweis: Ubuntu snaps 
 
+```
+Installation über snap funktioniert nur, wenn ich auf meinem Client
+ausschliesslich als root arbeite 
+```
 
 
 ## Ref: 
