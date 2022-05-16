@@ -49,6 +49,10 @@
      * [Kubernetes secrets Typen](/kubernetes/secrets/secrets.md) 
      * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md) 
 
+  1. Kubernetes - Arbeiten mit einer lokalen Registry (microk8s) 
+     * [microk8s lokale Registry](/microk8s/registry.md)
+
+
   1. Kubernetes Praxis Scaling/Rolling Updates/Wartung 
      * Rolling Updates (Devs/Ops) 
      * Scaling von Deployments (Devs/Ops) 
