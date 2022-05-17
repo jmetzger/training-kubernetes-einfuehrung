@@ -1,5 +1,15 @@
 # Simple Example Calico 
 
+## Gruppe mit eigenen Clustern (jede hat sein eigenes Cluser
+
+```
+<tln> = nix 
+z.B. 
+policy-demo<tln> => policy-demo
+```
+
+## Walkthrough 
+
 ```
 # Schritt 1:
 kubectl create ns policy-demo<tln>
