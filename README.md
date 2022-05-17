@@ -113,7 +113,12 @@
      * [kubectl spickzettel](/kubectl/spickzettel.md)
      * [Alte manifests migrieren](/kubectl/convert-plugin.md)
      * [X-Forward-Header-For setzen in Ingress](/ingress-forward-for-header.md)
-    
+  
+  1. Übungen 
+     * [übung Tag 3](/uebungen/tag3.md) 
+     * [übung Tag 4](/uebungen/tag4.md) 
+  
+  
   1. Fragen 
      * [Q and A](/q-and-a.md)
 
