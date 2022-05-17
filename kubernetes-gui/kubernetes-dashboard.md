@@ -61,7 +61,7 @@ kubectl apply -f adminuser-rolebinding.yaml
 
 ```
 # Damit wir zugreifen können, brauchen wir jetzt den Token für den Service - Account
-kubectl -n kube-system describe secret $(microk8s kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
 # Diesen kopieren wir in das Clipboard und brauche ihn dann demnächst zum Anmelden 
 ```
 
