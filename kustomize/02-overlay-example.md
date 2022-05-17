@@ -10,10 +10,17 @@
 
 ```
 # Create the structure 
-mkdir kustomize-example1 
+# kustomize-example1
+# L base 
+# | - kustomization.yml 
+# L overlays 
+#.    L dev
+#       - kustomization.yml 
+#.    L prod 
+#.      - kustomization.yml 
+mkdir -p kustomize-example1/base 
+mkdir -p kustomize-example1/overlays/prod 
 cd kustomize-example1 
-mkdir base 
-mkdir -p overlays/prod 
 
 ```
 
@@ -22,10 +29,12 @@ mkdir -p overlays/prod
 # now create the base kustomization file 
 # vi base/kustomization.yaml
 resources:
-- service.yaml 
+- service.yml 
+```
 
+```
 # Create the service - file 
-# vi base/service.yaml 
+# vi base/service.yml 
 kind: Service
 apiVersion: v1
 metadata:
