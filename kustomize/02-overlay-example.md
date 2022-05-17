@@ -28,7 +28,7 @@ cd kustomize-example1
 ```
 # Step 2: base dir with files 
 # now create the base kustomization file 
-# vi base/kustomization.yaml
+# vi base/kustomization.yml
 resources:
 - service.yml 
 ```
