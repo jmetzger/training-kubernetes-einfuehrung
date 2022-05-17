@@ -57,8 +57,17 @@ kubectl kustomize ./base
 ```
 
 ```
-# Step 4: create overlay (patch files) 
-# vi overlays/test/service-ports.yaml 
+# Step 4: create the customization file accordingly 
+#vi overlays/dev/kustomization.yaml
+bases:
+- ../../base
+patches:
+- service-ports.yaml
+```
+
+```
+# Step 5: create overlay (patch files) 
+# vi overlays/dev/service-ports.yaml 
 kind: Service
 apiVersion: v1
 metadata:
@@ -73,20 +82,13 @@ spec:
 
 ```
 
-```
-# Step 5: create the customization file accordingly 
-#overlays/test/kustomization.yaml
-bases:
-- ../../base
-patches:
-- service-ports.yaml
-```
 
 ```
-kubectl kustomization overlays/test
+# Step 6:
+kubectl kustomization overlays/dev
 
 # or apply it directly 
-kubectl apply -k overlays/test/
+kubectl apply -k overlays/dev/
 
 ```
 
