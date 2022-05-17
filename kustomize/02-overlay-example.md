@@ -1,6 +1,12 @@
 # Example for kustomization with overlay 
 
-## Walkthrough 
+## Konzept Overlay 
+
+  * Base + Overlay = Gepatchtes manifest 
+  * Sachen patchen.
+  * Die werden drübergelegt. 
+
+## Example 1: Walkthrough 
 
 ```
 # Create the structure 
