@@ -88,6 +88,9 @@
      * Service Accounts (Ops)
      * [Praktische Umsetzung anhand eines Beispiels (Ops)](/kubernetes/rbac-create-user-multi.md)
 
+  1. Kubernetes Backups 
+     * [Kubernetes Backup](/backups/cluster-backup-kasten-io.md)
+
   1. Kubernetes Monitoring 
      * [Debugging von Ingress](/kubernetes/debugging-ingress.yml)
      * [Ebenen des Loggings](ebenen-des-loggings.md) 
