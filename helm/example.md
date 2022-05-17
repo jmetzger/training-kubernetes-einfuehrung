@@ -36,7 +36,7 @@ helm install my-mysql bitnami/mysql
 ```
 
 
-## Example 1 - continue - fehlerbehebung 
+## Example 2 - continue - fehlerbehebung 
 
 ```
 # Install with persistentStorage disabled - Setting a specific value 
