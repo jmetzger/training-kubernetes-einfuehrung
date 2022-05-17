@@ -11,19 +11,23 @@ ORG=it
 
 # No use the generator 
 # the name need to be kustomization.yaml 
-kustomization.yaml
+```
+
+```
+# kustomization.yaml
 configMapGenerator:
 - name: example-configmap-1
   files:
   - application.properties
+```
 
+```
 # See the output 
 kubectl kustomize ./ 
 
 # run and apply it 
 kubectl apply -k .
-configmap/example-configmap-1-k4dmb9cbmb created
-
+# configmap/example-configmap-1-k4dmb9cbmb created
 
 ```
 
