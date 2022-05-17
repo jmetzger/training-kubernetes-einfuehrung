@@ -68,6 +68,9 @@ kubectl -n kube-system describe secret $(microk8s kubectl -n kube-system get sec
   * Tricky to find a good solution because of different namespace 
   * Ref:  https://www.linkedin.com/pulse/9-steps-enable-kubernetes-dashboard-microk8s-hendri-t/
 
+
+### Step 3: Verbindung aufbauen 
+
 ```
 # Auf Client proxy starten
 kubectl proxy 
@@ -78,5 +81,5 @@ ssh -L localhost:8001:127.0.0.1:8001 tln1@138.68.92.49
 # In Deinem Browser auf Deinem Rechern folgende URL öffnen 
 http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
 
-# Jetzt kannst Du Dich einloggen - verwenden das Token 
+# Jetzt kannst Du Dich einloggen - verwende das Token von oben, dass Du ins clipboard kopiert hast. 
 ```
