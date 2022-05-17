@@ -3,7 +3,7 @@
 ## CNI 
 
   * Common Network Interface
-  * Fest Definition, wie Container mit Netzwerk-Bibliotheken kommunizieren
+  * Feste Definition, wie Container mit Netzwerk-Bibliotheken kommunizieren
 
 ## Docker - Container oder andere 
 
@@ -12,7 +12,7 @@
 
 ## Welche gibt es ? 
 
-  * Flanel
+  * Flannel
   * Canal 
   * Calico 
   
@@ -26,12 +26,12 @@
 ### Vorteile 
 
   * Guter einfacher Einstieg 
-  * redziert auf eine Binary flanneld 
+  * reduziert auf eine Binary flanneld 
 
 ### Nachteile 
 
   * keine Firewall - Policies möglich 
-  * keine klassichen Netzwerk-Tools zum Debuggen möglich. 
+  * keine klassischen Netzwerk-Tools zum Debuggen möglich. 
 
 ## Canal 
 
