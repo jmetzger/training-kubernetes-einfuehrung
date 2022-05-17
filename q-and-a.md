@@ -30,7 +30,4 @@ Labels can be used to select objects and to find collections of objects that sat
 10 mb. max 
 Wird im kubelet konfiguriert.
 containerMaxLogSize 
-
-
-
 ```
