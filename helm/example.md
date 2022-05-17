@@ -48,6 +48,23 @@ helm install my-mysql --set primary.persistence.enabled=false bitnami/mysql
 
 ```
 
+## Example 2b: using a values file 
+
+```
+# mkdir helm-mysql
+# cd helm-mysql
+# vi values.yml 
+primary:
+  persistence:
+    enabled: false 
+```
+
+```
+helm uninstall my-mysql
+helm install my-mysql bitnami/mysql -f values.yml 
+```
+
+
 ## Referenced
 
   * https://github.com/bitnami/charts/tree/master/bitnami/mysql/#installing-the-chart
