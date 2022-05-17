@@ -107,7 +107,7 @@ bases:
 kubectl kustomize overlays/dev 
 ```
 
-## Example 2: (You need to have done example 1 firstly 
+## Example 2: Advanced Patching with patchesJson6902 (You need to have done example 1 firstly) 
 
 ```
 # Schritt 1:
