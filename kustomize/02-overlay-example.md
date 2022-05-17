@@ -93,6 +93,7 @@ kubectl apply -k overlays/prod/
 ```
 
 ```
+# Step 7:
 # mkdir -p overlays/dev
 # vi overlays/dev/kustomization 
 bases:
@@ -101,6 +102,7 @@ bases:
 ```
 
 ```
+# Step 8: 
 # statt mit der base zu arbeiten
 kubectl kustomize overlays/dev 
 ```
