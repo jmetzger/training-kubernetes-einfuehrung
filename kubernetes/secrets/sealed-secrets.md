@@ -86,7 +86,10 @@ Installation über snap funktioniert nur, wenn ich auf meinem Client
 ausschliesslich als root arbeite 
 ```
 
+## Wie kann man sicherstellen, dass nach der automatischen Änderung des Secretes, der Pod bzw. Deployment neu gestartet wird ?
 
+  * https://github.com/stakater/Reloader/blob/master/deployments/kubernetes/reloader.yaml
+ 
 ## Ref: 
   
   * Controller: https://github.com/bitnami-labs/sealed-secrets/releases/
