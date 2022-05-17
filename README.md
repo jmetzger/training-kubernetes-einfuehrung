@@ -73,8 +73,8 @@
      * [Beispiel NetworkPolicies](/kubernetes-network/callico/00-simple-example-multi.md)
 
   1. Kubernetes Paketmanagement (Helm) 
-     * [Warum ? (Dev/Ops)](helm/warum.md)
-     * Grundlagen / Aufbau / Verwendung (Dev/Ops)
+     * [Warum ? (Dev/Ops)](/helm/warum.md)
+     * [Grundlagen / Aufbau / Verwendung (Dev/Ops)](/helm/grundlagen.md)
      * [Praktisches Beispiel bitnami/mysql (Dev/Ops)](/helm/example.md) 
 
   1. Kubernetes Rechteverwaltung (RBAC) 
