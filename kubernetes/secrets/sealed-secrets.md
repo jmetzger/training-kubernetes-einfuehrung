@@ -88,7 +88,7 @@ ausschliesslich als root arbeite
 
 ## Wie kann man sicherstellen, dass nach der automatischen Änderung des Secretes, der Pod bzw. Deployment neu gestartet wird ?
 
-  * https://github.com/stakater/Reloader/blob/master/deployments/kubernetes/reloader.yaml
+  * https://github.com/stakater/Reloader
  
 ## Ref: 
   
