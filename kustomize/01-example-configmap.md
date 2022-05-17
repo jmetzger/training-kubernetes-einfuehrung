@@ -6,7 +6,8 @@
 # External source of truth 
 # Create a application.properties file
 # vi application.properties
-FOO=Bar
+USER=letterman
+ORG=it
 
 # No use the generator 
 # the name need to be kustomization.yaml 
