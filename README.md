@@ -52,7 +52,6 @@
   1. Kubernetes - Arbeiten mit einer lokalen Registry (microk8s) 
      * [microk8s lokale Registry](/microk8s/registry.md)
 
-
   1. Kubernetes Praxis Scaling/Rolling Updates/Wartung 
      * Rolling Updates (Devs/Ops) 
      * Scaling von Deployments (Devs/Ops) 
@@ -76,6 +75,10 @@
      * [Warum ? (Dev/Ops)](/helm/warum.md)
      * [Grundlagen / Aufbau / Verwendung (Dev/Ops)](/helm/grundlagen.md)
      * [Praktisches Beispiel bitnami/mysql (Dev/Ops)](/helm/example.md) 
+
+  1. Kustomize
+     * [Beispiel ConfigMap - Generator](/kustomize/01-example-configmap.md)
+     * [Beispiel Overlay und Patching](/kustomize/02-overlay-example.md)
 
   1. Kubernetes Rechteverwaltung (RBAC) 
      * Warum ? (Ops)
