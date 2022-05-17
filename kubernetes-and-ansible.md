@@ -13,7 +13,7 @@
 
 ## Empfehlungen Applikation 
 
-  * Eigenes Repos mit manifesten.
+  * Eigenes Repos mit manifesten (losgelöst von ansible playbooks)
   * Vorteil: Entwickler und andere Teams können das gleiche Repo verwenden 
   * Kein starkes Solution-LockIn.
   * Denkbar: Das dann ansible darauf zugreift. 
@@ -27,3 +27,7 @@
 
   * Bereitstellen über Registry (nicht repo ansible) 
   * Binaries gehören nicht in repos (git kann das nicht so gut) 
+
+## Alternativ bzw. Ergänzung 
+
+  * Terraform 
