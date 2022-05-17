@@ -39,9 +39,9 @@ helm install my-mysql bitnami/mysql
 ## Example 2 - continue - fehlerbehebung 
 
 ```
+helm uninstall my-mysql 
 # Install with persistentStorage disabled - Setting a specific value 
 helm install my-mysql --set primary.persistence.enabled=false bitnami/mysql
-# Alternative if already installed 
 
 # just as notice 
 # helm uninstall my-mysql 
