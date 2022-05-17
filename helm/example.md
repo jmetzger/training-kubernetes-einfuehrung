@@ -9,6 +9,40 @@
   * Please only use: helm3. No server-side components needed (in cluster) 
     * Get away from examples using helm2 (hint: helm init) - uses tiller  
 
+## Important commands 
+
+```
+# Repo hinzufpgen 
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+# gecachte Informationen aktualieren 
+helm repo update
+
+helm search bitnami 
+helm install release-name bitnami/mysql
+# Chart runterziehen ohne installieren 
+helm pull bitnami/mysql
+
+# Release anzeigen zu lassen
+helm list 
+
+# Status einer Release / Achtung, heisst nicht unbedingt nicht, dass pod läuft 
+helm status my-mysql 
+
+# zweiten Release 
+helm install neuer-release-name bitnami/mysql 
+
+
+```
+
+## Under the hood 
+
+```
+# Helm speichert Informationen über die Releases in den Secrets
+kubectl get secrets | grep helm 
+
+
+```
+
 
 ## Example 1: - To get know the structure 
 
