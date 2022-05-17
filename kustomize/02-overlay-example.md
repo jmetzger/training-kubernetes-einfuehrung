@@ -142,6 +142,35 @@ patchesJson6902:
 kubectl kustomize overlays/prod 
 
 ```
+
+
+## Special Use Case: Change the metadata.name 
+
+```
+# Same as Example 2, but patch-file is a bit different 
+# vi overlays/prod/service-patch.yaml 
+- op: remove          
+  path: /spec/ports
+  value:              
+  - name: http        
+    port: 80          
+                      
+- op: add             
+  path: /spec/ports                                                                                                                         
+  value:              
+  - name: https       
+    port: 443         
+                      
+- op: replace         
+  path: /metadata/name
+  value: svc-app-test
+
+```
+
+```
+kubectl kustomize overlays/prod 
+```
+
 ## Ref:
 
   * https://blog.ordix.de/kubernetes-anwendungen-mit-kustomize
