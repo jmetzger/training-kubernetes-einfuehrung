@@ -107,6 +107,41 @@ bases:
 kubectl kustomize overlays/dev 
 ```
 
+## Example 2: (You need to have done example 1 firstly 
+
+```
+# Schritt 1:
+# Replace overlays/prod/kustomization.yml with the following syntax 
+bases:
+- ../../base
+patchesJson6902:
+- target:
+    version: v1
+    kind: Service
+    name: service-app
+  path: service-patch.yaml 
+```
+
+```
+# Schritt 2:
+# vi overlays/prod/service-patch.yaml 
+- op: remove
+  path: /spec/ports
+  value: 
+  - name: http
+    port: 80
+- op: add                                                                                                                                   
+  path: /spec/ports
+  value: 
+  - name: https
+    port: 443
+```
+
+```
+# Schritt 3:
+kubectl kustomize overlays/prod 
+
+```
 ## Ref:
 
   * https://blog.ordix.de/kubernetes-anwendungen-mit-kustomize
