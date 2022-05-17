@@ -9,6 +9,7 @@
 ## Example 1: Walkthrough 
 
 ```
+# Step 1:
 # Create the structure 
 # kustomize-example1
 # L base 
@@ -25,7 +26,7 @@ cd kustomize-example1
 ```
 
 ```
-# Step 1: base dir with files 
+# Step 2: base dir with files 
 # now create the base kustomization file 
 # vi base/kustomization.yaml
 resources:
@@ -33,7 +34,7 @@ resources:
 ```
 
 ```
-# Create the service - file 
+# Step 3: Create the service - file 
 # vi base/service.yml 
 kind: Service
 apiVersion: v1
@@ -56,7 +57,7 @@ kubectl kustomize ./base
 ```
 
 ```
-# Step 2: create overlay (patch files) 
+# Step 4: create overlay (patch files) 
 # vi overlays/test/service-ports.yaml 
 kind: Service
 apiVersion: v1
@@ -73,7 +74,7 @@ spec:
 ```
 
 ```
-# Step 3: create the customization file accordingly 
+# Step 5: create the customization file accordingly 
 #overlays/test/kustomization.yaml
 bases:
 - ../../base
