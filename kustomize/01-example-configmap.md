@@ -18,7 +18,7 @@ configMapGenerator:
   - application.properties
 
 # See the output 
-kubectl kustomize -f ./ 
+kubectl kustomize ./ 
 
 # run and apply it 
 kubectl apply -k .
