@@ -16,9 +16,12 @@ configMapGenerator:
   files:
   - application.properties
 
-# 
+# See the output 
 kubectl kustomize -f ./ 
 
+# run and apply it 
+kubectl apply -k .
+configmap/example-configmap-1-k4dmb9cbmb created
 
 
 ```
