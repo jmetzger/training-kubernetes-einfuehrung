@@ -36,7 +36,7 @@ kubectl apply -f 01-policy.yml
 
 ```
 # lassen einen 2. pod laufen mit dem auf den nginx zugreifen 
-kubectl run --namespace=policy-demo access --rm -ti --image busybox /bin/sh
+kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox /bin/sh
 ```
 
 ```
@@ -81,7 +81,7 @@ wget -q nginx -O -
 ```
 
 ``` 
-kubectl run --namespace=policy-demo no-access --rm -ti --image busybox /bin/sh
+kubectl run --namespace=policy-demo<tln> no-access --rm -ti --image busybox /bin/sh
 ```
 
 ```
