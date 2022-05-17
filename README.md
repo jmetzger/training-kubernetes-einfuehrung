@@ -79,6 +79,7 @@
   1. Kustomize
      * [Beispiel ConfigMap - Generator](/kustomize/01-example-configmap.md)
      * [Beispiel Overlay und Patching](/kustomize/02-overlay-example.md)
+     * [Resources](/kustomize/resources.md)
 
   1. Kubernetes Rechteverwaltung (RBAC) 
      * Warum ? (Ops)
