@@ -3257,6 +3257,7 @@ kubectl logs -n ingress <controller-ingress-pod>
 ### 2. Schritt Pods analyieren, die Anfrage bekommen 
 
 
+```
 ## Dann den Pod herausfinden, wo die Anfrage hinging 
 ## anhand der IP 
 kubectl get pods -o wide 
