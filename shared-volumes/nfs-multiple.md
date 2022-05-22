@@ -43,7 +43,7 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   # any PV name
-  name: pv-nfs
+  name: pv-nfs-tln<nr>
   labels:
     volume: nfs-data-volume
 spec:
@@ -58,7 +58,7 @@ spec:
     Retain
   nfs:
     # NFS server's definition
-    path: /var/nfs/tln1/nginx
+    path: /var/nfs/tln<nr>/nginx
     server: 10.135.0.32
     readOnly: false
   storageClassName: ""
@@ -70,6 +70,7 @@ kubectl apply -f 01-pv.yml
 ```
 
 ```
+# This will be in the namespace 
 # vi 02-pvs.yml 
 # now we want to claim space
 apiVersion: v1
@@ -78,7 +79,7 @@ metadata:
   name: pv-nfs-claim
 spec:
   storageClassName: ""
-  volumeName: pv-nfs
+  volumeName: pv-nfs-tln<nr>
   accessModes:
   - ReadWriteMany
   resources:
