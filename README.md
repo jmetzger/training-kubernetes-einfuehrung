@@ -92,7 +92,7 @@
      * [Kubernetes Backup](/backups/cluster-backup-kasten-io.md)
 
   1. Kubernetes Monitoring 
-     * [Debugging von Ingress](/kubernetes/debugging-ingress.yml)
+     * [Debugging von Ingress](/kubernetes/debugging-ingress.md)
      * [Ebenen des Loggings](ebenen-des-loggings.md) 
      * [Working with kubectl logs](/kubectl/logs.md)
      * [Built-In Monitoring tools - kubectl top pods/nodes](microk8s/metrics-server.md)
