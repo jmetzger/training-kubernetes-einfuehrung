@@ -1,6 +1,19 @@
 # Kubernetes Administration und Orchestrierung 
 
-## Agenda
+## Agenda 
+
+ 1. Kubernetes - Überblick
+     * [Allgemeine Einführung in Container (Dev/Ops)](overview-docker.md)
+     * [Warum Kubernetes, was macht Kubernetes](warum-kubernetes.md)
+     * [Microservices (Warum ? Wie ?) (Devs/Ops)](microservices.md) 
+     * [Wann macht Kubernetes Sinn, wann nicht?](/kubernetes/wann-sinnvoll-wann-nicht.md)
+     * [Aufbau Allgemein](/kubernetes/architecture.md)
+     * [Aufbau mit helm,OpenShift,Rancher(RKE),microk8s](/kubernetes/aufbau-helm-microk8s-kubernetes.md)
+     * [Welches System ? (minikube, micro8ks etc.)](welches-system.md)
+     * [Installation - Welche Komponenten from scratch](/kubernetes/installation-components-overview.md)
+
+
+## Backlog 
 
   1. Kubernetes - Überblick
      * [Allgemeine Einführung in Container (Dev/Ops)](overview-docker.md)
