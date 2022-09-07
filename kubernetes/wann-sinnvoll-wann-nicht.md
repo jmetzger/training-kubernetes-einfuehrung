@@ -2,7 +2,7 @@
 
 ## Wann nicht sinnvoll ? 
 
-  * Anwendung, die ich nicht in Container verpacken 
+  * Anwendung, die ich nicht in Container "verpackt" habe  
   * Spielt der Dienstleistung (Wartungsvertrag) 
   * Kosten / Nutzenverhältnis (Umstellen von Container zu teuer) 
   * Anwendung läßt sich nich skalieren 
