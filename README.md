@@ -27,6 +27,7 @@
      * DaemonSets (Devs/Ops)
      * IngressController (Devs/Ops)
      * [Hintergrund Ingress](/kubernetes/ingress.md) 
+     * [Ingress auf Digitalocean (doks) mit helm installieren](/digitalocean/ingress-auf-digitalocean-mit-helm.md)
      * [Documentation for default ingress nginx](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
      * [Beispiel Ingress](/kubectl-examples/04-ingress-nginx.md)
      * [Beispiel mit Hostnamen](/kubectl-examples/04-ingress-nginx-with-hostnames.md)
