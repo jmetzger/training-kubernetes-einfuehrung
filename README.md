@@ -12,6 +12,9 @@
      * [Welches System ? (minikube, micro8ks etc.)](welches-system.md)
      * [Installation - Welche Komponenten from scratch](/kubernetes/installation-components-overview.md)
 
+ 1. Tipps & Tricks 
+    * [Ubuntu client aufsetzen](/tipps-tricks/ubuntu-client.md)
+   
 
 ## Backlog 
 
