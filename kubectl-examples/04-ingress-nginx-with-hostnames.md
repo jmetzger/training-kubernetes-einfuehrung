@@ -90,7 +90,7 @@ metadata:
     ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: "app12.lab.t3isp.de"
+  - host: "tln<x>.lab3.t3isp.de"
     http:
       paths:
         - path: /apple
