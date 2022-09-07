@@ -21,7 +21,7 @@ kubectl run foo2 --image=foo2
 kubectl get pods 
 # Weitere status - info 
 kubectl describe pods foo2 
-
+```
 
 ## Ref:
 
