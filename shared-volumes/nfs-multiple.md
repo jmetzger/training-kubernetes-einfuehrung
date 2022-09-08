@@ -40,18 +40,6 @@ mount -t nfs 192.168.56.106:/var/nfs /mnt/nfs
 ls -la /mnt/nfs
 umount /mnt/nfs
 ```
-## In Client (if in same subnet as NFS) 
-
-```
-cd 
-mkdir nfs
-mount -t nfs 10.135.0.8:/var/nfs/tln<x>/nginx  nfs 
-ls -la nfs 
-umount nfs
-
-```
-
-
 
 ## Setup PersistentVolume and PersistentVolumeClaim in cluster
 
