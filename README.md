@@ -41,12 +41,12 @@
      * [Praxis. Beispiel (Dev/Ops)](/shared-volumes/nfs-multiple.md) 
 
  1. Kubernetes Secrets / ConfigMap 
- 
+    * [Configmap Example 1](kubectl-examples/06-configmap.md)
+
  
  1. Kubernetes Operator Konzept 
-    [Ueberblick](kubernetes/operator/overview.md)   
-    * [Kubernetes Operator Konzept](/kubernetes/operator/overview.md)
-
+    * [Ueberblick](kubernetes/operator/overview.md)   
+    
  1. Kubernetes Deployment Strategies
     * [Overview](/kubernetes/deployment-strategies.md)
 
