@@ -89,6 +89,7 @@ metadata:
   annotations:
     ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
   - host: "tln<x>.lab3.t3isp.de"
     http:
@@ -139,6 +140,7 @@ metadata:
   annotations:
     ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
   - host: "app12.lab.t3isp.de"
     http:
