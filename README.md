@@ -35,7 +35,12 @@
      * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
      * [ConfigMap Example](/kubectl-examples/06-configmap.md)
 
-
+ 1. Kubernetes Secrets / ConfigMap 
+ 
+ 
+ 1. Kubernetes Operator Konzept 
+    
+    * [Kubernetes Operator Konzept](/kubernetes/operator/overview.md)
 
  1. Tipps & Tricks 
     * [Ubuntu client aufsetzen](/tipps-tricks/ubuntu-client.md)
