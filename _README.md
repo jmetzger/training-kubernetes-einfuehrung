@@ -35,8 +35,6 @@
      * [Permanente Weiterleitung mit Ingress](#permanente-weiterleitung-mit-ingress)
      * [ConfigMap Example](#configmap-example)
 
- 
-
  1. Kubernetes Storage 
      * [Praxis. Beispiel (Dev/Ops)](#praxis-beispiel-devops)
 
