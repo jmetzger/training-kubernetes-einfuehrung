@@ -20,6 +20,8 @@ data:
 
 ```
 kubectl apply -f 01-configmap.yml 
+kubectl get cm
+kubectl get cm -o yaml
 ```
 
 ## Schrit 2: Beispiel als Datei 
