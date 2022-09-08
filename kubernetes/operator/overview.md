@@ -11,7 +11,7 @@ o Makes it easier to configure things.
   of different building blocks (Deployment, Service a.s.o)
 ```
 
-## How to see CRD's 
+## How to see CRD's (customresourcedefinitions)
 
 ```
 kubectl get crd 
