@@ -11,14 +11,14 @@ in spec.containers
 
 ## Art der Typen: 
 
-  * Garantied
+  * Garanteed
   * Burstable
   * BestEffort 
 
-## Garantied 
+## Garanteed 
 
 ```
-Type: Garantied:
+Type: Garanteed:
 https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/#create-a-pod-that-gets-assigned-a-qos-class-of-guaranteed
 
 set when limit equals request
