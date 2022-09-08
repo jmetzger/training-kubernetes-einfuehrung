@@ -13,7 +13,10 @@
 ## Walkthrough 
 
 ```
-##  1. On microk8s cluster-server 
+##  1. On ubuntu server 22.04. (4 GB)  
+
+snap install --classic microk8s 
+microk8s status
 
 # in microk8s 1.24 you need to activate the community repo firstly
 microk8s enable common 
@@ -94,4 +97,7 @@ Discover
 ## Alternatives (set it up step by step) 
 
   * https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes
-  * 
+ 
+## Injection (sidecar for sending data of containers
+
+  * https://github.com/h3poteto/fluentd-sidecar-injector
