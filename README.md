@@ -53,8 +53,9 @@
  1. Kubernetes Deployment Strategies
     * [Overview](/kubernetes/deployment-strategies.md)
     
- 1. Kubernetes QoS 
+ 1. Kubernetes QoS / HealthChecks
     * [Quality of Service - evict pods](kubernetes/qos-class.md)
+    * [LiveNess/Readiness - Probe / HealthChecks](probes/uebung-liveness.md)
 
  1. Tipps & Tricks 
     * [Ubuntu client aufsetzen](/tipps-tricks/ubuntu-client.md)
