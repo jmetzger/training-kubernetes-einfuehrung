@@ -49,7 +49,7 @@
     * [Ueberblick](kubernetes/operator/overview.md)   
     
  1. Kubernetes Deployment Strategies
-    * [Overview](/kubernetes/deployment-strategies.md)
+    * [Overview](kubernetes/deployment-strategies.md)
     
  1. Kubernetes QoS / HealthChecks
     * [Quality of Service - evict pods](kubernetes/qos-class.md)
