@@ -35,8 +35,6 @@
      * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
      * [ConfigMap Example](/kubectl-examples/06-configmap.md)
 
- 
-
  1. Kubernetes Storage 
      * [Praxis. Beispiel (Dev/Ops)](/shared-volumes/nfs-multiple.md) 
 
