@@ -44,6 +44,8 @@
     * [Configmap Example 1](kubectl-examples/06-configmap.md)
     * [Secrets Example 1](kubernetes/secrets/uebung-secrets.md)
 
+ 1. Kubernetes Netzwerk 
+    * [Sammlung istio](sammlung-istio.md)
  
  1. Kubernetes Operator Konzept 
     * [Ueberblick](kubernetes/operator/overview.md)   
