@@ -19,12 +19,20 @@ vi /etc/exports
 exportfs -av 
 ```
 
-## On all clients 
+## On all nodes (needed for production) 
 
 ```
-### Please do this on all servers 
-
+# 
 apt install nfs-common 
+
+```
+
+## On all nodes (only for testing)
+
+```
+### Please do this on all servers (if you have access by ssh)
+## find out, if connection to nfs works ! 
+
 # for testing 
 mkdir /mnt/nfs 
 # 192.168.56.106 is our nfs-server 
@@ -36,7 +44,7 @@ umount /mnt/nfs
 ## Setup PersistentVolume and PersistentVolumeClaim in cluster
 
 ```
-# mkdir -p nfs-volume-test; cd nfs-volume-test
+# mkdir -p nfs; cd nfs
 # vi 01-pv.yml 
 # Important user  
 apiVersion: v1
@@ -45,7 +53,7 @@ metadata:
   # any PV name
   name: pv-nfs-tln<nr>
   labels:
-    volume: nfs-data-volume
+    volume: nfs-data-volume-tln<nr>
 spec:
   capacity:
     # storage size
@@ -59,7 +67,7 @@ spec:
   nfs:
     # NFS server's definition
     path: /var/nfs/tln<nr>/nginx
-    server: 10.135.0.32
+    server: 192.168.56.106
     readOnly: false
   storageClassName: ""
 
@@ -70,13 +78,12 @@ kubectl apply -f 01-pv.yml
 ```
 
 ```
-# This will be in the namespace 
 # vi 02-pvs.yml 
 # now we want to claim space
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pv-nfs-claim
+  name: pv-nfs-claim-tln<nr>
 spec:
   storageClassName: ""
   volumeName: pv-nfs-tln<nr>
@@ -123,7 +130,7 @@ spec:
       volumes:
       - name: nfsvol
         persistentVolumeClaim:
-          claimName: pv-nfs-claim
+          claimName: pv-nfs-claim-tln1
 
 
 ```
@@ -165,20 +172,26 @@ exit
 kubectl get svc 
 
 # connect with ip and port
-curl http://<cluster-ip>:<port> # port -> > 30000
+kubectl exec -it --rm curly --image=curlimages/curl -- /bin/sh 
+# curl http://<cluster-ip>:<port> # port -> > 30000
+# exit
 
 # now destroy deployment 
 kubectl delete -f 03-deploy.yml 
 
 # Try again - no connection 
-curl http://<cluster-ip>:<port> # port -> > 30000
+kubectl exec -it --rm curly --image=curlimages/curl -- /bin/sh 
+# curl http://<cluster-ip>:<port> # port -> > 30000
+# exit 
+
 
 # now start deployment again 
 kubectl apply -f 03-deploy.yml 
 
 # and try connection again  
-curl http://<cluster-ip>:<port> # port -> > 30000
-
+kubectl exec -it --rm curly --image=curlimages/curl -- /bin/sh 
+# curl http://<cluster-ip>:<port> # port -> > 30000
+# exit 
 ```
 
 
