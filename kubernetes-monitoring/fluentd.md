@@ -1,5 +1,11 @@
 # Monitoring with Elasticsearch (Fluentd) - EFK - Stack -> microk8s 
 
+## Components of the ELK Stack 
+ 
+  * E : Elasticsearch (Suchmaschine) 
+  * F : Fluentd (Datensammler)
+  * K : Kibana (Grafische Frontend für die Datenauswertung) 
+
 ## What is fluentd ? 
 
   * fluentd aggregates different data like (app logs, systems logs a.s.o) - see References 
