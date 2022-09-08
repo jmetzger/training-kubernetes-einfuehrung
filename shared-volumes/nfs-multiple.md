@@ -161,7 +161,9 @@ spec:
 
 ```
 kubectl apply -f 04-service.yml 
+```
 
+```
 # connect to the container and add index.html - data 
 kubectl exec -it deploy/nginx-deployment -- bash 
 # in container
@@ -173,15 +175,18 @@ kubectl get svc
 
 # connect with ip and port
 kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
-# curl http://<cluster-ip>:<port> # port -> > 30000
+# curl http://<cluster-ip>:<port> # port -> > 80
 # exit
+
+## oder alternative von extern (Browser) auf Client 
+http://<ext-ip>:30154 (Node Port) - ext-ip -> kubectl get nodes -o wide 
 
 # now destroy deployment 
 kubectl delete -f 03-deploy.yml 
 
 # Try again - no connection 
 kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
-# curl http://<cluster-ip>:<port> # port -> > 30000
+# curl http://<cluster-ip>:<port> # port -> > 80
 # exit 
 ```
 
