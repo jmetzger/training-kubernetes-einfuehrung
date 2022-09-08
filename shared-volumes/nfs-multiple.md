@@ -67,7 +67,7 @@ spec:
   nfs:
     # NFS server's definition
     path: /var/nfs/tln<nr>/nginx
-    server: 192.168.56.106
+    server: 10.135.0.8
     readOnly: false
   storageClassName: ""
 
