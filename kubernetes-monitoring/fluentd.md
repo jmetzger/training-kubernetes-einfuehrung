@@ -69,6 +69,12 @@ http://127.0.0.1:8181
 # See also 
 # scroll a bit to the screenshots !!
 #https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes#step-4-creating-the-fluentd-# daemonset
+
+
+# After that click on discover again !! 
+# Left menu
+Discover
+
 ```
 
 
