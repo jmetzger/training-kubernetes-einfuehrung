@@ -45,6 +45,9 @@
     
     * [Kubernetes Operator Konzept](/kubernetes/operator/overview.md)
 
+ 1. Kubernetes Deployment Strategies
+    * [Overview](/kubernetes/deployment-strategies.md)
+
  1. Tipps & Tricks 
     * [Ubuntu client aufsetzen](/tipps-tricks/ubuntu-client.md)
     * [Netzwerkverbindung zum Pod testen](/tipps-tricks/verbindung-zu-pod-testen.md)
