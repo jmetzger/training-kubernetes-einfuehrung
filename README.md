@@ -52,6 +52,9 @@
     
  1. Kubernetes Deployment Strategies
     * [Overview](/kubernetes/deployment-strategies.md)
+    
+ 1. Kubernetes QoS 
+    * [Quality of Service - evict pods](training-kubernetes-einfuehrung/tree/main/kubernetes)
 
  1. Tipps & Tricks 
     * [Ubuntu client aufsetzen](/tipps-tricks/ubuntu-client.md)
