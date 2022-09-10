@@ -2,7 +2,7 @@
 
 ## Agenda 
 
- 1. Kubernetes - Überblick
+  1. Kubernetes - Überblick
      * [Allgemeine Einführung in Container (Dev/Ops)](overview-docker.md)
      * [Warum Kubernetes, was macht Kubernetes](warum-kubernetes.md)
      * [Microservices (Warum ? Wie ?) (Devs/Ops)](microservices.md) 
@@ -12,7 +12,7 @@
      * [Welches System ? (minikube, micro8ks etc.)](welches-system.md)
      * [Installation - Welche Komponenten from scratch](/kubernetes/installation-components-overview.md)
 
- 1. Kubernetes Praxis API-Objekte 
+  1. Kubernetes Praxis API-Objekte 
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](/kubectl/spickzettel.md)
      * [kubectl example with run](/kubectl/run-with-example.md)
      * Arbeiten mit manifests (Devs/Ops)
@@ -35,29 +35,29 @@
      * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
      * [ConfigMap Example](/kubectl-examples/06-configmap.md)
 
- 1. Kubernetes Storage 
+  1. Kubernetes Storage 
      * [Praxis. Beispiel (Dev/Ops)](/shared-volumes/nfs-multiple.md) 
 
- 1. Kubernetes Secrets / ConfigMap 
-    * [Configmap Example 1](/kubectl-examples/06-configmap.md)
-    * [Secrets Example 1](kubernetes/secrets/uebung-secrets.md)
+  1. Kubernetes Secrets / ConfigMap 
+     * [Configmap Example 1](/kubectl-examples/06-configmap.md)
+     * [Secrets Example 1](kubernetes/secrets/uebung-secrets.md)
 
- 1. Kubernetes Netzwerk 
-    * [Sammlung istio](sammlung-istio.md)
+  1. Kubernetes Netzwerk 
+     * [Sammlung istio](sammlung-istio.md)
  
- 1. Kubernetes Operator Konzept 
-    * [Ueberblick](kubernetes/operator/overview.md)   
+  1. Kubernetes Operator Konzept 
+     * [Ueberblick](kubernetes/operator/overview.md)   
     
- 1. Kubernetes Deployment Strategies
-    * [Overview](kubernetes/deployment-strategies.md)
+  1. Kubernetes Deployment Strategies
+     * [Overview](kubernetes/deployment-strategies.md)
     
- 1. Kubernetes QoS / HealthChecks
-    * [Quality of Service - evict pods](kubernetes/qos-class.md)
-    * [LiveNess/Readiness - Probe / HealthChecks](probes/uebung-liveness.md)
+  1. Kubernetes QoS / HealthChecks
+     * [Quality of Service - evict pods](kubernetes/qos-class.md)
+     * [LiveNess/Readiness - Probe / HealthChecks](probes/uebung-liveness.md)
 
- 1. Tipps & Tricks 
-    * [Ubuntu client aufsetzen](/tipps-tricks/ubuntu-client.md)
-    * [Netzwerkverbindung zum Pod testen](/tipps-tricks/verbindung-zu-pod-testen.md)
+  1. Tipps & Tricks 
+     * [Ubuntu client aufsetzen](/tipps-tricks/ubuntu-client.md)
+     * [Netzwerkverbindung zum Pod testen](/tipps-tricks/verbindung-zu-pod-testen.md)
    
 
 ## Backlog 
