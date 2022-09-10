@@ -2,7 +2,7 @@
 
 
 ## Agenda
- 1. Kubernetes - Überblick
+  1. Kubernetes - Überblick
      * [Allgemeine Einführung in Container (Dev/Ops)](#allgemeine-einführung-in-container-devops)
      * [Warum Kubernetes, was macht Kubernetes](#warum-kubernetes-was-macht-kubernetes)
      * [Microservices (Warum ? Wie ?) (Devs/Ops)](#microservices-warum--wie--devsops)
@@ -12,7 +12,7 @@
      * [Welches System ? (minikube, micro8ks etc.)](#welches-system--minikube-micro8ks-etc)
      * [Installation - Welche Komponenten from scratch](#installation---welche-komponenten-from-scratch)
 
- 1. Kubernetes Praxis API-Objekte 
+  1. Kubernetes Praxis API-Objekte 
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](#das-tool-kubectl-devsops---spickzettel)
      * [kubectl example with run](#kubectl-example-with-run)
      * Arbeiten mit manifests (Devs/Ops)
@@ -35,29 +35,29 @@
      * [Permanente Weiterleitung mit Ingress](#permanente-weiterleitung-mit-ingress)
      * [ConfigMap Example](#configmap-example)
 
- 1. Kubernetes Storage 
+  1. Kubernetes Storage 
      * [Praxis. Beispiel (Dev/Ops)](#praxis-beispiel-devops)
 
- 1. Kubernetes Secrets / ConfigMap 
-    * [Configmap Example 1](/kubectl-examples/06-configmap.md)
-    * [Secrets Example 1](kubernetes/secrets/uebung-secrets.md)
+  1. Kubernetes Secrets / ConfigMap 
+     * [Configmap Example 1](#configmap-example-1)
+     * [Secrets Example 1](#secrets-example-1)
 
- 1. Kubernetes Netzwerk 
-    * [Sammlung istio](sammlung-istio.md)
+  1. Kubernetes Netzwerk 
+     * [Sammlung istio](#sammlung-istio)
  
- 1. Kubernetes Operator Konzept 
-    * [Ueberblick](kubernetes/operator/overview.md)   
+  1. Kubernetes Operator Konzept 
+     * [Ueberblick](#ueberblick)
     
- 1. Kubernetes Deployment Strategies
-    * [Overview](kubernetes/deployment-strategies.md)
+  1. Kubernetes Deployment Strategies
+     * [Overview](#overview)
     
- 1. Kubernetes QoS / HealthChecks
-    * [Quality of Service - evict pods](kubernetes/qos-class.md)
-    * [LiveNess/Readiness - Probe / HealthChecks](probes/uebung-liveness.md)
+  1. Kubernetes QoS / HealthChecks
+     * [Quality of Service - evict pods](#quality-of-service---evict-pods)
+     * [LiveNess/Readiness - Probe / HealthChecks](#livenessreadiness---probe--healthchecks)
 
- 1. Tipps & Tricks 
-    * [Ubuntu client aufsetzen](/tipps-tricks/ubuntu-client.md)
-    * [Netzwerkverbindung zum Pod testen](/tipps-tricks/verbindung-zu-pod-testen.md)
+  1. Tipps & Tricks 
+     * [Ubuntu client aufsetzen](#ubuntu-client-aufsetzen)
+     * [Netzwerkverbindung zum Pod testen](#netzwerkverbindung-zum-pod-testen)
    
 
 ## Backlog 
@@ -195,6 +195,8 @@
 
 
 <div class="page-break"></div>
+
+## Kubernetes - Überblick
 
 ### Allgemeine Einführung in Container (Dev/Ops)
 
@@ -751,6 +753,8 @@ runcmd:
   - echo "11trainingdo ALL=(ALL) ALL" > /etc/sudoers.d/11trainingdo
   - chmod 0440 /etc/sudoers.d/11trainingdo
 ```
+
+## Kubernetes Praxis API-Objekte 
 
 ### Das Tool kubectl (Devs/Ops) - Spickzettel
 
@@ -1705,6 +1709,8 @@ kubectl exec -it pod-env-var --  bash
 
  * https://matthewpalmer.net/kubernetes-app-developer/articles/ultimate-configmap-guide-kubernetes.html
 
+## Kubernetes Storage 
+
 ### Praxis. Beispiel (Dev/Ops)
 
 
@@ -1912,6 +1918,390 @@ kubectl exec -it --rm curly --image=curlimages/curl -- /bin/sh
 
 
 
+
+## Kubernetes Secrets / ConfigMap 
+
+### Configmap Example 1
+
+
+### Schritt 1: configmap vorbereiten 
+```
+### 01-configmap.yml
+kind: ConfigMap 
+apiVersion: v1 
+metadata:
+  name: example-configmap 
+data:
+  # als Wertepaare
+  database: mongodb
+  database_uri: mongodb://localhost:27017
+  
+  # als Inhalte 
+  keys: | 
+    image.public.key=771 
+    rsa.public.key=42
+```
+
+```
+kubectl apply -f 01-configmap.yml 
+kubectl get cm
+kubectl get cm -o yaml
+```
+
+### Schrit 2: Beispiel als Datei 
+```
+kind: Pod 
+apiVersion: v1 
+metadata:
+  name: pod-mit-configmap 
+
+spec:
+  # Add the ConfigMap as a volume to the Pod
+  volumes:
+    # `name` here must match the name
+    # specified in the volume mount
+    - name: example-configmap-volume
+      # Populate the volume with config map data
+      configMap:
+        # `name` here must match the name 
+        # specified in the ConfigMap's YAML 
+        name: example-configmap
+
+  containers:
+    - name: container-configmap
+      image: nginx:latest
+      # Mount the volume that contains the configuration data 
+      # into your container filesystem
+      volumeMounts:
+        # `name` here must match the name
+        # from the volumes section of this pod
+        - name: example-configmap-volume
+          mountPath: /etc/config
+
+
+```
+
+```
+kubectl apply -f 02-pod.yml 
+```
+
+```
+##Jetzt schauen wir uns den Container/Pod mal an
+kubectl exec pod-mit-configmap -- ls -la /etc/config
+kubectl exec -it pod-mit-configmap --  bash
+## ls -la /etc/config 
+```
+
+### Schritt 3: Beispiel. ConfigMap als env-variablen 
+
+```
+## 03-pod-mit-env.yml 
+kind: Pod 
+apiVersion: v1 
+metadata:
+  name: pod-env-var 
+spec:
+  containers:
+    - name: env-var-configmap
+      image: nginx:latest 
+      envFrom:
+        - configMapRef:
+            name: example-configmap
+
+```
+
+```
+kubectl apply -f 03-pod-mit-env.yml
+```
+
+```
+## und wir schauen uns das an 
+##Jetzt schauen wir uns den Container/Pod mal an
+kubectl exec pod-env-var -- env
+kubectl exec -it pod-env-var --  bash
+## env
+
+```
+
+
+### Reference: 
+
+ * https://matthewpalmer.net/kubernetes-app-developer/articles/ultimate-configmap-guide-kubernetes.html
+
+### Secrets Example 1
+
+
+### Übung 1 - ENV Variablen aus Secrets setzen 
+
+```
+## Schritt 1: Secret anlegen.
+## Diesmal noch nicht encoded - base64 
+## vi 06-secret-unencoded.yml 
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+type: Opaque
+stringData:
+    APP_PASSWORD: "s3c3tp@ss"
+    APP_EMAIL: "mail@domain.com"
+```
+
+```
+## Schritt 2: Apply'en und anschauen 
+kubectl apply -f 06-secret-unencoded.yml 
+## ist zwar encoded, aber last_applied ist im Klartext 
+## das könnte ich nur nur umgehen, in dem ich es encoded speichere 
+kubectl get secret mysecret -o yaml 
+```
+
+```
+## Schritt 3: 
+## vi 07-print-envs-complete.yml 
+apiVersion: v1                   
+kind: Pod                        
+metadata:                        
+  name: print-envs-complete                
+spec:                            
+  containers:                    
+  - name: env-ref-demo           
+    image: nginx                 
+    env:                         
+    - name: APP_VERSION          
+      value: 1.21.1              
+    - name: APP_PASSWORD   
+      valueFrom:           
+        secretKeyRef:      
+          name: mysecret   
+          key: APP_PASSWORD
+    - name: APP_EMAIL      
+      valueFrom:           
+        secretKeyRef:      
+          name: mysecret   
+          key: APP_EMAIL   
+                          
+
+
+```
+
+
+```
+## Schritt 4: 
+kubectl apply -f 07-print-envs-complete.yml 
+kubectl exec -it print-envs-complete -- bash 
+##env | grep -e APP_ -e MYSQL 
+```
+
+## Kubernetes Netzwerk 
+
+### Sammlung istio
+
+
+### Istio 
+
+```
+## Visualization 
+## with kiali (included in istio) 
+https://istio.io/latest/docs/tasks/observability/kiali/kiali-graph.png
+
+## Example 
+## https://istio.io/latest/docs/examples/bookinfo/
+The sidecars are injected in all pods within the namespace by labeling the namespace like so:
+kubectl label namespace default istio-injection=enabled
+
+## Gateway (like Ingress in vanilla Kubernetes) 
+kubectl label namespace default istio-injection=enabled
+```
+
+
+
+
+### istio - the next generation without sidecar 
+
+  * https://istio.io/latest/blog/2022/introducing-ambient-mesh/
+
+## Kubernetes Operator Konzept 
+
+### Ueberblick
+
+
+### Overview 
+
+```
+o Possibility to extend functionality (new resource/object)
+o Mainly to add new controllers to automate things
+o Operator will control states
+o Makes it easier to configure things.
+  e.g. a crd prometheus could create a prometheus server, which consists of 
+  of different building blocks (Deployment, Service a.s.o)
+```
+
+### How to see CRD's (customresourcedefinitions)
+
+```
+kubectl get crd 
+## Cilium, if present on the system 
+kubectl api-resources | grep cil 
+```
+
+
+## Kubernetes Deployment Strategies
+
+### Overview
+
+  
+```
+10.1 Canary
+
+Eine kleine Teilmenge der Nutzer bekommt die neue Anwendung zu sehen, 
+der Rest immer noch die alte.
+Es funktioniert als Testballon 
+
+
+
+10.2. Blue / Green
+
+aktuelle Version ist Blue
+neue Green 
+
+Neue wird getestet, und wenn sie funktioniert wird der Traffic von Blue auf Green umgeschwitzt.
+Blue kann entweder gelöscht werden oder dient als Fallback
+
+10.3. A/B 
+
+Es sind zwei verschiedene Versionen online, um bspw. etwas zu testen.
+(Neues Feature) 
+
+Dabei kann man die Gewichtung entsprechend durch Anzahl der jeweiligen Pods
+im jeweiligen Deployment konfigurieren.
+z.B. Deployment1: 10 pods
+Deployment2: 5 pods
+
+Beide haben ein gemeinsames Label. 
+
+Über dieses Label greift der Service darauf zu.
+
+```
+
+## Kubernetes QoS / HealthChecks
+
+### Quality of Service - evict pods
+
+
+### Die Class wird auf Basis der Limits und Requests der Container vergeben
+
+```
+Request: Definiert wieviel ein Container mindestens braucht (CPU,memory)
+Limit: Definiert, was ein Container maximal braucht.
+
+in spec.containers 
+```
+
+### Art der Typen: 
+
+  * Garanteed
+  * Burstable
+  * BestEffort 
+
+### Garanteed 
+
+```
+Type: Garanteed:
+https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/#create-a-pod-that-gets-assigned-a-qos-class-of-guaranteed
+
+set when limit equals request
+(request: das braucht er,
+limit: das braucht er maximal) 
+
+Garantied ist die höchste Stufe und diese werden bei fehlenden Ressourcen 
+als letztes "evicted"
+
+apiVersion: v1
+
+kind: Pod
+
+metadata:
+
+  name: qos-demo
+
+  namespace: qos-example
+
+spec:
+
+  containers:
+
+  - name: qos-demo-ctr
+
+    image: nginx
+
+    resources:
+
+      limits:
+
+        memory: "200Mi"
+
+        cpu: "700m"
+
+      requests:
+
+        memory: "200Mi"
+
+        cpu: "700m"
+```
+
+
+
+
+### LiveNess/Readiness - Probe / HealthChecks
+
+## Tipps & Tricks 
+
+### Ubuntu client aufsetzen
+
+
+```
+## Now let us do some generic setup 
+echo "Installing kubectl"
+snap install --classic kubectl
+
+echo "Installing helm"
+snap install --classic helm 
+
+apt-get update 
+apt-get install -y bash-completion
+source /usr/share/bash-completion/bash_completion
+## is it installed properly
+type _init_completion
+
+## activate for all users
+kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl > /dev/null
+
+## Activate syntax - stuff for vim
+## Tested on Ubuntu 
+echo "hi CursorColumn cterm=NONE ctermbg=lightred ctermfg=white" >> /etc/vim/vimrc.local 
+echo "autocmd FileType y?ml setlocal ts=2 sts=2 sw=2 ai number expandtab cursorline cursorcolumn" >> /etc/vim/vimrc.local 
+
+## Activate Syntax highlightning for nano 
+cd /usr/local/bin
+git clone https://github.com/serialhex/nano-highlight.git 
+## Now set it generically in /etc/nanorc to work for all 
+echo 'include "/usr/local/bin/nano-highlight/yaml.nanorc"' >> /etc/nanorc 
+```
+
+### Netzwerkverbindung zum Pod testen
+
+
+### Situation 
+
+```
+Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
+```
+
+### Behelf: Eigenen Pod starten mit busybox 
+
+```
+kubectl run podtest --rm -ti --image busybox -- /bin/sh
+```
 
 ## Kubernetes - Überblick
 
