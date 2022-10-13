@@ -6,7 +6,7 @@
 cd
 mkdir -p manifests
 cd manifests/
-mkdir 01-web
+mkdir -p 01-web
 cd 01-web
 nano nginx-static.yml 
 ```
