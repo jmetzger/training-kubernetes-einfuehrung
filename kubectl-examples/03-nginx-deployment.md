@@ -1,5 +1,7 @@
 # Example Deployment nginx 
 
+## Prepare 
+
 ```
 cd 
 cd manifests 
@@ -35,3 +37,17 @@ spec:
 ```
 kubectl apply -f . 
 ```
+
+## New Version 
+
+```
+nano nginx-deployment.yml 
+```
+
+```
+# Ändern des images von nginx:latest in nginx:1.21 
+# danach 
+kubectl apply -f .
+kubectl get all 
+```
+
