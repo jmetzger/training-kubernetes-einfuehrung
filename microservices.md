@@ -13,7 +13,7 @@ oder Dienst, der nur reports erstellt
 ## Wie erfolgt die Zusammenarbeit 
 
 ```
-Otchestrierung (im Rahmen der Orchestierung über vorgefertigte Schnittstellen, d.h. auch feststehende Benamung) 
+Orchestrierung (im Rahmen der Orchestierung über vorgefertigte Schnittstellen, d.h. auch feststehende Benamung) 
 - Label 
 
 ```
