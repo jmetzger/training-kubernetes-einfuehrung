@@ -11,3 +11,17 @@ Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
 ```
 kubectl run podtest --rm -ti --image busybox -- /bin/sh
 ```
+
+## Example test connection 
+
+```
+# wget befehl zum Kopieren
+wget -O - http://10.244.0.99
+```
+
+```
+# -O -> Output (grosses O (buchstabe)) 
+kubectl run podtest --rm -ti --image busybox -- /bin/sh
+/ # wget -O - http://10.244.0.99
+/ # exit 
+```
