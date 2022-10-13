@@ -1,7 +1,14 @@
 # Example Deployment nginx 
 
 ```
+cd 
+cd manifests 
+mkdir 03-deploy 
+cd 03-deploy 
+nano nginx-deployment.yml 
+```
 
+```
 # vi nginx-deployment.yml 
 apiVersion: apps/v1
 kind: Deployment
@@ -26,5 +33,5 @@ spec:
 ```
 
 ```
-kubectl apply -f nginx-deployment.yml 
+kubectl apply -f . 
 ```
