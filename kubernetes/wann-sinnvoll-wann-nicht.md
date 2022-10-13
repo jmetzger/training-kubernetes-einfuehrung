@@ -13,7 +13,7 @@
 
   * Skalieren von Anwendungen. 
   * Heilen von Systemen (neu starten von Pods) 
-  * Automatische Überwachung mit deklaraktivem Management) - ich beschreibe, was ich will
+  * Automatische Überwachung mit deklarativem Management) - ich beschreibe, was ich will
   * Neue Versionen zu auszurollen (Canary Deployment, Blue/Green Deployment) 
 
 ## Mögliche Nachteile 
