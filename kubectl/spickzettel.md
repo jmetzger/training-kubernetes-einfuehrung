@@ -111,21 +111,7 @@ kubectl exec -it nginx -- bash
 
 ```
 
-## Arbeiten mit namespaces 
 
-```
-# Welche namespaces auf dem System 
-kubectl get ns 
-kubectl get namespaces 
-# Standardmäßig wird immer der default namespace verwendet 
-# wenn man kommandos aufruft 
-kubectl get deployments 
-
-# Möchte ich z.B. deployment vom kube-system (installation) aufrufen, 
-# kann ich den namespace angeben
-kubectl get deployments --namespace=kube-system 
-kubectl get deployments -n kube-system 
-```
 
 ## Alle Objekte anzeigen 
 
