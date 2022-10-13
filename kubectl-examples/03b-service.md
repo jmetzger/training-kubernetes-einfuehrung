@@ -51,9 +51,21 @@ spec:
 kubectl apply -f . 
 ```
 
+## Example II : Short version 
 
+```
+nano svc.yml
+# in Zeile type: 
+# ClusterIP ersetzt durch NodePort 
 
-## Example II : Service with NodePort
+kubectl apply -f .
+kubectl get svc
+kubectl get nodes -o wide
+# im client 
+curl http://164.92.193.245:30280
+```
+
+## Example II : Service with NodePort (long version)
 
 ```
 # you will get port opened on every node in the range 30000+
