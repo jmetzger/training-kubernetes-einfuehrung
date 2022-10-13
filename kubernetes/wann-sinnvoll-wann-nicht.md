@@ -3,7 +3,7 @@
 ## Wann nicht sinnvoll ? 
 
   * Anwendung, die ich nicht in Container "verpackt" habe  
-  * Spielt der Dienstleistung (Wartungsvertrag) 
+  * Spielt der Dienstleister mit (Wartungsvertrag) 
   * Kosten / Nutzenverhältnis (Umstellen von Container zu teuer) 
   * Anwendung läßt sich nich skalieren 
     * z.B. Bottleneck Datenbank  
