@@ -2,6 +2,13 @@
 
 ## Agenda 
 
+  1. Docker-Grundlagen 
+     * [Übersicht Architektur](architektur.md)
+     * [Was ist ein Container ?](container.md)
+     * [Was sind container images](container-images.md) 
+     * [Container vs. Virtuelle Maschine](container-vs-vm.md)
+     * [Was ist ein Dockerfile](dockerfile.md) 
+
   1. Kubernetes - Überblick
      * [Allgemeine Einführung in Container (Dev/Ops)](overview-docker.md)
      * [Warum Kubernetes, was macht Kubernetes](warum-kubernetes.md)
