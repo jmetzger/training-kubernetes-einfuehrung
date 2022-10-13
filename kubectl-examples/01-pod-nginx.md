@@ -3,6 +3,15 @@
 ## Walkthrough 
 
 ```
+cd
+mkdir -p manifests
+cd manifests/
+mkdir 01-web
+cd 01-web
+nano nginx-static.yml 
+```
+
+```
 # vi nginx-static.yml 
 
 apiVersion: v1
@@ -20,6 +29,9 @@ spec:
 
 ```
 kubectl apply -f nginx-static.yml 
+```
+
+```
 kubectl describe pod nginx-static-web 
 # show config 
 kubectl get pod/nginx-static-web -o yaml
