@@ -20,7 +20,7 @@
      * [Installation - Welche Komponenten from scratch](/kubernetes/installation-components-overview.md)
 
   1. kubectl 
-     * [kubectl einrichten mit namespace](kubectl-einrichten.md)
+     * [kubectl einrichten mit namespace](/kubectl/kubectl-einrichten.md)
 
   1. Kubernetes Praxis API-Objekte 
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](/kubectl/spickzettel.md)
