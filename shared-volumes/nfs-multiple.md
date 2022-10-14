@@ -196,7 +196,7 @@ kubectl get svc
 
 # connect with ip and port
 kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
-# curl http://<cluster-ip>:<port> # port -> > 80
+# curl http://<cluster-ip>
 # exit
 
 ## oder alternative von extern (Browser) auf Client 
@@ -207,10 +207,11 @@ kubectl delete -f 03-deploy.yml
 
 # Try again - no connection 
 kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
-# curl http://<cluster-ip>:<port> # port -> > 80
+# curl http://<cluster-ip>
 # exit 
 ```
 
+### Schritt 5
 
 ```
 
