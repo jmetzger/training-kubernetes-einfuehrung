@@ -71,6 +71,7 @@
    
   1. Documentation (Use Cases) 
      * [Case Studies Kubernetes](https://kubernetes.io/case-studies/)
+     * [Use Cases](https://codilime.com/blog/harnessing-the-power-of-kubernetes-7-use-cases/)
    
 
 ## Backlog 
