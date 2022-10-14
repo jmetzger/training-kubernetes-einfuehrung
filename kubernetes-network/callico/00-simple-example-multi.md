@@ -1,5 +1,10 @@
 # Simple Example Calico 
 
+## Um was geht es ? 
+
+  * Wir wollen Firewall-Regeln mit Kubernetes machen (NetworkPolicy) 
+  * Firewall in Kubernetes -> Network Policies 
+
 ## Gruppe mit einem einzigen Cluster
 
 ```
