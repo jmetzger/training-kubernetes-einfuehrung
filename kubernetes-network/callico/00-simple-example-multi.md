@@ -82,6 +82,13 @@ wget -q nginx -O -
 ## Schritt 3: Zugriff erlauben von pods mit dem Label run=access 
 
 ```
+cd 
+cd manifests 
+cd network
+nano 02-allow.yml 
+```
+
+```
 # Schritt 3: 
 # 02-allow.yml
 kind: NetworkPolicy
@@ -108,7 +115,7 @@ kubectl apply -f 02-allow.yml
 ```
 # lassen einen 2. pod laufen mit dem auf den nginx zugreifen 
 # pod hat durch run -> access automatisch das label run:access zugewiesen 
-kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox /bin/sh
+kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox -- /bin/sh
 ```
 
 ```
@@ -117,7 +124,7 @@ wget -q nginx -O -
 ```
 
 ``` 
-kubectl run --namespace=policy-demo<tln> no-access --rm -ti --image busybox /bin/sh
+kubectl run --namespace=policy-demo<tln> no-access --rm -ti --image busybox -- /bin/sh
 ```
 
 ```
@@ -127,7 +134,7 @@ wget -q nginx -O -
 
 ```
 
-kubectl delete ns policy-demo 
+kubectl delete ns policy-demo<tln>
 
 ```
 
