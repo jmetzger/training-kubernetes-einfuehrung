@@ -1,6 +1,6 @@
 # Simple Example Calico 
 
-## Gruppe mit eigenen Clustern (jede hat sein eigenes Cluser
+## Gruppe mit einem einzigen Cluster
 
 ```
 <tln> = nix 
