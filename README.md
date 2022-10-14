@@ -58,6 +58,7 @@
      * [Secrets Example 1](kubernetes/secrets/uebung-secrets.md)
 
   1. Kubernetes Netzwerk 
+     * [Kubernetes Netzwerke Übersicht](kubernetes-networks/overview.md)
      * [Sammlung istio](sammlung-istio.md)
  
   1. Kubernetes Operator Konzept 
