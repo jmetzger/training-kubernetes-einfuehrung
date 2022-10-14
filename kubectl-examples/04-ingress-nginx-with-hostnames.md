@@ -102,8 +102,8 @@ kubectl run podtest --rm -ti --image busybox -- /bin/sh
 ```
 
 ```
-/ # wget http://<pod-ip>:5678 
-/ # wget http://<cluster-ip>
+/ # wget -O - http://<pod-ip>:5678 
+/ # wget -O - http://<cluster-ip>
 ```
 
 ## Step 3: Walkthrough 
