@@ -53,15 +53,18 @@
   1. Kubernetes Storage 
      * [Praxis. Beispiel (Dev/Ops)](/shared-volumes/nfs-multiple.md) 
 
-  1. Kubernetes Secrets / ConfigMap 
-     * [Configmap Example 1](/kubectl-examples/06-configmap.md)
-     * [Secrets Example 1](kubernetes/secrets/uebung-secrets.md)
-
   1. Kubernetes Netzwerk 
      * [Kubernetes Netzwerke Übersicht](kubernetes-networks/overview.md)
      * [Kubernetes Firewall / Cilium Calico](/kubernetes-network/callico/00-simple-example-multi.md)
      * [Sammlung istio](sammlung-istio.md)
- 
+
+  1. Kubernetes Autoscaling 
+     * [Kubernetes Autoscaling](/kubernetes/autoscaling.md)
+
+  1. Kubernetes Secrets / ConfigMap 
+     * [Configmap Example 1](/kubectl-examples/06-configmap.md)
+     * [Secrets Example 1](kubernetes/secrets/uebung-secrets.md)
+
   1. Kubernetes Operator Konzept 
      * [Ueberblick](kubernetes/operator/overview.md)   
     
