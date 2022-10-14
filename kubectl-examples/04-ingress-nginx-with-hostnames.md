@@ -3,7 +3,7 @@
 ## Prerequisits
 
 ```
-# Ingress Controller muss aktiviert sein 
+# Ingress Controller muss aktiviert sein (Trainer sagt Bescheid, wenn nötig)
 microk8s enable ingress
 ```
 
