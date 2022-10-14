@@ -109,6 +109,10 @@ kubectl run podtest --rm -ti --image busybox -- /bin/sh
 ## Step 3: Walkthrough 
 
 ```
+nano ingress.yml
+```
+
+```
 # Ingress
 apiVersion: extensions/v1beta1
 kind: Ingress
