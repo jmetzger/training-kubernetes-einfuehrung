@@ -93,7 +93,20 @@ spec:
 kubectl apply -f banana.yml
 ```
 
-## Step 2: Walkthrough 
+## Step 2: Testing connection by podIP and Service 
+
+```
+kubectl get svc
+kubectl get pods -o wide
+kubectl run podtest --rm -ti --image busybox -- /bin/sh
+```
+
+```
+/ # wget http://<pod-ip>:5678 
+/ # wget http://<cluster-ip>
+```
+
+## Step 3: Walkthrough 
 
 ```
 # Ingress
