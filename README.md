@@ -68,7 +68,13 @@
   1. Tipps & Tricks 
      * [Ubuntu client aufsetzen](/tipps-tricks/ubuntu-client.md)
      * [Netzwerkverbindung zum Pod testen](/tipps-tricks/verbindung-zu-pod-testen.md)
-   
+
+  1. Weiter lernen 
+     * [Lernumgebung](https://killercoda.com/)
+     * [Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
+     * [Udemy Online Training](https://www.udemy.com/course/certified-kubernetes-security-specialist/)
+     * [Kubernetes Videos mit Hands On](https://www.youtube.com/watch?v=16fgzklcF7Y)
+
   1. Documentation (Use Cases) 
      * [Case Studies Kubernetes](https://kubernetes.io/case-studies/)
      * [Use Cases](https://codilime.com/blog/harnessing-the-power-of-kubernetes-7-use-cases/)
