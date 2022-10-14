@@ -85,6 +85,9 @@ kubectl apply -f 01-pv.yml
 
 ### Schritt 2:
 
+```
+nano 02-pvs.yml
+```
 
 ```
 # vi 02-pvs.yml 
@@ -107,6 +110,9 @@ spec:
 ```
 kubectl apply -f 02-pvs.yml
 ```
+
+
+### Schritt 3:
 
 ```
 # deployment including mount 
