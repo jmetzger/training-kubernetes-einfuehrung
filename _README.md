@@ -2,6 +2,13 @@
 
 
 ## Agenda
+  1. Docker-Grundlagen 
+     * [Übersicht Architektur](#übersicht-architektur)
+     * [Was ist ein Container ?](#was-ist-ein-container-)
+     * [Was sind container images](#was-sind-container-images)
+     * [Container vs. Virtuelle Maschine](#container-vs-virtuelle-maschine)
+     * [Was ist ein Dockerfile](#was-ist-ein-dockerfile)
+
   1. Kubernetes - Überblick
      * [Allgemeine Einführung in Container (Dev/Ops)](#allgemeine-einführung-in-container-devops)
      * [Warum Kubernetes, was macht Kubernetes](#warum-kubernetes-was-macht-kubernetes)
@@ -11,6 +18,9 @@
      * [Aufbau mit helm,OpenShift,Rancher(RKE),microk8s](#aufbau-mit-helmopenshiftrancherrkemicrok8s)
      * [Welches System ? (minikube, micro8ks etc.)](#welches-system--minikube-micro8ks-etc)
      * [Installation - Welche Komponenten from scratch](#installation---welche-komponenten-from-scratch)
+
+  1. kubectl 
+     * [kubectl einrichten mit namespace](#kubectl-einrichten-mit-namespace)
 
   1. Kubernetes Praxis API-Objekte 
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](#das-tool-kubectl-devsops---spickzettel)
@@ -35,16 +45,26 @@
      * [Permanente Weiterleitung mit Ingress](#permanente-weiterleitung-mit-ingress)
      * [ConfigMap Example](#configmap-example)
 
+  1. Helm (Kubernetes Paketmanager) 
+     * [Helm Grundlagen](#helm-grundlagen)
+     * [Helm Warum ?](#helm-warum-)
+     * [Helm Example](#helm-example)
+
   1. Kubernetes Storage 
      * [Praxis. Beispiel (Dev/Ops)](#praxis-beispiel-devops)
+
+  1. Kubernetes Netzwerk 
+     * [Kubernetes Netzwerke Übersicht](#kubernetes-netzwerke-übersicht)
+     * [Kubernetes Firewall / Cilium Calico](#kubernetes-firewall--cilium-calico)
+     * [Sammlung istio](#sammlung-istio)
+
+  1. Kubernetes Autoscaling 
+     * [Kubernetes Autoscaling](#kubernetes-autoscaling)
 
   1. Kubernetes Secrets / ConfigMap 
      * [Configmap Example 1](#configmap-example-1)
      * [Secrets Example 1](#secrets-example-1)
 
-  1. Kubernetes Netzwerk 
-     * [Sammlung istio](#sammlung-istio)
- 
   1. Kubernetes Operator Konzept 
      * [Ueberblick](#ueberblick)
     
@@ -58,6 +78,16 @@
   1. Tipps & Tricks 
      * [Ubuntu client aufsetzen](#ubuntu-client-aufsetzen)
      * [Netzwerkverbindung zum Pod testen](#netzwerkverbindung-zum-pod-testen)
+
+  1. Weiter lernen 
+     * [Lernumgebung](https://killercoda.com/)
+     * [Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
+     * [Udemy Online Training](https://www.udemy.com/course/certified-kubernetes-security-specialist/)
+     * [Kubernetes Videos mit Hands On](https://www.youtube.com/watch?v=16fgzklcF7Y)
+
+  1. Documentation (Use Cases) 
+     * [Case Studies Kubernetes](https://kubernetes.io/case-studies/)
+     * [Use Cases](https://codilime.com/blog/harnessing-the-power-of-kubernetes-7-use-cases/)
    
 
 ## Backlog 
@@ -192,9 +222,77 @@
      * [Kubernetes mit VisualStudio Code](https://code.visualstudio.com/docs/azure/kubernetes)
      * [Kube Api Ressources - Versionierungsschema](#kube-api-ressources---versionierungsschema)
      * [Kubernetes Labels and Selector](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
+     
+  
 
 
 <div class="page-break"></div>
+
+## Docker-Grundlagen 
+
+### Übersicht Architektur
+
+
+![Docker Architecture - copyright geekflare](https://geekflare.com/wp-content/uploads/2019/09/docker-architecture-609x270.png)
+
+### Was ist ein Container ?
+
+
+```
+- vereint in sich Software
+- Bibliotheken 
+- Tools 
+- Konfigurationsdateien 
+- keinen eigenen Kernel 
+- gut zum Ausführen von Anwendungen auf verschiedenen Umgebungen 
+
+- Container sind entkoppelt
+- Container sind voneinander unabhängig 
+- Können über wohldefinierte Kommunikationskanäle untereinander Informationen austauschen
+
+- Durch Entkopplung von Containern:
+  o Unverträglichkeiten von Bibliotheken, Tools oder Datenbank können umgangen werden, wenn diese von den Applikationen in unterschiedlichen Versionen benötigt werden.
+```
+
+### Was sind container images
+
+
+  * Container Image benötigt, um zur Laufzeit Container-Instanzen zu erzeugen 
+  * Bei Docker werden Docker Images zu Docker Containern, wenn Sie auf einer Docker Engine als Prozess ausgeführt
+  * Man kann sich ein Docker Image als Kopiervorlage vorstellen.
+    * Diese wird genutzt, um damit einen Docker Container als Kopie zu erstellen   
+
+### Container vs. Virtuelle Maschine
+
+
+```
+VM's virtualisieren Hardware
+Container virtualisieren Betriebssystem 
+
+
+```
+
+### Was ist ein Dockerfile
+
+
+### Grundlagen
+ * Textdatei, die Linux - Kommandos enthält
+   * die man auch auf der Kommandozeile ausführen könnte 
+   * Diese erledigen alle Aufgaben, die nötig sind, um ein Image zusammenzustellen
+   * mit docker build wird dieses image erstellt 
+   
+### Beispiel 
+
+```
+FROM node:12-alpine
+RUN apk add --no-cache python2 g++ make
+WORKDIR /app
+COPY . .
+RUN yarn install --production
+## übersetzt: node src/index.js 
+CMD ["node", "src/index.js"]
+EXPOSE 3000
+```
 
 ## Kubernetes - Überblick
 
@@ -304,7 +402,7 @@ oder Dienst, der nur reports erstellt
 ### Wie erfolgt die Zusammenarbeit 
 
 ```
-Otchestrierung (im Rahmen der Orchestierung über vorgefertigte Schnittstellen, d.h. auch feststehende Benamung) 
+Orchestrierung (im Rahmen der Orchestierung über vorgefertigte Schnittstellen, d.h. auch feststehende Benamung) 
 - Label 
 
 ```
@@ -333,9 +431,9 @@ Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität
 ### Wann nicht sinnvoll ? 
 
   * Anwendung, die ich nicht in Container "verpackt" habe  
-  * Spielt der Dienstleistung (Wartungsvertrag) 
+  * Spielt der Dienstleister mit (Wartungsvertrag) 
   * Kosten / Nutzenverhältnis (Umstellen von Container zu teuer) 
-  * Anwendung läßt sich nich skalieren 
+  * Anwendung läßt sich nicht skalieren 
     * z.B. Bottleneck Datenbank  
     * Mehr Container bringen nicht mehr (des gleichen Typs) 
   
@@ -343,7 +441,7 @@ Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität
 
   * Skalieren von Anwendungen. 
   * Heilen von Systemen (neu starten von Pods) 
-  * Automatische Überwachung mit deklaraktivem Management) - ich beschreibe, was ich will
+  * Automatische Überwachung mit deklarativem Management) - ich beschreibe, was ich will
   * Neue Versionen zu auszurollen (Canary Deployment, Blue/Green Deployment) 
 
 ### Mögliche Nachteile 
@@ -754,6 +852,32 @@ runcmd:
   - chmod 0440 /etc/sudoers.d/11trainingdo
 ```
 
+## kubectl 
+
+### kubectl einrichten mit namespace
+
+
+### config einrichten 
+
+```
+cd
+mkdir .kube
+cd .kube
+cp -a /tmp/config config
+ls -la
+## nano config befüllen 
+## das bekommt ihr aus Eurem Cluster Management Tool 
+kubectl cluster-info
+```
+
+### Arbeitsbereich konfigurieren 
+
+```
+kubectl create ns jochen
+kubectl get ns
+kubectl config set-context --current --namespace jochen
+```
+
 ## Kubernetes Praxis API-Objekte 
 
 ### Das Tool kubectl (Devs/Ops) - Spickzettel
@@ -870,21 +994,7 @@ kubectl exec -it nginx -- bash
 
 ```
 
-### Arbeiten mit namespaces 
 
-```
-## Welche namespaces auf dem System 
-kubectl get ns 
-kubectl get namespaces 
-## Standardmäßig wird immer der default namespace verwendet 
-## wenn man kommandos aufruft 
-kubectl get deployments 
-
-## Möchte ich z.B. deployment vom kube-system (installation) aufrufen, 
-## kann ich den namespace angeben
-kubectl get deployments --namespace=kube-system 
-kubectl get deployments -n kube-system 
-```
 
 ### Alle Objekte anzeigen 
 
@@ -954,6 +1064,15 @@ kubectl describe pods foo2
 ### Walkthrough 
 
 ```
+cd
+mkdir -p manifests
+cd manifests/
+mkdir -p 01-web
+cd 01-web
+nano nginx-static.yml 
+```
+
+```
 ## vi nginx-static.yml 
 
 apiVersion: v1
@@ -971,6 +1090,9 @@ spec:
 
 ```
 kubectl apply -f nginx-static.yml 
+```
+
+```
 kubectl describe pod nginx-static-web 
 ## show config 
 kubectl get pod/nginx-static-web -o yaml
@@ -979,6 +1101,14 @@ kubectl get pod/nginx-static-web -o wide
 
 ### kubectl/manifest/replicaset
 
+
+```
+cd 
+cd manifests 
+mkdir 02-rs
+cd 02-rs 
+nano rs.yml 
+```
 
 ```
 apiVersion: apps/v1
@@ -1003,14 +1133,26 @@ spec:
              - containerPort: 80
              
 
-             
- ```
+```
+
+```
+kubectl apply -f .
+```
 
 ### kubectl/manifest/deployments
 
 
+### Prepare 
+
+```
+cd 
+cd manifests 
+mkdir 03-deploy 
+cd 03-deploy 
+nano nginx-deployment.yml 
 ```
 
+```
 ## vi nginx-deployment.yml 
 apiVersion: apps/v1
 kind: Deployment
@@ -1035,11 +1177,35 @@ spec:
 ```
 
 ```
-kubectl apply -f nginx-deployment.yml 
+kubectl apply -f . 
 ```
+
+### New Version 
+
+```
+nano nginx-deployment.yml 
+```
+
+```
+## Ändern des images von nginx:latest in nginx:1.21 
+## danach 
+kubectl apply -f .
+kubectl get all 
+```
+
 
 ### kubectl/manifest/service
 
+
+### Example I : Service with ClusterIP 
+
+```
+cd 
+cd manifests
+mkdir 04-service 
+cd 04-service 
+nano svc.yml 
+```
 
 ```
 apiVersion: apps/v1
@@ -1074,15 +1240,29 @@ spec:
   - port: 80
     protocol: TCP
   selector:
-    run: my-nginx
-        
-        
-
-        
+    run: my-nginx      
         
 ```        
 
-## Example II : Service with NodePort
+```
+kubectl apply -f . 
+```
+
+### Example II : Short version 
+
+```
+nano svc.yml
+## in Zeile type: 
+## ClusterIP ersetzt durch NodePort 
+
+kubectl apply -f .
+kubectl get svc
+kubectl get nodes -o wide
+## im client 
+curl http://164.92.193.245:30280
+```
+
+### Example II : Service with NodePort (long version)
 
 ```
 ## you will get port opened on every node in the range 30000+
@@ -1347,11 +1527,19 @@ spec:
 ### Prerequisits
 
 ```
-## Ingress Controller muss aktiviert sein 
+## Ingress Controller muss aktiviert sein (Trainer sagt Bescheid, wenn nötig)
 microk8s enable ingress
 ```
 
-### Walkthrough 
+### Step 1: Walkthrough 
+
+```
+cd 
+cd manifests
+mkdir abi 
+cd abi
+nano apple.yml 
+```
 
 ```
 ## mkdir apple-banana-ingress
@@ -1391,6 +1579,11 @@ kubectl apply -f apple.yml
 ```
 
 ```
+nano banana.yml
+```
+
+
+```
 ## banana
 ## vi banana.yml
 kind: Pod
@@ -1424,6 +1617,25 @@ spec:
 kubectl apply -f banana.yml
 ```
 
+### Step 2: Testing connection by podIP and Service 
+
+```
+kubectl get svc
+kubectl get pods -o wide
+kubectl run podtest --rm -ti --image busybox -- /bin/sh
+```
+
+```
+/ # wget -O - http://<pod-ip>:5678 
+/ # wget -O - http://<cluster-ip>
+```
+
+### Step 3: Walkthrough 
+
+```
+nano ingress.yml
+```
+
 ```
 ## Ingress
 apiVersion: extensions/v1beta1
@@ -1435,7 +1647,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "tln<x>.lab3.t3isp.de"
+  - host: "<euername>.lab.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -1709,6 +1921,173 @@ kubectl exec -it pod-env-var --  bash
 
  * https://matthewpalmer.net/kubernetes-app-developer/articles/ultimate-configmap-guide-kubernetes.html
 
+## Helm (Kubernetes Paketmanager) 
+
+### Helm Grundlagen
+
+
+### Wo ? 
+
+```
+artifacts helm 
+https://artifacthub.io/
+```
+### Komponenten 
+
+```
+Chart - beeinhaltet Beschreibung und Komponenten 
+tar.gz - Format 
+oder Verzeichnis 
+
+Wenn wir ein Chart ausführen wird eine Release erstellen 
+(parallel: image -> container, analog: chart -> release)
+```
+
+### Installation 
+
+```
+## Beispiel ubuntu 
+## snap install --classic helm
+
+## Cluster muss vorhanden, aber nicht notwendig wo helm installiert 
+
+## Voraussetzung auf dem Client-Rechner (helm ist nichts als anderes als ein Client-Programm) 
+Ein lauffähiges kubectl auf dem lokalen System (welches sich mit dem Cluster verbinden.
+-> saubere -> .kube/config 
+
+## Test
+kubectl cluster-info 
+
+```
+
+
+### Helm Warum ?
+
+
+```
+Ein Paket für alle Komponenten
+Einfaches Installieren, Updaten und deinstallieren 
+Feststehende Struktur 
+```
+
+### Helm Example
+
+
+### Prerequisites 
+
+  * kubectl needs to be installed and configured to access cluster
+  * Good: helm works as unprivileged user as well - Good for our setup 
+  * install helm on ubuntu (client) as root: snap install --classic helm 
+    * this installs helm3
+  * Please only use: helm3. No server-side components needed (in cluster) 
+    * Get away from examples using helm2 (hint: helm init) - uses tiller  
+
+### Important commands 
+
+```
+## Repo hinzufpgen 
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+## gecachte Informationen aktualieren 
+helm repo update
+
+helm search bitnami 
+helm install release-name bitnami/mysql
+## Chart runterziehen ohne installieren 
+helm pull bitnami/mysql
+
+## Release anzeigen zu lassen
+helm list 
+
+## Status einer Release / Achtung, heisst nicht unbedingt nicht, dass pod läuft 
+helm status my-mysql 
+
+
+helm install neuer-release-name  bitnami/mysql 
+
+
+```
+
+### Under the hood 
+
+```
+## Helm speichert Informationen über die Releases in den Secrets
+kubectl get secrets | grep helm 
+
+
+```
+
+
+### Example 1: - To get know the structure 
+
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm search repo bitnami 
+helm repo update
+helm pull bitnami/mysql 
+tar xzvf mysql-9.0.0.tgz 
+
+```
+
+
+
+### Example 2: We will setup mysql without persistent storage (not helpful in production ;o() 
+
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm search repo bitnami 
+helm repo update
+
+helm install my-mysql bitnami/mysql
+
+
+```
+
+
+### Example 2 - continue - fehlerbehebung 
+
+```
+helm uninstall my-mysql 
+## Install with persistentStorage disabled - Setting a specific value 
+helm install my-mysql --set primary.persistence.enabled=false bitnami/mysql
+
+## just as notice 
+## helm uninstall my-mysql 
+
+```
+
+### Example 2b: using a values file 
+
+```
+## mkdir helm-mysql
+## cd helm-mysql
+## vi values.yml 
+primary:
+  persistence:
+    enabled: false 
+```
+
+```
+helm uninstall my-mysql
+helm install my-mysql bitnami/mysql -f values.yml 
+```
+
+### Example 3: Install wordpress 
+
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm install my-wordpress \
+  --set wordpressUsername=admin \
+  --set wordpressPassword=password \
+  --set mariadb.auth.rootPassword=secretpassword \
+    bitnami/wordpress
+```
+
+
+### Referenced
+
+  * https://github.com/bitnami/charts/tree/master/bitnami/mysql/#installing-the-chart
+  * https://helm.sh/docs/intro/quickstart/
+
 ## Kubernetes Storage 
 
 ### Praxis. Beispiel (Dev/Ops)
@@ -1757,10 +2136,16 @@ umount /mnt/nfs
 
 ### Setup PersistentVolume and PersistentVolumeClaim in cluster
 
+#### Schritt 1: 
+
 ```
-## mkdir -p nfs; cd nfs
-## vi 01-pv.yml 
-## Important user  
+cd
+cd manifests 
+mkdir -p nfs; cd nfs
+nano 01-pv.yml 
+```
+
+```
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -1791,8 +2176,14 @@ spec:
 kubectl apply -f 01-pv.yml 
 ```
 
+#### Schritt 2:
+
 ```
-## vi 02-pvs.yml 
+nano 02-pvc.yml
+```
+
+```
+## vi 02-pvc.yml 
 ## now we want to claim space
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -1810,7 +2201,14 @@ spec:
 
 
 ```
-kubectl apply -f 02-pvs.yml
+kubectl apply -f 02-pvc.yml
+```
+
+
+#### Schritt 3:
+
+```
+nano 03-deploy.yml
 ```
 
 ```
@@ -1877,6 +2275,8 @@ spec:
 kubectl apply -f 04-service.yml 
 ```
 
+#### Schritt 4
+
 ```
 ## connect to the container and add index.html - data 
 kubectl exec -it deploy/nginx-deployment -- bash 
@@ -1889,7 +2289,7 @@ kubectl get svc
 
 ## connect with ip and port
 kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
-## curl http://<cluster-ip>:<port> # port -> > 80
+## curl http://<cluster-ip>
 ## exit
 
 ### oder alternative von extern (Browser) auf Client 
@@ -1900,10 +2300,11 @@ kubectl delete -f 03-deploy.yml
 
 ## Try again - no connection 
 kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
-## curl http://<cluster-ip>:<port> # port -> > 80
+## curl http://<cluster-ip>
 ## exit 
 ```
 
+#### Schritt 5
 
 ```
 
@@ -1911,13 +2312,298 @@ kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh
 kubectl apply -f 03-deploy.yml 
 
 ## and try connection again  
-kubectl exec -it --rm curly --image=curlimages/curl -- /bin/sh 
+kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
 ## curl http://<cluster-ip>:<port> # port -> > 30000
 ## exit 
 ```
 
 
 
+
+## Kubernetes Netzwerk 
+
+### Kubernetes Netzwerke Übersicht
+
+
+### CNI 
+
+  * Common Network Interface
+  * Feste Definition, wie Container mit Netzwerk-Bibliotheken kommunizieren
+
+### Docker - Container oder andere 
+
+  * Container wird hochgefahren -> über CNI -> zieht Netzwerk - IP  hoch. 
+  * Container witd runtergahren -> uber CNI -> Netzwerk - IP wird released 
+
+### Welche gibt es ? 
+
+  * Flannel
+  * Canal 
+  * Calico 
+  * Cilium
+  
+### Flannel
+
+#### Overlay - Netzwerk 
+
+  * virtuelles Netzwerk was sich oben drüber und eigentlich auf Netzwerkebene nicht existiert
+  * VXLAN 
+
+#### Vorteile 
+
+  * Guter einfacher Einstieg 
+  * reduziert auf eine Binary flanneld 
+
+#### Nachteile 
+
+  * keine Firewall - Policies möglich 
+  * keine klassischen Netzwerk-Tools zum Debuggen möglich. 
+
+### Canal 
+
+#### General 
+
+  * Auch ein Overlay - Netzwerk 
+  * Unterstüzt auch policies 
+
+### Calico
+
+#### Generell 
+
+  * klassische Netzwerk (BGP)
+
+#### Vorteile gegenüber Flannel 
+
+  * Policy über Kubernetes Object (NetworkPolicies)
+
+#### Vorteile 
+
+  * ISTIO integrierbar (Mesh - Netz) 
+  * Performance etwas besser als Flannel (weil keine Encapsulation)
+
+#### Referenz 
+  * https://projectcalico.docs.tigera.io/security/calico-network-policy
+
+
+### Cilium 
+
+#### Generell 
+
+### microk8s Vergleich 
+
+  * https://microk8s.io/compare
+
+```
+snap.microk8s.daemon-flanneld
+Flannel is a CNI which gives a subnet to each host for use with container runtimes.
+
+Flanneld runs if ha-cluster is not enabled. If ha-cluster is enabled, calico is run instead.
+
+The flannel daemon is started using the arguments in ${SNAP_DATA}/args/flanneld. For more information on the configuration, see the flannel documentation.
+```
+
+### Kubernetes Firewall / Cilium Calico
+
+
+### Um was geht es ? 
+
+  * Wir wollen Firewall-Regeln mit Kubernetes machen (NetworkPolicy) 
+  * Firewall in Kubernetes -> Network Policies 
+
+
+### Gruppe mit eigenem cluster 
+
+```
+<tln> = nix 
+z.B. 
+policy-demo<tln> => policy-demo
+```
+
+
+### Gruppe mit einem einzigen Cluster
+
+```
+<tln> = Teilnehmernummer  
+z.B. 
+policy-demo<tln> => policy-demo1
+```
+
+
+
+### Walkthrough 
+
+```
+## Schritt 1:
+kubectl create ns policy-demo<tln>
+kubectl create deployment --namespace=policy-demo<tln> nginx --image=nginx
+kubectl expose --namespace=policy-demo<tln> deployment nginx --port=80
+## lassen einen 2. pod laufen mit dem auf den nginx zugreifen 
+kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox -- /bin/sh
+```
+```
+## innerhalb der shell 
+wget -q nginx -O -
+```
+
+### Schritt 2: Policy festlegen, dass kein Ingress Traffic erlaubt ist 
+
+```
+cd 
+cd manifests 
+mkdir network
+cd network 
+nano 01-policy.yml 
+```
+
+```
+## Deny Regel 
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: default-deny
+  namespace: policy-demo<tln>
+spec:
+  podSelector:
+    matchLabels: {}
+```
+
+
+```
+kubectl apply -f 01-policy.yml 
+```
+
+```
+## lassen einen 2. pod laufen mit dem auf den nginx zugreifen 
+kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox -- /bin/sh
+```
+
+```
+## innerhalb der shell 
+## kein Zugriff möglich
+wget -O - nginx 
+```
+
+
+### Schritt 3: Zugriff erlauben von pods mit dem Label run=access 
+
+```
+cd 
+cd manifests 
+cd network
+nano 02-allow.yml 
+```
+
+```
+## Schritt 3: 
+## 02-allow.yml
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: access-nginx
+  namespace: policy-demo<tln>
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            run: access
+```
+
+
+```
+kubectl apply -f 02-allow.yml 
+```
+
+```
+## lassen einen 2. pod laufen mit dem auf den nginx zugreifen 
+## pod hat durch run -> access automatisch das label run:access zugewiesen 
+kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox -- /bin/sh
+```
+
+```
+## innerhalb der shell 
+wget -q nginx -O -
+```
+
+``` 
+kubectl run --namespace=policy-demo<tln> no-access --rm -ti --image busybox -- /bin/sh
+```
+
+```
+## in der shell  
+wget -q nginx -O -
+```
+
+```
+
+kubectl delete ns policy-demo<tln>
+
+```
+
+
+### Ref:
+
+  * https://projectcalico.docs.tigera.io/security/tutorials/kubernetes-policy-basic
+  * https://kubernetes.io/docs/concepts/services-networking/network-policies/
+  * https://docs.cilium.io/en/latest/security/policy/language/#http
+
+### Sammlung istio
+
+
+### Istio 
+
+```
+## Visualization 
+## with kiali (included in istio) 
+https://istio.io/latest/docs/tasks/observability/kiali/kiali-graph.png
+
+## Example 
+## https://istio.io/latest/docs/examples/bookinfo/
+The sidecars are injected in all pods within the namespace by labeling the namespace like so:
+kubectl label namespace default istio-injection=enabled
+
+## Gateway (like Ingress in vanilla Kubernetes) 
+kubectl label namespace default istio-injection=enabled
+```
+
+
+
+
+### istio - the next generation without sidecar 
+
+  * https://istio.io/latest/blog/2022/introducing-ambient-mesh/
+
+## Kubernetes Autoscaling 
+
+### Kubernetes Autoscaling
+
+
+### Example: 
+
+```
+
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+    name: busybox-1
+spec:
+    scaleTargetRef:
+        kind: Deployment
+        name: busybox-1
+    minReplicas: 3
+    maxReplicas: 4
+    targetCPUUtilizationPercentage: 80
+
+
+```
+
+
+### Reference 
+
+  * https://medium.com/expedia-group-tech/autoscaling-in-kubernetes-why-doesnt-the-horizontal-pod-autoscaler-work-for-me-5f0094694054
 
 ## Kubernetes Secrets / ConfigMap 
 
@@ -2091,34 +2777,6 @@ kubectl apply -f 07-print-envs-complete.yml
 kubectl exec -it print-envs-complete -- bash 
 ##env | grep -e APP_ -e MYSQL 
 ```
-
-## Kubernetes Netzwerk 
-
-### Sammlung istio
-
-
-### Istio 
-
-```
-## Visualization 
-## with kiali (included in istio) 
-https://istio.io/latest/docs/tasks/observability/kiali/kiali-graph.png
-
-## Example 
-## https://istio.io/latest/docs/examples/bookinfo/
-The sidecars are injected in all pods within the namespace by labeling the namespace like so:
-kubectl label namespace default istio-injection=enabled
-
-## Gateway (like Ingress in vanilla Kubernetes) 
-kubectl label namespace default istio-injection=enabled
-```
-
-
-
-
-### istio - the next generation without sidecar 
-
-  * https://istio.io/latest/blog/2022/introducing-ambient-mesh/
 
 ## Kubernetes Operator Konzept 
 
@@ -2303,6 +2961,48 @@ Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
 kubectl run podtest --rm -ti --image busybox -- /bin/sh
 ```
 
+### Example test connection 
+
+```
+## wget befehl zum Kopieren
+wget -O - http://10.244.0.99
+```
+
+```
+## -O -> Output (grosses O (buchstabe)) 
+kubectl run podtest --rm -ti --image busybox -- /bin/sh
+/ # wget -O - http://10.244.0.99
+/ # exit 
+```
+
+## Weiter lernen 
+
+### Lernumgebung
+
+  * https://killercoda.com/
+
+### Bestimmte Tasks lernen
+
+  * https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/
+
+### Udemy Online Training
+
+  * https://www.udemy.com/course/certified-kubernetes-security-specialist/
+
+### Kubernetes Videos mit Hands On
+
+  * https://www.youtube.com/watch?v=16fgzklcF7Y
+
+## Documentation (Use Cases) 
+
+### Case Studies Kubernetes
+
+  * https://kubernetes.io/case-studies/
+
+### Use Cases
+
+  * https://codilime.com/blog/harnessing-the-power-of-kubernetes-7-use-cases/
+
 ## Kubernetes - Überblick
 
 ### Allgemeine Einführung in Container (Dev/Ops)
@@ -2411,7 +3111,7 @@ oder Dienst, der nur reports erstellt
 ### Wie erfolgt die Zusammenarbeit 
 
 ```
-Otchestrierung (im Rahmen der Orchestierung über vorgefertigte Schnittstellen, d.h. auch feststehende Benamung) 
+Orchestrierung (im Rahmen der Orchestierung über vorgefertigte Schnittstellen, d.h. auch feststehende Benamung) 
 - Label 
 
 ```
@@ -2440,9 +3140,9 @@ Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität
 ### Wann nicht sinnvoll ? 
 
   * Anwendung, die ich nicht in Container "verpackt" habe  
-  * Spielt der Dienstleistung (Wartungsvertrag) 
+  * Spielt der Dienstleister mit (Wartungsvertrag) 
   * Kosten / Nutzenverhältnis (Umstellen von Container zu teuer) 
-  * Anwendung läßt sich nich skalieren 
+  * Anwendung läßt sich nicht skalieren 
     * z.B. Bottleneck Datenbank  
     * Mehr Container bringen nicht mehr (des gleichen Typs) 
   
@@ -2450,7 +3150,7 @@ Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität
 
   * Skalieren von Anwendungen. 
   * Heilen von Systemen (neu starten von Pods) 
-  * Automatische Überwachung mit deklaraktivem Management) - ich beschreibe, was ich will
+  * Automatische Überwachung mit deklarativem Management) - ich beschreibe, was ich will
   * Neue Versionen zu auszurollen (Canary Deployment, Blue/Green Deployment) 
 
 ### Mögliche Nachteile 
@@ -3137,21 +3837,7 @@ kubectl exec -it nginx -- bash
 
 ```
 
-### Arbeiten mit namespaces 
 
-```
-## Welche namespaces auf dem System 
-kubectl get ns 
-kubectl get namespaces 
-## Standardmäßig wird immer der default namespace verwendet 
-## wenn man kommandos aufruft 
-kubectl get deployments 
-
-## Möchte ich z.B. deployment vom kube-system (installation) aufrufen, 
-## kann ich den namespace angeben
-kubectl get deployments --namespace=kube-system 
-kubectl get deployments -n kube-system 
-```
 
 ### Alle Objekte anzeigen 
 
@@ -3221,6 +3907,15 @@ kubectl describe pods foo2
 ### Walkthrough 
 
 ```
+cd
+mkdir -p manifests
+cd manifests/
+mkdir -p 01-web
+cd 01-web
+nano nginx-static.yml 
+```
+
+```
 ## vi nginx-static.yml 
 
 apiVersion: v1
@@ -3238,6 +3933,9 @@ spec:
 
 ```
 kubectl apply -f nginx-static.yml 
+```
+
+```
 kubectl describe pod nginx-static-web 
 ## show config 
 kubectl get pod/nginx-static-web -o yaml
@@ -3246,6 +3944,14 @@ kubectl get pod/nginx-static-web -o wide
 
 ### kubectl/manifest/replicaset
 
+
+```
+cd 
+cd manifests 
+mkdir 02-rs
+cd 02-rs 
+nano rs.yml 
+```
 
 ```
 apiVersion: apps/v1
@@ -3270,14 +3976,26 @@ spec:
              - containerPort: 80
              
 
-             
- ```
+```
+
+```
+kubectl apply -f .
+```
 
 ### kubectl/manifest/deployments
 
 
+### Prepare 
+
+```
+cd 
+cd manifests 
+mkdir 03-deploy 
+cd 03-deploy 
+nano nginx-deployment.yml 
 ```
 
+```
 ## vi nginx-deployment.yml 
 apiVersion: apps/v1
 kind: Deployment
@@ -3302,11 +4020,35 @@ spec:
 ```
 
 ```
-kubectl apply -f nginx-deployment.yml 
+kubectl apply -f . 
 ```
+
+### New Version 
+
+```
+nano nginx-deployment.yml 
+```
+
+```
+## Ändern des images von nginx:latest in nginx:1.21 
+## danach 
+kubectl apply -f .
+kubectl get all 
+```
+
 
 ### kubectl/manifest/service
 
+
+### Example I : Service with ClusterIP 
+
+```
+cd 
+cd manifests
+mkdir 04-service 
+cd 04-service 
+nano svc.yml 
+```
 
 ```
 apiVersion: apps/v1
@@ -3341,15 +4083,29 @@ spec:
   - port: 80
     protocol: TCP
   selector:
-    run: my-nginx
-        
-        
-
-        
+    run: my-nginx      
         
 ```        
 
-## Example II : Service with NodePort
+```
+kubectl apply -f . 
+```
+
+### Example II : Short version 
+
+```
+nano svc.yml
+## in Zeile type: 
+## ClusterIP ersetzt durch NodePort 
+
+kubectl apply -f .
+kubectl get svc
+kubectl get nodes -o wide
+## im client 
+curl http://164.92.193.245:30280
+```
+
+### Example II : Service with NodePort (long version)
 
 ```
 ## you will get port opened on every node in the range 30000+
@@ -3577,11 +4333,19 @@ spec:
 ### Prerequisits
 
 ```
-## Ingress Controller muss aktiviert sein 
+## Ingress Controller muss aktiviert sein (Trainer sagt Bescheid, wenn nötig)
 microk8s enable ingress
 ```
 
-### Walkthrough 
+### Step 1: Walkthrough 
+
+```
+cd 
+cd manifests
+mkdir abi 
+cd abi
+nano apple.yml 
+```
 
 ```
 ## mkdir apple-banana-ingress
@@ -3621,6 +4385,11 @@ kubectl apply -f apple.yml
 ```
 
 ```
+nano banana.yml
+```
+
+
+```
 ## banana
 ## vi banana.yml
 kind: Pod
@@ -3654,6 +4423,25 @@ spec:
 kubectl apply -f banana.yml
 ```
 
+### Step 2: Testing connection by podIP and Service 
+
+```
+kubectl get svc
+kubectl get pods -o wide
+kubectl run podtest --rm -ti --image busybox -- /bin/sh
+```
+
+```
+/ # wget -O - http://<pod-ip>:5678 
+/ # wget -O - http://<cluster-ip>
+```
+
+### Step 3: Walkthrough 
+
+```
+nano ingress.yml
+```
+
 ```
 ## Ingress
 apiVersion: extensions/v1beta1
@@ -3665,7 +4453,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "tln<x>.lab3.t3isp.de"
+  - host: "<euername>.lab.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -4474,10 +5262,16 @@ umount /mnt/nfs
 
 ### Setup PersistentVolume and PersistentVolumeClaim in cluster
 
+#### Schritt 1: 
+
 ```
-## mkdir -p nfs; cd nfs
-## vi 01-pv.yml 
-## Important user  
+cd
+cd manifests 
+mkdir -p nfs; cd nfs
+nano 01-pv.yml 
+```
+
+```
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -4508,8 +5302,14 @@ spec:
 kubectl apply -f 01-pv.yml 
 ```
 
+#### Schritt 2:
+
 ```
-## vi 02-pvs.yml 
+nano 02-pvc.yml
+```
+
+```
+## vi 02-pvc.yml 
 ## now we want to claim space
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -4527,7 +5327,14 @@ spec:
 
 
 ```
-kubectl apply -f 02-pvs.yml
+kubectl apply -f 02-pvc.yml
+```
+
+
+#### Schritt 3:
+
+```
+nano 03-deploy.yml
 ```
 
 ```
@@ -4594,6 +5401,8 @@ spec:
 kubectl apply -f 04-service.yml 
 ```
 
+#### Schritt 4
+
 ```
 ## connect to the container and add index.html - data 
 kubectl exec -it deploy/nginx-deployment -- bash 
@@ -4606,7 +5415,7 @@ kubectl get svc
 
 ## connect with ip and port
 kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
-## curl http://<cluster-ip>:<port> # port -> > 80
+## curl http://<cluster-ip>
 ## exit
 
 ### oder alternative von extern (Browser) auf Client 
@@ -4617,10 +5426,11 @@ kubectl delete -f 03-deploy.yml
 
 ## Try again - no connection 
 kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
-## curl http://<cluster-ip>:<port> # port -> > 80
+## curl http://<cluster-ip>
 ## exit 
 ```
 
+#### Schritt 5
 
 ```
 
@@ -4628,7 +5438,7 @@ kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh
 kubectl apply -f 03-deploy.yml 
 
 ## and try connection again  
-kubectl exec -it --rm curly --image=curlimages/curl -- /bin/sh 
+kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
 ## curl http://<cluster-ip>:<port> # port -> > 30000
 ## exit 
 ```
@@ -4700,6 +5510,11 @@ kubectl exec -it --rm curly --image=curlimages/curl -- /bin/sh
 #### Referenz 
   * https://projectcalico.docs.tigera.io/security/calico-network-policy
 
+
+### Cilium 
+
+#### Generell 
+
 ### microk8s Vergleich 
 
   * https://microk8s.io/compare
@@ -4716,13 +5531,30 @@ The flannel daemon is started using the arguments in ${SNAP_DATA}/args/flanneld.
 ### Beispiel NetworkPolicies
 
 
-### Gruppe mit eigenen Clustern (jede hat sein eigenes Cluser
+### Um was geht es ? 
+
+  * Wir wollen Firewall-Regeln mit Kubernetes machen (NetworkPolicy) 
+  * Firewall in Kubernetes -> Network Policies 
+
+
+### Gruppe mit eigenem cluster 
 
 ```
 <tln> = nix 
 z.B. 
 policy-demo<tln> => policy-demo
 ```
+
+
+### Gruppe mit einem einzigen Cluster
+
+```
+<tln> = Teilnehmernummer  
+z.B. 
+policy-demo<tln> => policy-demo1
+```
+
+
 
 ### Walkthrough 
 
@@ -4732,19 +5564,25 @@ kubectl create ns policy-demo<tln>
 kubectl create deployment --namespace=policy-demo<tln> nginx --image=nginx
 kubectl expose --namespace=policy-demo<tln> deployment nginx --port=80
 ## lassen einen 2. pod laufen mit dem auf den nginx zugreifen 
-kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox /bin/sh
+kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox -- /bin/sh
 ```
 ```
 ## innerhalb der shell 
 wget -q nginx -O -
 ```
 
+### Schritt 2: Policy festlegen, dass kein Ingress Traffic erlaubt ist 
 
 ```
-## Schritt 2: Policy festlegen, dass kein Ingress-Traffic erlaubt
-## in diesem namespace: policy-demo 
-## mkdir network; cd network 
-## vi 01-policy.yml
+cd 
+cd manifests 
+mkdir network
+cd network 
+nano 01-policy.yml 
+```
+
+```
+## Deny Regel 
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
@@ -4762,17 +5600,27 @@ kubectl apply -f 01-policy.yml
 
 ```
 ## lassen einen 2. pod laufen mit dem auf den nginx zugreifen 
-kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox /bin/sh
+kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox -- /bin/sh
 ```
 
 ```
 ## innerhalb der shell 
 ## kein Zugriff möglich
-wget -q nginx -O -
+wget -O - nginx 
+```
+
+
+### Schritt 3: Zugriff erlauben von pods mit dem Label run=access 
+
+```
+cd 
+cd manifests 
+cd network
+nano 02-allow.yml 
 ```
 
 ```
-## Schritt 3: Zugriff erlauben von pods mit dem Label run=access 
+## Schritt 3: 
 ## 02-allow.yml
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -4798,7 +5646,7 @@ kubectl apply -f 02-allow.yml
 ```
 ## lassen einen 2. pod laufen mit dem auf den nginx zugreifen 
 ## pod hat durch run -> access automatisch das label run:access zugewiesen 
-kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox /bin/sh
+kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox -- /bin/sh
 ```
 
 ```
@@ -4807,7 +5655,7 @@ wget -q nginx -O -
 ```
 
 ``` 
-kubectl run --namespace=policy-demo<tln> no-access --rm -ti --image busybox /bin/sh
+kubectl run --namespace=policy-demo<tln> no-access --rm -ti --image busybox -- /bin/sh
 ```
 
 ```
@@ -4817,7 +5665,7 @@ wget -q nginx -O -
 
 ```
 
-kubectl delete ns policy-demo 
+kubectl delete ns policy-demo<tln>
 
 ```
 
@@ -4825,6 +5673,8 @@ kubectl delete ns policy-demo
 ### Ref:
 
   * https://projectcalico.docs.tigera.io/security/tutorials/kubernetes-policy-basic
+  * https://kubernetes.io/docs/concepts/services-networking/network-policies/
+  * https://docs.cilium.io/en/latest/security/policy/language/#http
 
 ## Kubernetes Paketmanagement (Helm) 
 
@@ -4833,7 +5683,7 @@ kubectl delete ns policy-demo
 
 ```
 Ein Paket für alle Komponenten
-Einfaches Installieren und Updaten.
+Einfaches Installieren, Updaten und deinstallieren 
 Feststehende Struktur 
 ```
 
@@ -4854,7 +5704,7 @@ tar.gz - Format
 oder Verzeichnis 
 
 Wenn wir ein Chart ausführen wird eine Release erstellen 
-(parallel: image -> container, analog: chart -> release 
+(parallel: image -> container, analog: chart -> release)
 ```
 
 ### Installation 
@@ -4906,8 +5756,8 @@ helm list
 ## Status einer Release / Achtung, heisst nicht unbedingt nicht, dass pod läuft 
 helm status my-mysql 
 
-## zweiten Release 
-helm install neuer-release-name bitnami/mysql 
+
+helm install neuer-release-name  bitnami/mysql 
 
 
 ```
@@ -4974,6 +5824,17 @@ primary:
 ```
 helm uninstall my-mysql
 helm install my-mysql bitnami/mysql -f values.yml 
+```
+
+### Example 3: Install wordpress 
+
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm install my-wordpress \
+  --set wordpressUsername=admin \
+  --set wordpressPassword=password \
+  --set mariadb.auth.rootPassword=secretpassword \
+    bitnami/wordpress
 ```
 
 
@@ -5590,6 +6451,66 @@ kubectl top pods
 ### Grundlagen und Beispiel (Praktisch)
 
 
+### PSA (Pod Security Admission) 
+
+```
+Policies defined by namespace.
+e.g. not allowed to run container as root.
+
+Will complain/deny when creating such a pod with that container type
+
+```
+
+
+### Example (seccomp / security context) 
+
+```
+A. seccomp - profile
+https://github.com/docker/docker/blob/master/profiles/seccomp/default.json
+
+```
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: audit-pod
+  labels:
+    app: audit-pod
+spec:
+  securityContext:
+    seccompProfile:
+      type: Localhost
+      localhostProfile: profiles/audit.json
+
+  containers:
+
+  - name: test-container
+    image: hashicorp/http-echo:0.2.3
+    args:
+    - "-text=just made some syscalls!"
+    securityContext:
+      allowPrivilegeEscalation: false
+
+```
+
+### SecurityContext (auf Pod Ebene) 
+
+```
+kubectl explain pod.spec.containers.securityContext 
+
+```
+
+
+### NetworkPolicy 
+
+```
+## Firewall Kubernetes 
+```
+
+
+## Grundlagen Security 
+
 ### Geschichte 
 
   * Namespaces sind die Grundlage für Container 
@@ -6035,21 +6956,7 @@ kubectl exec -it nginx -- bash
 
 ```
 
-### Arbeiten mit namespaces 
 
-```
-## Welche namespaces auf dem System 
-kubectl get ns 
-kubectl get namespaces 
-## Standardmäßig wird immer der default namespace verwendet 
-## wenn man kommandos aufruft 
-kubectl get deployments 
-
-## Möchte ich z.B. deployment vom kube-system (installation) aufrufen, 
-## kann ich den namespace angeben
-kubectl get deployments --namespace=kube-system 
-kubectl get deployments -n kube-system 
-```
 
 ### Alle Objekte anzeigen 
 
