@@ -28,8 +28,8 @@ helm list
 # Status einer Release / Achtung, heisst nicht unbedingt nicht, dass pod läuft 
 helm status my-mysql 
 
-# zweiten Release 
-helm install neuer-release-name bitnami/mysql 
+
+helm install neuer-release-name  bitnami/mysql 
 
 
 ```
@@ -101,6 +101,7 @@ helm install my-mysql bitnami/mysql -f values.yml
 ## Example 3: Install wordpress 
 
 ```
+helm repo add bitnami https://charts.bitnami.com/bitnami 
 helm install my-release \
   --set wordpressUsername=admin \
   --set wordpressPassword=password \
