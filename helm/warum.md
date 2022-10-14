@@ -2,6 +2,6 @@
 
 ```
 Ein Paket für alle Komponenten
-Einfaches Installieren und Updaten.
+Einfaches Installieren, Updaten und deinstallieren 
 Feststehende Struktur 
 ```
