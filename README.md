@@ -47,6 +47,7 @@
 
   1. Helm (Kubernetes Paketmanager) 
      * [Helm Grundlagen](/helm/grundlagen.md)
+     * [Helm Warum ?](/helm/warum.md)
 
   1. Kubernetes Storage 
      * [Praxis. Beispiel (Dev/Ops)](/shared-volumes/nfs-multiple.md) 
