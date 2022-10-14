@@ -10,7 +10,7 @@ Will complain/deny when creating such a pod with that container type
 
 ```
 
-## Praktisches Beispiel für Version ab 1.2.23 - Problemstellung 
+## Praktisches Beispiel für Version ab 1.25 - Problemstellung 
 
 ```
 # Schritt 1: Namespace anlegen 
