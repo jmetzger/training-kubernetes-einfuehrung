@@ -7,7 +7,15 @@
 microk8s enable ingress
 ```
 
-## Walkthrough 
+## Step 1: Walkthrough 
+
+```
+cd 
+cd manifests
+mkdir abi 
+cd abi
+nano apple.yml 
+```
 
 ```
 # mkdir apple-banana-ingress
@@ -47,6 +55,11 @@ kubectl apply -f apple.yml
 ```
 
 ```
+nano banana.yml
+```
+
+
+```
 # banana
 # vi banana.yml
 kind: Pod
@@ -79,6 +92,8 @@ spec:
 ```
 kubectl apply -f banana.yml
 ```
+
+## Step 2: Walkthrough 
 
 ```
 # Ingress
