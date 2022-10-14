@@ -5,13 +5,25 @@
   * Wir wollen Firewall-Regeln mit Kubernetes machen (NetworkPolicy) 
   * Firewall in Kubernetes -> Network Policies 
 
-## Gruppe mit einem einzigen Cluster
+
+## Gruppe mit eigenem cluster 
 
 ```
 <tln> = nix 
 z.B. 
 policy-demo<tln> => policy-demo
 ```
+
+
+## Gruppe mit einem einzigen Cluster
+
+```
+<tln> = Teilnehmernummer  
+z.B. 
+policy-demo<tln> => policy-demo1
+```
+
+
 
 ## Walkthrough 
 
