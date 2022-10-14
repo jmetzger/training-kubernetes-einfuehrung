@@ -33,7 +33,7 @@ kubectl create ns policy-demo<tln>
 kubectl create deployment --namespace=policy-demo<tln> nginx --image=nginx
 kubectl expose --namespace=policy-demo<tln> deployment nginx --port=80
 # lassen einen 2. pod laufen mit dem auf den nginx zugreifen 
-kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox /bin/sh
+kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox -- /bin/sh
 ```
 ```
 # innerhalb der shell 
