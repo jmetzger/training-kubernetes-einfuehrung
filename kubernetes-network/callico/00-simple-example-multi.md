@@ -40,12 +40,18 @@ kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox -- /bin
 wget -q nginx -O -
 ```
 
+## Schritt 2: Policy festlegen, dass kein Ingress Traffic erlaubt ist 
 
 ```
-# Schritt 2: Policy festlegen, dass kein Ingress-Traffic erlaubt
-# in diesem namespace: policy-demo 
-# mkdir network; cd network 
-# vi 01-policy.yml
+cd 
+cd manifests 
+mkdir network
+cd network 
+nano 01-policy.yml 
+```
+
+```
+# Deny Regel 
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
@@ -72,8 +78,11 @@ kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox /bin/sh
 wget -q nginx -O -
 ```
 
+
+## Schritt 3: Zugriff erlauben von pods mit dem Label run=access 
+
 ```
-# Schritt 3: Zugriff erlauben von pods mit dem Label run=access 
+# Schritt 3: 
 # 02-allow.yml
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
