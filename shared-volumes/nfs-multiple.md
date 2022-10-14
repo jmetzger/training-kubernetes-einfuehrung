@@ -43,10 +43,16 @@ umount /mnt/nfs
 
 ## Setup PersistentVolume and PersistentVolumeClaim in cluster
 
+### Schritt 1: 
+
 ```
-# mkdir -p nfs; cd nfs
-# vi 01-pv.yml 
-# Important user  
+cd
+cd manifests 
+mkdir -p nfs; cd nfs
+nano 01-pv.yml 
+```
+
+```
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -76,6 +82,9 @@ spec:
 ```
 kubectl apply -f 01-pv.yml 
 ```
+
+### Schritt 2:
+
 
 ```
 # vi 02-pvs.yml 
