@@ -102,7 +102,7 @@ helm install my-mysql bitnami/mysql -f values.yml
 
 ```
 helm repo add bitnami https://charts.bitnami.com/bitnami 
-helm install my-release \
+helm install my-wordpress \
   --set wordpressUsername=admin \
   --set wordpressPassword=password \
   --set mariadb.auth.rootPassword=secretpassword \
