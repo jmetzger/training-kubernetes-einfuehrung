@@ -115,6 +115,10 @@ kubectl apply -f 02-pvc.yml
 ### Schritt 3:
 
 ```
+nano 03-deploy.yml
+```
+
+```
 # deployment including mount 
 # vi 03-deploy.yml 
 apiVersion: apps/v1
@@ -177,6 +181,8 @@ spec:
 ```
 kubectl apply -f 04-service.yml 
 ```
+
+### Schritt 4
 
 ```
 # connect to the container and add index.html - data 
