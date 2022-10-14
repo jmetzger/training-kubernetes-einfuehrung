@@ -75,7 +75,7 @@ kubectl run --namespace=policy-demo<tln> access --rm -ti --image busybox -- /bin
 ```
 # innerhalb der shell 
 # kein Zugriff möglich
-wget -q nginx -O -
+wget -O - nginx 
 ```
 
 
@@ -142,3 +142,5 @@ kubectl delete ns policy-demo<tln>
 ## Ref:
 
   * https://projectcalico.docs.tigera.io/security/tutorials/kubernetes-policy-basic
+  * https://kubernetes.io/docs/concepts/services-networking/network-policies/
+  * https://docs.cilium.io/en/latest/security/policy/language/#http
