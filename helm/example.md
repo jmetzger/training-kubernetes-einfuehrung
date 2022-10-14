@@ -98,6 +98,16 @@ helm uninstall my-mysql
 helm install my-mysql bitnami/mysql -f values.yml 
 ```
 
+## Example 3: Install wordpress 
+
+```
+helm install my-release \
+  --set wordpressUsername=admin \
+  --set wordpressPassword=password \
+  --set mariadb.auth.rootPassword=secretpassword \
+    bitnami/wordpress
+```
+
 
 ## Referenced
 
