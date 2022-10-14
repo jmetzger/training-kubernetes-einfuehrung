@@ -219,7 +219,7 @@ kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh
 kubectl apply -f 03-deploy.yml 
 
 # and try connection again  
-kubectl exec -it --rm curly --image=curlimages/curl -- /bin/sh 
+kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
 # curl http://<cluster-ip>:<port> # port -> > 30000
 # exit 
 ```
