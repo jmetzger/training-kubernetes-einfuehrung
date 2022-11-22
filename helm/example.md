@@ -18,9 +18,10 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
 helm search bitnami 
-helm install release-name bitnami/mysql
+# helm install release-name bitnami/mysql
+helm install my-mysql bitnami/mysql
 # Chart runterziehen ohne installieren 
-helm pull bitnami/mysql
+# helm pull bitnami/mysql
 
 # Release anzeigen zu lassen
 helm list 
@@ -28,8 +29,8 @@ helm list
 # Status einer Release / Achtung, heisst nicht unbedingt nicht, dass pod läuft 
 helm status my-mysql 
 
-
-helm install neuer-release-name  bitnami/mysql 
+# weitere release installieren 
+# helm install neuer-release-name  bitnami/mysql 
 
 
 ```
