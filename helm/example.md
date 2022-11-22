@@ -17,7 +17,7 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 # gecachte Informationen aktualieren 
 helm repo update
 
-helm search bitnami 
+helm search repo bitnami 
 # helm install release-name bitnami/mysql
 helm install my-mysql bitnami/mysql
 # Chart runterziehen ohne installieren 
