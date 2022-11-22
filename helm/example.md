@@ -9,7 +9,7 @@
   * Please only use: helm3. No server-side components needed (in cluster) 
     * Get away from examples using helm2 (hint: helm init) - uses tiller  
 
-## Important commands 
+## Simple Walkthrough (Example 0)
 
 ```
 # Repo hinzufpgen 
