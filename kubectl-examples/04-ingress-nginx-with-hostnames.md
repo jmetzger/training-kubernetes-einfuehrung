@@ -123,7 +123,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "<euername>.lab.t3isp.de"
+  - host: "<euername>.lab1.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -174,7 +174,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "app12.lab.t3isp.de"
+  - host: "app12.lab1.t3isp.de"
     http:
       paths:
         - path: /apple
