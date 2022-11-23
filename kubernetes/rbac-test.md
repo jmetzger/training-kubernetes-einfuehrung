@@ -75,8 +75,12 @@ kubectl apply -f pods-clusterrole.yml
 ```
 
 ### Mini-Schritt 3: Die ClusterRole den entsprechenden Nutzern über RoleBinding zu ordnen 
+
 ```
-# vi rb-training-ns-default-pods.yml
+nano clusterrole-binding.yml 
+```
+
+```
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -87,10 +91,11 @@ roleRef:
   name: pods-clusterrole-<name> # <nr> durch teilnehmer nr ersetzen 
 subjects:
 - kind: ServiceAccount
-  name: training<nr> # nr durch teilnehmer - nr ersetzen 
+  name: <name> # nr durch teilnehmer - nr ersetzen 
+```
 
+```
 kubectl apply -f rb-training-ns-default-pods.yml
-
 ```
 
 ### Mini-Schritt 4: Testen (klappt der Zugang) 
