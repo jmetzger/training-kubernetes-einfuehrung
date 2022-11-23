@@ -92,6 +92,8 @@
   1. Interna von Kubernetes 
      * [OCI,Container,Images Standards](docker-alternatives-kubernetes.md)
    
+  1. Andere Systeme 
+     * [Kubernetes vs. Cloudfoundry](kubernetes-vs-cloudfoundry.md)
 
 ## Backlog 
 
