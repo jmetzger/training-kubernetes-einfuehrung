@@ -2,8 +2,7 @@
 
 ## Schaubild 
 
-![istio Schaubild](https://user-images.githubusercontent.com/1933318/203541631-b70465aa-f1a1-404b-9e0c-eb0fbd2b0c52.png
-)
+![istio Schaubild](https://istio.io/latest/docs/examples/virtual-machines/vm-bookinfo.svg)
 
 ## Istio 
 
