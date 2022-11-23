@@ -51,6 +51,11 @@ kubectl apply -f service-account.yml
 
 ### Mini-Schritt 2: ClusterRole festlegen - Dies gilt für alle namespaces, muss aber noch zugewiesen werden
 
+````
+nano pods-clusterrole.yml 
+```
+
+
 ```
 ## Bevor sie zugewiesen ist, funktioniert sie nicht - da sie keinem Nutzer zugewiesen ist 
 
@@ -63,7 +68,9 @@ rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["pods"]
   verbs: ["get", "watch", "list"]
+```
 
+```
 kubectl apply -f pods-clusterrole.yml 
 ```
 
