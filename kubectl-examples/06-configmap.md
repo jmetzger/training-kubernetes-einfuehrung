@@ -81,6 +81,10 @@ kubectl exec -it pod-mit-configmap --  bash
 ## Schritt 3: Beispiel. ConfigMap als env-variablen 
 
 ```
+nano 03-pod-mit-env.yml
+```
+
+```
 # 03-pod-mit-env.yml 
 kind: Pod 
 apiVersion: v1 
