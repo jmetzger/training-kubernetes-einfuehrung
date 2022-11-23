@@ -2,6 +2,15 @@
 
 ## Schritt 1: configmap vorbereiten 
 ```
+cd 
+mkdir -p manifests 
+cd manifests
+mkdir configmaptests 
+cd configmaptests
+nano 01-configmap.yml
+```
+
+```
 ## 01-configmap.yml
 kind: ConfigMap 
 apiVersion: v1 
