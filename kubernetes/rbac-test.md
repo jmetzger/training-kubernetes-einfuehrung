@@ -35,15 +35,15 @@ cd manifests/rbac
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: training<nr> # <nr> entsprechend eintragen
-  namespace: default
+  name: <deinname> # <nr> entsprechend eintragen
+
 
 
 kubectl apply -f service-account.yml 
 ```
 
 
-### Mini-Schritt 2: ClusterRolle festlegen - Dies gilt für alle namespaces, muss aber noch zugewiesen werden
+### Mini-Schritt 2: ClusterRole festlegen - Dies gilt für alle namespaces, muss aber noch zugewiesen werden
 
 ```
 ## Bevor sie zugewiesen ist, funktioniert sie nicht - da sie keinem Nutzer zugewiesen ist 
@@ -52,7 +52,7 @@ kubectl apply -f service-account.yml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: pods-clusterrole-<nr> # für <nr> teilnehmer - nr eintragen
+  name: pods-clusterrole-<name> # für <nr> teilnehmer - nr eintragen
 rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["pods"]
@@ -61,22 +61,20 @@ rules:
 kubectl apply -f pods-clusterrole.yml 
 ```
 
-### Mini-Schritt 3: Die ClusterRolle den entsprechenden Nutzern über RoleBinding zu ordnen 
+### Mini-Schritt 3: Die ClusterRole den entsprechenden Nutzern über RoleBinding zu ordnen 
 ```
 # vi rb-training-ns-default-pods.yml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: rolebinding-ns-default-pods<nr>
-  namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: pods-clusterrole-<nr> # <nr> durch teilnehmer nr ersetzen 
+  name: pods-clusterrole-<name> # <nr> durch teilnehmer nr ersetzen 
 subjects:
 - kind: ServiceAccount
   name: training<nr> # nr durch teilnehmer - nr ersetzen 
-  namespace: default
 
 kubectl apply -f rb-training-ns-default-pods.yml
 
