@@ -84,6 +84,7 @@
   1. Kubernetes Administration /Upgrades 
      * [Kubernetes Administration / Upgrades](kubernetes-cluster-update-path.md)
      * [Terminierung von Container vermeiden](avoid-termination-container.md)
+     * [Praktische Umsetzung RBAC anhand eines Beispiels (Ops)](/kubernetes/rbac-create-user-multi.md)
 
   1. Weiter lernen 
      * [Lernumgebung](https://killercoda.com/)
