@@ -139,7 +139,6 @@ spec:
 ```
 # ingress 
 kubectl apply -f ingress.yml
-kubectl get ing 
 ```
 
 ## Reference 
