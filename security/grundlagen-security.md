@@ -127,7 +127,7 @@ spec:
 kubectl apply -f 02-nginx.yml
 ```
 
-````
+```
 # Schritt 3:
 # Anpassen der Sicherheitseinstellung (Phase1) im Container 
 
