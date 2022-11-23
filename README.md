@@ -64,6 +64,7 @@
   1. Kubernetes Secrets / ConfigMap 
      * [Configmap Example 1](/kubectl-examples/06-configmap.md)
      * [Secrets Example 1](kubernetes/secrets/uebung-secrets.md)
+     * [Änderung in ConfigMap erkennen und anwenden](https://github.com/stakater/Reloader)
 
   1. Kubernetes Operator Konzept 
      * [Ueberblick](kubernetes/operator/overview.md)   
