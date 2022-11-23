@@ -55,6 +55,7 @@
 
   1. Kubernetes Netzwerk 
      * [Kubernetes Netzwerke Übersicht](#kubernetes-netzwerke-übersicht)
+     * [DNS - Resolution - Services](#dns---resolution---services)
      * [Kubernetes Firewall / Cilium Calico](#kubernetes-firewall--cilium-calico)
      * [Sammlung istio](#sammlung-istio)
 
@@ -64,6 +65,7 @@
   1. Kubernetes Secrets / ConfigMap 
      * [Configmap Example 1](#configmap-example-1)
      * [Secrets Example 1](#secrets-example-1)
+     * [Änderung in ConfigMap erkennen und anwenden](https://github.com/stakater/Reloader)
 
   1. Kubernetes Operator Konzept 
      * [Ueberblick](#ueberblick)
@@ -78,6 +80,11 @@
   1. Tipps & Tricks 
      * [Ubuntu client aufsetzen](#ubuntu-client-aufsetzen)
      * [Netzwerkverbindung zum Pod testen](#netzwerkverbindung-zum-pod-testen)
+     
+  1. Kubernetes Administration /Upgrades 
+     * [Kubernetes Administration / Upgrades](#kubernetes-administration--upgrades)
+     * [Terminierung von Container vermeiden](#terminierung-von-container-vermeiden)
+     * [Praktische Umsetzung RBAC anhand eines Beispiels (Ops)](#praktische-umsetzung-rbac-anhand-eines-beispiels-ops)
 
   1. Weiter lernen 
      * [Lernumgebung](https://killercoda.com/)
@@ -88,7 +95,15 @@
   1. Documentation (Use Cases) 
      * [Case Studies Kubernetes](https://kubernetes.io/case-studies/)
      * [Use Cases](https://codilime.com/blog/harnessing-the-power-of-kubernetes-7-use-cases/)
+     
+  1. Interna von Kubernetes 
+     * [OCI,Container,Images Standards](#ocicontainerimages-standards)
    
+  1. Andere Systeme / Verschiedenes  
+     * [Kubernetes vs. Cloudfoundry](#kubernetes-vs-cloudfoundry)
+     * [Kubernetes Alternativen](#kubernetes-alternativen)
+     * [Hyperscaler vs. Kubernetes on Premise](#hyperscaler-vs-kubernetes-on-premise)
+     
 
 ## Backlog 
 
@@ -1647,7 +1662,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "<euername>.lab.t3isp.de"
+  - host: "<euername>.lab1.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -1663,7 +1678,6 @@ spec:
 ```
 ## ingress 
 kubectl apply -f ingress.yml
-kubectl get ing 
 ```
 
 ### Reference 
@@ -1698,7 +1712,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "app12.lab.t3isp.de"
+  - host: "app12.lab1.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -1819,6 +1833,15 @@ This annotation allows to return a permanent redirect instead of sending data to
 
 ### Schritt 1: configmap vorbereiten 
 ```
+cd 
+mkdir -p manifests 
+cd manifests
+mkdir configmaptests 
+cd configmaptests
+nano 01-configmap.yml
+```
+
+```
 ### 01-configmap.yml
 kind: ConfigMap 
 apiVersion: v1 
@@ -1828,11 +1851,6 @@ data:
   # als Wertepaare
   database: mongodb
   database_uri: mongodb://localhost:27017
-  
-  # als Inhalte 
-  keys: | 
-    image.public.key=771 
-    rsa.public.key=42
 ```
 
 ```
@@ -1842,6 +1860,12 @@ kubectl get cm -o yaml
 ```
 
 ### Schrit 2: Beispiel als Datei 
+
+
+```
+nano 02-pod.yml
+```
+
 ```
 kind: Pod 
 apiVersion: v1 
@@ -1888,6 +1912,10 @@ kubectl exec -it pod-mit-configmap --  bash
 ### Schritt 3: Beispiel. ConfigMap als env-variablen 
 
 ```
+nano 03-pod-mit-env.yml
+```
+
+```
 ## 03-pod-mit-env.yml 
 kind: Pod 
 apiVersion: v1 
@@ -1930,8 +1958,11 @@ kubectl exec -it pod-env-var --  bash
 
 ```
 artifacts helm 
-https://artifacthub.io/
+
 ```
+
+ * https://artifacthub.io/
+
 ### Komponenten 
 
 ```
@@ -1982,7 +2013,7 @@ Feststehende Struktur
   * Please only use: helm3. No server-side components needed (in cluster) 
     * Get away from examples using helm2 (hint: helm init) - uses tiller  
 
-### Important commands 
+### Simple Walkthrough (Example 0)
 
 ```
 ## Repo hinzufpgen 
@@ -1990,10 +2021,11 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 ## gecachte Informationen aktualieren 
 helm repo update
 
-helm search bitnami 
-helm install release-name bitnami/mysql
+helm search repo bitnami 
+## helm install release-name bitnami/mysql
+helm install my-mysql bitnami/mysql
 ## Chart runterziehen ohne installieren 
-helm pull bitnami/mysql
+## helm pull bitnami/mysql
 
 ## Release anzeigen zu lassen
 helm list 
@@ -2001,8 +2033,8 @@ helm list
 ## Status einer Release / Achtung, heisst nicht unbedingt nicht, dass pod läuft 
 helm status my-mysql 
 
-
-helm install neuer-release-name  bitnami/mysql 
+## weitere release installieren 
+## helm install neuer-release-name  bitnami/mysql 
 
 
 ```
@@ -2402,6 +2434,32 @@ Flanneld runs if ha-cluster is not enabled. If ha-cluster is enabled, calico is 
 The flannel daemon is started using the arguments in ${SNAP_DATA}/args/flanneld. For more information on the configuration, see the flannel documentation.
 ```
 
+### DNS - Resolution - Services
+
+
+```
+kubectl run podtest --rm -ti --image busybox -- /bin/sh
+If you don't see a command prompt, try pressing enter.
+/ # wget -O - http://apple-service.jochen
+Connecting to apple-service.jochen (10.245.39.214:80)
+writing to stdout
+apple-tln1
+-                    100% |**************************************************************************************************************|    11  0:00:00 ETA
+written to stdout
+/ # wget -O - http://apple-service.jochen.svc.cluster.local
+Connecting to apple-service.jochen.svc.cluster.local (10.245.39.214:80)
+writing to stdout
+apple-tln1
+-                    100% |**************************************************************************************************************|    11  0:00:00 ETA
+written to stdout
+/ # wget -O - http://apple-service
+Connecting to apple-service (10.245.39.214:80)
+writing to stdout
+apple-tln1
+-                    100% |**************************************************************************************************************|    11  0:00:00 ETA
+written to stdout
+```
+
 ### Kubernetes Firewall / Cilium Calico
 
 
@@ -2553,6 +2611,10 @@ kubectl delete ns policy-demo<tln>
 ### Sammlung istio
 
 
+### Schaubild 
+
+![istio Schaubild](https://istio.io/latest/docs/examples/virtual-machines/vm-bookinfo.svg)
+
 ### Istio 
 
 ```
@@ -2569,7 +2631,9 @@ kubectl label namespace default istio-injection=enabled
 kubectl label namespace default istio-injection=enabled
 ```
 
+### istio tls 
 
+ * https://istio.io/latest/docs/ops/configuration/traffic-management/tls-configuration/
 
 
 ### istio - the next generation without sidecar 
@@ -2612,6 +2676,15 @@ spec:
 
 ### Schritt 1: configmap vorbereiten 
 ```
+cd 
+mkdir -p manifests 
+cd manifests
+mkdir configmaptests 
+cd configmaptests
+nano 01-configmap.yml
+```
+
+```
 ### 01-configmap.yml
 kind: ConfigMap 
 apiVersion: v1 
@@ -2621,11 +2694,6 @@ data:
   # als Wertepaare
   database: mongodb
   database_uri: mongodb://localhost:27017
-  
-  # als Inhalte 
-  keys: | 
-    image.public.key=771 
-    rsa.public.key=42
 ```
 
 ```
@@ -2635,6 +2703,12 @@ kubectl get cm -o yaml
 ```
 
 ### Schrit 2: Beispiel als Datei 
+
+
+```
+nano 02-pod.yml
+```
+
 ```
 kind: Pod 
 apiVersion: v1 
@@ -2679,6 +2753,10 @@ kubectl exec -it pod-mit-configmap --  bash
 ```
 
 ### Schritt 3: Beispiel. ConfigMap als env-variablen 
+
+```
+nano 03-pod-mit-env.yml
+```
 
 ```
 ## 03-pod-mit-env.yml 
@@ -2778,6 +2856,10 @@ kubectl exec -it print-envs-complete -- bash
 ##env | grep -e APP_ -e MYSQL 
 ```
 
+### Änderung in ConfigMap erkennen und anwenden
+
+  * https://github.com/stakater/Reloader
+
 ## Kubernetes Operator Konzept 
 
 ### Ueberblick
@@ -2857,11 +2939,11 @@ in spec.containers
 
 ### Art der Typen: 
 
-  * Garanteed
+  * Guaranteed
   * Burstable
   * BestEffort 
 
-### Garanteed 
+### Guaranteed 
 
 ```
 Type: Garanteed:
@@ -2911,6 +2993,128 @@ spec:
 
 
 ### LiveNess/Readiness - Probe / HealthChecks
+
+
+
+### Übung 1: Liveness (command) 
+
+```
+What does it do ? 
+ 
+* At the beginning pod is ready (first 30 seconds)
+* Check will be done after 5 seconds of pod being startet
+* Check will be done periodically every 5 minutes and will check
+  * for /tmp/healthy
+  * if file is there will return: 0 
+  * if file is not there will return: 1 
+* After 30 seconds container will be killed
+* After 35 seconds container will be restarted
+```
+
+```
+## cd
+## mkdir -p manifests/probes
+## cd manifests/probes 
+## vi 01-pod-liveness-command.yml 
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    test: liveness
+  name: liveness-exec
+spec:
+  containers:
+  - name: liveness
+    image: k8s.gcr.io/busybox
+    args:
+    - /bin/sh
+    - -c
+    - touch /tmp/healthy; sleep 30; rm -f /tmp/healthy; sleep 600
+    livenessProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+      initialDelaySeconds: 5
+      periodSeconds: 5
+```
+
+```
+## apply and test 
+kubectl apply -f 01-pod-liveness-command.yml 
+kubectl describe -l test=liveness pods 
+sleep 30
+kubectl describe -l test=liveness pods 
+sleep 5 
+kubectl describe -l test=liveness pods 
+```
+
+```
+## cleanup
+kubectl delete -f 01-pod-liveness-command.yml
+ 
+``` 
+
+### Übung 2: Liveness Probe (HTTP)
+
+```
+## Step 0: Understanding Prerequisite:
+This is how this image works:
+## after 10 seconds it returns code 500 
+http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+    duration := time.Now().Sub(started)
+    if duration.Seconds() > 10 {
+        w.WriteHeader(500)
+        w.Write([](fmt.Sprintf("error: %v", duration.Seconds())))
+    } else {
+        w.WriteHeader(200)
+        w.Write([]("ok"))
+    }
+})
+```
+
+```
+## Step 1: Pod  - manifest 
+## vi 02-pod-liveness-http.yml
+## status-code >=200 and < 400 o.k. 
+## else failure 
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    test: liveness
+  name: liveness-http
+spec:
+  containers:
+  - name: liveness
+    image: k8s.gcr.io/liveness
+    args:
+    - /server
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+        httpHeaders:
+        - name: Custom-Header
+          value: Awesome
+      initialDelaySeconds: 3
+      periodSeconds: 3
+```
+
+```
+## Step 2: apply and test
+kubectl apply -f 02-pod-liveness-http.yml
+## after 10 seconds port should have been started 
+sleep 10 
+kubectl describe pod liveness-http
+
+```
+
+
+### Reference:
+ 
+   * https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 
 ## Tipps & Tricks 
 
@@ -2975,6 +3179,198 @@ kubectl run podtest --rm -ti --image busybox -- /bin/sh
 / # exit 
 ```
 
+## Kubernetes Administration /Upgrades 
+
+### Kubernetes Administration / Upgrades
+
+
+```
+I. Schritt 1 (Optional aber zu empfehlen): Testsystem mit neuer Version aufsetzen (z.B. mit kind oder direkt in der Cloud)
+
+II. Schritt 2: Manifeste auf den Stand bringen, dass sie mit den 
+neuen Api's funktionieren, sprich ApiVersion anheben.
+
+III. Control Plane upgraden. 
+
+Achtung: In dieser Zeit steht die API nicht zur Verfügung.
+Die Workloads im Cluster funktionieren nach wievor.
+
+IV. Nodes upgraden wie folgt in 2 Varianten:
+
+Variante 1: Rolling update
+
+Jede Node wird gedrained und die der Workload auf einer neuen Node 
+hochgezogen.
+
+Variante 2: Surge Update 
+
+Es werden eine Reihe von weiteren Nodes bereitgestellt, die bereits mit der
+neuen Version laufen.
+
+Alle Workloads werden auf den neuen Nodes hochgezogen und wenn diese dort laufen, 
+wird auf diese Nodes umgeswitcht. 
+
+
+https://medium.com/google-cloud/zero-downtime-gke-cluster-node-version-upgrade-and-spec-update-dad917e25b53
+```
+
+ 
+
+
+### Terminierung von Container vermeiden
+
+
+  * https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+
+
+```
+preStop - Hook 
+
+Prozess läuft wie folgt:
+
+ 
+
+Timeout before runterskalierung erfolgt ?
+Was ist, wenn er noch rechnet ? (task läuft, der nicht beendet werden soll) 
+
+Timeout: 30 sec.
+preStop 
+
+This is the process.
+
+a. State of pod is set to terminate 
+b. preStop hook is executed, either exec or http
+after success.
+c. Terminate - Signal is sent to pod/container
+d. Wait 30 secs.
+e. Kill - Signal is set, if container did stop yet.
+```
+
+
+### Praktische Umsetzung RBAC anhand eines Beispiels (Ops)
+
+
+### Enable RBAC in microk8s 
+
+```
+## This is important, if not enable every user on the system is allowed to do everything 
+microk8s enable rbac 
+```
+
+### Wichtig:
+
+```
+Jeder verwendet seine eigene teilnehmer-nr z.B. 
+training1
+training2
+usw. ;o)
+```
+
+
+
+
+
+### Schritt 1: Nutzer-Account auf Server anlegen / in Client 
+
+```
+cd 
+mkdir -p manifests/rbac
+cd manifests/rbac
+```
+
+####  Mini-Schritt 1: Definition für Nutzer 
+
+```
+## vi service-account.yml 
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: training<nr> # <nr> entsprechend eintragen
+  namespace: default
+
+
+kubectl apply -f service-account.yml 
+```
+
+
+#### Mini-Schritt 2: ClusterRolle festlegen - Dies gilt für alle namespaces, muss aber noch zugewiesen werden
+
+```
+### Bevor sie zugewiesen ist, funktioniert sie nicht - da sie keinem Nutzer zugewiesen ist 
+
+## vi pods-clusterrole.yml 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pods-clusterrole-<nr> # für <nr> teilnehmer - nr eintragen
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+
+kubectl apply -f pods-clusterrole.yml 
+```
+
+#### Mini-Schritt 3: Die ClusterRolle den entsprechenden Nutzern über RoleBinding zu ordnen 
+```
+## vi rb-training-ns-default-pods.yml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rolebinding-ns-default-pods<nr>
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: pods-clusterrole-<nr> # <nr> durch teilnehmer nr ersetzen 
+subjects:
+- kind: ServiceAccount
+  name: training<nr> # nr durch teilnehmer - nr ersetzen 
+  namespace: default
+
+kubectl apply -f rb-training-ns-default-pods.yml
+
+```
+
+#### Mini-Schritt 4: Testen (klappt der Zugang) 
+
+```
+kubectl auth can-i get pods -n default --as system:serviceaccount:default:training<nr> # nr durch teilnehmer - nr ersetzen 
+```
+
+### Schritt 2: Context anlegen / Credentials auslesen und in kubeconfig hinterlegen 
+
+#### Mini-Schritt 1: kubeconfig setzen 
+```
+kubectl config set-context training-ctx --cluster microk8s-cluster --user training<nr> # <nr> durch teilnehmer - nr ersetzen 
+
+## extract name of the token from here 
+TOKEN_NAME=`kubectl -n default get serviceaccount training<nr> -o jsonpath='{.secrets[0].name}'` # nr durch teilnehmer <nr> ersetzen 
+
+TOKEN=`kubectl -n default get secret $TOKEN_NAME -o jsonpath='{.data.token}' | base64 --decode`
+echo $TOKEN
+kubectl config set-credentials training<nr> --token=$TOKEN # <nr> druch teilnehmer - nr ersetzen 
+kubectl config use-context training-ctx
+
+## Hier reichen die Rechte nicht aus 
+kubectl get deploy
+## Error from server (Forbidden): pods is forbidden: User "system:serviceaccount:kube-system:training" cannot list # resource "pods" in API group "" in the namespace "default"
+```
+
+#### Mini-Schritt 2:
+```
+kubectl config use-context training-ctx
+kubectl get pods 
+```
+
+### Refs:
+
+  * https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengaddingserviceaccttoken.htm
+  * https://microk8s.io/docs/multi-user
+  * https://faun.pub/kubernetes-rbac-use-one-role-in-multiple-namespaces-d1d08bb08286
+
+
+
 ## Weiter lernen 
 
 ### Lernumgebung
@@ -3002,6 +3398,182 @@ kubectl run podtest --rm -ti --image busybox -- /bin/sh
 ### Use Cases
 
   * https://codilime.com/blog/harnessing-the-power-of-kubernetes-7-use-cases/
+
+## Interna von Kubernetes 
+
+### OCI,Container,Images Standards
+
+
+### Grundlagen 
+
+  * Container und Images sind nicht docker-spezifisch, sondern folgen der OCI Spezifikation (Open Container Initiative) 
+  * D.h. die "Bausteine" Image, Container, Registry sind standards
+  * Ich brauche kein Docker, um Images zu bauen, es gibt Alternativen:
+    * z.B. buildah 
+  * kubelet -> redet mit CRI (Container Runtime Interface) -> Redet mit Container Runtime z.B. containerd (Docker), CRI-O (Redhat)
+    * [CRI](https://kubernetes.io/docs/concepts/architecture/cri/)
+
+### Hintergründe 
+
+  * Container Runtime (CRI-O, containerd) 
+  * [OCI image (Spezifikation)](https://github.com/opencontainers/image-spec)
+  * OCI container (Spezifikation) 
+  * [Sehr gute Lernreihe zu dem Thema Container (Artikel)](https://iximiuz.com/en/posts/not-every-container-has-an-operating-system-inside/)
+
+## Andere Systeme / Verschiedenes  
+
+### Kubernetes vs. Cloudfoundry
+
+
+```
+
+cloudfoundry hat als kleinsten Baustein, die application. 
+Der Entwickler entwickelt diese und pushed diese dann.
+Dadurch wird der gesamte Prozess angetriggert 
+(Es wird IMHO ein build pack verwendet) und das image wird gebaut.
+
+Meiner Meinung nach verwendet es auch OCI für die Images
+(not sure)
+
+Als Deployment platform für cloudfoundry kann auch kubernetes verwendet 
+werden 
+
+Kubernetes setzt beim image an, das ist der kleinste Baustein.
+Kubernetes selbst ist nicht in der Lage images zu bauen.
+
+Um diesen Prozess muss sich der Entwickler kümmern oder es wird eine Pipeline 
+bereitgestellt, die das ermöglicht.
+
+Kubernetes skaliert nicht out of the box, zumindest nicht so integriert wie 
+das bei Cloudfoundry möglich ist.
+
+Die Multi-Tenant möglichkeit geht nicht, wie ich das in Cloudfoundry verstehe
+out of the box.
+
+Datenbanken sind bei Kubernetes nicht ausserhalb, sondern Teil von Kubernetes 
+(bei Cloudfoundry ausserhalb) 
+
+Eine Verknüpfung der applikation mit der Datenbank erfolgt nicht automatisch
+
+Quintessenz: Wenn ich Kubernetes verwende, muss ich mich um den Prozess 
+"Von der Applikation zum Deployment/Image/Container)" selbst kümmern,
+bspw. in dem ich eine Pipeline in gitlab baue 
+
+```
+
+### Kubernetes Alternativen
+
+
+```
+docker-compose 
+==============
+
+Vorteile:
+>>>>>>>>>
+Einfach zu lernen
+
+Nachteile:
+>>>>>>>>>>
+Nur auf einem Host 
+rudimentäre Features (kein loadbalancing)
+
+Mittel der Wahl als Einstieg 
+
+
+docker swarm 
+============
+
+Zitat Linux Magazin: Swarm ist das Gegenangebot zu Kubernetes für alle Admins, die gut mit den Docker-Konventionen leben können und den Umgang mit den Standard-Docker-APIs gewöhnt sind. Sie haben bei Swarm weniger zu lernen als bei Kubernetes.
+
+
+
+Vorteile:
+>>>>>>>>>
+Bereits in Docker integriert (gleiche Komandos)
+Einfacher zu lernen 
+
+
+Nachteile:
+>>>>>>>>>>
+Kleinere Community
+Kleineres Feature-Set als Kubernetes
+(Opinion): Bei vielen Containern wird es unhandlich
+
+
+
+openshift 4 (Redhat)
+===========
+
+- Verwendet als runtime: CRI-O (Redhat) 
+
+
+Vorteile:
+>>>>>>>>>
+
+Container laufen nicht als root (by default) 
+Viele Prozesse bereits mitgedacht als Tools 
+?? Applikation deployen ??
+
+In OpenShift 4 - Kubernetes als Unterbau 
+
+
+Nachteile: 
+>>>>>>>>>>
+o Lizenzgebühren (Redhat) 
+o kleinere Userbase 
+
+
+
+
+mesos
+=====
+
+Mesos ist ein Apache-Projekt, in das Mesospheres Marathon und DC/OS eingeflossen sind. Letzteres ist ein Container-Betriebssystem. Mesos ist kein Orchestrator im eigentlichen Sinne. Vielmehr könnte man die Lösung als verteiltes Betriebssystem bezeichnen, das eine gemeinsame Abstraktionsschicht der Ressourcen, auf denen es läuft, bereitstellt.
+
+
+Vorteile:
+
+Nachteile:
+
+
+Rancher
+=======
+Graphical frontend, build on containers to deploy multiple kubernetes clusters
+
+```
+
+### Hyperscaler vs. Kubernetes on Premise
+
+
+```
+
+Neutral:
+========
+o Erweiterungen spezifisch für die Cloud-Platform 
+o Spezielle Kommandozeilen - Tools 
+
+Vorteile:
+=========
+o Kostenabrechnung nach Bedarf (Up- / Downscaling) 
+o Storage-Lösung (Clusterbasierte) beim CloudProvider. 
+o Backup mitgedacht.
+o Leichter Upgrades zu machen 
+o wenig Operations-Aufwand durch feststehende Prozesse und Tools 
+
+Nachteile:
+==========
+o Gefahr des Vendor Logins 
+o Kosten-Explosion 
+o Erst_iniitialisierung: Aneignen von Spezial-Wissen für den jeweiligen Cloud-Provider 
+(Lernkurve und Invest) 
+
+Gibt es eine Abstraktionsschicht, die für alle Cloud-Anbieter verwenden kann.
+
+
+```
+
+
+
 
 ## Kubernetes - Überblick
 
@@ -4453,7 +5025,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "<euername>.lab.t3isp.de"
+  - host: "<euername>.lab1.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -4469,7 +5041,6 @@ spec:
 ```
 ## ingress 
 kubectl apply -f ingress.yml
-kubectl get ing 
 ```
 
 ### Reference 
@@ -4504,7 +5075,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "app12.lab.t3isp.de"
+  - host: "app12.lab1.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -4625,6 +5196,15 @@ This annotation allows to return a permanent redirect instead of sending data to
 
 ### Schritt 1: configmap vorbereiten 
 ```
+cd 
+mkdir -p manifests 
+cd manifests
+mkdir configmaptests 
+cd configmaptests
+nano 01-configmap.yml
+```
+
+```
 ### 01-configmap.yml
 kind: ConfigMap 
 apiVersion: v1 
@@ -4634,11 +5214,6 @@ data:
   # als Wertepaare
   database: mongodb
   database_uri: mongodb://localhost:27017
-  
-  # als Inhalte 
-  keys: | 
-    image.public.key=771 
-    rsa.public.key=42
 ```
 
 ```
@@ -4648,6 +5223,12 @@ kubectl get cm -o yaml
 ```
 
 ### Schrit 2: Beispiel als Datei 
+
+
+```
+nano 02-pod.yml
+```
+
 ```
 kind: Pod 
 apiVersion: v1 
@@ -4692,6 +5273,10 @@ kubectl exec -it pod-mit-configmap --  bash
 ```
 
 ### Schritt 3: Beispiel. ConfigMap als env-variablen 
+
+```
+nano 03-pod-mit-env.yml
+```
 
 ```
 ## 03-pod-mit-env.yml 
@@ -5694,8 +6279,11 @@ Feststehende Struktur
 
 ```
 artifacts helm 
-https://artifacthub.io/
+
 ```
+
+ * https://artifacthub.io/
+
 ### Komponenten 
 
 ```
@@ -5737,7 +6325,7 @@ kubectl cluster-info
   * Please only use: helm3. No server-side components needed (in cluster) 
     * Get away from examples using helm2 (hint: helm init) - uses tiller  
 
-### Important commands 
+### Simple Walkthrough (Example 0)
 
 ```
 ## Repo hinzufpgen 
@@ -5745,10 +6333,11 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 ## gecachte Informationen aktualieren 
 helm repo update
 
-helm search bitnami 
-helm install release-name bitnami/mysql
+helm search repo bitnami 
+## helm install release-name bitnami/mysql
+helm install my-mysql bitnami/mysql
 ## Chart runterziehen ohne installieren 
-helm pull bitnami/mysql
+## helm pull bitnami/mysql
 
 ## Release anzeigen zu lassen
 helm list 
@@ -5756,8 +6345,8 @@ helm list
 ## Status einer Release / Achtung, heisst nicht unbedingt nicht, dass pod läuft 
 helm status my-mysql 
 
-
-helm install neuer-release-name  bitnami/mysql 
+## weitere release installieren 
+## helm install neuer-release-name  bitnami/mysql 
 
 
 ```
