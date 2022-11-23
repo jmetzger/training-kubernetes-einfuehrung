@@ -16,7 +16,9 @@ kubectl label namespace default istio-injection=enabled
 kubectl label namespace default istio-injection=enabled
 ```
 
+## istio tls 
 
+ * https://istio.io/latest/docs/ops/configuration/traffic-management/tls-configuration/
 
 
 ## istio - the next generation without sidecar 
