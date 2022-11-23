@@ -240,6 +240,9 @@
      * [Kubernetes mit VisualStudio Code](https://code.visualstudio.com/docs/azure/kubernetes)
      * [Kube Api Ressources - Versionierungsschema](/kubernetes/api-versionierung-lifetime.md)
      * [Kubernetes Labels and Selector](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
+
+  1. Misc 
+     * [Mermaid Test](mermaid.md)
      
   
 
