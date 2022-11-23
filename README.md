@@ -78,6 +78,9 @@
   1. Tipps & Tricks 
      * [Ubuntu client aufsetzen](/tipps-tricks/ubuntu-client.md)
      * [Netzwerkverbindung zum Pod testen](/tipps-tricks/verbindung-zu-pod-testen.md)
+     
+  1. Kubernetes Administration /Upgrades 
+     * [Kubernetes Administration / Upgrades](kubernetes-cluster-update-path.md)
 
   1. Weiter lernen 
      * [Lernumgebung](https://killercoda.com/)
