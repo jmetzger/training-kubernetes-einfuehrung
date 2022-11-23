@@ -76,6 +76,9 @@
   1. Kubernetes QoS / HealthChecks
      * [Quality of Service - evict pods](kubernetes/qos-class.md)
      * [LiveNess/Readiness - Probe / HealthChecks](probes/uebung-liveness.md)
+     
+  1. Kubernetes Monitoring 
+     * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
 
   1. Tipps & Tricks 
      * [Ubuntu client aufsetzen](/tipps-tricks/ubuntu-client.md)
