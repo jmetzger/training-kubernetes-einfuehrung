@@ -22,7 +22,8 @@ data:
   database_uri: mongodb://localhost:27017
   
   # als Inhalte 
-  keys.image: 71
+  keys:
+    image: 71
 ```
 
 ```
