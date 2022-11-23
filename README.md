@@ -81,6 +81,7 @@
      
   1. Kubernetes Administration /Upgrades 
      * [Kubernetes Administration / Upgrades](kubernetes-cluster-update-path.md)
+     * [Terminierung von Container vermeiden](avoid-termination-container.md)
 
   1. Weiter lernen 
      * [Lernumgebung](https://killercoda.com/)
