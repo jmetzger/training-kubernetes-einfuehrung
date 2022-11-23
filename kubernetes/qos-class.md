@@ -11,11 +11,11 @@ in spec.containers
 
 ## Art der Typen: 
 
-  * Garanteed
+  * Guaranteed
   * Burstable
   * BestEffort 
 
-## Garanteed 
+## Guaranteed 
 
 ```
 Type: Garanteed:
