@@ -51,7 +51,7 @@ kubectl apply -f service-account.yml
 
 ### Mini-Schritt 2: ClusterRole festlegen - Dies gilt für alle namespaces, muss aber noch zugewiesen werden
 
-````
+```
 nano pods-clusterrole.yml 
 ```
 
