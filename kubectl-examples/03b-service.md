@@ -21,12 +21,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      run: my-nginx
+      web: my-nginx
   replicas: 2
   template:
     metadata:
       labels:
-        run: my-nginx
+        web: my-nginx
     spec:
       containers:
       - name: cont-nginx
@@ -53,7 +53,7 @@ spec:
   - port: 80
     protocol: TCP
   selector:
-    run: my-nginx      
+    web: my-nginx      
         
 ```        
 
