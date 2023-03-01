@@ -11,7 +11,6 @@
      * [Dockerfile - image kleinhalten](dockerfile-image-small.md)
 
   1. Kubernetes - Überblick
-     * [Allgemeine Einführung in Container (Dev/Ops)](overview-docker.md)
      * [Warum Kubernetes, was macht Kubernetes](warum-kubernetes.md)
      * [Microservices (Warum ? Wie ?) (Devs/Ops)](microservices.md) 
      * [Wann macht Kubernetes Sinn, wann nicht?](/kubernetes/wann-sinnvoll-wann-nicht.md)
@@ -113,7 +112,6 @@
 
   1. Kubernetes - Überblick
      * [Allgemeine Einführung in Container (Dev/Ops)](overview-docker.md)
-     * [Warum Kubernetes, was macht Kubernetes](warum-kubernetes.md)
      * [Microservices (Warum ? Wie ?) (Devs/Ops)](microservices.md) 
      * [Wann macht Kubernetes Sinn, wann nicht?](/kubernetes/wann-sinnvoll-wann-nicht.md)
      * [Aufbau Allgemein](/kubernetes/architecture.md)
