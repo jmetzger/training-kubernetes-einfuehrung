@@ -14,7 +14,7 @@ kind: ReplicaSet
 metadata:
   name: nginx-replica-set
 spec:
-  replicas: 2
+  replicas: 5
   selector:
     matchLabels:
       tier: frontend
