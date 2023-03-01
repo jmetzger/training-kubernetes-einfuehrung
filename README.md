@@ -31,6 +31,8 @@
      * [kubectl/manifest/replicaset](/kubectl-examples/01a-replicaset-nginx.md)
      * Deployments (Devs/Ops)
      * [kubectl/manifest/deployments](/kubectl-examples/03-nginx-deployment.md)
+     * Debugging 
+     * [Netzwerkverbindung zum Pod testen](/tipps-tricks/verbindung-zu-pod-testen.md)  
      * Services (Devs/Ops)
      * [kubectl/manifest/service](/kubectl-examples/03b-service.md)
      * DaemonSets (Devs/Ops)
@@ -80,7 +82,6 @@
      * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
 
   1. Tipps & Tricks 
-     * [Ubuntu client aufsetzen](/tipps-tricks/ubuntu-client.md)
      * [Netzwerkverbindung zum Pod testen](/tipps-tricks/verbindung-zu-pod-testen.md)
      
   1. Kubernetes Administration /Upgrades 
@@ -219,6 +220,7 @@
      * Blue Green Deployment (Devs/Ops) 
 
   1. Tipps & Tricks 
+     * [Ubuntu client aufsetzen](/tipps-tricks/ubuntu-client.md)
      * [bash-completion](/kubectl/bash-completion.md) 
      * [Alias in Linux kubectl get -o wide](/kubectl/alias-o-wide.md)
      * [vim einrückung für yaml-dateien](/vim/vim-yaml.md)
