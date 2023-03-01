@@ -8,6 +8,7 @@
      * [Was sind container images](container-images.md) 
      * [Container vs. Virtuelle Maschine](container-vs-vm.md)
      * [Was ist ein Dockerfile](dockerfile.md) 
+     * [Dockerfile - image kleinhalten](dockerfile-images-small.md)
 
   1. Kubernetes - Überblick
      * [Allgemeine Einführung in Container (Dev/Ops)](overview-docker.md)
