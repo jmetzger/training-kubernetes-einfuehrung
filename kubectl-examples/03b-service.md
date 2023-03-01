@@ -7,7 +7,10 @@ cd
 cd manifests
 mkdir 04-service 
 cd 04-service 
-nano svc.yml 
+```
+
+```
+nano deploy.yml 
 ```
 
 ```
@@ -30,7 +33,14 @@ spec:
         image: nginx
         ports:
         - containerPort: 80
----
+```
+
+```
+nano service.yml
+```
+
+
+```
 apiVersion: v1
 kind: Service
 metadata:
