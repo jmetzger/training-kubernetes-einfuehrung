@@ -49,5 +49,7 @@ nano nginx-deployment.yml
 # danach 
 kubectl apply -f .
 kubectl get all 
+kubectl get pods -w
+
 ```
 
