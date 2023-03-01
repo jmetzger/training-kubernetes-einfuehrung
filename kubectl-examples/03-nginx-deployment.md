@@ -45,7 +45,7 @@ nano nginx-deployment.yml
 ```
 
 ```
-# Ändern des images von nginx:latest in nginx:1.21 
+# Ändern des images von nginx:1.22 in nginx:1.23
 # danach 
 kubectl apply -f .
 kubectl get all 
