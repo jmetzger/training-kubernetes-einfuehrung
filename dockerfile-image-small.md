@@ -16,3 +16,8 @@ RUN apt-get update && \
 # CMD ["/bin/bash"]
 
 ```
+
+## Example 2: Start from scratch 
+
+ * https://codeburst.io/docker-from-scratch-2a84552470c8
+
