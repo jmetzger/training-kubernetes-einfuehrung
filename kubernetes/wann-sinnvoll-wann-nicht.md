@@ -12,6 +12,7 @@
 ## Wo spielt Kubernetes seine Stärken aus ? 
 
   * Skalieren von Anwendungen. 
+  * bessere Hochverfügbarkeit out-of-the-box
   * Heilen von Systemen (neu starten von Pods) 
   * Automatische Überwachung mit deklarativem Management) - ich beschreibe, was ich will
   * Neue Versionen zu auszurollen (Canary Deployment, Blue/Green Deployment) 
