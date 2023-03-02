@@ -45,6 +45,7 @@
      * [Achtung: Ingress mit Helm - annotations](/ingress-mit-helm-class-achtung.md)
      * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
      * [ConfigMap Example](/kubectl-examples/06-configmap.md)
+     * [ConfigMap Example MariaDB](/kubectl-examples/06a-configmap-mariadb.md)
 
   1. Helm (Kubernetes Paketmanager) 
      * [Helm Grundlagen](/helm/grundlagen.md)
