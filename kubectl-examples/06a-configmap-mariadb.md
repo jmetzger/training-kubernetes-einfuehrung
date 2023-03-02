@@ -52,7 +52,7 @@ spec:
     spec:
       containers:
       - name: mariadb-cont
-        image: mariadb:latest
+        image: mariadb:10.11
         envFrom:
         - configMapRef:
             name: mariadb-configmap
