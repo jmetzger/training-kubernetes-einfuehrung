@@ -2,8 +2,8 @@
 
 ## Prerequisites 
 
-  * MariaDB - Server is running in digialocean in same network as doks - cluster (10.135.0.x) 
-  * DNS-Entry for mariadb-server.t3isp.de -> pointing to private ip: 10.135.0.x 
+  * MariaDB - Server is running on digitalocean in same network as doks (kubernetes) - cluster (10.135.0.x) 
+  * DNS-Entry for mariadb-server.t3isp.de -> pointing to private ip: 10.135.0.9
 
 ## Variante 1:
 
