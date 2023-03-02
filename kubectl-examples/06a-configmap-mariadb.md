@@ -129,6 +129,23 @@ kubectl exec -it deploy/mariadb-client -- bash
 apt update; apt install -y mariadb-client iputils-ping
 ```
 
+## Schritt x: mysql-zugang von aussen erstellen 
+
+```
+kubectl exec -it deploy/mariadb-deployment -- bash
+```
+
+```
+mysql -uroot -p$MARIADB_ROOT_PASSWORD
+```
+
+```
+# innerhalb von mysql 
+create user ext@'%' identified by '11abc432';
+grant all on *.* to ext@'%';
+
+```
+
 
 ## Important Sidenode 
 
