@@ -69,13 +69,17 @@ apt update; apt install -y mariadb-client iputils-ping
 ### Schritt 3: Service testen 
 
 ```
-kubectl run --rm -it ubuntu --image=ubuntu -- bash
+kubectl exec -it deploy/mariadb-client -- bash
 ```
 
 ```
-# in container install mariadb-server 
-apt update 
-apt install -y mariadb-server 
+# im container verbinden mit mysql 
+mysql -u$DB_USER -p$DB_PASS -h dbexternal
+```
+
+```
+# im verbundenen MySQL-Client 
+show databases;
 ```
 
 
