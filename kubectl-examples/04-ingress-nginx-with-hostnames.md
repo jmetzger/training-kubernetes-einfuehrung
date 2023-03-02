@@ -18,9 +18,6 @@ nano apple.yml
 ```
 
 ```
-# mkdir apple-banana-ingress
-# cd apple-banana-ingress
-
 # apple.yml 
 # vi apple.yml 
 kind: Pod
