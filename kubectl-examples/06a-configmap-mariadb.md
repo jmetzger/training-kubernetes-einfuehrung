@@ -63,6 +63,30 @@ spec:
 kubectl apply -f .
 ```
 
+## Schritt 3: Service for mariadb 
+
+```
+nano 03-service.yml 
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3306
+    protocol: TCP
+  selector:
+    app: mariadb
+```
+
+```
+kubectl apply -f 03-service.yml 
+```
+
 ## Important Sidenode 
 
   * If configmap changes, deployment does not know
