@@ -7,19 +7,32 @@
 
 ## Variante 1:
 
+### Schritt 1: Service erstellen 
+
 ```
 cd 
 mkdir -p manifests
 cd manifests
 mkdir 05-external-db 
 cd 05-external-db 
-nano 01-external-name.yml
+nano 01-external-db.yml
 ```
 
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbexternal
+spec:
+  type: ExternalName
+  externalName: mariadb-server.t3isp.de
+```
 
 ```
-kubectl apply -f 01-external-name.yml 
+kubectl apply -f 01-external-db.yml 
 ```
+
+### Schritt 2: Service testen 
 
 ```
 kubectl run --rm -it ubuntu --image=ubuntu -- bash
