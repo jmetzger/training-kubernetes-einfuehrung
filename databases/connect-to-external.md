@@ -53,6 +53,18 @@ data:
 kubectl apply -f 01-configmap.yml  
 ```
 
+```
+# client deployment gelöscht 
+kubectl delete -f 04-client.yml
+kubectl apply -f 04-client.yml 
+kubectl exec -it deploy/mariadb-client -- bash 
+```
+
+```
+# Im client 
+apt update; apt install -y mariadb-client iputils-ping 
+```
+
 
 ### Schritt 3: Service testen 
 
