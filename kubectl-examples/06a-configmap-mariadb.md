@@ -129,7 +129,7 @@ kubectl exec -it deploy/mariadb-client -- bash
 apt update; apt install -y mariadb-client iputils-ping
 ```
 
-## Schritt x: mysql-zugang von aussen erstellen 
+## Schritt 5x: mysql-zugang von aussen erstellen 
 
 ```
 kubectl exec -it deploy/mariadb-deployment -- bash
