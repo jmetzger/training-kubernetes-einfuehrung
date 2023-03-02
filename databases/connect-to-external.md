@@ -32,7 +32,29 @@ spec:
 kubectl apply -f 01-external-db.yml 
 ```
 
-### Schritt 2: Service testen 
+### Schritt 2: configmap anlegen oder ergänzen 
+
+```
+# Ergänzen 
+# unter data zwei weitere Zeile 
+## 01-configmap.yml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: mariadb-configmap
+data:
+  # als Wertepaare
+  MARIADB_ROOT_PASSWORD: 11abc432
+  DB_USER: ext
+  DB_PASS: 11dortmund22
+```
+
+```
+kubectl apply -f 01-configmap.yml  
+```
+
+
+### Schritt 3: Service testen 
 
 ```
 kubectl run --rm -it ubuntu --image=ubuntu -- bash
