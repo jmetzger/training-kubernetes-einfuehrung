@@ -4,7 +4,7 @@
 
 ```
 cd 
-mkdir manifests 
+mkdir -p manifests 
 cd manifests
 mkdir sts
 cd sts 
