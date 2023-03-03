@@ -33,33 +33,20 @@ als letztes "evicted"
 apiVersion: v1
 
 kind: Pod
-
 metadata:
-
   name: qos-demo
-
   namespace: qos-example
-
 spec:
-
   containers:
-
   - name: qos-demo-ctr
-
     image: nginx
-
     resources:
-
       limits:
-
         memory: "200Mi"
-
         cpu: "700m"
 
       requests:
-
         memory: "200Mi"
-
         cpu: "700m"
 ```
 
