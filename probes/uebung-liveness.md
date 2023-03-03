@@ -17,11 +17,13 @@ What does it do ?
 ```
 
 ```
-# cd
-# mkdir -p manifests/probes
-# cd manifests/probes 
-# vi 01-pod-liveness-command.yml 
+cd
+mkdir -p manifests/probes
+cd manifests/probes 
+nano 01-pod-liveness-command.yml 
+```
 
+```
 apiVersion: v1
 kind: Pod
 metadata:
