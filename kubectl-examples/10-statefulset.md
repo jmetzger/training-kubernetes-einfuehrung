@@ -3,6 +3,16 @@
 ## 
 
 ```
+cd 
+mkdir manifests 
+cd manifests
+mkdir sts
+cd sts 
+nano 01-sts.yml 
+```
+
+
+```
 # Headless Service - no ClusterIP 
 # Just used for name resolution of pods
 # web-0.nginx
@@ -45,9 +55,17 @@ spec:
           name: web
 ```
 
+```
+kubectl apply -f .
+
+```
+
+
 ## Auflösung Namen.
 
 ```
+kubectl run --rm -it podtester --image=busybox -- sh 
+
 ping web-0.nginx 
 ping web-1.nginx 
 ```
