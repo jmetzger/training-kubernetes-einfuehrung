@@ -159,6 +159,10 @@ kubectl apply -f 03-deploy.yml
 
 ```
 
+```
+nano 04-service.yml
+```
+
 
 ```
 # now testing it with a service 
