@@ -1,6 +1,6 @@
 # Statefulset 
 
-## 
+## Schritt 1: 
 
 ```
 cd 
@@ -61,7 +61,7 @@ kubectl apply -f .
 ```
 
 
-## Auflösung Namen.
+## Schritt 2: Auflösung Namen.
 
 ```
 kubectl run --rm -it podtester --image=busybox -- sh 
