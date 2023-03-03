@@ -8,7 +8,7 @@ What does it do ?
  
 * At the beginning pod is ready (first 30 seconds)
 * Check will be done after 5 seconds of pod being startet
-* Check will be done periodically every 5 minutes and will check
+* Check will be done periodically every 5 seconds and will check
   * for /tmp/healthy
   * if file is there will return: 0 
   * if file is not there will return: 1 
