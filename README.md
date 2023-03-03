@@ -46,6 +46,7 @@
      * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
      * [ConfigMap Example](/kubectl-examples/06-configmap.md)
      * [ConfigMap Example MariaDB](/kubectl-examples/06a-configmap-mariadb.md)
+     * [Connect to external database](/databases/connect-to-external-db.md)
 
   1. Helm (Kubernetes Paketmanager) 
      * [Helm Grundlagen](/helm/grundlagen.md)
