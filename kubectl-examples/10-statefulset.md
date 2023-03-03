@@ -68,6 +68,13 @@ kubectl run --rm -it podtester --image=busybox -- sh
 
 ping web-0.nginx 
 ping web-1.nginx 
+
+kubectl delete sts web 
+kubectl apply -f .
+kubectl run --rm -it podtest --image=busybox -- sh 
+
+ping web-0.nginx 
+
 ```
 
 ## Referenz 
