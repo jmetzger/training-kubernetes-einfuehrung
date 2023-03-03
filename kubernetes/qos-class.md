@@ -20,7 +20,7 @@ kubectl explain pod.spec.containers.resources
 ## Guaranteed 
 
 ```
-Type: Garanteed:
+Type: Guaranteed:
 https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/#create-a-pod-that-gets-assigned-a-qos-class-of-guaranteed
 
 set when limit equals request
