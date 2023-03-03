@@ -6,7 +6,9 @@
 Request: Definiert wieviel ein Container mindestens braucht (CPU,memory)
 Limit: Definiert, was ein Container maximal braucht.
 
-in spec.containers 
+in spec.containers.resources 
+kubectl explain pod.spec.containers.resources
+
 ```
 
 ## Art der Typen: 
