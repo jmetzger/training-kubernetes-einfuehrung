@@ -3,7 +3,7 @@
 ## Taints 
 
 ```
-Taints schliessen auf einer Node alle Pods aus, die nicht bestimmte taints haben:
+Taints schliessen auf einer Node alle Pods aus, die nicht bestimmte tolerations haben:
 
 Möglichkeiten:
 
