@@ -61,7 +61,7 @@
      * [Kubernetes Netzwerke Übersicht](kubernetes-networks/overview.md)
      * [DNS - Resolution - Services](kubernetes-networks/dns-resolution-services)
      * [Kubernetes Firewall / Cilium Calico](/kubernetes-network/callico/00-simple-example-multi.md)
-     * [Sammlung istio](sammlung-istio.md)
+     * [Sammlung istio/mesh](sammlung-istio.md)
 
   1. Kubernetes Autoscaling 
      * [Kubernetes Autoscaling](/kubernetes/autoscaling.md)
