@@ -8,13 +8,12 @@
      * [Was sind container images](#was-sind-container-images)
      * [Container vs. Virtuelle Maschine](#container-vs-virtuelle-maschine)
      * [Was ist ein Dockerfile](#was-ist-ein-dockerfile)
+     * [Dockerfile - image kleinhalten](#dockerfile---image-kleinhalten)
 
   1. Kubernetes - Überblick
-     * [Allgemeine Einführung in Container (Dev/Ops)](#allgemeine-einführung-in-container-devops)
      * [Warum Kubernetes, was macht Kubernetes](#warum-kubernetes-was-macht-kubernetes)
-     * [Microservices (Warum ? Wie ?) (Devs/Ops)](#microservices-warum--wie--devsops)
-     * [Wann macht Kubernetes Sinn, wann nicht?](#wann-macht-kubernetes-sinn-wann-nicht)
      * [Aufbau Allgemein](#aufbau-allgemein)
+     * [Wann macht Kubernetes Sinn, wann nicht?](#wann-macht-kubernetes-sinn-wann-nicht)
      * [Aufbau mit helm,OpenShift,Rancher(RKE),microk8s](#aufbau-mit-helmopenshiftrancherrkemicrok8s)
      * [Welches System ? (minikube, micro8ks etc.)](#welches-system--minikube-micro8ks-etc)
      * [Installation - Welche Komponenten from scratch](#installation---welche-komponenten-from-scratch)
@@ -32,6 +31,8 @@
      * [kubectl/manifest/replicaset](#kubectlmanifestreplicaset)
      * Deployments (Devs/Ops)
      * [kubectl/manifest/deployments](#kubectlmanifestdeployments)
+     * Debugging 
+     * [Netzwerkverbindung zum Pod testen](#netzwerkverbindung-zum-pod-testen)
      * Services (Devs/Ops)
      * [kubectl/manifest/service](#kubectlmanifestservice)
      * DaemonSets (Devs/Ops)
@@ -41,9 +42,12 @@
      * [Documentation for default ingress nginx](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
      * [Beispiel Ingress](#beispiel-ingress)
      * [Beispiel mit Hostnamen](#beispiel-mit-hostnamen)
-     * [Achtung: Ingress mit Helm - annotations](#achtung:-ingress-mit-helm---annotations)
+     * [Achtung: Ingress mit Helm - annotations](#achtung-ingress-mit-helm---annotations)
      * [Permanente Weiterleitung mit Ingress](#permanente-weiterleitung-mit-ingress)
      * [ConfigMap Example](#configmap-example)
+     * [ConfigMap Example MariaDB](#configmap-example-mariadb)
+     * [Connect to external database](#connect-to-external-database)
+     * [Example stateful set](#example-stateful-set)
 
   1. Helm (Kubernetes Paketmanager) 
      * [Helm Grundlagen](#helm-grundlagen)
@@ -57,7 +61,7 @@
      * [Kubernetes Netzwerke Übersicht](#kubernetes-netzwerke-übersicht)
      * [DNS - Resolution - Services](#dns---resolution---services)
      * [Kubernetes Firewall / Cilium Calico](#kubernetes-firewall--cilium-calico)
-     * [Sammlung istio](#sammlung-istio)
+     * [Sammlung istio/mesh](#sammlung-istiomesh)
 
   1. Kubernetes Autoscaling 
      * [Kubernetes Autoscaling](#kubernetes-autoscaling)
@@ -71,17 +75,18 @@
      * [Ueberblick](#ueberblick)
     
   1. Kubernetes Deployment Strategies
-     * [Overview](#overview)
+     * [Deployment green/blue,canary,rolling update](#deployment-greenbluecanaryrolling-update)
+     * [Praxis-Übung A/B Deployment](#praxis-übung-ab-deployment)
     
-  1. Kubernetes QoS / HealthChecks
+  1. Kubernetes QoS / HealthChecks / Live / Readiness
      * [Quality of Service - evict pods](#quality-of-service---evict-pods)
      * [LiveNess/Readiness - Probe / HealthChecks](#livenessreadiness---probe--healthchecks)
+     * [Taints / Toleratioins](#taints--toleratioins)
      
   1. Kubernetes Monitoring 
      * [Prometheus Monitoring Server (Overview)](#prometheus-monitoring-server-overview)
 
   1. Tipps & Tricks 
-     * [Ubuntu client aufsetzen](#ubuntu-client-aufsetzen)
      * [Netzwerkverbindung zum Pod testen](#netzwerkverbindung-zum-pod-testen)
      
   1. Kubernetes Administration /Upgrades 
@@ -107,12 +112,16 @@
      * [Kubernetes Alternativen](#kubernetes-alternativen)
      * [Hyperscaler vs. Kubernetes on Premise](#hyperscaler-vs-kubernetes-on-premise)
      
+  1. Microservices 
+     * [Microservices vs. Monolith](#microservices-vs-monolith)
+     * [Monolith schneiden/aufteilen](#monolith-schneidenaufteilen)
+     * [Strategic Patterns - wid monolith praktisch umbauen](#strategic-patterns---wid-monolith-praktisch-umbauen)
+     * [Literatur von Monolith zu Microservices](https://www.amazon.de/Vom-Monolithen-Microservices-bestehende-umzugestalten/dp/3960091400/)
 
 ## Backlog 
 
   1. Kubernetes - Überblick
      * [Allgemeine Einführung in Container (Dev/Ops)](#allgemeine-einführung-in-container-devops)
-     * [Warum Kubernetes, was macht Kubernetes](#warum-kubernetes-was-macht-kubernetes)
      * [Microservices (Warum ? Wie ?) (Devs/Ops)](#microservices-warum--wie--devsops)
      * [Wann macht Kubernetes Sinn, wann nicht?](#wann-macht-kubernetes-sinn-wann-nicht)
      * [Aufbau Allgemein](#aufbau-allgemein)
@@ -146,7 +155,7 @@
      * [Documentation for default ingress nginx](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
      * [Beispiel Ingress](#beispiel-ingress)
      * [Beispiel mit Hostnamen](#beispiel-mit-hostnamen)
-     * [Achtung: Ingress mit Helm - annotations](#achtung:-ingress-mit-helm---annotations)
+     * [Achtung: Ingress mit Helm - annotations](#achtung-ingress-mit-helm---annotations)
      * [Permanente Weiterleitung mit Ingress](#permanente-weiterleitung-mit-ingress)
      * [ConfigMap Example](#configmap-example)
 
@@ -221,6 +230,7 @@
      * Blue Green Deployment (Devs/Ops) 
 
   1. Tipps & Tricks 
+     * [Ubuntu client aufsetzen](#ubuntu-client-aufsetzen)
      * [bash-completion](#bash-completion)
      * [Alias in Linux kubectl get -o wide](#alias-in-linux-kubectl-get--o-wide)
      * [vim einrückung für yaml-dateien](#vim-einrückung-für-yaml-dateien)
@@ -315,73 +325,32 @@ CMD ["node", "src/index.js"]
 EXPOSE 3000
 ```
 
+### Dockerfile - image kleinhalten
+
+
+  * Delete all files that are not needed in image 
+
+### Example 
+
+```
+### Delete files needed for installation
+### Right after the installation of the necessary 
+## Variante 2
+## nano Dockerfile
+FROM ubuntu:22.04
+RUN apt-get update && \
+    apt-get install -y inetutils-ping && \
+    rm -rf /var/lib/apt/lists/*
+## CMD ["/bin/bash"]
+
+```
+
+### Example 2: Start from scratch 
+
+ * https://codeburst.io/docker-from-scratch-2a84552470c8
+
+
 ## Kubernetes - Überblick
-
-### Allgemeine Einführung in Container (Dev/Ops)
-
-
-### Architektur 
-
-![Docker Architecture - copyright geekflare](https://geekflare.com/wp-content/uploads/2019/09/docker-architecture-609x270.png)
-
-### Was sind Docker Images 
-
-  * Docker Image benötigt, um zur Laufzeit Container-Instanzen zu erzeugen 
-  * Bei Docker werden Docker Images zu Docker Containern, wenn Sie auf einer Docker Engine als Prozess ausgeführt
-  * Man kann sich ein Docker Image als Kopiervorlage vorstellen.
-    * Diese wird genutzt, um damit einen Docker Container als Kopie zu erstellen   
-
-### Was sind Docker Container ? 
-
-```
-- vereint in sich Software
-- Bibliotheken 
-- Tools 
-- Konfigurationsdateien 
-- keinen eigenen Kernel 
-- gut zum Ausführen von Anwendungen auf verschiedenen Umgebungen 
-
-### Weil :
-- Container sind entkoppelt
-- Container sind voneinander unabhängig 
-- Können über wohldefinierte Kommunikationskanäle untereinander Informationen austauschen
-
-- Durch Entkopplung von Containern:
-  o Unverträglichkeiten von Bibliotheken, Tools oder Datenbank können umgangen werden, wenn diese von den Applikationen in unterschiedlichen Versionen benötigt werden.
-```
-
-### Container vs. VM 
-
-```
-VM's virtualisieren Hardware
-Container virtualisieren Betriebssystem 
-```
-
-### Dockerfile 
-
- * Textdatei, die Linux - Kommandos enthält
-   * die man auch auf der Kommandozeile ausführen könnte 
-   * Diese erledigen alle Aufgaben, die nötig sind, um ein Image zusammenzustellen
-   * mit docker build wird dieses image erstellt 
-
-### Einfaches Beispiel eines Dockerfiles
-
-```
-FROM nginx:latest
-COPY html /usr/share/nginx/html
-```
-
-```
-## beispiel 
-## cd beispiel
-## ls 
-## Dockerfile 
-docker build . 
-docker push 
-```
-### Komplexeres Beispiel eines Dockerfiles 
-
-  * https://github.com/StefanScherer/whoami/blob/main/Dockerfile
 
 ### Warum Kubernetes, was macht Kubernetes
 
@@ -406,80 +375,6 @@ docker push
 
   * Orchestrierung von Containern
   * am gebräuchlisten aktuell Docker
-
-### Microservices (Warum ? Wie ?) (Devs/Ops)
-
-
-### Was soll das ? 
-
-```
-Ein mini-dienst, soll das minimale leisten, d.h. nur das wofür er da ist.
-
--> z.B. Webserver 
-oder Datenbank-Server
-oder Dienst, der nur reports erstellt 
-```
-
-### Wie erfolgt die Zusammenarbeit 
-
-```
-Orchestrierung (im Rahmen der Orchestierung über vorgefertigte Schnittstellen, d.h. auch feststehende Benamung) 
-- Label 
-
-```
-
-### Vorteile 
-
-```
-## 
-Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität 
-
-
-
-```
-
-### Nachteile 
-
-```
-* Komplexität 
-  * z.B. in Bezug auf Debugging 
-  * Logging / Backups 
-```
-
-### Wann macht Kubernetes Sinn, wann nicht?
-
-
-### Wann nicht sinnvoll ? 
-
-  * Anwendung, die ich nicht in Container "verpackt" habe  
-  * Spielt der Dienstleister mit (Wartungsvertrag) 
-  * Kosten / Nutzenverhältnis (Umstellen von Container zu teuer) 
-  * Anwendung läßt sich nicht skalieren 
-    * z.B. Bottleneck Datenbank  
-    * Mehr Container bringen nicht mehr (des gleichen Typs) 
-  
-### Wo spielt Kubernetes seine Stärken aus ? 
-
-  * Skalieren von Anwendungen. 
-  * Heilen von Systemen (neu starten von Pods) 
-  * Automatische Überwachung mit deklarativem Management) - ich beschreibe, was ich will
-  * Neue Versionen zu auszurollen (Canary Deployment, Blue/Green Deployment) 
-
-### Mögliche Nachteile 
-
-  * Steigert die Komplexität.
-  * Debugging wird u.U. schwieriger
-  * Mit Kubernetes erkaufe ich mir auch, die Notwendigkeit.
-    * Über adequate Backup-Lösungen nachzudenken (Moving Target, Kubernetes Aware Backups) 
-    * Bereitsstellung von Monitoring Daten Log-Aggregierungslösung 
-
-### Klassische Anwendungsfällen 
-
-  * Webbasierte Anwendungen (z.B. auch API's bzw. Web)
- 
-
-
-
 
 ### Aufbau Allgemein
 
@@ -561,6 +456,42 @@ Er stellt sicher, dass Container in einem Pod ausgeführt werden.
 ### Referenzen 
 
   * https://www.redhat.com/de/topics/containers/kubernetes-architecture
+
+
+### Wann macht Kubernetes Sinn, wann nicht?
+
+
+### Wann nicht sinnvoll ? 
+
+  * Anwendung, die ich nicht in Container "verpackt" habe  
+  * Spielt der Dienstleister mit (Wartungsvertrag) 
+  * Kosten / Nutzenverhältnis (Umstellen von Container zu teuer) 
+  * Anwendung läßt sich nicht skalieren 
+    * z.B. Bottleneck Datenbank  
+    * Mehr Container bringen nicht mehr (des gleichen Typs) 
+  
+### Wo spielt Kubernetes seine Stärken aus ? 
+
+  * Skalieren von Anwendungen. 
+  * bessere Hochverfügbarkeit out-of-the-box
+  * Heilen von Systemen (neu starten von Pods) 
+  * Automatische Überwachung mit deklarativem Management) - ich beschreibe, was ich will
+  * Neue Versionen zu auszurollen (Canary Deployment, Blue/Green Deployment) 
+
+### Mögliche Nachteile 
+
+  * Steigert die Komplexität.
+  * Debugging wird u.U. schwieriger
+  * Mit Kubernetes erkaufe ich mir auch, die Notwendigkeit.
+    * Über adequate Backup-Lösungen nachzudenken (Moving Target, Kubernetes Aware Backups) 
+    * Bereitsstellung von Monitoring Daten Log-Aggregierungslösung 
+
+### Klassische Anwendungsfällen 
+
+  * Webbasierte Anwendungen (z.B. auch API's bzw. Web)
+ 
+
+
 
 
 ### Aufbau mit helm,OpenShift,Rancher(RKE),microk8s
@@ -888,6 +819,9 @@ cp -a /tmp/config config
 ls -la
 ## nano config befüllen 
 ## das bekommt ihr aus Eurem Cluster Management Tool 
+```
+
+```
 kubectl cluster-info
 ```
 
@@ -1105,7 +1039,7 @@ metadata:
 spec:
   containers:
   - name: web
-    image: nginx
+    image: nginx:1.23
 
 ```
 
@@ -1137,7 +1071,7 @@ kind: ReplicaSet
 metadata:
   name: nginx-replica-set
 spec:
-  replicas: 2
+  replicas: 5
   selector:
     matchLabels:
       tier: frontend
@@ -1149,7 +1083,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: "nginx:latest"
+          image: nginx:1.23
           ports:
              - containerPort: 80
              
@@ -1191,7 +1125,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:latest
+        image: nginx:1.22
         ports:
         - containerPort: 80
         
@@ -1208,12 +1142,43 @@ nano nginx-deployment.yml
 ```
 
 ```
-## Ändern des images von nginx:latest in nginx:1.21 
+## Ändern des images von nginx:1.22 in nginx:1.23
 ## danach 
 kubectl apply -f .
 kubectl get all 
+kubectl get pods -w
+
 ```
 
+
+### Netzwerkverbindung zum Pod testen
+
+
+### Situation 
+
+```
+Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
+```
+
+### Behelf: Eigenen Pod starten mit busybox 
+
+```
+kubectl run podtest --rm -it --image busybox -- /bin/sh
+```
+
+### Example test connection 
+
+```
+## wget befehl zum Kopieren
+wget -O - http://10.244.0.99
+```
+
+```
+## -O -> Output (grosses O (buchstabe)) 
+kubectl run podtest --rm -ti --image busybox -- /bin/sh
+/ # wget -O - http://10.244.0.99
+/ # exit 
+```
 
 ### kubectl/manifest/service
 
@@ -1225,7 +1190,10 @@ cd
 cd manifests
 mkdir 04-service 
 cd 04-service 
-nano svc.yml 
+```
+
+```
+nano deploy.yml 
 ```
 
 ```
@@ -1236,19 +1204,26 @@ metadata:
 spec:
   selector:
     matchLabels:
-      run: my-nginx
+      web: my-nginx
   replicas: 2
   template:
     metadata:
       labels:
-        run: my-nginx
+        web: my-nginx
     spec:
       containers:
       - name: cont-nginx
         image: nginx
         ports:
         - containerPort: 80
----
+```
+
+```
+nano service.yml
+```
+
+
+```
 apiVersion: v1
 kind: Service
 metadata:
@@ -1261,7 +1236,7 @@ spec:
   - port: 80
     protocol: TCP
   selector:
-    run: my-nginx      
+    web: my-nginx      
         
 ```        
 
@@ -1563,9 +1538,6 @@ nano apple.yml
 ```
 
 ```
-## mkdir apple-banana-ingress
-## cd apple-banana-ingress
-
 ## apple.yml 
 ## vi apple.yml 
 kind: Pod
@@ -1579,7 +1551,7 @@ spec:
     - name: apple-app
       image: hashicorp/http-echo
       args:
-        - "-text=apple-tln<x>"
+        - "-text=apple-<euer-name>"
 ---
 
 kind: Service
@@ -1618,7 +1590,7 @@ spec:
     - name: banana-app
       image: hashicorp/http-echo
       args:
-        - "-text=banana-tln<x>"
+        - "-text=banana-<euer-name>"
 
 ---
 
@@ -1643,7 +1615,7 @@ kubectl apply -f banana.yml
 ```
 kubectl get svc
 kubectl get pods -o wide
-kubectl run podtest --rm -ti --image busybox -- /bin/sh
+kubectl run podtest --rm -it --image busybox -- /bin/sh
 ```
 
 ```
@@ -1955,6 +1927,358 @@ kubectl exec -it pod-env-var --  bash
 
  * https://matthewpalmer.net/kubernetes-app-developer/articles/ultimate-configmap-guide-kubernetes.html
 
+### ConfigMap Example MariaDB
+
+
+### Schritt 1: configmap 
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir cftest 
+cd cftest 
+nano 01-configmap.yml 
+```
+
+```
+### 01-configmap.yml
+kind: ConfigMap 
+apiVersion: v1 
+metadata:
+  name: mariadb-configmap 
+data:
+  # als Wertepaare
+  MARIADB_ROOT_PASSWORD: 11abc432
+```
+
+```
+kubectl apply -f .
+kubectl get cm
+kubectl get cm mariadb-configmap -o yaml
+```
+
+
+### Schritt 2: Deployment 
+```
+nano 02-deploy.yml
+```
+
+```
+##deploy.yml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb-cont
+        image: mariadb:10.11
+        envFrom:
+        - configMapRef:
+            name: mariadb-configmap
+
+```
+
+```
+kubectl apply -f .
+```
+
+### Schritt 3: Service for mariadb 
+
+```
+nano 03-service.yml 
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3306
+    protocol: TCP
+  selector:
+    app: mariadb
+```
+
+```
+kubectl apply -f 03-service.yml 
+```
+
+### Schritt 4: client aufsetzen 
+
+```
+nano 04-client.yml 
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-client
+spec:
+  selector:
+    matchLabels:
+      app: ubuntu
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      labels:
+        app: ubuntu
+    spec:
+      containers:
+      - name: service
+        image: ubuntu
+        command: [ "/bin/sh" , "-c", "tail -f /dev/null" ]
+        envFrom:
+        - configMapRef:
+            name: mariadb-configmap
+```
+
+```
+kubectl apply -f 04-client.yml 
+```
+
+
+
+```
+## im client 
+kubectl exec -it deploy/mariadb-client -- bash 
+apt update; apt install -y mariadb-client iputils-ping
+```
+
+### Schritt 5: mysql-zugang von aussen erstellen 
+
+```
+kubectl exec -it deploy/mariadb-deployment -- bash
+```
+
+```
+mysql -uroot -p$MARIADB_ROOT_PASSWORD
+```
+
+```
+## innerhalb von mysql 
+create user ext@'%' identified by '11abc432';
+grant all on *.* to ext@'%';
+
+```
+
+### Schritt 6: mysql von client aus testen 
+
+```
+kubectl exec -it deploy/mariadb-client -- bash
+```
+
+```
+mysql -uext -p$MARIADB_ROOT_PASSWORD -h mariadb
+```
+
+```
+show databases;
+```
+
+### Important Sidenode 
+
+  * If configmap changes, deployment does not know
+  * So kubectl apply -f deploy.yml will not have any effect
+  * to fix, use stakater/reloader: https://github.com/stakater/Reloader
+
+
+### Connect to external database
+
+
+### Prerequisites 
+
+  * MariaDB - Server is running on digitalocean in same network as doks (kubernetes) - cluster (10.135.0.x) 
+  * DNS-Entry for mariadb-server.t3isp.de -> pointing to private ip: 10.135.0.9
+
+### Variante 1:
+
+#### Schritt 1: Service erstellen 
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir 05-external-db 
+cd 05-external-db 
+nano 01-external-db.yml
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbexternal
+spec:
+  type: ExternalName
+  externalName: mariadb-server.t3isp.de
+```
+
+```
+kubectl apply -f 01-external-db.yml 
+```
+
+#### Schritt 2: configmap anlegen oder ergänzen 
+
+```
+## Ergänzen 
+## unter data zwei weitere Zeile 
+### 01-configmap.yml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: mariadb-configmap
+data:
+  # als Wertepaare
+  MARIADB_ROOT_PASSWORD: 11abc432
+  DB_USER: ext
+  DB_PASS: 11dortmund22
+```
+
+```
+kubectl apply -f 01-configmap.yml  
+```
+
+```
+## client deployment gelöscht 
+kubectl delete -f 04-client.yml
+kubectl apply -f 04-client.yml 
+kubectl exec -it deploy/mariadb-client -- bash 
+```
+
+```
+## Im client 
+apt update; apt install -y mariadb-client iputils-ping 
+```
+
+
+#### Schritt 3: Service testen 
+
+```
+kubectl exec -it deploy/mariadb-client -- bash
+```
+
+```
+## im container verbinden mit mysql 
+mysql -u$DB_USER -p$DB_PASS -h dbexternal
+```
+
+```
+## im verbundenen MySQL-Client 
+show databases;
+```
+
+
+### Variante 2:
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir 05-external-db 
+cd 05-external-db 
+nano 02-external-endpoint.yml
+```
+
+
+### Example stateful set
+
+
+### Schritt 1: 
+
+```
+cd 
+mkdir -p manifests 
+cd manifests
+mkdir sts
+cd sts 
+nano 01-sts.yml 
+```
+
+
+```
+## Headless Service - no ClusterIP 
+## Just used for name resolution of pods
+## web-0.nginx
+## web-1.nginx 
+## nslookup web-0.nginx
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+  - port: 80
+    name: web
+  clusterIP: None
+  selector:
+    app: nginx
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  serviceName: "nginx"
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: registry.k8s.io/nginx-slim:0.8
+        ports:
+        - containerPort: 80
+          name: web
+```
+
+```
+kubectl apply -f .
+
+```
+
+
+### Schritt 2: Auflösung Namen.
+
+```
+kubectl run --rm -it podtester --image=busybox -- sh 
+
+ping web-0.nginx 
+ping web-1.nginx 
+
+kubectl delete sts web 
+kubectl apply -f .
+kubectl run --rm -it podtest --image=busybox -- sh 
+
+ping web-0.nginx 
+
+```
+
+### Referenz 
+
+  * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/
+
 ## Helm (Kubernetes Paketmanager) 
 
 ### Helm Grundlagen
@@ -2204,7 +2528,7 @@ spec:
   nfs:
     # NFS server's definition
     path: /var/nfs/tln<nr>/nginx
-    server: 10.135.0.8
+    server: 10.135.0.10
     readOnly: false
   storageClassName: ""
 
@@ -2290,6 +2614,10 @@ kubectl apply -f 03-deploy.yml
 
 ```
 
+```
+nano 04-service.yml
+```
+
 
 ```
 ## now testing it with a service 
@@ -2321,6 +2649,9 @@ kubectl exec -it deploy/nginx-deployment -- bash
 ## in container
 echo "hello dear friend" > /usr/share/nginx/html/index.html 
 exit 
+
+## get external ip 
+kubectl get nodes -o wide 
 
 ## now try to connect 
 kubectl get svc 
@@ -2614,7 +2945,7 @@ kubectl delete ns policy-demo<tln>
   * https://kubernetes.io/docs/concepts/services-networking/network-policies/
   * https://docs.cilium.io/en/latest/security/policy/language/#http
 
-### Sammlung istio
+### Sammlung istio/mesh
 
 
 ### Schaubild 
@@ -2893,43 +3224,140 @@ kubectl api-resources | grep cil
 
 ## Kubernetes Deployment Strategies
 
-### Overview
+### Deployment green/blue,canary,rolling update
 
-  
-```
-10.1 Canary
-
-Eine kleine Teilmenge der Nutzer bekommt die neue Anwendung zu sehen, 
-der Rest immer noch die alte.
-Es funktioniert als Testballon 
+### Praxis-Übung A/B Deployment
 
 
-
-10.2. Blue / Green
-
-aktuelle Version ist Blue
-neue Green 
-
-Neue wird getestet, und wenn sie funktioniert wird der Traffic von Blue auf Green umgeschwitzt.
-Blue kann entweder gelöscht werden oder dient als Fallback
-
-10.3. A/B 
-
-Es sind zwei verschiedene Versionen online, um bspw. etwas zu testen.
-(Neues Feature) 
-
-Dabei kann man die Gewichtung entsprechend durch Anzahl der jeweiligen Pods
-im jeweiligen Deployment konfigurieren.
-z.B. Deployment1: 10 pods
-Deployment2: 5 pods
-
-Beide haben ein gemeinsames Label. 
-
-Über dieses Label greift der Service darauf zu.
+### Walkthrough 
 
 ```
+cd
+cd manifests
+mkdir ab 
+cd ab 
+```
 
-## Kubernetes QoS / HealthChecks
+```
+## vi 01-cm-version1.yml 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-version-1
+data:
+  index.html: |
+    <html>
+    <h1>Welcome to Version 1</h1>
+    </br>
+    <h1>Hi! This is a configmap Index file Version 1 </h1>
+    </html>
+```
+
+```
+## vi 02-deployment-v1.yml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy-v1
+spec:
+  selector:
+    matchLabels:
+      version: v1
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nginx
+        version: v1
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+            - name: nginx-index-file
+              mountPath: /usr/share/nginx/html/
+      volumes:
+      - name: nginx-index-file
+        configMap:
+          name: nginx-version-1
+```
+
+```
+## vi 03-cm-version2.yml 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-version-2
+data:
+  index.html: |
+    <html>
+    <h1>Welcome to Version 2</h1>
+    </br>
+    <h1>Hi! This is a configmap Index file Version 2 </h1>
+    </html>
+```
+
+```
+## vi 04-deployment-v2.yml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy-v2
+spec:
+  selector:
+    matchLabels:
+      version: v2
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nginx
+        version: v2
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+            - name: nginx-index-file
+              mountPath: /usr/share/nginx/html/
+      volumes:
+      - name: nginx-index-file
+        configMap:
+          name: nginx-version-2
+```
+
+```
+## vi 05-svc.yml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-nginx
+  labels:
+    svc: nginx
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    app: nginx
+```
+
+```
+kubectl apply -f . 
+## get external ip  
+kubectl get nodes -o wide 
+## get port
+kubectl get svc my-nginx -o wide 
+## test it with curl apply it multiple time (at least ten times)
+curl <external-ip>:<node-port>
+```
+
+## Kubernetes QoS / HealthChecks / Live / Readiness
 
 ### Quality of Service - evict pods
 
@@ -2940,7 +3368,9 @@ Beide haben ein gemeinsames Label.
 Request: Definiert wieviel ein Container mindestens braucht (CPU,memory)
 Limit: Definiert, was ein Container maximal braucht.
 
-in spec.containers 
+in spec.containers.resources 
+kubectl explain pod.spec.containers.resources
+
 ```
 
 ### Art der Typen: 
@@ -2952,7 +3382,7 @@ in spec.containers
 ### Guaranteed 
 
 ```
-Type: Garanteed:
+Type: Guaranteed:
 https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/#create-a-pod-that-gets-assigned-a-qos-class-of-guaranteed
 
 set when limit equals request
@@ -2965,33 +3395,20 @@ als letztes "evicted"
 apiVersion: v1
 
 kind: Pod
-
 metadata:
-
   name: qos-demo
-
   namespace: qos-example
-
 spec:
-
   containers:
-
   - name: qos-demo-ctr
-
     image: nginx
-
     resources:
-
       limits:
-
         memory: "200Mi"
-
         cpu: "700m"
 
       requests:
-
         memory: "200Mi"
-
         cpu: "700m"
 ```
 
@@ -3009,7 +3426,7 @@ What does it do ?
  
 * At the beginning pod is ready (first 30 seconds)
 * Check will be done after 5 seconds of pod being startet
-* Check will be done periodically every 5 minutes and will check
+* Check will be done periodically every 5 seconds and will check
   * for /tmp/healthy
   * if file is there will return: 0 
   * if file is not there will return: 1 
@@ -3018,11 +3435,13 @@ What does it do ?
 ```
 
 ```
-## cd
-## mkdir -p manifests/probes
-## cd manifests/probes 
-## vi 01-pod-liveness-command.yml 
+cd
+mkdir -p manifests/probes
+cd manifests/probes 
+nano 01-pod-liveness-command.yml 
+```
 
+```
 apiVersion: v1
 kind: Pod
 metadata:
@@ -3122,6 +3541,157 @@ kubectl describe pod liveness-http
  
    * https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 
+### Taints / Toleratioins
+
+
+### Taints 
+
+```
+Taints schliessen auf einer Node alle Pods aus, die nicht bestimmte tolerations haben:
+
+Möglichkeiten:
+
+o Sie werden nicht gescheduled - NoSchedule 
+o Sie werden nicht executed - NoExecute 
+o Sie werden möglichst nicht gescheduled. - PreferNoSchedule 
+
+```
+
+### Tolerations 
+
+```
+Tolerations werden auf Pod-Ebene vergeben: 
+tolerations: 
+
+Ein Pod kann (wenn es auf einem Node taints gibt), nur 
+gescheduled bzw. ausgeführt werden, wenn er die 
+Labels hat, die auch als
+Taints auf dem Node vergeben sind.
+```
+
+### Walkthrough  
+
+#### Step 1: Cordon the other nodes - scheduling will not be possible there 
+
+```
+## Cordon nodes n11 and n111 
+## You will see a taint here 
+kubectl cordon n11
+kubectl cordon n111
+kubectl describe n111 | grep -i taint 
+```
+
+
+
+### Step 2: Set taint on first node 
+
+```
+kubectl taint nodes n1 gpu=true:NoSchedule
+```
+
+### Step 3
+
+```
+cd 
+mkdir -p manifests
+cd manifests 
+mkdir tainttest 
+cd tainttest 
+nano 01-no-tolerations.yml
+```
+
+```
+##vi 01-no-tolerations.yml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-test-no-tol
+  labels:
+    env: test-env
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.21
+```
+
+```
+kubectl apply -f . 
+kubectl get po nginx-test-no-tol
+kubectl get describe nginx-test-no-tol
+```
+
+### Step 4:
+
+```
+## vi 02-nginx-test-wrong-tol.yml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-test-wrong-tol
+  labels:
+    env: test-env
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+  tolerations:
+  - key: "cpu"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+```
+
+```
+kubectl apply -f .
+kubectl get po nginx-test-wrong-tol
+kubectl describe po nginx-test-wrong-tol
+```
+
+### Step 5:
+
+```
+## vi 03-good-tolerations.yml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-test-good-tol
+  labels:
+    env: test-env
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+  tolerations:
+  - key: "gpu"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+```
+
+```
+kubectl apply -f .
+kubectl get po nginx-test-good-tol
+kubectl describe po nginx-test-good-tol
+```
+
+#### Taints rausnehmen 
+
+```
+kubectl taint nodes n1 gpu:true:NoSchedule-
+```
+
+#### uncordon other nodes 
+
+```
+kubectl uncordon n11
+kubectl uncordon n111
+```
+
+### References 
+  
+  * [Doku Kubernetes Taints and Tolerations](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
+  * https://blog.kubecost.com/blog/kubernetes-taints/
+
 ## Kubernetes Monitoring 
 
 ### Prometheus Monitoring Server (Overview)
@@ -3176,38 +3746,6 @@ Quelle: https://www.devopsschool.com/
 
 ## Tipps & Tricks 
 
-### Ubuntu client aufsetzen
-
-
-```
-## Now let us do some generic setup 
-echo "Installing kubectl"
-snap install --classic kubectl
-
-echo "Installing helm"
-snap install --classic helm 
-
-apt-get update 
-apt-get install -y bash-completion
-source /usr/share/bash-completion/bash_completion
-## is it installed properly
-type _init_completion
-
-## activate for all users
-kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl > /dev/null
-
-## Activate syntax - stuff for vim
-## Tested on Ubuntu 
-echo "hi CursorColumn cterm=NONE ctermbg=lightred ctermfg=white" >> /etc/vim/vimrc.local 
-echo "autocmd FileType y?ml setlocal ts=2 sts=2 sw=2 ai number expandtab cursorline cursorcolumn" >> /etc/vim/vimrc.local 
-
-## Activate Syntax highlightning for nano 
-cd /usr/local/bin
-git clone https://github.com/serialhex/nano-highlight.git 
-## Now set it generically in /etc/nanorc to work for all 
-echo 'include "/usr/local/bin/nano-highlight/yaml.nanorc"' >> /etc/nanorc 
-```
-
 ### Netzwerkverbindung zum Pod testen
 
 
@@ -3220,7 +3758,7 @@ Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
 ### Behelf: Eigenen Pod starten mit busybox 
 
 ```
-kubectl run podtest --rm -ti --image busybox -- /bin/sh
+kubectl run podtest --rm -it --image busybox -- /bin/sh
 ```
 
 ### Example test connection 
@@ -3633,6 +4171,306 @@ Gibt es eine Abstraktionsschicht, die für alle Cloud-Anbieter verwenden kann.
 
 
 
+## Microservices 
+
+### Microservices vs. Monolith
+
+
+### Schaubild 
+
+![Monolithisch vs. Microservices](https://d1.awsstatic.com/Developer%20Marketing/containers/monolith_1-monolith-microservices.70b547e30e30b013051d58a93a6e35e77408a2a8.png)
+
+Quelle: AWS Amazon 
+
+### Monolithische Architektur
+
+  * Alle Prozesse eng miteinander verbunden.
+  * Alles ist ein einziger Service 
+  * Skalierung:
+      * Gesamte Architektur muss skaliert werden bei Spitzen
+
+### Herausforderung: Monolithische Architektur 
+
+  * Verbesserung und Hinzufügen neuer Funktionen wird mit zunehmender Codebasis zunehmend komplexer 
+  * Nachteil: Schwer zu experimentieren 
+  * Nachteil: Hinderlich für die Umsetzung neuer Ideen/Konzepte 
+
+### Vorteile: Monolithische Architektur  
+
+   * Gut geeignet für kleinere Konzepte und Teams 
+   * Gut geeignet, wenn Projekt nicht stark wächst.
+   * Gut geeignet wenn Projekt durch ein kleines Team entwickelt wird.
+   * Guter Ausgangspunkt für ein kleineres Projekt 
+   * Mit einer MicroService - Architektur zu starten, kann hinderlich sein.
+
+### Microservices 
+
+  * Jede Anwendung wird in Form von eigenständigen Komponenten erstellt. 
+  * Jeder Anwendungsprozess wird als Service ausgeführt
+  * Services kommunizieren über schlanke API's miteinander 
+  * Entwicklung in Hinblick auf Unternehmensfunktionen
+  * Jeder Service erfüllt eine bestimmte Funktion.
+  * Sie werden unabhängig voneinander ausgeführt, daher kann:
+    * Jeder Service aktualisiert
+    * bereitgestellt
+    * skaliert werden   
+ 
+### Eigenschaften von microservices 
+
+  * Eigenständigkeit
+  * Spezialisierung 
+
+### Vorteil: Microservices 
+
+  * Agilität
+    * kleines Team sind jeweils für einen Service verantwortlich
+    * können schnell und eigenverantwortlich arbeiten
+    * Entwicklungszyklus wird verkürzt. 
+
+  * Flexible Skalierung
+    * Jeder Service kann unanhängig skaliert werden. 
+
+  * Einfache Bereitstellung
+    * kontinuierliche Integration und Bereitstellung
+    * einfach:
+      * neue Konzepte auszuprobieren und zurückzunehmen, wenn etwas nicht funktioniert. 
+      
+  * Technologische Flexibilität
+    * Die Teams haben die Freiheit, das beste Tool zur Lösung ihrer spezifischen Probleme auszuwählen.
+    * Infolgedessen können Teams, die Microservices entwickeln, das beste Tool für die jeweilige Aufgabe wählen.
+
+  * Wiederverwendbarer Code
+    * Die Aufteilung der Software in kleine, klar definierte Module ermöglicht es Teams, Funktionen für verschiedene Zwecke zu nutzen. 
+    * Ein Service/Funktion als Baustein
+    
+  * Resilienz
+    * Gut geplant/designed -> erhöht die Ausfallsicherheit 
+    * Monolithisch: Eine Komponente fällt aus, kann zum Ausfall der gesamten Anwendung führen.
+    * Microservice: kompletter Ausfall wird vermieden, nur einzelnen Funktionalitäten sind betroffen
+
+### Nachteile: Microservices 
+
+  * Höhere Komplexität 
+  * Bei schlechter / nicht automatischer dokumentation kann man bei einer größeren Anzahl von Miroservices den Überblick der Zusammenarbeit verlieren
+  * Aufwand: Architektur von Monolithisch nach Microservices IST Aufwand ! 
+  * Aufwand Wartung und Monitoring (Kubernetes) 
+  * Erhöhte Knowledge bzgl. Debugging. 
+  * Fallback-Aufwand (wenn ein Service nicht funktioniert, muss die Anwendung weiter arbeiten können, ohne das andere Service nicht funktionieren)
+  * Erhöhte Anforderung an Konzeption (bzgl. Performance und Stabilität) 
+  * Wichtiges Augenmerk (Netzwerk-Performance) 
+
+### Nachteile: Microservices in Kubernetes 
+
+  * andere Anforderungen an Backups und Monitoring 
+
+### Monolith schneiden/aufteilen
+
+
+### Wie kann ich schneiden (NOT's) ? 
+
+  * Code-Größe 
+  * Technische Schnitt 
+  * Amazon: 2 Pizzas, wieviele können sich davon, wei gross kann man team 
+  * Microserver wegschmeissen und er müsste in wenigen Tagen oder mehreren Wochen wieder herstellen
+
+### Wie kann ich schneiden (GUT) ? 
+
+  * DDD (Domain Driven Design) - Welche Aufgaben gibt es innerhalb des sogenannten Bounded Context in meiner Domäne 
+  * Domäne: Bibliothek 
+  * In der Bibliothek 
+    * Leihe 
+    * Suche 
+
+### Bounded Context 
+
+![Bounded Context](https://martinfowler.com/bliki/images/boundedContext/sketch.png)
+
+### Zwei Merkmale mit den wir arbeiten
+
+  * Kohäsion (innerer Zusammenhalt des Fachbereichs) - innerhalb eines Services  
+  * Bindung (lose Bindung) - zwischen den Services 
+  * Jeder Service soll unabhängig sein 
+
+### Was heisst unabhängiger Service 
+  
+  1. Er muss funktionieren, auch wenn ein anderes Service nicht läuft (keine Abhängigkeit) 
+  2. Er darf nicht DIREKT auf die Daten eines anderen Services zugreifen (maximal über Schnittstelle)
+  3. Jeder hat Service, ist völlig autark und seine eigene BusinessLogik und seine eigene Datenbank 
+
+### Regeln für das Design von Services 
+
+#### Regel 1:
+
+```
+Es sollte eine große Kohäsion innerhalb des Services sein.
+(Bindung). Alles sollte möglichst benötigt werden.
+
+(Ist eine schwache Kohäsion innerhalb des Services, sind Funktionen 
+dort, die eigentlich in einen anderen Service gehören)
+```
+
+#### Regel 2: lose Bindung (zwischen Services) 
+
+```
+Es sollte eine lose Bindung zu anderen Services geben.
+(Ist die Bindung zu gross, sind entweder die Services zu klein konzipiert
+oder Funktionen sind an der falschen Stelle implementiert) 
+
+zu klein: zu viele Abfragen anderer Service .... 
+
+````
+
+#### Regel 3: unabhängigkeit 
+
+```
+Jeder Service muss eigenständig sein und seine eigene Datenbank haben.
+```
+
+### Datenbanken 
+
+#### Herangehensweise
+
+```
+heisst auch: 
+o Kein großes allmächtiges Datenmodel, sondern viele kleine 
+(nicht alles in jedem kleinen Datenmodel, sondern nur, was im jeweiligen
+Bounded Context benötigt wird)
+```
+
+#### Eine Datenbank pro Service (eigenständig / abgespeckt) 
+
+
+##### Warum ?
+
+```
+Axiom: Eine eigenständige Datenbank pro Service. Warum ? 
+(Service will NEVER reach into another services database)
+```
+
+##### Punkt 1 : Jeder Service soll unabhängig laufen können 
+
+```
+We want earch service to run independently of other services 
+
+o no DB for everything (If DB goes down our service goes down)
+o it easier to scale (if one service needs more capacity)
+o more resilient. If one service goes down, our service will still work.
+```
+
+#### Punkt 2: Datenbank schemata könnten sich unerwartet ändern 
+
+```
+o We (Service A) use data from Service B, directly retrieving it from the db.
+o We (Service) want property name: Lisa
+o Team of Service B changes this property to: firstName 
+  AND do not inform us.
+  (This breaks our service !!) . OUR SERV
+```
+
+#### Punkt 3: Freiheit der Datenbankwahl 
+
+```
+3.4.3 Some services might funtion more efficiently with different types
+of DB's (sql vs. nosql)
+```
+
+
+### Beispiel - Bounded 
+
+```
+Der Bounded Context definiert den Einsatzbereich eines Domänenmodells. 
+```
+
+```
+Es umfasst die Geschäftslogik für eine bestimmte Fachlichkeit. Als Beispiel beschreibt ein Domänenmodell 
+die Buchung von S-Bahn-Fahrkarten 
+und ein weiteres die Suche nach S-Bahn-Verbindungen. 
+```
+
+```
+Da die beiden Fachlichkeiten wenig miteinander zu tun haben, 
+sind es zwei getrennte Modelle. Für die Fahrkarten sind die Tarife relevant und für die Verbindung die Zeit, das Fahrziel und der Startpunkt der Reise.
+```
+
+```
+oder z.B. die Domäne: Bibliothek 
+Bibliothek 
+  Leihe (bounded context 1)
+  Suche (bounded context 2)
+```
+
+
+
+### Strategic Patterns - wid monolith praktisch umbauen
+
+
+### Pattern: Strangler Fig Application 
+
+  * Technik zum Umschreiben von Systemen 
+
+#### Wie umleitung, z.B.
+
+  * http proxy 
+  * oder s.u. branch by extraction
+  * An- und Abschalten mit Feature Toggle 
+  * Über message broker 
+
+#### http - proxy - Schritte 
+
+  1. Schritt: Proxy einfügen
+  2. Schritt: Funktionalität migrieren 
+  3. Schritt: Aufrufe umleiten
+
+#### Message broker
+
+  * Monolith reagiert auf bestimmte Messages bzw. ignoriert bestimmte messages
+  * monolith bekommt bestimmte nachrichten garnicht 
+  * service reagiert auf bestimmte nachrichten 
+
+
+### Pattern: Parallel Run 
+
+  * Service und Teil im Monolith wird parallel ausgeführt
+  * Und es wird überprüft, ob das Ergebnis in beiden Systemn das gleiche ist (z.B. per batch job)
+
+### Pattern: Decorating Collaborator
+
+  * Ansteuerung als nachgelagerten Prozess über einen Proxy 
+
+### Pattern Branch by Abstraction 
+
+  * Beispiel Notification 
+
+#### Schritt 1: Abstraction der zu ersetzendne Funktionalität erstellen
+
+
+#### Schritt 2: Ändern sie die Clients der bestehenden Funktionalität so, dass sie die neue Abstraktion verwenden
+
+
+#### Schritt 3: Neue Implementierung der Abstraktion 
+
+```
+Erstellen Sie eine neue Implementierung der Abstraktion mit der 
+überarbeiteten Funktionalität. 
+
+In unserem Fall wird diese neue Implementierung unseren neuen 
+Mikroservice aufrufen
+```
+
+#### Schritt 4: Abstraktion anpassen -> neue Implementierung
+
+```
+Abstraktion anpassen, dass sie unsere neue Implementierung verwendet
+```
+
+#### Schritt 5: Abstraktion aufräumen und alte Implementierung entfernen 
+
+
+
+### Literatur von Monolith zu Microservices
+
+  * https://www.amazon.de/Vom-Monolithen-Microservices-bestehende-umzugestalten/dp/3960091400/
+
 ## Kubernetes - Überblick
 
 ### Allgemeine Einführung in Container (Dev/Ops)
@@ -3701,30 +4539,6 @@ docker push
 
   * https://github.com/StefanScherer/whoami/blob/main/Dockerfile
 
-### Warum Kubernetes, was macht Kubernetes
-
-
-### Ausgangslage
-
-  * Ich habe jetzt einen Haufen Container, aber:
-    * Wie bekomme ich die auf die Systeme.
-    * Und wie halte ich den Verwaltungsaufwand in Grenzen.
-  * Lösung: Kubernetes -> ein Orchestrierungstool
-
-### Hintergründe
-
-  * Gegenüber Virtualisierung von Hardware - 5fache bessere Auslastung
-  * Google als Ausgangspunkt (Borg) 
-  * Software 2014 als OpenSource zur Verfügung gestellt 
-  * Optimale Ausnutzung der Hardware, hunderte bis tausende Dienste können auf einigen Maschinen laufen (Cluster)  
-  * Immutable - System
-  * Selbstheilend
-  
-### Wozu dient Kubernetes 
-
-  * Orchestrierung von Containern
-  * am gebräuchlisten aktuell Docker
-
 ### Microservices (Warum ? Wie ?) (Devs/Ops)
 
 
@@ -3779,6 +4593,7 @@ Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität
 ### Wo spielt Kubernetes seine Stärken aus ? 
 
   * Skalieren von Anwendungen. 
+  * bessere Hochverfügbarkeit out-of-the-box
   * Heilen von Systemen (neu starten von Pods) 
   * Automatische Überwachung mit deklarativem Management) - ich beschreibe, was ich will
   * Neue Versionen zu auszurollen (Canary Deployment, Blue/Green Deployment) 
@@ -4557,7 +5372,7 @@ metadata:
 spec:
   containers:
   - name: web
-    image: nginx
+    image: nginx:1.23
 
 ```
 
@@ -4589,7 +5404,7 @@ kind: ReplicaSet
 metadata:
   name: nginx-replica-set
 spec:
-  replicas: 2
+  replicas: 5
   selector:
     matchLabels:
       tier: frontend
@@ -4601,7 +5416,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: "nginx:latest"
+          image: nginx:1.23
           ports:
              - containerPort: 80
              
@@ -4643,7 +5458,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:latest
+        image: nginx:1.22
         ports:
         - containerPort: 80
         
@@ -4660,10 +5475,12 @@ nano nginx-deployment.yml
 ```
 
 ```
-## Ändern des images von nginx:latest in nginx:1.21 
+## Ändern des images von nginx:1.22 in nginx:1.23
 ## danach 
 kubectl apply -f .
 kubectl get all 
+kubectl get pods -w
+
 ```
 
 
@@ -4677,7 +5494,10 @@ cd
 cd manifests
 mkdir 04-service 
 cd 04-service 
-nano svc.yml 
+```
+
+```
+nano deploy.yml 
 ```
 
 ```
@@ -4688,19 +5508,26 @@ metadata:
 spec:
   selector:
     matchLabels:
-      run: my-nginx
+      web: my-nginx
   replicas: 2
   template:
     metadata:
       labels:
-        run: my-nginx
+        web: my-nginx
     spec:
       containers:
       - name: cont-nginx
         image: nginx
         ports:
         - containerPort: 80
----
+```
+
+```
+nano service.yml
+```
+
+
+```
 apiVersion: v1
 kind: Service
 metadata:
@@ -4713,7 +5540,7 @@ spec:
   - port: 80
     protocol: TCP
   selector:
-    run: my-nginx      
+    web: my-nginx      
         
 ```        
 
@@ -4978,9 +5805,6 @@ nano apple.yml
 ```
 
 ```
-## mkdir apple-banana-ingress
-## cd apple-banana-ingress
-
 ## apple.yml 
 ## vi apple.yml 
 kind: Pod
@@ -4994,7 +5818,7 @@ spec:
     - name: apple-app
       image: hashicorp/http-echo
       args:
-        - "-text=apple-tln<x>"
+        - "-text=apple-<euer-name>"
 ---
 
 kind: Service
@@ -5033,7 +5857,7 @@ spec:
     - name: banana-app
       image: hashicorp/http-echo
       args:
-        - "-text=banana-tln<x>"
+        - "-text=banana-<euer-name>"
 
 ---
 
@@ -5058,7 +5882,7 @@ kubectl apply -f banana.yml
 ```
 kubectl get svc
 kubectl get pods -o wide
-kubectl run podtest --rm -ti --image busybox -- /bin/sh
+kubectl run podtest --rm -it --image busybox -- /bin/sh
 ```
 
 ```
@@ -5935,7 +6759,7 @@ spec:
   nfs:
     # NFS server's definition
     path: /var/nfs/tln<nr>/nginx
-    server: 10.135.0.8
+    server: 10.135.0.10
     readOnly: false
   storageClassName: ""
 
@@ -6021,6 +6845,10 @@ kubectl apply -f 03-deploy.yml
 
 ```
 
+```
+nano 04-service.yml
+```
+
 
 ```
 ## now testing it with a service 
@@ -6052,6 +6880,9 @@ kubectl exec -it deploy/nginx-deployment -- bash
 ## in container
 echo "hello dear friend" > /usr/share/nginx/html/index.html 
 exit 
+
+## get external ip 
+kubectl get nodes -o wide 
 
 ## now try to connect 
 kubectl get svc 
@@ -7423,6 +8254,38 @@ http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-da
 ## Kubernetes CI/CD (Optional) 
 
 ## Tipps & Tricks 
+
+### Ubuntu client aufsetzen
+
+
+```
+## Now let us do some generic setup 
+echo "Installing kubectl"
+snap install --classic kubectl
+
+echo "Installing helm"
+snap install --classic helm 
+
+apt-get update 
+apt-get install -y bash-completion
+source /usr/share/bash-completion/bash_completion
+## is it installed properly
+type _init_completion
+
+## activate for all users
+kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl > /dev/null
+
+## Activate syntax - stuff for vim
+## Tested on Ubuntu 
+echo "hi CursorColumn cterm=NONE ctermbg=lightred ctermfg=white" >> /etc/vim/vimrc.local 
+echo "autocmd FileType y?ml setlocal ts=2 sts=2 sw=2 ai number expandtab cursorline cursorcolumn" >> /etc/vim/vimrc.local 
+
+## Activate Syntax highlightning for nano 
+cd /usr/local/bin
+git clone https://github.com/serialhex/nano-highlight.git 
+## Now set it generically in /etc/nanorc to work for all 
+echo 'include "/usr/local/bin/nano-highlight/yaml.nanorc"' >> /etc/nanorc 
+```
 
 ### bash-completion
 
