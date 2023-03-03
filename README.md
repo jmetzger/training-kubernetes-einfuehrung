@@ -110,6 +110,9 @@
      * [Kubernetes Alternativen](kubernetes-alternatives.md)
      * [Hyperscaler vs. Kubernetes on Premise](hyperscaler-vs-kubernetes.md)
      
+  1. Microservices 
+     * [Microservices vs. Monolith](/microservices/monolith-vs-microservice.md)
+     * [Monolith schneiden/aufteilen]()
 
 ## Backlog 
 
