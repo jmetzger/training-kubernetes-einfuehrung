@@ -78,9 +78,10 @@
      * [Deployment green/blue,canary,rolling update](/kubernetes/deployment-strategies-en.md)
      * [Praxis-Übung A/B Deployment](/kubectl-examples/08-ab-deployment.md)
     
-  1. Kubernetes QoS / HealthChecks
+  1. Kubernetes QoS / HealthChecks / Live / Readiness
      * [Quality of Service - evict pods](kubernetes/qos-class.md)
      * [LiveNess/Readiness - Probe / HealthChecks](probes/uebung-liveness.md)
+     * [Taints / Toleratioins](kubernetes/taints-tolerations.md)
      
   1. Kubernetes Monitoring 
      * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
