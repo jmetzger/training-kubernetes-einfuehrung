@@ -113,7 +113,7 @@
   1. Microservices 
      * [Microservices vs. Monolith](/microservices/monolith-vs-microservice.md)
      * [Monolith schneiden/aufteilen](/microservices/monolith-schneiden.md)
-     * 
+     * [Strategic Patterns - wid monolith praktisch umbauen](microservices/strategic-patterns.md)
      * [Literatur von Monolith zu Microservices](https://www.amazon.de/Vom-Monolithen-Microservices-bestehende-umzugestalten/dp/3960091400/)
 
 ## Backlog 
