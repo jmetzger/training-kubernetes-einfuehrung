@@ -195,6 +195,9 @@ kubectl exec -it deploy/nginx-deployment -- bash
 echo "hello dear friend" > /usr/share/nginx/html/index.html 
 exit 
 
+# get external ip 
+kubectl get nodes -o wide 
+
 # now try to connect 
 kubectl get svc 
 
