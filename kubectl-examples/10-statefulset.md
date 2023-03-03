@@ -3,6 +3,11 @@
 ## 
 
 ```
+# Headless Service - no ClusterIP 
+# Just used for name resolution of pods
+# web-0.nginx
+# web-1.nginx 
+# nslookup web-0.nginx
 apiVersion: v1
 kind: Service
 metadata:
