@@ -113,6 +113,10 @@
      * [Kubernetes Alternativen](kubernetes-alternatives.md)
      * [Hyperscaler vs. Kubernetes on Premise](hyperscaler-vs-kubernetes.md)
      
+  1. Lokal Kubernetes verwenden 
+     * [Kubernetes in ubuntu installieren z.B. innerhalb virtualbox](/microk8s/installation-ubuntu-snap.md)
+     * [minikube](/minikube/installation.md)
+     
   1. Microservices 
      * [Microservices vs. Monolith](/microservices/monolith-vs-microservice.md)
      * [Monolith schneiden/aufteilen](/microservices/monolith-schneiden.md)
