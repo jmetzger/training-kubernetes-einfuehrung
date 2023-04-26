@@ -116,6 +116,7 @@
   1. Lokal Kubernetes verwenden 
      * [Kubernetes in ubuntu installieren z.B. innerhalb virtualbox](/microk8s/installation-ubuntu-snap.md)
      * [minikube](/minikube/installation.md)
+     * [rancher for desktop](https://www.suse.com/c/rancher_blog/using-rancher-desktop-for-local-kubernetes-development/)
      
   1. Microservices 
      * [Microservices vs. Monolith](/microservices/monolith-vs-microservice.md)
