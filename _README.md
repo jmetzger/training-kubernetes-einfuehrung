@@ -20,6 +20,7 @@
 
   1. kubectl 
      * [kubectl einrichten mit namespace](#kubectl-einrichten-mit-namespace)
+     * [kubectl cheatsheet kubernetes](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
 
   1. Kubernetes Praxis API-Objekte 
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](#das-tool-kubectl-devsops---spickzettel)
@@ -47,6 +48,7 @@
      * [ConfigMap Example](#configmap-example)
      * [ConfigMap Example MariaDB](#configmap-example-mariadb)
      * [Connect to external database](#connect-to-external-database)
+     * [Hintergrund statefulsets](#hintergrund-statefulsets)
      * [Example stateful set](#example-stateful-set)
 
   1. Helm (Kubernetes Paketmanager) 
@@ -111,6 +113,11 @@
      * [Kubernetes vs. Cloudfoundry](#kubernetes-vs-cloudfoundry)
      * [Kubernetes Alternativen](#kubernetes-alternativen)
      * [Hyperscaler vs. Kubernetes on Premise](#hyperscaler-vs-kubernetes-on-premise)
+     
+  1. Lokal Kubernetes verwenden 
+     * [Kubernetes in ubuntu installieren z.B. innerhalb virtualbox](#kubernetes-in-ubuntu-installieren-zb-innerhalb-virtualbox)
+     * [minikube](#minikube)
+     * [rancher for desktop](https://www.suse.com/c/rancher_blog/using-rancher-desktop-for-local-kubernetes-development/)
      
   1. Microservices 
      * [Microservices vs. Monolith](#microservices-vs-monolith)
@@ -833,6 +840,10 @@ kubectl get ns
 kubectl config set-context --current --namespace jochen
 ```
 
+### kubectl cheatsheet kubernetes
+
+  * https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
 ## Kubernetes Praxis API-Objekte 
 
 ### Das Tool kubectl (Devs/Ops) - Spickzettel
@@ -1117,7 +1128,7 @@ spec:
   selector:
     matchLabels:
       app: nginx
-  replicas: 8 # tells deployment to run 2 pods matching the template
+  replicas: 8 # tells deployment to run 8 pods matching the template
   template:
     metadata:
       labels:
@@ -1164,6 +1175,8 @@ Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
 
 ```
 kubectl run podtest --rm -it --image busybox -- /bin/sh
+## und es geht noch einfacher 
+kubectl run podtest --rm -it --image busybox 
 ```
 
 ### Example test connection 
@@ -1640,7 +1653,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "<euername>.lab1.t3isp.de"
+  - host: "<euername>.lab.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -2195,6 +2208,80 @@ nano 02-external-endpoint.yml
 ```
 
 
+### Hintergrund statefulsets
+
+
+### Why ?
+
+  * stable network identities (always the same name across restarts)  in contrast to deployments
+
+```
+Server:    10.0.0.10
+Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
+
+Name:      web-0.nginx
+Address 1: 10.244.1.6
+
+nslookup web-1.nginx
+Server:    10.0.0.10
+Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
+
+Name:      web-1.nginx
+Address 1: 10.244.2
+```
+
+```
+The Pods' ordinals, hostnames, SRV records, and A record names have not changed, but the IP addresses associated with the Pods may have changed.
+```
+
+
+
+
+### Features 
+
+  * Scaling Up: Ordered creation on scaling (web 2 till ready then web-3 till ready and so on) 
+
+```
+StatefulSet controller created each Pod sequentially 
+with respect to its ordinal index, 
+
+and it waited for each Pod's predecessor to be Running and Ready 
+
+before launching the subsequent Pod
+```
+
+  * Scaling Down: last created pod is torn down firstly, till finished, then the one before
+
+```
+The controller deleted one Pod at a time, 
+in reverse order with respect to its ordinal index, 
+and it waited for each to be completely shutdown before deleting the next.
+```
+
+  * VolumeClaimTemplate (In addition if the pod is scaled the copies will have their own storage)
+    * Plus: When you delete it, it gets recreated and claims the same persistentVolumeClaim 
+
+```
+volumeClaimTemplates:
+  - metadata:
+      name: www
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+```
+
+   * Update Strategy: RollingUpdate / OnDelete 
+   * Feature: Staging an Update with Partitions
+     * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#staging-an-update
+   * Feature: Rolling out a canary 
+     * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#rolling-out-a-canary
+     
+### Reference 
+
+  * https://kubernetes.io/docs/concepts/workloads/controllers/statefulse /
+
 ### Example stateful set
 
 
@@ -2388,6 +2475,9 @@ helm repo update
 helm pull bitnami/mysql 
 tar xzvf mysql-9.0.0.tgz 
 
+## Show how the template would look like being sent to kube-api-server 
+helm template bitnami/mysql
+
 ```
 
 
@@ -2528,7 +2618,7 @@ spec:
   nfs:
     # NFS server's definition
     path: /var/nfs/tln<nr>/nginx
-    server: 10.135.0.10
+    server: 10.135.0.7
     readOnly: false
   storageClassName: ""
 
@@ -3491,10 +3581,10 @@ http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
     duration := time.Now().Sub(started)
     if duration.Seconds() > 10 {
         w.WriteHeader(500)
-        w.Write([](fmt.Sprintf("error: %v", duration.Seconds())))
+        w.Write([]byte(fmt.Sprintf("error: %v", duration.Seconds())))
     } else {
         w.WriteHeader(200)
-        w.Write([]("ok"))
+        w.Write([]byte("ok"))
     }
 })
 ```
@@ -3583,7 +3673,7 @@ kubectl describe n111 | grep -i taint
 
 
 
-### Step 2: Set taint on first node 
+#### Step 2: Set taint on first node 
 
 ```
 kubectl taint nodes n1 gpu=true:NoSchedule
@@ -3759,6 +3849,8 @@ Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
 
 ```
 kubectl run podtest --rm -it --image busybox -- /bin/sh
+## und es geht noch einfacher 
+kubectl run podtest --rm -it --image busybox 
 ```
 
 ### Example test connection 
@@ -3903,7 +3995,9 @@ rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["pods"]
   verbs: ["get", "watch", "list"]
+```
 
+```
 kubectl apply -f pods-clusterrole.yml 
 ```
 
@@ -4170,6 +4264,60 @@ Gibt es eine Abstraktionsschicht, die für alle Cloud-Anbieter verwenden kann.
 
 
 
+
+## Lokal Kubernetes verwenden 
+
+### Kubernetes in ubuntu installieren z.B. innerhalb virtualbox
+
+
+### Walkthrough
+
+```
+sudo snap install microk8s --classic
+## Important enable dns // otherwice not dns lookup is possible 
+microk8s enable dns 
+microk8s status
+
+## Execute kubectl commands like so 
+microk8s kubectl
+microk8s kubectl cluster-info
+
+## Make it easier with an alias 
+echo "alias kubectl='microk8s kubectl'" >> ~/.bashrc
+source ~/.bashrc
+kubectl
+
+```
+### Working with snaps 
+
+```
+snap info microk8s 
+
+```
+
+### Ref:
+
+  * https://microk8s.io/docs/setting-snap-channel
+
+### minikube
+
+
+### Decide for an hypervisor 
+
+```
+e.g. hyperv 
+
+```
+
+  * https://minikube.sigs.k8s.io/docs/drivers/hyperv/
+
+### Install minikube 
+
+  * https://minikube.sigs.k8s.io/docs/start/
+
+### rancher for desktop
+
+  * https://www.suse.com/c/rancher_blog/using-rancher-desktop-for-local-kubernetes-development/
 
 ## Microservices 
 
@@ -5450,7 +5598,7 @@ spec:
   selector:
     matchLabels:
       app: nginx
-  replicas: 8 # tells deployment to run 2 pods matching the template
+  replicas: 8 # tells deployment to run 8 pods matching the template
   template:
     metadata:
       labels:
@@ -5907,7 +6055,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "<euername>.lab1.t3isp.de"
+  - host: "<euername>.lab.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -6759,7 +6907,7 @@ spec:
   nfs:
     # NFS server's definition
     path: /var/nfs/tln<nr>/nginx
-    server: 10.135.0.10
+    server: 10.135.0.7
     readOnly: false
   storageClassName: ""
 
@@ -7259,6 +7407,9 @@ helm repo update
 helm pull bitnami/mysql 
 tar xzvf mysql-9.0.0.tgz 
 
+## Show how the template would look like being sent to kube-api-server 
+helm template bitnami/mysql
+
 ```
 
 
@@ -7665,7 +7816,9 @@ rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["pods"]
   verbs: ["get", "watch", "list"]
+```
 
+```
 kubectl apply -f pods-clusterrole.yml 
 ```
 
