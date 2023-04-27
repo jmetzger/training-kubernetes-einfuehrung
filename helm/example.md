@@ -54,6 +54,9 @@ helm repo update
 helm pull bitnami/mysql 
 tar xzvf mysql-9.0.0.tgz 
 
+# Show how the template would look like being sent to kube-api-server 
+helm template bitnami/mysql
+
 ```
 
 
