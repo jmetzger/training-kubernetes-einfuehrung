@@ -39,7 +39,7 @@ kubectl describe n111 | grep -i taint
 
 
 
-## Step 2: Set taint on first node 
+### Step 2: Set taint on first node 
 
 ```
 kubectl taint nodes n1 gpu=true:NoSchedule
