@@ -66,3 +66,7 @@ volumeClaimTemplates:
      * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#staging-an-update
    * Feature: Rolling out a canary 
      * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#rolling-out-a-canary
+     
+## Reference 
+
+  * https://kubernetes.io/docs/concepts/workloads/controllers/statefulse /
