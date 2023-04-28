@@ -125,6 +125,10 @@
      * [Strategic Patterns - wid monolith praktisch umbauen](microservices/strategic-patterns.md)
      * [Literatur von Monolith zu Microservices](https://www.amazon.de/Vom-Monolithen-Microservices-bestehende-umzugestalten/dp/3960091400/)
 
+  1. Extras 
+     * [Install minikube on wsl2](installer/minikube-wsl2.md)    
+ 
+
 ## Backlog 
 
   1. Kubernetes - Überblick
@@ -258,8 +262,6 @@
      * [Kube Api Ressources - Versionierungsschema](/kubernetes/api-versionierung-lifetime.md)
      * [Kubernetes Labels and Selector](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
 
-  1. Misc 
-     * [Mermaid Test](mermaid.md)
      
   
 
