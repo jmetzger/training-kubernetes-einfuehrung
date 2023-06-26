@@ -95,7 +95,7 @@ kubectl apply -f banana.yml
 ```
 kubectl get svc
 kubectl get pods -o wide
-kubectl run podtest --rm -it --image busybox -- /bin/sh
+kubectl run podtest --rm -it --image busybox
 ```
 
 ```
