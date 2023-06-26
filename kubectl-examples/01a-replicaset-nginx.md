@@ -1,7 +1,8 @@
 # Replicaset
 
 ```
-cd 
+cd
+mkdir -p manifests
 cd manifests 
 mkdir 02-rs
 cd 02-rs 
