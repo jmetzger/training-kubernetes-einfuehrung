@@ -93,7 +93,7 @@ spec:
 
 ```
 # Step 6:
-kubectl kustomization overlays/prod
+kubectl kustomize overlays/prod
 
 # or apply it directly 
 kubectl apply -k overlays/prod/
