@@ -121,6 +121,7 @@ kubectl kustomize overlays/dev
 ## Example 2: Advanced Patching with patchesJson6902 (You need to have done example 1 firstly) 
 
 ```
+####### DEPRECATED ---- use below version 
 # Schritt 1:
 # Replace overlays/prod/kustomization.yml with the following syntax 
 bases:
@@ -131,6 +132,20 @@ patchesJson6902:
     kind: Service
     name: service-app
   path: service-patch.yaml 
+```
+
+```
+# Schritt 1:
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../base
+patches:
+- path: service-patch.yaml
+  target:
+    kind: Service
+    name: service-app
+    version: v1
 ```
 
 ```
