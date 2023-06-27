@@ -63,7 +63,7 @@ kubectl debug newapple-app -it --image=busybox --share-processes --copy-to=newap
 
 ```
 kubectl get nodes
-kubectl debug node/mynode -it --image=ubuntu --target=apple-app
+kubectl debug node/mynode -it --image=ubuntu
 ```
 
 
