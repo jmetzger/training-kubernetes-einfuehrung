@@ -1,4 +1,8 @@
-# Kubernetes Netzwerk (CNI) 
+# Kubernetes Network (CNI) 
+
+## Show us 
+
+![pod to pod across nodes](https://www.inovex.de/wp-content/uploads/2020/05/Pod-to-Pod-Networking.png)
 
 ## CNI 
 
