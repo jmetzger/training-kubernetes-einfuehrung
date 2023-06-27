@@ -9,6 +9,14 @@
 ## Example 1: Walkthrough 
 
 ```
+cd
+mkdir -p manifests
+cd manifests
+mkdir kexample
+cd kexample
+```
+
+```
 # Step 1:
 # Create the structure 
 # kustomize-example1
