@@ -137,7 +137,7 @@ mariadb:
 
 ```
 # helm repo add bitnami https://charts.bitnami.com/bitnami 
-helm install my-wordpress -v values.yml bitnami/wordpress
+helm install my-wordpress -f values.yml bitnami/wordpress
 
 ```
 
