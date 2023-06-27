@@ -56,6 +56,10 @@
      * [Helm Warum ?](#helm-warum-)
      * [Helm Example](#helm-example)
 
+  1. Kustomize
+     * [Beispiel Overlay und Patching](#beispiel-overlay-und-patching)
+     * [Resources](#resources)
+
   1. Kubernetes Storage 
      * [Praxis. Beispiel (Dev/Ops)](#praxis-beispiel-devops)
 
@@ -90,6 +94,7 @@
 
   1. Tipps & Tricks 
      * [Netzwerkverbindung zum Pod testen](#netzwerkverbindung-zum-pod-testen)
+     * [Debug Container neben Container erstellen](#debug-container-neben-container-erstellen)
      
   1. Kubernetes Administration /Upgrades 
      * [Kubernetes Administration / Upgrades](#kubernetes-administration--upgrades)
@@ -124,6 +129,12 @@
      * [Monolith schneiden/aufteilen](#monolith-schneidenaufteilen)
      * [Strategic Patterns - wid monolith praktisch umbauen](#strategic-patterns---wid-monolith-praktisch-umbauen)
      * [Literatur von Monolith zu Microservices](https://www.amazon.de/Vom-Monolithen-Microservices-bestehende-umzugestalten/dp/3960091400/)
+
+  1. Extras 
+     * [Install minikube on wsl2](#install-minikube-on-wsl2)
+     * [kustomize - gute Struktur für größere Projekte](#kustomize---gute-struktur-für-größere-projekte)
+     * [kustomize with helm](https://fabianlee.org/2022/04/18/kubernetes-kustomize-with-helm-charts/)
+ 
 
 ## Backlog 
 
@@ -258,8 +269,6 @@
      * [Kube Api Ressources - Versionierungsschema](#kube-api-ressources---versionierungsschema)
      * [Kubernetes Labels and Selector](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
 
-  1. Misc 
-     * [Mermaid Test](#mermaid-test)
      
   
 
@@ -1069,7 +1078,8 @@ kubectl get pod/nginx-static-web -o wide
 
 
 ```
-cd 
+cd
+mkdir -p manifests
 cd manifests 
 mkdir 02-rs
 cd 02-rs 
@@ -1628,7 +1638,7 @@ kubectl apply -f banana.yml
 ```
 kubectl get svc
 kubectl get pods -o wide
-kubectl run podtest --rm -it --image busybox -- /bin/sh
+kubectl run podtest --rm -it --image busybox
 ```
 
 ```
@@ -2397,8 +2407,7 @@ Wenn wir ein Chart ausführen wird eine Release erstellen
 ## Beispiel ubuntu 
 ## snap install --classic helm
 
-## Cluster muss vorhanden, aber nicht notwendig wo helm installiert 
-
+## Cluster auf das ich zugreifen kann und im client -> helm und kubectl 
 ## Voraussetzung auf dem Client-Rechner (helm ist nichts als anderes als ein Client-Programm) 
 Ein lauffähiges kubectl auf dem lokalen System (welches sich mit dem Cluster verbinden.
 -> saubere -> .kube/config 
@@ -2525,6 +2534,8 @@ helm install my-mysql bitnami/mysql -f values.yml
 
 ### Example 3: Install wordpress 
 
+### Example 3.1: Setting values with --set 
+
 ```
 helm repo add bitnami https://charts.bitnami.com/bitnami 
 helm install my-wordpress \
@@ -2534,11 +2545,283 @@ helm install my-wordpress \
     bitnami/wordpress
 ```
 
+### Example 3.2: Setting values with values.yml file 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir helm-wordpress
+cd helm-wordpress
+nano values.yml 
+```
+
+```
+## values.yml
+wordpressUsername: admin
+wordpressPassword: password
+mariadb:
+  auth:
+    rootPassword: secretpassword
+```
+
+```
+## helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm install my-wordpress -f values.yml bitnami/wordpress
+
+```
+
 
 ### Referenced
 
   * https://github.com/bitnami/charts/tree/master/bitnami/mysql/#installing-the-chart
   * https://helm.sh/docs/intro/quickstart/
+
+## Kustomize
+
+### Beispiel Overlay und Patching
+
+
+### Konzept Overlay 
+
+  * Base + Overlay = Gepatchtes manifest 
+  * Sachen patchen.
+  * Die werden drübergelegt. 
+
+### Example 1: Walkthrough 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir kexample
+cd kexample
+```
+
+```
+## Step 1:
+## Create the structure 
+## kustomize-example1
+## L base 
+## | - kustomization.yml 
+## L overlays 
+##.    L dev
+##       - kustomization.yml 
+##.    L prod 
+##.      - kustomization.yml 
+mkdir -p kustomize-example1/base 
+mkdir -p kustomize-example1/overlays/prod 
+cd kustomize-example1 
+
+```
+
+```
+## Step 2: base dir with files 
+## now create the base kustomization file 
+## vi base/kustomization.yml
+resources:
+- service.yml 
+```
+
+```
+## Step 3: Create the service - file 
+## vi base/service.yml 
+kind: Service
+apiVersion: v1
+metadata:
+  name: service-app
+spec:
+  type: ClusterIP
+  selector:
+    app: simple-app
+  ports:
+  - name: http
+    port: 80 
+
+```
+
+```
+## See how it looks like 
+kubectl kustomize ./base
+
+```
+
+
+
+
+```
+## Step 4: create the customization file accordingly 
+##vi overlays/prod/kustomization.yaml
+bases:
+- ../../base
+patches:
+  - path: service-ports.yaml
+```
+
+```
+## Step 5: create overlay (patch files) 
+## vi overlays/prod/service-ports.yaml 
+kind: Service
+apiVersion: v1
+metadata:
+  #Name der zu patchenden Ressource
+  name: service-app 
+spec:
+  # Changed to Nodeport
+  type: NodePort
+  ports: #Die Porteinstellungen werden überschrieben
+  - name: https
+    port: 443 
+
+```
+
+
+```
+## Step 6:
+kubectl kustomize overlays/prod/
+
+## or apply it directly 
+kubectl apply -k overlays/prod/
+
+```
+
+```
+## Step 7:
+## mkdir -p overlays/dev
+## vi overlays/dev/kustomization 
+bases:
+- ../../base
+
+```
+
+```
+## Step 8: 
+## statt mit der base zu arbeiten
+kubectl kustomize overlays/dev 
+```
+
+### Example 2: Advanced Patching with patchesJson6902 (You need to have done example 1 firstly) 
+
+```
+######## DEPRECATED ---- use below version 
+## Schritt 1:
+## Replace overlays/prod/kustomization.yml with the following syntax 
+bases:
+- ../../base
+patchesJson6902:
+- target:
+    version: v1
+    kind: Service
+    name: service-app
+  path: service-patch.yaml 
+```
+
+```
+## Schritt 1:
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../base
+patches:
+- path: service-patch.yaml
+  target:
+    kind: Service
+    name: service-app
+    version: v1
+```
+
+```
+## Schritt 2:
+## vi overlays/prod/service-patch.yaml 
+- op: remove
+  path: /spec/ports
+  value: 
+  - name: http
+    port: 80
+- op: add                                                                                                                                   
+  path: /spec/ports
+  value: 
+  - name: https
+    port: 443
+```
+
+```
+## Schritt 3:
+kubectl kustomize overlays/prod 
+
+```
+
+
+### Special Use Case: Change the metadata.name 
+
+```
+## Same as Example 2, but patch-file is a bit different 
+## vi overlays/prod/service-patch.yaml 
+- op: remove          
+  path: /spec/ports
+  value:              
+  - name: http        
+    port: 80          
+                      
+- op: add             
+  path: /spec/ports                                                                                                                         
+  value:              
+  - name: https       
+    port: 443         
+                      
+- op: replace         
+  path: /metadata/name
+  value: svc-app-test
+
+```
+
+```
+kubectl kustomize overlays/prod 
+```
+
+### Ref:
+
+  * https://blog.ordix.de/kubernetes-anwendungen-mit-kustomize
+
+
+
+
+### Resources
+
+
+### Where ?
+
+  * Used in base
+
+```
+## base/kustomization.yml 
+## which resources to use 
+## e.g 
+resources: 
+  - my-manifest.yml 
+
+```
+
+### Which ?
+
+  * URL
+  * filename 
+  * Repo (git) 
+
+### Example:
+
+```
+## kustomization.yaml
+resources:
+## a repo with a root level kustomization.yaml
+- github.com/Liujingfang1/mysql
+## a repo with a root level kustomization.yaml on branch test
+- github.com/Liujingfang1/mysql?ref=test
+## a subdirectory in a repo on branch repoUrl2
+- github.com/Liujingfang1/kustomize/examples/helloWorld?ref=repoUrl2
+## a subdirectory in a repo on commit `7050a45134e9848fca214ad7e7007e96e5042c03`
+- github.com/Liujingfang1/kustomize/examples/helloWorld?ref=7050a45134e9848fca214ad7e7007e96e5042c03
+```
 
 ## Kubernetes Storage 
 
@@ -2784,6 +3067,15 @@ kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh
 ### Kubernetes Netzwerke Übersicht
 
 
+### Show us 
+
+![pod to pod across nodes](https://www.inovex.de/wp-content/uploads/2020/05/Pod-to-Pod-Networking.png)
+
+### Die Magie des Pause Containers
+
+![Overview Kubernetes Networking](https://www.inovex.de/wp-content/uploads/2020/05/Container-to-Container-Networking_3_neu-400x412.png)
+
+
 ### CNI 
 
   * Common Network Interface
@@ -2792,7 +3084,7 @@ kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh
 ### Docker - Container oder andere 
 
   * Container wird hochgefahren -> über CNI -> zieht Netzwerk - IP  hoch. 
-  * Container witd runtergahren -> uber CNI -> Netzwerk - IP wird released 
+  * Container wird runtergahren -> uber CNI -> Netzwerk - IP wird released 
 
 ### Welche gibt es ? 
 
@@ -2862,30 +3154,6 @@ The flannel daemon is started using the arguments in ${SNAP_DATA}/args/flanneld.
 ```
 
 ### DNS - Resolution - Services
-
-
-```
-kubectl run podtest --rm -ti --image busybox -- /bin/sh
-If you don't see a command prompt, try pressing enter.
-/ # wget -O - http://apple-service.jochen
-Connecting to apple-service.jochen (10.245.39.214:80)
-writing to stdout
-apple-tln1
--                    100% |**************************************************************************************************************|    11  0:00:00 ETA
-written to stdout
-/ # wget -O - http://apple-service.jochen.svc.cluster.local
-Connecting to apple-service.jochen.svc.cluster.local (10.245.39.214:80)
-writing to stdout
-apple-tln1
--                    100% |**************************************************************************************************************|    11  0:00:00 ETA
-written to stdout
-/ # wget -O - http://apple-service
-Connecting to apple-service (10.245.39.214:80)
-writing to stdout
-apple-tln1
--                    100% |**************************************************************************************************************|    11  0:00:00 ETA
-written to stdout
-```
 
 ### Kubernetes Firewall / Cilium Calico
 
@@ -3867,6 +4135,81 @@ kubectl run podtest --rm -ti --image busybox -- /bin/sh
 / # exit 
 ```
 
+### Debug Container neben Container erstellen
+
+
+### Beispiel 1a: Walkthrough  Debug Container 
+
+```
+kubectl run ephemeral-demo --image=registry.k8s.io/pause:3.1 --restart=Never
+kubectl exec -it ephemeral-demo -- sh
+
+kubectl debug -it ephemeral-demo --image=ubuntu --target=<container-name>
+
+```
+
+### Beispiel 1b: Walkthrough Debug Container with apple-app 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir debugcontainer
+cd debugcontainer
+nano apple.yml
+```
+
+
+```
+kind: Pod
+apiVersion: v1
+metadata:
+  name: newapple-app
+  labels:
+    app: apple
+spec:
+  containers:
+    - name: apple-app
+      image: hashicorp/http-echo
+      args:
+        - "-text=apple-jochen"
+```
+
+```
+kubectl apply -f .
+```
+
+```
+## does not work
+kubectl exec -it newapple-app -- bash
+kubectl exec -it newapple-app -- sh
+```
+
+```
+kubectl debug -it newapple-app --image=ubuntu
+## Durch --target=apple-app sehe ich dann auch die Prozesse des anderen containers
+kubectl debug -it newapple-app --image=ubuntu --target=apple-app
+```
+
+### Aufbauend auf 1b: copy des containers erstellen 
+
+```
+kubectl debug newapple-app -it --image=busybox --share-processes --copy-to=newappleapp-debug
+```
+
+### Walkthrough Debug Node 
+
+```
+kubectl get nodes
+kubectl debug node/mynode -it --image=ubuntu
+```
+
+
+
+### Reference 
+
+  * https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/#ephemeral-container
+
 ## Kubernetes Administration /Upgrades 
 
 ### Kubernetes Administration / Upgrades
@@ -4618,6 +4961,112 @@ Abstraktion anpassen, dass sie unsere neue Implementierung verwendet
 ### Literatur von Monolith zu Microservices
 
   * https://www.amazon.de/Vom-Monolithen-Microservices-bestehende-umzugestalten/dp/3960091400/
+
+## Extras 
+
+### Install minikube on wsl2
+
+
+### Eventually update wsl
+
+```
+## We need the newest version of wsl as of 09.2022 
+## because systemd was included there
+## in powershell
+wsl --shutdown
+wsl --update 
+wsl 
+```
+
+### Walkthrough (Step 1) - in wsl 
+
+```
+## as root  in wsl 
+## sudo su -
+echo "[boot]" >> /etc/wsl.conf
+echo "systemd=true" >> /etc/wsl.conf
+```
+
+### Walkthrough (Step 2) - restart wsl 
+
+```
+## in powershell 
+wsl --shutdown 
+## takes a little bit longer now 
+wsl
+```
+
+### Walkthrough (step 3) - Setup minikube 
+
+```
+## as unprivileged user, e.g. yourname 
+sudo apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common
+    
+## key for rep
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+
+sudo apt-get update -y
+sudo apt-get install -y docker-ce
+
+sudo usermod -aG docker $USER && newgrp docker
+sudo apt install -y conntrack
+
+## Download the latest Minikube
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+
+## Make it executable
+chmod +x ./minikube
+
+## Move it to your user's executable PATH
+sudo mv ./minikube /usr/local/bin/
+
+##Set the driver version to Docker
+minikube config set driver docker
+
+## install minkube 
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+## and start it 
+minikube start 
+
+## find out system pods 
+kubectl get pods -A 
+
+### Note: kubernetes works within docker now 
+### you can figure this out by
+docker container ls 
+## Now exec into the container you see: e.g acec 
+docker exec -it acec bash 
+## within the container (docker runs within the container as well)
+docker container ls 
+```
+
+### Reference 
+
+  * No need to install systemd mentioned here.
+  * https://www.virtualizationhowto.com/2021/11/install-minikube-in-wsl-2-with-kubectl-and-helm/
+
+### kustomize - gute Struktur für größere Projekte
+
+
+### Structure 
+
+![image](https://github.com/jmetzger/training-kubernetes-einfuehrung/assets/1933318/33d725f3-b910-4f27-9235-c6c5d3e0030a)
+
+  * Source: https://www.reddit.com/r/kubernetes/comments/sd50hk/kustomize_with_multiple_deployments_how_to_keep/
+
+
+### kustomize with helm
+
+  * https://fabianlee.org/2022/04/18/kubernetes-kustomize-with-helm-charts/
 
 ## Kubernetes - Überblick
 
@@ -5539,7 +5988,8 @@ kubectl get pod/nginx-static-web -o wide
 
 
 ```
-cd 
+cd
+mkdir -p manifests
 cd manifests 
 mkdir 02-rs
 cd 02-rs 
@@ -6030,7 +6480,7 @@ kubectl apply -f banana.yml
 ```
 kubectl get svc
 kubectl get pods -o wide
-kubectl run podtest --rm -it --image busybox -- /bin/sh
+kubectl run podtest --rm -it --image busybox
 ```
 
 ```
@@ -7073,6 +7523,15 @@ kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh
 ### Überblick
 
 
+### Show us 
+
+![pod to pod across nodes](https://www.inovex.de/wp-content/uploads/2020/05/Pod-to-Pod-Networking.png)
+
+### Die Magie des Pause Containers
+
+![Overview Kubernetes Networking](https://www.inovex.de/wp-content/uploads/2020/05/Container-to-Container-Networking_3_neu-400x412.png)
+
+
 ### CNI 
 
   * Common Network Interface
@@ -7081,7 +7540,7 @@ kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh
 ### Docker - Container oder andere 
 
   * Container wird hochgefahren -> über CNI -> zieht Netzwerk - IP  hoch. 
-  * Container witd runtergahren -> uber CNI -> Netzwerk - IP wird released 
+  * Container wird runtergahren -> uber CNI -> Netzwerk - IP wird released 
 
 ### Welche gibt es ? 
 
@@ -7338,8 +7797,7 @@ Wenn wir ein Chart ausführen wird eine Release erstellen
 ## Beispiel ubuntu 
 ## snap install --classic helm
 
-## Cluster muss vorhanden, aber nicht notwendig wo helm installiert 
-
+## Cluster auf das ich zugreifen kann und im client -> helm und kubectl 
 ## Voraussetzung auf dem Client-Rechner (helm ist nichts als anderes als ein Client-Programm) 
 Ein lauffähiges kubectl auf dem lokalen System (welches sich mit dem Cluster verbinden.
 -> saubere -> .kube/config 
@@ -7457,6 +7915,8 @@ helm install my-mysql bitnami/mysql -f values.yml
 
 ### Example 3: Install wordpress 
 
+### Example 3.1: Setting values with --set 
+
 ```
 helm repo add bitnami https://charts.bitnami.com/bitnami 
 helm install my-wordpress \
@@ -7464,6 +7924,32 @@ helm install my-wordpress \
   --set wordpressPassword=password \
   --set mariadb.auth.rootPassword=secretpassword \
     bitnami/wordpress
+```
+
+### Example 3.2: Setting values with values.yml file 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir helm-wordpress
+cd helm-wordpress
+nano values.yml 
+```
+
+```
+## values.yml
+wordpressUsername: admin
+wordpressPassword: password
+mariadb:
+  auth:
+    rootPassword: secretpassword
+```
+
+```
+## helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm install my-wordpress -f values.yml bitnami/wordpress
+
 ```
 
 
@@ -7524,6 +8010,14 @@ kubectl apply -k .
 ### Example 1: Walkthrough 
 
 ```
+cd
+mkdir -p manifests
+cd manifests
+mkdir kexample
+cd kexample
+```
+
+```
 ## Step 1:
 ## Create the structure 
 ## kustomize-example1
@@ -7571,13 +8065,16 @@ kubectl kustomize ./base
 
 ```
 
+
+
+
 ```
 ## Step 4: create the customization file accordingly 
 ##vi overlays/prod/kustomization.yaml
 bases:
 - ../../base
 patches:
-- service-ports.yaml
+  - path: service-ports.yaml
 ```
 
 ```
@@ -7600,7 +8097,7 @@ spec:
 
 ```
 ## Step 6:
-kubectl kustomization overlays/dev
+kubectl kustomize overlays/prod/
 
 ## or apply it directly 
 kubectl apply -k overlays/prod/
@@ -7625,6 +8122,7 @@ kubectl kustomize overlays/dev
 ### Example 2: Advanced Patching with patchesJson6902 (You need to have done example 1 firstly) 
 
 ```
+######## DEPRECATED ---- use below version 
 ## Schritt 1:
 ## Replace overlays/prod/kustomization.yml with the following syntax 
 bases:
@@ -7635,6 +8133,20 @@ patchesJson6902:
     kind: Service
     name: service-app
   path: service-patch.yaml 
+```
+
+```
+## Schritt 1:
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../base
+patches:
+- path: service-patch.yaml
+  target:
+    kind: Service
+    name: service-app
+    version: v1
 ```
 
 ```
@@ -8893,18 +9405,3 @@ containerMaxLogSize
 ### Kubernetes Labels and Selector
 
   * https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-
-## Misc 
-
-### Mermaid Test
-
-
-```mermaid
-  graph TD;
-      A-->B;
-      A-->C;
-      B-->D;
-      C-->D;
-    Hello-->A-->Brother-->What-if  
-    
-```
