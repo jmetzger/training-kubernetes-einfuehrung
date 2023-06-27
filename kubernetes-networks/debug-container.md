@@ -6,7 +6,7 @@
 kubectl run ephemeral-demo --image=registry.k8s.io/pause:3.1 --restart=Never
 kubectl exec -it ephemeral-demo -- sh
 
-kubectl debug -it ephemeral-demo --image=ubuntu --target=ephemeral-demo
+kubectl debug -it ephemeral-demo --image=ubuntu --target=<container-name>
 
 ```
 
@@ -55,8 +55,9 @@ kubectl debug -it newapple-app --image=ubuntu
 ## Walkthrough Debug Node 
 
 ```
-kubectl get nodes 
-kubectl debug node/mynode -it --image=ubuntu
+kubectl get nodes
+# Durch --target=apple-app sehe ich dann auch die Prozesse des anderen containers 
+kubectl debug node/mynode -it --image=ubuntu --target=apple-app
 ```
 
 
