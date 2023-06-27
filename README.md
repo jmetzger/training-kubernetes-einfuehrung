@@ -126,7 +126,8 @@
      * [Literatur von Monolith zu Microservices](https://www.amazon.de/Vom-Monolithen-Microservices-bestehende-umzugestalten/dp/3960091400/)
 
   1. Extras 
-     * [Install minikube on wsl2](installer/minikube-wsl2.md)    
+     * [Install minikube on wsl2](installer/minikube-wsl2.md)
+     * [kustomize - gute Struktur für größere Projekte](/kustomize/kustomize-big-projects.md)  
  
 
 ## Backlog 
