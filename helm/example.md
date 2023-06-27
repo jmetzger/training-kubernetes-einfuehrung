@@ -104,7 +104,7 @@ helm install my-mysql bitnami/mysql -f values.yml
 
 ## Example 3: Install wordpress 
 
-## Setting values with --set 
+## Example 3.1: Setting values with --set 
 
 ```
 helm repo add bitnami https://charts.bitnami.com/bitnami 
@@ -115,7 +115,7 @@ helm install my-wordpress \
     bitnami/wordpress
 ```
 
-## Setting values with values.yml file 
+## Example 3.2: Setting values with values.yml file 
 
 ```
 cd
