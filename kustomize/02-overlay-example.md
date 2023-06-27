@@ -64,13 +64,16 @@ kubectl kustomize ./base
 
 ```
 
+
+
+
 ```
 # Step 4: create the customization file accordingly 
 #vi overlays/prod/kustomization.yaml
 bases:
 - ../../base
 patches:
-- service-ports.yaml
+  - path: service-ports.yaml
 ```
 
 ```
@@ -93,7 +96,7 @@ spec:
 
 ```
 # Step 6:
-kubectl kustomize overlays/prod
+kubectl kustomize overlays/prod/
 
 # or apply it directly 
 kubectl apply -k overlays/prod/
