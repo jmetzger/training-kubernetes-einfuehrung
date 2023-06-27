@@ -90,6 +90,7 @@
 
   1. Tipps & Tricks 
      * [Netzwerkverbindung zum Pod testen](/tipps-tricks/verbindung-zu-pod-testen.md)
+     * [Debug Container neben Container erstellen](kubernetes-networks/debug-container.md)
      
   1. Kubernetes Administration /Upgrades 
      * [Kubernetes Administration / Upgrades](kubernetes-cluster-update-path.md)
