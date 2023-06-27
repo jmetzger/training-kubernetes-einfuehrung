@@ -104,6 +104,8 @@ helm install my-mysql bitnami/mysql -f values.yml
 
 ## Example 3: Install wordpress 
 
+## Setting values with --set 
+
 ```
 helm repo add bitnami https://charts.bitnami.com/bitnami 
 helm install my-wordpress \
@@ -111,6 +113,32 @@ helm install my-wordpress \
   --set wordpressPassword=password \
   --set mariadb.auth.rootPassword=secretpassword \
     bitnami/wordpress
+```
+
+## Setting values with values.yml file 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir helm-wordpress
+cd helm-wordpress
+nano values.yml 
+```
+
+```
+# values.yml
+wordpressUsername: admin
+wordpressPassword: password
+mariadb:
+  auth:
+    rootPassword: secretpassword
+```
+
+```
+# helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm install my-wordpress -v values.yml bitnami/wordpress
+
 ```
 
 
