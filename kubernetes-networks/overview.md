@@ -4,6 +4,11 @@
 
 ![pod to pod across nodes](https://www.inovex.de/wp-content/uploads/2020/05/Pod-to-Pod-Networking.png)
 
+## Die Magie des Pause Containers
+
+![Overview Kubernetes Networking](https://www.inovex.de/wp-content/uploads/2020/05/Container-to-Container-Networking_3_neu-400x412.png)
+
+
 ## CNI 
 
   * Common Network Interface
