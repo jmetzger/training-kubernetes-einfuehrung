@@ -47,8 +47,9 @@ kubectl exec -it newapple-app -- bash
 kubectl exec -it newapple-app -- sh
 ```
 
-
-
+```
+kubectl debug -it newapple-app --image=ubuntu
+```
 
 
 ## Walkthrough Debug Node 
