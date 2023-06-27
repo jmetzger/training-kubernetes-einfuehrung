@@ -56,6 +56,10 @@
      * [Helm Warum ?](/helm/warum.md)
      * [Helm Example](/helm/example.md)
 
+  1. Kustomize
+     * [Beispiel Overlay und Patching](/kustomize/02-overlay-example.md)
+     * [Resources](/kustomize/resources.md)
+
   1. Kubernetes Storage 
      * [Praxis. Beispiel (Dev/Ops)](/shared-volumes/nfs-multiple.md) 
 
