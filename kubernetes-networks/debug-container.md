@@ -51,6 +51,11 @@ kubectl exec -it newapple-app -- sh
 kubectl debug -it newapple-app --image=ubuntu
 ```
 
+## Aufbauend auf 1b: copy des containers erstellen 
+
+```
+kubectl debug newapple-app -it --image=busybox --share-processes --copy-to=newappleapp-debug
+```
 
 ## Walkthrough Debug Node 
 
