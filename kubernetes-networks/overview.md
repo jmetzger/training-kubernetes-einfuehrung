@@ -17,7 +17,7 @@
 ## Docker - Container oder andere 
 
   * Container wird hochgefahren -> über CNI -> zieht Netzwerk - IP  hoch. 
-  * Container witd runtergahren -> uber CNI -> Netzwerk - IP wird released 
+  * Container wird runtergahren -> uber CNI -> Netzwerk - IP wird released 
 
 ## Welche gibt es ? 
 
