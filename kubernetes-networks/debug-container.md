@@ -49,6 +49,8 @@ kubectl exec -it newapple-app -- sh
 
 ```
 kubectl debug -it newapple-app --image=ubuntu
+# Durch --target=apple-app sehe ich dann auch die Prozesse des anderen containers
+kubectl debug -it newapple-app --image=ubuntu --target=apple-app
 ```
 
 ## Aufbauend auf 1b: copy des containers erstellen 
@@ -61,7 +63,6 @@ kubectl debug newapple-app -it --image=busybox --share-processes --copy-to=newap
 
 ```
 kubectl get nodes
-# Durch --target=apple-app sehe ich dann auch die Prozesse des anderen containers 
 kubectl debug node/mynode -it --image=ubuntu --target=apple-app
 ```
 
