@@ -65,7 +65,7 @@
 
   1. Kubernetes Netzwerk 
      * [Kubernetes Netzwerke Übersicht](kubernetes-networks/overview.md)
-     * [DNS - Resolution - Services](kubernetes-networks/dns-resolution-services)
+     * [DNS - Resolution - Services](kubernetes-networks/dns-resolution-services.md)
      * [Kubernetes Firewall / Cilium Calico](/kubernetes-network/callico/00-simple-example-multi.md)
      * [Sammlung istio/mesh](sammlung-istio.md)
 
