@@ -9,7 +9,7 @@
 
 ## Hintergründe
 
-  * Gegenüber Virtualisierung von Hardware - 5fache bessere Auslastung
+  * Gegenüber Virtualisierung von Hardware - x-fache bessere Auslastung
   * Google als Ausgangspunkt (Borg) 
   * Software 2014 als OpenSource zur Verfügung gestellt 
   * Optimale Ausnutzung der Hardware, hunderte bis tausende Dienste können auf einigen Maschinen laufen (Cluster)  
@@ -19,4 +19,4 @@
 ## Wozu dient Kubernetes 
 
   * Orchestrierung von Containern
-  * am gebräuchlisten aktuell Docker
+  * am gebräuchlisten aktuell Docker -Images 
