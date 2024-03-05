@@ -134,6 +134,9 @@
      * [Install minikube on wsl2](installer/minikube-wsl2.md)
      * [kustomize - gute Struktur für größere Projekte](/kustomize/kustomize-big-projects.md)
      * [kustomize with helm](https://fabianlee.org/2022/04/18/kubernetes-kustomize-with-helm-charts/)
+    
+  1. Documentation
+     * [References](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/#DeploymentSpec)
  
 
 ## Backlog 
