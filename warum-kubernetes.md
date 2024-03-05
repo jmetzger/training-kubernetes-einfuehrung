@@ -2,7 +2,7 @@
 
 ## Ausgangslage
 
-  * Ich habe jetzt einen Haufen Container, aber:
+  * Ich habe jetzt einen Haufen Images, aber:
     * Wie bekomme ich die auf die Systeme.
     * Und wie halte ich den Verwaltungsaufwand in Grenzen.
   * Lösung: Kubernetes -> ein Orchestrierungstool
