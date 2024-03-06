@@ -50,6 +50,10 @@
      * [Hintergrund statefulsets](/kubernetes/statefulsets.md)
      * [Example stateful set](/kubectl-examples/10-statefulset.md)
 
+  1. Kubernetes Storage (CSI) 
+     * [Überblick Persistant Volumes (CSI)](kubernetes-csi/overview.md)
+     * [Übung Persistant Storage](kubernetes-csi/nfs-exercise.md)
+
   1. Helm (Kubernetes Paketmanager) 
      * [Helm Grundlagen](/helm/grundlagen.md)
      * [Helm Warum ?](/helm/warum.md)
