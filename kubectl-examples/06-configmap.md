@@ -31,7 +31,7 @@ kubectl get cm
 kubectl get cm example-configmap -o yaml
 ```
 
-## Schrit 2: Beispiel als Datei 
+## Schritt 2: Beispiel als Datei 
 
 
 ```
