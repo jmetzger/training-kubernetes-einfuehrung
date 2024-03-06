@@ -66,13 +66,6 @@ spec:
         # from the volumes section of this pod
         - name: example-configmap-volume
           mountPath: /etc/config
-      volumes:
-      - name: foo
-        configMap:
-          # Provide the name of the ConfigMap containing the files you want
-          # to add to the container
-          name: example-configmap
-
 
 ```
 
