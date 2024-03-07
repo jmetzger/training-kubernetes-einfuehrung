@@ -18,7 +18,7 @@ metadata:
 provisioner: nfs.csi.k8s.io
 parameters:
   server: 10.135.0.67
-  share: /var/nfs/tln1
+  share: /var/nfs
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
 mountOptions:
