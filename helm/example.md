@@ -25,13 +25,15 @@ helm search repo bitnami
 
 ```
 helm pull bitnami/mysql
+tar xvfz mysql*
 
 ```
 
 
 
+## Simple Walkthrough (Example 0: Step 3: install) 
 
-
+```
 helm install my-mysql bitnami/mysql
 # Chart runterziehen ohne installieren 
 # helm pull bitnami/mysql
