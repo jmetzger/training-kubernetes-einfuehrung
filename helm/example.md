@@ -9,7 +9,7 @@
   * Please only use: helm3. No server-side components needed (in cluster) 
     * Get away from examples using helm2 (hint: helm init) - uses tiller  
 
-## Simple Walkthrough (Example 0)
+## Simple Walkthrough (Example 0: Step 1)
 
 ```
 # Repo hinzufpgen 
@@ -19,6 +19,19 @@ helm repo update
 
 helm search repo bitnami 
 # helm install release-name bitnami/mysql
+```
+
+## Simple Walkthrough (Example 0: Step 2: for learning - pull)
+
+```
+helm pull bitnami/mysql
+
+```
+
+
+
+
+
 helm install my-mysql bitnami/mysql
 # Chart runterziehen ohne installieren 
 # helm pull bitnami/mysql
