@@ -32,7 +32,7 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   # any PV name
-  name: pv-nfs-tln<teilnehmer-nr>
+  name: pv-nfs-tln<nr>
   labels:
     volume: nfs-data-volume-tln<nr>
 spec:
@@ -45,7 +45,10 @@ spec:
    storageClassName: nfs-csi
      csi:
        driver: nfs.csi.k8s.io
-       volumeHandle: tln1
+       volumeHandle: <nr>
+       volumeAttributes:
+          server: 10.135.0.18
+          share: /var/nfs/<nr>
 ```
 
 
@@ -103,51 +106,79 @@ spec:
           claimName: pv-nfs-claim-tln<nr>
 ```
 
-
-
-
-## Step 3: Persistent Volume Claim 
+```
+kubectl apply -f 03-deploy.yml 
 
 ```
+
+```
+nano 04-service.yml
+```
+
+
+```
+# now testing it with a service 
+# cat 04-service.yml 
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: Service
 metadata:
-  name: pvc-nfs-dynamic
+  name: service-nginx
+  labels:
+    run: svc-my-nginx
 spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 2Gi
-  storageClassName: nfs-csi
-```
-
-## Step 4: Pod 
+  type: NodePort
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    app: nginx
+```        
 
 ```
-kind: Pod
-apiVersion: v1
-metadata:
-  name: nginx-nfs
-spec:
-  containers:
-    - image: nginx:1.23
-      name: nginx-nfs
-      command:
-        - "/bin/bash"
-        - "-c"
-        - set -euo pipefail; while true; do echo $(date) >> /mnt/nfs/outfile; sleep 1; done
-      volumeMounts:
-        - name: persistent-storage
-          mountPath: "/mnt/nfs"
-          readOnly: false
-  volumes:
-    - name: persistent-storage
-      persistentVolumeClaim:
-        claimName: pvc-nfs-dynamic
+kubectl apply -f 04-service.yml 
 ```
 
+### Schritt 4
 
-## Reference:
+```
+# connect to the container and add index.html - data 
+kubectl exec -it deploy/nginx-deployment -- bash 
+# in container
+echo "hello dear friend" > /usr/share/nginx/html/index.html 
+exit 
 
- * https://rudimartinsen.com/2024/01/09/nfs-csi-driver-kubernetes/
+# get external ip 
+kubectl get nodes -o wide 
+
+# now try to connect 
+kubectl get svc 
+
+# connect with ip and port
+kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
+# curl http://<cluster-ip>
+# exit
+
+## oder alternative von extern (Browser) auf Client 
+http://<ext-ip>:30154 (Node Port) - ext-ip -> kubectl get nodes -o wide 
+
+# now destroy deployment 
+kubectl delete -f 03-deploy.yml 
+
+# Try again - no connection 
+kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
+# curl http://<cluster-ip>
+# exit 
+```
+
+### Schritt 5
+
+```
+
+# now start deployment again 
+kubectl apply -f 03-deploy.yml 
+
+# and try connection again  
+kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh 
+# curl http://<cluster-ip>:<port> # port -> > 30000
+# exit 
+```
