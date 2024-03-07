@@ -59,10 +59,10 @@
      * [Helm Warum ?](/helm/warum.md)
      * [Helm Example](/helm/example.md)
 
-  1. Kustomize
-     * [Beispiel Overlay und Patching](/kustomize/02-overlay-example.md)
-     * [Resources](/kustomize/resources.md)
-
+  !. Helm (IDE - Support) 
+     * [Kubernetes-Plugin Intellij](https://www.jetbrains.com/help/idea/kubernetes.html)
+     * [Intellij - Helm Support Through Kubernetes Plugin](https://blog.jetbrains.com/idea/2018/10/intellij-idea-2018-3-helm-support/)
+  
   1. Kubernetes Storage 
      * [Praxis. Beispiel (Dev/Ops)](/shared-volumes/nfs-multiple.md) 
 
