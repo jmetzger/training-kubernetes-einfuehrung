@@ -53,6 +53,7 @@
   1. Kubernetes Storage (CSI) 
      * [Überblick Persistant Volumes (CSI)](kubernetes-csi/overview.md)
      * [Übung Persistant Storage](kubernetes-csi/nfs-exercise.md)
+     * [Beispiel mariadb](kubernetes-csi/example-mariadb.md)
 
   1. Helm (Kubernetes Paketmanager) 
      * [Helm Grundlagen](/helm/grundlagen.md)
