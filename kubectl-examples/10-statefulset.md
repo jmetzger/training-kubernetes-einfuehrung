@@ -68,14 +68,14 @@ kubectl apply -f .
 ## Schritt 2: Auflösung Namen.
 
 ```
-kubectl run --rm -it podtester --image=busybox -- sh 
+kubectl run --rm -it podtester --image=busybox
 
 ping web-0.nginx 
 ping web-1.nginx 
 
 kubectl delete sts web 
 kubectl apply -f .
-kubectl run --rm -it podtest --image=busybox -- sh 
+kubectl run --rm -it podtest --image=busybox 
 
 ping web-0.nginx 
 
