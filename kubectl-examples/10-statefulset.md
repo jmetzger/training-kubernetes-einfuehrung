@@ -39,6 +39,7 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
+# name des statefulset wird nachher für den dns-namen verwendet 
   name: web
 spec:
   serviceName: "nginx"
@@ -70,6 +71,7 @@ kubectl apply -f .
 ```
 kubectl run --rm -it podtester --image=busybox
 
+# web ist der name des statefulsets 
 ping web-0.nginx 
 ping web-1.nginx 
 
