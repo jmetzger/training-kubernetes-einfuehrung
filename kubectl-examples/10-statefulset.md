@@ -8,11 +8,12 @@ mkdir -p manifests
 cd manifests
 mkdir sts
 cd sts 
-nano 01-sts.yml 
+
 ```
 
 
 ```
+# vi 01-svc.yml 
 # Headless Service - no ClusterIP 
 # Just used for name resolution of pods
 # web-0.nginx
@@ -31,7 +32,10 @@ spec:
   clusterIP: None
   selector:
     app: nginx
----
+```
+
+```
+# vi 02-sts.yml 
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
