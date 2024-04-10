@@ -1,12 +1,5 @@
 # Ingress Nginx mit Hostnamen/Domains
 
-## Prerequisits
-
-```
-# Ingress Controller muss aktiviert sein (Trainer sagt Bescheid, wenn nötig)
-microk8s enable ingress
-```
-
 ## Step 1: Walkthrough 
 
 ```
