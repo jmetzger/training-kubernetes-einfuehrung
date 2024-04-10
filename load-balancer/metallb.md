@@ -1,6 +1,6 @@
 # Setup
 
-## Installatiion 
+## Installation 
 
  * Refs: https://metallb.universe.tf/installation/
 
