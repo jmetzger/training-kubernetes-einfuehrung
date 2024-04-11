@@ -42,7 +42,7 @@ apiVersion: v1
 kind: Secret
 type: kubernetes.io/service-account-token
 metadata:
-  name: trainingtoken
+  name: trainingtoken<nr>
   namespace: default
   annotations:
     kubernetes.io/service-account.name: training<nr>
