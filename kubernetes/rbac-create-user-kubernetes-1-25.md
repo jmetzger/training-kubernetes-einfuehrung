@@ -110,7 +110,7 @@ kubectl config set-context training-ctx --cluster microk8s-cluster --user traini
 
 # extract name of the token from here 
 
-TOKEN=`kubectl get secret trainingtoken -o jsonpath='{.data.token}' | base64 --decode`
+TOKEN=`kubectl get secret trainingtoken<nr> -o jsonpath='{.data.token}' | base64 --decode`
 echo $TOKEN
 kubectl config set-credentials training --token=$TOKEN
 kubectl config use-context training-ctx
