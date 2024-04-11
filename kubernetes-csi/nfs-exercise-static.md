@@ -47,7 +47,7 @@ spec:
        driver: nfs.csi.k8s.io
        volumeHandle: <nr>
        volumeAttributes:
-          server: 10.135.0.18
+          server: 10.135.0.7
           share: /var/nfs/<nr>
 ```
 
