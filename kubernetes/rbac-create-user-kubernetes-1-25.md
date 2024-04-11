@@ -62,7 +62,7 @@ kubectl apply -f .
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: pods-clusterrole
+  name: pods-clusterrole<nr>
 rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["pods"]
@@ -79,15 +79,15 @@ kubectl apply -f pods-clusterrole.yml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: rolebinding-ns-default-pods
+  name: rolebinding-ns-default-pods<nr>
   namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: pods-clusterrole 
+  name: pods-clusterrole<nr> 
 subjects:
 - kind: ServiceAccount
-  name: training
+  name: training<nr>
   namespace: default
 ```
 
