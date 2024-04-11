@@ -91,7 +91,7 @@
      * [Ueberblick](kubernetes/operator/overview.md)   
     
   1. Kubernetes Deployment Strategies
-     * [Deployment green/blue,canary,rolling update](/kubernetes/deployment-strategies-en.md)
+     * [Deployment green/blue,canary,rolling update](/deployment-strategies-en.md)
      * [Praxis-Übung A/B Deployment](/kubectl-examples/08-ab-deployment.md)
     
   1. Kubernetes QoS / HealthChecks / Live / Readiness
