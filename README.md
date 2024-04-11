@@ -68,13 +68,16 @@
      * [Intellij - Helm Support Through Kubernetes Plugin](https://blog.jetbrains.com/idea/2018/10/intellij-idea-2018-3-helm-support/)
   
   1. Kubernetes Storage 
-     * [Praxis. Beispiel (Dev/Ops)](/shared-volumes/nfs-multiple.md) 
+     * [Praxis. Beispiel (Dev/Ops)](/shared-volumes/nfs-multiple.md)
 
   1. Kubernetes Netzwerk 
      * [Kubernetes Netzwerke Übersicht](kubernetes-networks/overview.md)
      * [DNS - Resolution - Services](kubernetes-networks/dns-resolution-services.md)
      * [Kubernetes Firewall / Cilium Calico](/kubernetes-network/callico/00-simple-example-multi.md)
      * [Sammlung istio/mesh](sammlung-istio.md)
+
+  1. Kubernetes NetworkPolicy (Firewall)
+     * [Kubernetes Network Policy Beispiel](kubernetes-networkpolicy/00-simple-exercises-group.md)    
 
   1. Kubernetes Autoscaling 
      * [Kubernetes Autoscaling](/kubernetes/autoscaling.md)
