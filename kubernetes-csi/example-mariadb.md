@@ -10,7 +10,7 @@
 curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.6.0/deploy/install-driver.sh | bash -s v4.6.0 --
 ```
 
-### Step 2: Storage Class 
+## Step 2: Storage Class 
 
 ```
 apiVersion: storage.k8s.io/v1
