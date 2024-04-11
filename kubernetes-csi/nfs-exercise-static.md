@@ -138,7 +138,7 @@ spec:
 kubectl apply -f 04-service.yml 
 ```
 
-### Schritt 4
+### Schritt 6
 
 ```
 # connect to the container and add index.html - data 
@@ -170,7 +170,7 @@ kubectl run -it --rm curly --image=curlimages/curl -- /bin/sh
 # exit 
 ```
 
-### Schritt 5
+### Schritt 7
 
 ```
 
