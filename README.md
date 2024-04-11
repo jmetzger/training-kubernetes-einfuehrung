@@ -86,6 +86,9 @@
      * [Configmap Example 1](/kubectl-examples/06-configmap.md)
      * [Secrets Example 1](kubernetes/secrets/uebung-secrets.md)
      * [Änderung in ConfigMap erkennen und anwenden](https://github.com/stakater/Reloader)
+    
+  1. Kubernetes RBAC (Role based access control)
+     * [RBAC Übung kubectl](/kubernetes/rbac-create-user-kubernetes-1-25.md)
 
   1. Kubernetes Operator Konzept 
      * [Ueberblick](kubernetes/operator/overview.md)   
