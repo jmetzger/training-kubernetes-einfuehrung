@@ -37,8 +37,6 @@ parameters:
   share: /var/nfs
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
-mountOptions:
-  - nfsvers=3
 ```
 
 ## Step 3: Persistent Volume Claim 
