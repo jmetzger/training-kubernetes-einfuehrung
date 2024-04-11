@@ -22,7 +22,7 @@ cd manifests/rbac
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: training
+  name: training<nr>
   namespace: default
 ```
 
@@ -43,8 +43,9 @@ kind: Secret
 type: kubernetes.io/service-account-token
 metadata:
   name: trainingtoken
+  namespace: default
   annotations:
-    kubernetes.io/service-account.name: training
+    kubernetes.io/service-account.name: training<nr>
 ```
 
 ```
