@@ -1,6 +1,6 @@
 # NFS 
 
-## Step 1: Treiber installieren 
+## Step 1a: Treiber installieren (manifests)
 
   * https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/docs/install-csi-driver-v4.6.0.md
 
@@ -8,7 +8,23 @@
 curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.6.0/deploy/install-driver.sh | bash -s v4.6.0 --
 ```
 
-### Step 2: Storage Class 
+## Alternative: Step 1b: Do the same with helm - chart 
+
+```
+helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version v4.6.0
+```
+
+## Step 2: Storage Class 
+
+```
+cd
+mkdir manifests
+cd manifests
+mkdir csi
+cd csi
+nano 01-storageclass.yml
+```
 
 ```
 apiVersion: storage.k8s.io/v1
@@ -19,7 +35,7 @@ provisioner: nfs.csi.k8s.io
 parameters:
   server: 10.135.0.18
   share: /var/nfs
-reclaimPolicy: Delete
+reclaimPolicy: Retain
 volumeBindingMode: Immediate
 mountOptions:
   - nfsvers=3
