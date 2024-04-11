@@ -278,6 +278,9 @@
      * [Kubernetes mit VisualStudio Code](https://code.visualstudio.com/docs/azure/kubernetes)
      * [Kube Api Ressources - Versionierungsschema](/kubernetes/api-versionierung-lifetime.md)
      * [Kubernetes Labels and Selector](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
+    
+  1. Documentation - Sources
+     * [controller manager](https://github.com/kubernetes/kubernetes/tree/release-1.29/cmd/kube-controller-manager/app/options)
 
      
   
