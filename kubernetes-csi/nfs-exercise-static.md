@@ -32,24 +32,24 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   # any PV name
-  name: pv-nfs-tln<nr>
+  name: pv-nfs-tln1
   labels:
-    volume: nfs-data-volume-tln<nr>
+    volume: nfs-data-volume-tln1
 spec:
   capacity:
     # storage size
     storage: 1Gi
   accessModes:
-    # ReadWriteMany(RW from multi nodes), ReadWriteOnce(RW from a node), ReadOnlyMany(R from multi nodes)
     - ReadWriteMany
-   storageClassName: nfs-csi
-     csi:
+  storageClassName: nfs-csi
+  csi:
        driver: nfs.csi.k8s.io
-       volumeHandle: <nr>
+       volumeHandle: abc1
        volumeAttributes:
           server: 10.135.0.7
-          share: /var/nfs/<nr>
+          share: /var/nfs/tln1
 ```
+
 
 
 ### Step 4: Persistent Volume Claim 
