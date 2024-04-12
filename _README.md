@@ -25,8 +25,7 @@
   1. Kubernetes Praxis API-Objekte 
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](#das-tool-kubectl-devsops---spickzettel)
      * [kubectl example with run](#kubectl-example-with-run)
-     * Arbeiten mit manifests (Devs/Ops)
-     * Pods (Devs/Ops)
+     * [Bauen einer Applikation mit Resource Objekten](#bauen-einer-applikation-mit-resource-objekten)
      * [kubectl/manifest/pod](#kubectlmanifestpod)
      * ReplicaSets (Theorie) - (Devs/Ops)
      * [kubectl/manifest/replicaset](#kubectlmanifestreplicaset)
@@ -50,16 +49,24 @@
      * [Connect to external database](#connect-to-external-database)
      * [Hintergrund statefulsets](#hintergrund-statefulsets)
      * [Example stateful set](#example-stateful-set)
+    
+  1. LoadBalancer on Premise (metallb)
+     * [Metallb](#metallb)
+
+  1. Kubernetes Storage (CSI) 
+     * [Überblick Persistant Volumes (CSI)](#überblick-persistant-volumes-csi)
+     * [Übung Persistant Storage](#übung-persistant-storage)
+     * [Beispiel mariadb](#beispiel-mariadb)
 
   1. Helm (Kubernetes Paketmanager) 
      * [Helm Grundlagen](#helm-grundlagen)
      * [Helm Warum ?](#helm-warum-)
      * [Helm Example](#helm-example)
 
-  1. Kustomize
-     * [Beispiel Overlay und Patching](#beispiel-overlay-und-patching)
-     * [Resources](#resources)
-
+  1. Helm (IDE - Support) 
+     * [Kubernetes-Plugin Intellij](https://www.jetbrains.com/help/idea/kubernetes.html)
+     * [Intellij - Helm Support Through Kubernetes Plugin](https://blog.jetbrains.com/idea/2018/10/intellij-idea-2018-3-helm-support/)
+  
   1. Kubernetes Storage 
      * [Praxis. Beispiel (Dev/Ops)](#praxis-beispiel-devops)
 
@@ -69,6 +76,9 @@
      * [Kubernetes Firewall / Cilium Calico](#kubernetes-firewall--cilium-calico)
      * [Sammlung istio/mesh](#sammlung-istiomesh)
 
+  1. Kubernetes NetworkPolicy (Firewall)
+     * [Kubernetes Network Policy Beispiel](#kubernetes-network-policy-beispiel)
+
   1. Kubernetes Autoscaling 
      * [Kubernetes Autoscaling](#kubernetes-autoscaling)
 
@@ -76,6 +86,9 @@
      * [Configmap Example 1](#configmap-example-1)
      * [Secrets Example 1](#secrets-example-1)
      * [Änderung in ConfigMap erkennen und anwenden](https://github.com/stakater/Reloader)
+    
+  1. Kubernetes RBAC (Role based access control)
+     * [RBAC Übung kubectl](#rbac-übung-kubectl)
 
   1. Kubernetes Operator Konzept 
      * [Ueberblick](#ueberblick)
@@ -122,7 +135,7 @@
   1. Lokal Kubernetes verwenden 
      * [Kubernetes in ubuntu installieren z.B. innerhalb virtualbox](#kubernetes-in-ubuntu-installieren-zb-innerhalb-virtualbox)
      * [minikube](#minikube)
-     * [rancher for desktop](https://www.suse.com/c/rancher_blog/using-rancher-desktop-for-local-kubernetes-development/)
+     * [rancher for desktop](https://github.com/rancher-sandbox/rancher-desktop/releases/tag/v1.9.1)
      
   1. Microservices 
      * [Microservices vs. Monolith](#microservices-vs-monolith)
@@ -134,6 +147,9 @@
      * [Install minikube on wsl2](#install-minikube-on-wsl2)
      * [kustomize - gute Struktur für größere Projekte](#kustomize---gute-struktur-für-größere-projekte)
      * [kustomize with helm](https://fabianlee.org/2022/04/18/kubernetes-kustomize-with-helm-charts/)
+    
+  1. Documentation
+     * [References](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/#DeploymentSpec)
  
 
 ## Backlog 
@@ -268,6 +284,9 @@
      * [Kubernetes mit VisualStudio Code](https://code.visualstudio.com/docs/azure/kubernetes)
      * [Kube Api Ressources - Versionierungsschema](#kube-api-ressources---versionierungsschema)
      * [Kubernetes Labels and Selector](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
+    
+  1. Documentation - Sources
+     * [controller manager](https://github.com/kubernetes/kubernetes/tree/release-1.29/cmd/kube-controller-manager/app/options)
 
      
   
@@ -373,14 +392,14 @@ RUN apt-get update && \
 
 ### Ausgangslage
 
-  * Ich habe jetzt einen Haufen Container, aber:
+  * Ich habe jetzt einen Haufen Images, aber:
     * Wie bekomme ich die auf die Systeme.
     * Und wie halte ich den Verwaltungsaufwand in Grenzen.
   * Lösung: Kubernetes -> ein Orchestrierungstool
 
 ### Hintergründe
 
-  * Gegenüber Virtualisierung von Hardware - 5fache bessere Auslastung
+  * Gegenüber Virtualisierung von Hardware - x-fache bessere Auslastung
   * Google als Ausgangspunkt (Borg) 
   * Software 2014 als OpenSource zur Verfügung gestellt 
   * Optimale Ausnutzung der Hardware, hunderte bis tausende Dienste können auf einigen Maschinen laufen (Cluster)  
@@ -390,14 +409,13 @@ RUN apt-get update && \
 ### Wozu dient Kubernetes 
 
   * Orchestrierung von Containern
-  * am gebräuchlisten aktuell Docker
+  * am gebräuchlisten aktuell Docker -Images 
 
 ### Aufbau Allgemein
 
 
 ### Schaubild 
-
-![Kubernetes Architecture - src: syseleven](https://www.syseleven.de/wp-content/uploads/2020/11/syseleven-webiste-loesungen-kubernetes-modell-800x400-web.jpg)
+![image](https://github.com/jmetzger/training-kubernetes-einfuehrung/assets/1933318/80bf0da5-ab7a-4cc2-9ce4-d3c55b7d8b90)
 
 ### Komponenten / Grundbegriffe
 
@@ -439,7 +457,7 @@ RUN apt-get update && \
  
 #### Nodes  
 
-  * Nodes (Knoten) sind die Arbeiter (Maschinen), die Anwendungen ausführen
+  * Worker Nodes (Knoten) sind die Arbeiter (Maschinen), die Anwendungen ausführen
   * Ref: https://kubernetes.io/de/docs/concepts/architecture/nodes/
 
 #### Pod/Pods 
@@ -833,7 +851,7 @@ mkdir .kube
 cd .kube
 cp -a /tmp/config config
 ls -la
-## nano config befüllen 
+## Alternative: nano config befüllen 
 ## das bekommt ihr aus Eurem Cluster Management Tool 
 ```
 
@@ -1022,16 +1040,21 @@ kubectl get pods -o wide
 ### Example (that does not work) 
 
 ```
-kubectl run foo2 --image=foo2
+kubectl run testpod --image=dockertrainereu/foo2
 ## ImageErrPull - Image konnte nicht geladen werden 
 kubectl get pods 
 ## Weitere status - info 
-kubectl describe pods foo2 
+kubectl describe pods testpod 
 ```
 
 ### Ref:
 
   * https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#run
+
+### Bauen einer Applikation mit Resource Objekten
+
+
+![image](https://github.com/jmetzger/training-kubernetes-einfuehrung/assets/1933318/69da28e4-eb8e-402c-99f6-89ccb231f386)
 
 ### kubectl/manifest/pod
 
@@ -1209,7 +1232,8 @@ kubectl run podtest --rm -ti --image busybox -- /bin/sh
 ### Example I : Service with ClusterIP 
 
 ```
-cd 
+cd
+mkdir -p manifests
 cd manifests
 mkdir 04-service 
 cd 04-service 
@@ -1357,10 +1381,23 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 helm show values ingress-nginx/ingress-nginx
 
+```
+
+
+```
+## vi values.yml
+controller:
+  publishService:
+    enabled: true
+```
+
+```
 ## It will be setup with type loadbalancer - so waiting to retrieve an ip from the external loadbalancer
 ## This will take a little. 
-helm install nginx-ingress ingress-nginx/ingress-nginx --namespace ingress --create-namespace --set controller.publishService.enabled=true 
+helm install nginx-ingress ingress-nginx/ingress-nginx --namespace ingress --create-namespace -f values.yml 
+```
 
+```
 ## See when the external ip comes available
 kubectl -n ingress get all
 kubectl --namespace ingress get services -o wide -w nginx-ingress-ingress-nginx-controller
@@ -1370,7 +1407,7 @@ NAME                                     TYPE           CLUSTER-IP     EXTERNAL-
 nginx-ingress-ingress-nginx-controller   LoadBalancer   10.245.78.34   157.245.20.222   80:31588/TCP,443:30704/TCP   4m39s   app.kubernetes.io/component=controller,app.kubernetes.io/instance=nginx-ingress,app.kubernetes.io/name=ingress-nginx
 
 ## Now setup wildcard - domain for training purpose 
-*.lab1.t3isp.de A 157.245.20.222 
+*.app1.t3isp.de A 157.245.20.222 
 
 
 ```
@@ -1543,13 +1580,6 @@ spec:
 ### Beispiel mit Hostnamen
 
 
-### Prerequisits
-
-```
-## Ingress Controller muss aktiviert sein (Trainer sagt Bescheid, wenn nötig)
-microk8s enable ingress
-```
-
 ### Step 1: Walkthrough 
 
 ```
@@ -1663,7 +1693,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "<euername>.lab.t3isp.de"
+  - host: "<euername>.app1.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -1852,15 +1882,18 @@ data:
   # als Wertepaare
   database: mongodb
   database_uri: mongodb://localhost:27017
+  testdata: |
+     run=true
+     file=/hello/you 
 ```
 
 ```
 kubectl apply -f 01-configmap.yml 
 kubectl get cm
-kubectl get cm -o yaml
+kubectl get cm example-configmap -o yaml
 ```
 
-### Schrit 2: Beispiel als Datei 
+### Schritt 2: Beispiel als Datei 
 
 
 ```
@@ -1895,7 +1928,6 @@ spec:
         # from the volumes section of this pod
         - name: example-configmap-volume
           mountPath: /etc/config
-
 
 ```
 
@@ -2303,11 +2335,12 @@ mkdir -p manifests
 cd manifests
 mkdir sts
 cd sts 
-nano 01-sts.yml 
+
 ```
 
 
 ```
+## vi 01-svc.yml 
 ## Headless Service - no ClusterIP 
 ## Just used for name resolution of pods
 ## web-0.nginx
@@ -2326,10 +2359,14 @@ spec:
   clusterIP: None
   selector:
     app: nginx
----
+```
+
+```
+## vi 02-sts.yml 
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
+## name des statefulset wird nachher für den dns-namen verwendet 
   name: web
 spec:
   serviceName: "nginx"
@@ -2359,14 +2396,15 @@ kubectl apply -f .
 ### Schritt 2: Auflösung Namen.
 
 ```
-kubectl run --rm -it podtester --image=busybox -- sh 
+kubectl run --rm -it podtester --image=busybox
 
+## web ist der name des statefulsets 
 ping web-0.nginx 
 ping web-1.nginx 
 
 kubectl delete sts web 
 kubectl apply -f .
-kubectl run --rm -it podtest --image=busybox -- sh 
+kubectl run --rm -it podtest --image=busybox 
 
 ping web-0.nginx 
 
@@ -2375,6 +2413,281 @@ ping web-0.nginx
 ### Referenz 
 
   * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/
+
+## LoadBalancer on Premise (metallb)
+
+### Metallb
+
+
+### Installation 
+
+ * Refs: https://metallb.universe.tf/installation/
+
+### Step 1: Installation: 
+
+```
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.9/config/manifests/metallb-native.yaml
+```
+
+### Step 2: Konfiguration 
+
+```
+mkdir -p manifests
+cd manifests 
+mkdir metallb 
+vi 01-pool.yaml 
+```
+
+```
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: first-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 192.168.1.240-192.168.1.250
+```
+
+```
+vi 02-l2.yaml
+
+```
+
+```
+## now we need to propagate
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: example
+  namespace: metallb-system
+```
+
+### References 
+
+  * https://microk8s.io/docs/addon-metallb
+  * https://metallb.universe.tf/
+  * Calico Issues: https://metallb.universe.tf/configuration/calico/
+  
+### Documentation 
+
+  * [Set IP to specific interface and node](https://metallb.universe.tf/configuration/_advanced_l2_configuration/)
+
+## Kubernetes Storage (CSI) 
+
+### Überblick Persistant Volumes (CSI)
+
+
+### Überblick 
+
+#### Warum CSI ?
+
+  * Each vendor can create his own driver for his storage 
+
+#### Vorteile ? 
+
+```
+I. Automatically create storage when required.
+II. Make storage available to containers wherever they’re scheduled.
+III. Automatically delete the storage when no longer needed. 
+```
+
+#### Wie war es vorher ?
+
+```
+Vendor needed to wait till his code was checked in in tree of kubernetes (in-tree)
+```
+
+#### Unterschied static vs. dynamisch 
+
+```
+The main difference relies on the moment when you want to configure storage. For instance, if you need to pre-populate data in a volume, you choose static provisioning. Whereas, if you need to create volumes on demand, you go for dynamic provisioning.
+```
+
+### Komponenten 
+
+#### Treiber 
+
+  * Für jede Storage Class (Storage Provider) muss es einen Treiber geben
+
+#### Storage Class 
+
+### Übung Persistant Storage
+
+
+### Step 1a: Treiber installieren (manifests)
+
+  * https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/docs/install-csi-driver-v4.6.0.md
+
+```
+curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.6.0/deploy/install-driver.sh | bash -s v4.6.0 --
+```
+
+### Alternative: Step 1b: Do the same with helm - chart 
+
+```
+helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version v4.6.0
+```
+
+### Step 2: Storage Class 
+
+```
+cd
+mkdir manifests
+cd manifests
+mkdir csi
+cd csi
+nano 01-storageclass.yml
+```
+
+```
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-csi
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: 10.135.0.18
+  share: /var/nfs
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+```
+
+### Step 3: Persistent Volume Claim 
+
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-nfs-dynamic
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: nfs-csi
+```
+
+### Step 4: Pod 
+
+```
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nginx-nfs
+spec:
+  containers:
+    - image: nginx:1.23
+      name: nginx-nfs
+      command:
+        - "/bin/bash"
+        - "-c"
+        - set -euo pipefail; while true; do echo $(date) >> /mnt/nfs/outfile; sleep 1; done
+      volumeMounts:
+        - name: persistent-storage
+          mountPath: "/mnt/nfs"
+          readOnly: false
+  volumes:
+    - name: persistent-storage
+      persistentVolumeClaim:
+        claimName: pvc-nfs-dynamic
+```
+
+
+### Reference:
+
+ * https://rudimartinsen.com/2024/01/09/nfs-csi-driver-kubernetes/
+
+### Beispiel mariadb
+
+
+  * How to persistently use mariadb with a storage class / driver nfs.csi.
+
+### Step 1: Treiber installieren 
+
+  * https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/docs/install-csi-driver-v4.6.0.md
+
+```
+curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.6.0/deploy/install-driver.sh | bash -s v4.6.0 --
+```
+
+### Step 2: Storage Class 
+
+```
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-csi
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: 10.135.0.18
+  share: /var/nfs
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+mountOptions:
+  - nfsvers=3
+```
+
+### Step 3: PVC, Configmap, Deployment 
+
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-nfs-dynamic-mariadb
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: nfs-csi
+```
+
+```
+### 01-configmap.yml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: mariadb-configmap
+data:
+  # als Wertepaare
+  MARIADB_ROOT_PASSWORD: 11abc432
+```
+
+```
+##deploy.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb-cont
+        image: mariadb:10.11
+        envFrom:
+        - configMapRef:
+            name: mariadb-configmap
+        volumeMounts:
+        - name: persistent-storage
+          mountPath: "/var/lib/mysql"
+          readOnly: false
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: pvc-nfs-dynamic-mariadb
+```
 
 ## Helm (Kubernetes Paketmanager) 
 
@@ -2439,7 +2752,7 @@ Feststehende Struktur
   * Please only use: helm3. No server-side components needed (in cluster) 
     * Get away from examples using helm2 (hint: helm init) - uses tiller  
 
-### Simple Walkthrough (Example 0)
+### Simple Walkthrough (Example 0: Step 1)
 
 ```
 ## Repo hinzufpgen 
@@ -2449,6 +2762,21 @@ helm repo update
 
 helm search repo bitnami 
 ## helm install release-name bitnami/mysql
+```
+
+### Simple Walkthrough (Example 0: Step 2: for learning - pull)
+
+```
+helm pull bitnami/mysql
+tar xvfz mysql*
+
+```
+
+
+
+### Simple Walkthrough (Example 0: Step 3: install) 
+
+```
 helm install my-mysql bitnami/mysql
 ## Chart runterziehen ohne installieren 
 ## helm pull bitnami/mysql
@@ -2577,251 +2905,15 @@ helm install my-wordpress -f values.yml bitnami/wordpress
   * https://github.com/bitnami/charts/tree/master/bitnami/mysql/#installing-the-chart
   * https://helm.sh/docs/intro/quickstart/
 
-## Kustomize
+## Helm (IDE - Support) 
 
-### Beispiel Overlay und Patching
+### Kubernetes-Plugin Intellij
 
+  * https://www.jetbrains.com/help/idea/kubernetes.html
 
-### Konzept Overlay 
+### Intellij - Helm Support Through Kubernetes Plugin
 
-  * Base + Overlay = Gepatchtes manifest 
-  * Sachen patchen.
-  * Die werden drübergelegt. 
-
-### Example 1: Walkthrough 
-
-```
-cd
-mkdir -p manifests
-cd manifests
-mkdir kexample
-cd kexample
-```
-
-```
-## Step 1:
-## Create the structure 
-## kustomize-example1
-## L base 
-## | - kustomization.yml 
-## L overlays 
-##.    L dev
-##       - kustomization.yml 
-##.    L prod 
-##.      - kustomization.yml 
-mkdir -p kustomize-example1/base 
-mkdir -p kustomize-example1/overlays/prod 
-cd kustomize-example1 
-
-```
-
-```
-## Step 2: base dir with files 
-## now create the base kustomization file 
-## vi base/kustomization.yml
-resources:
-- service.yml 
-```
-
-```
-## Step 3: Create the service - file 
-## vi base/service.yml 
-kind: Service
-apiVersion: v1
-metadata:
-  name: service-app
-spec:
-  type: ClusterIP
-  selector:
-    app: simple-app
-  ports:
-  - name: http
-    port: 80 
-
-```
-
-```
-## See how it looks like 
-kubectl kustomize ./base
-
-```
-
-
-
-
-```
-## Step 4: create the customization file accordingly 
-##vi overlays/prod/kustomization.yaml
-bases:
-- ../../base
-patches:
-  - path: service-ports.yaml
-```
-
-```
-## Step 5: create overlay (patch files) 
-## vi overlays/prod/service-ports.yaml 
-kind: Service
-apiVersion: v1
-metadata:
-  #Name der zu patchenden Ressource
-  name: service-app 
-spec:
-  # Changed to Nodeport
-  type: NodePort
-  ports: #Die Porteinstellungen werden überschrieben
-  - name: https
-    port: 443 
-
-```
-
-
-```
-## Step 6:
-kubectl kustomize overlays/prod/
-
-## or apply it directly 
-kubectl apply -k overlays/prod/
-
-```
-
-```
-## Step 7:
-## mkdir -p overlays/dev
-## vi overlays/dev/kustomization 
-bases:
-- ../../base
-
-```
-
-```
-## Step 8: 
-## statt mit der base zu arbeiten
-kubectl kustomize overlays/dev 
-```
-
-### Example 2: Advanced Patching with patchesJson6902 (You need to have done example 1 firstly) 
-
-```
-######## DEPRECATED ---- use below version 
-## Schritt 1:
-## Replace overlays/prod/kustomization.yml with the following syntax 
-bases:
-- ../../base
-patchesJson6902:
-- target:
-    version: v1
-    kind: Service
-    name: service-app
-  path: service-patch.yaml 
-```
-
-```
-## Schritt 1:
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-resources:
-- ../../base
-patches:
-- path: service-patch.yaml
-  target:
-    kind: Service
-    name: service-app
-    version: v1
-```
-
-```
-## Schritt 2:
-## vi overlays/prod/service-patch.yaml 
-- op: remove
-  path: /spec/ports
-  value: 
-  - name: http
-    port: 80
-- op: add                                                                                                                                   
-  path: /spec/ports
-  value: 
-  - name: https
-    port: 443
-```
-
-```
-## Schritt 3:
-kubectl kustomize overlays/prod 
-
-```
-
-
-### Special Use Case: Change the metadata.name 
-
-```
-## Same as Example 2, but patch-file is a bit different 
-## vi overlays/prod/service-patch.yaml 
-- op: remove          
-  path: /spec/ports
-  value:              
-  - name: http        
-    port: 80          
-                      
-- op: add             
-  path: /spec/ports                                                                                                                         
-  value:              
-  - name: https       
-    port: 443         
-                      
-- op: replace         
-  path: /metadata/name
-  value: svc-app-test
-
-```
-
-```
-kubectl kustomize overlays/prod 
-```
-
-### Ref:
-
-  * https://blog.ordix.de/kubernetes-anwendungen-mit-kustomize
-
-
-
-
-### Resources
-
-
-### Where ?
-
-  * Used in base
-
-```
-## base/kustomization.yml 
-## which resources to use 
-## e.g 
-resources: 
-  - my-manifest.yml 
-
-```
-
-### Which ?
-
-  * URL
-  * filename 
-  * Repo (git) 
-
-### Example:
-
-```
-## kustomization.yaml
-resources:
-## a repo with a root level kustomization.yaml
-- github.com/Liujingfang1/mysql
-## a repo with a root level kustomization.yaml on branch test
-- github.com/Liujingfang1/mysql?ref=test
-## a subdirectory in a repo on branch repoUrl2
-- github.com/Liujingfang1/kustomize/examples/helloWorld?ref=repoUrl2
-## a subdirectory in a repo on commit `7050a45134e9848fca214ad7e7007e96e5042c03`
-- github.com/Liujingfang1/kustomize/examples/helloWorld?ref=7050a45134e9848fca214ad7e7007e96e5042c03
-```
+  * https://blog.jetbrains.com/idea/2018/10/intellij-idea-2018-3-helm-support/
 
 ## Kubernetes Storage 
 
@@ -3155,6 +3247,30 @@ The flannel daemon is started using the arguments in ${SNAP_DATA}/args/flanneld.
 
 ### DNS - Resolution - Services
 
+
+```
+kubectl run podtest --rm -ti --image busybox -- /bin/sh
+If you don't see a command prompt, try pressing enter.
+/ # wget -O - http://apple-service.jochen
+Connecting to apple-service.jochen (10.245.39.214:80)
+writing to stdout
+apple-tln1
+-                    100% |**************************************************************************************************************|    11  0:00:00 ETA
+written to stdout
+/ # wget -O - http://apple-service.jochen.svc.cluster.local
+Connecting to apple-service.jochen.svc.cluster.local (10.245.39.214:80)
+writing to stdout
+apple-tln1
+-                    100% |**************************************************************************************************************|    11  0:00:00 ETA
+written to stdout
+/ # wget -O - http://apple-service
+Connecting to apple-service (10.245.39.214:80)
+writing to stdout
+apple-tln1
+-                    100% |**************************************************************************************************************|    11  0:00:00 ETA
+written to stdout
+```
+
 ### Kubernetes Firewall / Cilium Calico
 
 
@@ -3335,6 +3451,178 @@ kubectl label namespace default istio-injection=enabled
 
   * https://istio.io/latest/blog/2022/introducing-ambient-mesh/
 
+## Kubernetes NetworkPolicy (Firewall)
+
+### Kubernetes Network Policy Beispiel
+
+
+### Schritt 1: Deployment und Service erstellen 
+
+```
+KURZ=jm
+kubectl create ns policy-demo-$KURZ 
+```
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir -p np
+cd np
+```
+
+```
+## nano 01-deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.23
+        ports:
+        - containerPort: 80
+```
+
+```
+kubectl -n policy-demo-$KURZ apply -f . 
+```
+
+```
+## nano 02-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  type: ClusterIP # Default Wert 
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    app: nginx
+```
+
+```
+kubectl -n policy-demo-$KURZ apply -f . 
+```
+
+### Schritt 2: Zugriff testen ohne Regeln 
+
+```
+## lassen einen 2. pod laufen mit dem auf den nginx zugreifen 
+kubectl run --namespace=policy-demo-$KURZ access --rm -ti --image busybox
+```
+
+```
+## innerhalb der shell 
+wget -q nginx -O -
+```
+
+```
+## Optional: Pod anzeigen in 2. ssh-session zu jump-host
+kubectl -n policy-demo-$KURZ get pods --show-labels
+```
+
+### Schritt 3: Policy festlegen, dass kein Zugriff erlaubt ist. 
+
+```
+## nano 03-default-deny.yaml 
+## Schritt 2: Policy festlegen, dass kein Ingress-Traffic erlaubt
+## in diesem namespace: policy-demo-$KURZ 
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: default-deny
+spec:
+  podSelector:
+    matchLabels: {}
+```
+
+```
+kubectl -n policy-demo-$KURZ apply -f .
+```
+
+### Schritt 3.5: Verbindung mit deny all Regeln testen 
+
+```
+kubectl run --namespace=policy-demo-$KURZ access --rm -ti --image busybox
+```
+
+```
+## innerhalb der shell 
+wget -q nginx -O -
+```
+
+### Schritt 4: Zugriff erlauben von pods mit dem Label run=access (alle mit run gestarteten pods mit namen access haben dieses label per default)
+
+```
+## nano 04-access-nginx.yaml 
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: access-nginx
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            run: access
+```
+
+```
+kubectl -n policy-demo-$KURZ apply -f . 
+```
+
+### Schritt 5: Testen (zugriff sollte funktionieren)
+
+```
+## lassen einen 2. pod laufen mit dem auf den nginx zugreifen 
+## pod hat durch run -> access automatisch das label run:access zugewiesen 
+kubectl run --namespace=policy-demo-$KURZ access --rm -ti --image busybox
+```
+
+```
+## innerhalb der shell 
+wget -q nginx -O -
+```
+
+
+### Schritt 6: Pod mit label run=no-access - da sollte es nicht gehen 
+
+``` 
+kubectl run --namespace=policy-demo-$KURZ no-access --rm -ti --image busybox
+```
+
+```
+## in der shell  
+wget -q nginx -O -
+```
+
+### Schritt 7: Aufräumen 
+
+```
+kubectl delete ns policy-demo-$KURZ 
+```
+
+
+### Ref:
+
+  * https://projectcalico.docs.tigera.io/security/tutorials/kubernetes-policy-basic
+
 ## Kubernetes Autoscaling 
 
 ### Kubernetes Autoscaling
@@ -3389,15 +3677,18 @@ data:
   # als Wertepaare
   database: mongodb
   database_uri: mongodb://localhost:27017
+  testdata: |
+     run=true
+     file=/hello/you 
 ```
 
 ```
 kubectl apply -f 01-configmap.yml 
 kubectl get cm
-kubectl get cm -o yaml
+kubectl get cm example-configmap -o yaml
 ```
 
-### Schrit 2: Beispiel als Datei 
+### Schritt 2: Beispiel als Datei 
 
 
 ```
@@ -3432,7 +3723,6 @@ spec:
         # from the volumes section of this pod
         - name: example-configmap-volume
           mountPath: /etc/config
-
 
 ```
 
@@ -3555,6 +3845,164 @@ kubectl exec -it print-envs-complete -- bash
 
   * https://github.com/stakater/Reloader
 
+## Kubernetes RBAC (Role based access control)
+
+### RBAC Übung kubectl
+
+
+### Enable RBAC in microk8s 
+
+```
+## This is important, if not enable every user on the system is allowed to do everything 
+microk8s enable rbac 
+```
+
+### Schritt 1: Nutzer-Account auf Server anlegen und secret anlegen / in Client 
+
+```
+cd 
+mkdir -p manifests/rbac
+cd manifests/rbac
+```
+
+####  Mini-Schritt 1: Definition für Nutzer 
+
+```
+## vi service-account.yml 
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: training<nr>
+  namespace: default
+```
+
+```
+kubectl apply -f service-account.yml 
+```
+
+#### Mini-Schritt 1.5: Secret erstellen 
+
+  * From Kubernetes 1.25 tokens are not created automatically when creating a service account (sa)
+  * You have to create them manually with annotation attached 
+  * https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#create-token
+
+```
+## vi secret.yml 
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: trainingtoken<nr>
+  namespace: default
+  annotations:
+    kubernetes.io/service-account.name: training<nr>
+```
+
+```
+kubectl apply -f .
+```
+
+
+#### Mini-Schritt 2: ClusterRole festlegen - Dies gilt für alle namespaces, muss aber noch zugewiesen werden
+
+```
+### Bevor sie zugewiesen ist, funktioniert sie nicht - da sie keinem Nutzer zugewiesen ist 
+
+## vi pods-clusterrole.yml 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pods-clusterrole<nr>
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods"]
+  verbs: ["get", "watch", "list", "create"]
+```
+
+```
+kubectl apply -f pods-clusterrole.yml 
+```
+
+#### Mini-Schritt 3: Die ClusterRolle den entsprechenden Nutzern über RoleBinding zu ordnen 
+```
+## vi rb-training-ns-default-pods.yml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rolebinding-ns-default-pods<nr>
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: pods-clusterrole<nr> 
+subjects:
+- kind: ServiceAccount
+  name: training<nr>
+  namespace: default
+```
+
+```
+kubectl apply -f rb-training-ns-default-pods.yml
+```
+
+#### Mini-Schritt 4: Testen (klappt der Zugang) 
+
+```
+kubectl auth can-i get pods -n default --as system:serviceaccount:default:training<nr>
+```
+
+### Schritt 2: Context anlegen / Credentials auslesen und in kubeconfig hinterlegen (ab Kubernetes-Version 1.25.) 
+
+#### Mini-Schritt 1: kubeconfig setzen 
+
+```
+kubectl config set-context training-ctx --cluster microk8s-cluster --user training
+
+## extract name of the token from here 
+
+TOKEN=`kubectl get secret trainingtoken<nr> -o jsonpath='{.data.token}' | base64 --decode`
+echo $TOKEN
+kubectl config set-credentials training --token=$TOKEN
+kubectl config use-context training-ctx
+
+## Hier reichen die Rechte nicht aus 
+kubectl get deploy
+## Error from server (Forbidden): pods is forbidden: User "system:serviceaccount:kube-system:training" cannot list # resource "pods" in API group "" in the namespace "default"
+```
+
+#### Mini-Schritt 2:
+```
+kubectl config use-context training-ctx
+kubectl get pods 
+```
+
+#### Mini-Schritt 3: Zurück zum alten Default-Context 
+
+```
+kubectl config get-contexts
+```
+
+```
+CURRENT   NAME           CLUSTER            AUTHINFO    NAMESPACE
+          microk8s       microk8s-cluster   admin2
+*         training-ctx   microk8s-cluster   training2
+```
+
+```
+kubectl config use-context microk8s  
+```
+
+
+### Refs:
+
+  * https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengaddingserviceaccttoken.htm
+  * https://microk8s.io/docs/multi-user
+  * https://faun.pub/kubernetes-rbac-use-one-role-in-multiple-namespaces-d1d08bb08286
+
+### Ref: Create Service Account Token 
+
+  * https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#create-token
+
 ## Kubernetes Operator Konzept 
 
 ### Ueberblick
@@ -3583,6 +4031,47 @@ kubectl api-resources | grep cil
 ## Kubernetes Deployment Strategies
 
 ### Deployment green/blue,canary,rolling update
+
+
+### Canary Deployment 
+
+```
+A small group of the user base will see the new application 
+(e.g. 1000 out of 100.000), all the others will still see the old version
+
+From: a canary was used to test if the air was good in the mine 
+(like a test balloon) 
+```
+
+### Blue / Green Deployment 
+
+```
+The current version is the Blue one 
+The new version is the Green one 
+
+New Version (GREEN) will be tested and if it works  
+the traffic will be switch completey to the new version (GREEN) 
+
+Old version can either be deleted or will function as fallback 
+```
+
+### A/B Deployment/Testing 
+
+```
+2 Different versions are online, e.g. to test a new design / new feature 
+You can configure the weight (how much traffic to one or the other) 
+by the number of pods
+```
+
+#### Example Calculation 
+
+```
+e.g. Deployment1: 10 pods
+Deployment2: 5 pods
+
+Both have a common label,
+The service will access them through this label 
+```
 
 ### Praxis-Übung A/B Deployment
 
@@ -4660,7 +5149,7 @@ e.g. hyperv
 
 ### rancher for desktop
 
-  * https://www.suse.com/c/rancher_blog/using-rancher-desktop-for-local-kubernetes-development/
+  * https://github.com/rancher-sandbox/rancher-desktop/releases/tag/v1.9.1
 
 ## Microservices 
 
@@ -5068,6 +5557,12 @@ docker container ls
 
   * https://fabianlee.org/2022/04/18/kubernetes-kustomize-with-helm-charts/
 
+## Documentation
+
+### References
+
+  * https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/#DeploymentSpec
+
 ## Kubernetes - Überblick
 
 ### Allgemeine Einführung in Container (Dev/Ops)
@@ -5215,8 +5710,7 @@ Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität
 
 
 ### Schaubild 
-
-![Kubernetes Architecture - src: syseleven](https://www.syseleven.de/wp-content/uploads/2020/11/syseleven-webiste-loesungen-kubernetes-modell-800x400-web.jpg)
+![image](https://github.com/jmetzger/training-kubernetes-einfuehrung/assets/1933318/80bf0da5-ab7a-4cc2-9ce4-d3c55b7d8b90)
 
 ### Komponenten / Grundbegriffe
 
@@ -5258,7 +5752,7 @@ Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität
  
 #### Nodes  
 
-  * Nodes (Knoten) sind die Arbeiter (Maschinen), die Anwendungen ausführen
+  * Worker Nodes (Knoten) sind die Arbeiter (Maschinen), die Anwendungen ausführen
   * Ref: https://kubernetes.io/de/docs/concepts/architecture/nodes/
 
 #### Pod/Pods 
@@ -5932,11 +6426,11 @@ kubectl get pods -o wide
 ### Example (that does not work) 
 
 ```
-kubectl run foo2 --image=foo2
+kubectl run testpod --image=dockertrainereu/foo2
 ## ImageErrPull - Image konnte nicht geladen werden 
 kubectl get pods 
 ## Weitere status - info 
-kubectl describe pods foo2 
+kubectl describe pods testpod 
 ```
 
 ### Ref:
@@ -6088,7 +6582,8 @@ kubectl get pods -w
 ### Example I : Service with ClusterIP 
 
 ```
-cd 
+cd
+mkdir -p manifests
 cd manifests
 mkdir 04-service 
 cd 04-service 
@@ -6385,13 +6880,6 @@ spec:
 ### Beispiel mit Hostnamen
 
 
-### Prerequisits
-
-```
-## Ingress Controller muss aktiviert sein (Trainer sagt Bescheid, wenn nötig)
-microk8s enable ingress
-```
-
 ### Step 1: Walkthrough 
 
 ```
@@ -6505,7 +6993,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "<euername>.lab.t3isp.de"
+  - host: "<euername>.app1.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -6694,15 +7182,18 @@ data:
   # als Wertepaare
   database: mongodb
   database_uri: mongodb://localhost:27017
+  testdata: |
+     run=true
+     file=/hello/you 
 ```
 
 ```
 kubectl apply -f 01-configmap.yml 
 kubectl get cm
-kubectl get cm -o yaml
+kubectl get cm example-configmap -o yaml
 ```
 
-### Schrit 2: Beispiel als Datei 
+### Schritt 2: Beispiel als Datei 
 
 
 ```
@@ -6737,7 +7228,6 @@ spec:
         # from the volumes section of this pod
         - name: example-configmap-volume
           mountPath: /etc/config
-
 
 ```
 
@@ -7820,7 +8310,7 @@ kubectl cluster-info
   * Please only use: helm3. No server-side components needed (in cluster) 
     * Get away from examples using helm2 (hint: helm init) - uses tiller  
 
-### Simple Walkthrough (Example 0)
+### Simple Walkthrough (Example 0: Step 1)
 
 ```
 ## Repo hinzufpgen 
@@ -7830,6 +8320,21 @@ helm repo update
 
 helm search repo bitnami 
 ## helm install release-name bitnami/mysql
+```
+
+### Simple Walkthrough (Example 0: Step 2: for learning - pull)
+
+```
+helm pull bitnami/mysql
+tar xvfz mysql*
+
+```
+
+
+
+### Simple Walkthrough (Example 0: Step 3: install) 
+
+```
 helm install my-mysql bitnami/mysql
 ## Chart runterziehen ohne installieren 
 ## helm pull bitnami/mysql
@@ -9405,3 +9910,9 @@ containerMaxLogSize
 ### Kubernetes Labels and Selector
 
   * https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+
+## Documentation - Sources
+
+### controller manager
+
+  * https://github.com/kubernetes/kubernetes/tree/release-1.29/cmd/kube-controller-manager/app/options
