@@ -116,14 +116,13 @@ kubectl exec -it nginx -- bash
 ## Alle Objekte anzeigen 
 
 ```
-# Manchen Objekte werden mit all angezeigt 
-kubectl get all 
+# Nur die wichtigsten Objekte werden mit all angezeigt  
+kubectl get all
+# Dies, kann ich wie folgt um weitere ergänzen 
 kubectl get all,configmaps 
 
 # Über alle Namespaces hinweg 
 kubectl get all -A 
-
-
 ```
 
 ## Logs
