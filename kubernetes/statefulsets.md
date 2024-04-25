@@ -69,4 +69,4 @@ volumeClaimTemplates:
      
 ## Reference 
 
-  * https://kubernetes.io/docs/concepts/workloads/controllers/statefulse /
+  * https://kubernetes.io/docs/concepts/workloads/controllers/statefulsets/
