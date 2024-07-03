@@ -16,7 +16,7 @@ kubectl get pods -o wide
 ## Example (that does not work) 
 
 ```
-kubectl run testpod --image=dockertrainereu/foo2
+kubectl run testpod --image=foo2
 # ImageErrPull - Image konnte nicht geladen werden 
 kubectl get pods 
 # Weitere status - info 
