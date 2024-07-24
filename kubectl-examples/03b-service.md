@@ -46,8 +46,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: svc-nginx
-  labels:
-    run: svc-my-nginx
 spec:
   type: ClusterIP
   ports:
