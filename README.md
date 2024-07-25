@@ -150,6 +150,7 @@
     
   1. Documentation
      * [References](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/#DeploymentSpec)
+     * [Tasks Documentation - Good one !](https://kubernetes.io/docs/tasks)
  
 
 ## Backlog 
