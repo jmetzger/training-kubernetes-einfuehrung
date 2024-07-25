@@ -36,7 +36,6 @@ nano 02-deploy.yml
 ```
 
 ```
-#deploy.yml 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
