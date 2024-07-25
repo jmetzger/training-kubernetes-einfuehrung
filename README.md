@@ -50,6 +50,10 @@
      * [Hintergrund statefulsets](/kubernetes/statefulsets.md)
      * [Example stateful set](/kubectl-examples/10-statefulset.md)
     
+  1. Kubernetes Pod Termination
+     * [LifeCycle Termination](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)
+     * [preStopHook](https://www.datree.io/resources/kubernetes-guide-graceful-shutdown-with-lifecycle-prestop-hook)
+    
   1. LoadBalancer on Premise (metallb)
      * [Metallb](load-balancer/metallb.md)
 
