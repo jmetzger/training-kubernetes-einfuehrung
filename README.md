@@ -49,6 +49,9 @@
      * [Connect to external database](/databases/connect-to-external-db.md)
      * [Hintergrund statefulsets](/kubernetes/statefulsets.md)
      * [Example stateful set](/kubectl-examples/10-statefulset.md)
+
+  1. Kubernetes Ingress
+     * [Ingress HA-Proxy Sticky Session](ingress/ha-proxy/load-balancing-sticky-session.md)
     
   1. Kubernetes Pod Termination
      * [LifeCycle Termination](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)
