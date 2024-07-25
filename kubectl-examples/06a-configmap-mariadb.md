@@ -24,6 +24,7 @@ data:
 
 ```
 kubectl apply -f .
+kubectl describe cm  mariadb-configmap
 kubectl get cm
 kubectl get cm mariadb-configmap -o yaml
 ```
