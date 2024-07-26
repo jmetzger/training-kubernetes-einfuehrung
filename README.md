@@ -112,6 +112,7 @@
      
   1. Kubernetes Monitoring 
      * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
+     * [Prometheus / Grafana Stack installieren](prometheus-grafana/install-with-helm.md)
 
   1. Tipps & Tricks 
      * [Netzwerkverbindung zum Pod testen](/tipps-tricks/verbindung-zu-pod-testen.md)
