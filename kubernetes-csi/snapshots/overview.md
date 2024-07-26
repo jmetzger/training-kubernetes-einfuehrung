@@ -43,13 +43,12 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: pvc-nfs-snapshot-restored
-  namespace: default
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 10Gi
+      storage: 2Gi
   storageClassName: nfs-csi
   dataSource:
     name: test-nfs-snapshot
