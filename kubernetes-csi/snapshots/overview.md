@@ -12,3 +12,26 @@
 
   * https://github.com/kubernetes-csi/csi-driver-nfs/tree/master/deploy/example/snapshot
 
+### Step 1: Create SnaphotClass
+
+```
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: csi-nfs-snapclass
+driver: nfs.csi.k8s.io
+deletionPolicy: Delete
+```
+
+### Step 2: 
+
+```
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: test-nfs-snapshot
+spec:
+  volumeSnapshotClassName: csi-nfs-snapclass
+  source:
+    persistentVolumeClaimName: pvc-nfs-dynamic
+```
