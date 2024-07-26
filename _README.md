@@ -49,12 +49,20 @@
      * [Connect to external database](#connect-to-external-database)
      * [Hintergrund statefulsets](#hintergrund-statefulsets)
      * [Example stateful set](#example-stateful-set)
+
+  1. Kubernetes Ingress
+     * [Ingress HA-Proxy Sticky Session](#ingress-ha-proxy-sticky-session)
+    
+  1. Kubernetes Pod Termination
+     * [LifeCycle Termination](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)
+     * [preStopHook](https://www.datree.io/resources/kubernetes-guide-graceful-shutdown-with-lifecycle-prestop-hook)
     
   1. LoadBalancer on Premise (metallb)
      * [Metallb](#metallb)
 
   1. Kubernetes Storage (CSI) 
      * [Überblick Persistant Volumes (CSI)](#überblick-persistant-volumes-csi)
+     * [Liste der Treiber mit Features (CSI)](https://kubernetes-csi.github.io/docs/drivers.html)
      * [Übung Persistant Storage](#übung-persistant-storage)
      * [Beispiel mariadb](#beispiel-mariadb)
 
@@ -104,6 +112,8 @@
      
   1. Kubernetes Monitoring 
      * [Prometheus Monitoring Server (Overview)](#prometheus-monitoring-server-overview)
+     * [Prometheus / Grafana Stack installieren](#prometheus--grafana-stack-installieren)
+     * [Prometheus / blackbox exporter](#prometheus--blackbox-exporter)
 
   1. Tipps & Tricks 
      * [Netzwerkverbindung zum Pod testen](#netzwerkverbindung-zum-pod-testen)
@@ -150,6 +160,7 @@
     
   1. Documentation
      * [References](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/#DeploymentSpec)
+     * [Tasks Documentation - Good one !](https://kubernetes.io/docs/tasks)
  
 
 ## Backlog 
@@ -241,6 +252,7 @@
 
   1. Kubernetes Backups 
      * [Kubernetes Backup](#kubernetes-backup)
+     * [Kasten.io overview](https://docs.kasten.io/latest/usage/overview.html)
 
   1. Kubernetes Monitoring 
      * [Debugging von Ingress](#debugging-von-ingress)
@@ -865,6 +877,7 @@ kubectl cluster-info
 kubectl create ns jochen
 kubectl get ns
 kubectl config set-context --current --namespace jochen
+kubectl get pods
 ```
 
 ### kubectl cheatsheet kubernetes
@@ -1039,7 +1052,7 @@ kubectl get pods -o wide
 ### Example (that does not work) 
 
 ```
-kubectl run testpod --image=dockertrainereu/foo2
+kubectl run testpod --image=foo2
 ## ImageErrPull - Image konnte nicht geladen werden 
 kubectl get pods 
 ## Weitere status - info 
@@ -1090,10 +1103,11 @@ kubectl apply -f nginx-static.yml
 ```
 
 ```
+kubectl get pod/nginx-static-web -o wide 
 kubectl describe pod nginx-static-web 
 ## show config 
 kubectl get pod/nginx-static-web -o yaml
-kubectl get pod/nginx-static-web -o wide 
+
 ```
 
 ### kubectl/manifest/replicaset
@@ -1135,6 +1149,7 @@ spec:
 
 ```
 kubectl apply -f .
+kubectl get all 
 ```
 
 ### kubectl/manifest/deployments
@@ -1274,8 +1289,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: svc-nginx
-  labels:
-    run: svc-my-nginx
 spec:
   type: ClusterIP
   ports:
@@ -1371,7 +1384,8 @@ spec:
 
 ### Prerequisites 
 
-  * kubectl muss eingerichtet sein 
+  * kubectl muss eingerichtet sein
+  * helm 
 
 ### Walkthrough (Setup Ingress Controller) 
 
@@ -2008,6 +2022,7 @@ data:
 
 ```
 kubectl apply -f .
+kubectl describe cm  mariadb-configmap
 kubectl get cm
 kubectl get cm mariadb-configmap -o yaml
 ```
@@ -2019,7 +2034,6 @@ nano 02-deploy.yml
 ```
 
 ```
-##deploy.yml 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -2321,7 +2335,7 @@ volumeClaimTemplates:
      
 ### Reference 
 
-  * https://kubernetes.io/docs/concepts/workloads/controllers/statefulse /
+  * https://kubernetes.io/docs/concepts/workloads/controllers/statefulsets/
 
 ### Example stateful set
 
@@ -2412,6 +2426,25 @@ ping web-0.nginx
 ### Referenz 
 
   * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/
+
+## Kubernetes Ingress
+
+### Ingress HA-Proxy Sticky Session
+
+
+### It easy to setup session stickyness 
+
+  * https://www.haproxy.com/documentation/kubernetes-ingress/ingress-tutorials/load-balancing/
+
+## Kubernetes Pod Termination
+
+### LifeCycle Termination
+
+  * https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination
+
+### preStopHook
+
+  * https://www.datree.io/resources/kubernetes-guide-graceful-shutdown-with-lifecycle-prestop-hook
 
 ## LoadBalancer on Premise (metallb)
 
@@ -2511,6 +2544,10 @@ The main difference relies on the moment when you want to configure storage. For
 
 #### Storage Class 
 
+### Liste der Treiber mit Features (CSI)
+
+  * https://kubernetes-csi.github.io/docs/drivers.html
+
 ### Übung Persistant Storage
 
 
@@ -2547,7 +2584,7 @@ metadata:
   name: nfs-csi
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 10.135.0.18
+  server: 10.135.0.12
   share: /var/nfs
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -4590,6 +4627,278 @@ Quelle: https://www.devopsschool.com/
   * Mit Grafana kann ich einfach Dashboards verwenden 
   * Ich kann sehr leicht festlegen (Durch Data Sources), so meine Daten herkommen
 
+### Prometheus / Grafana Stack installieren
+
+
+  * using the kube-prometheus-stack (recommended !: includes important metrics)
+
+### Step 1: Prepare values-file  
+
+```
+cd
+mkdir -p manifests 
+cd manifests 
+mkdir -p monitoring 
+cd monitoring 
+```
+
+```
+vi values.yml 
+```
+
+```
+fullnameOverride: prometheus
+
+alertmanager:
+  fullnameOverride: alertmanager
+
+grafana:
+  fullnameOverride: grafana
+
+kube-state-metrics:
+  fullnameOverride: kube-state-metrics
+
+prometheus-node-exporter:
+  fullnameOverride: node-exporter
+```
+
+### Step 2: Install with helm 
+
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install prometheus prometheus-community/kube-prometheus-stack -f values.yml --namespace monitoring --create-namespace --version 61.3.1
+```
+
+### Step 3: Connect to prometheus from the outside world 
+
+#### Step 3.1: Start proxy to connect (to on Linux Client)
+
+```
+## this is shown in the helm information 
+helm -n monitoring get notes prometheus
+
+## Get pod that runs prometheus 
+kubectl -n monitoring get service 
+kubectl -n monitoring port-forward svc/prometheus-prometheus 9090 &
+
+```
+
+#### Step 3.2: Start a tunnel in (from) your local-system to the server 
+
+```
+ssh -L 9090:localhost:9090 tln1@164.92.129.7
+```
+
+#### Step 3.3: Open prometheus in your local browser 
+
+```
+## in browser
+http://localhost:9090 
+```
+
+### Step 4: Connect to the grafana from the outside world 
+
+#### Step 4.1: Start proxy to connect 
+
+```
+## Do the port forwarding 
+## Adjust your pods here
+kubectl -n monitoring get pods | grep grafana 
+kubectl -n monitoring port-forward grafana-56b45d8bd9-bp899 3000 &
+```
+
+#### Step 4.2: Start a tunnel in (from) your local-system to the server 
+
+```
+ssh -L 3000:localhost:3000 tln1@164.92.129.7
+```
+
+
+
+
+
+
+### References:
+
+  * https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md
+  * https://artifacthub.io/packages/helm/prometheus-community/prometheus
+
+  
+
+### Prometheus / blackbox exporter
+
+
+### Prerequisites 
+
+  * prometheus setup with helm
+
+### Step 1: Setup
+
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install my-prometheus-blackbox-exporter prometheus-community/prometheus-blackbox-exporter --version 8.17.0 --namespace monitoring --create-namespace
+
+```
+
+### Step 2: Find SVC 
+
+```
+kubectl -n monitoring get svc | grep blackbox
+```
+
+```
+my-prometheus-blackbox-exporter   ClusterIP   10.245.183.66    <none>        9115/TCP              
+```
+
+
+### Step 3: Test with Curl 
+
+```
+kubectl run -it --rm curltest --image=curlimages/curl -- sh 
+```
+
+```
+## Testen nach google in shell von curl
+curl http://my-prometheus-blackbox-exporter.monitoring:9115/probe?target=google.com&module=http_2xx
+```
+
+```
+## Looking for metric 
+probe_http_status_code 200
+```
+
+### Step 4: Test apple-service with Curl 
+
+```
+## From within curlimages/curl pod 
+curl http://my-prometheus-blackbox-exporter.monitoring:9115/probe?target=apple-service.app&module=http_2xx
+```
+
+
+### Step 5: Scrape Config (We want to get all services being labeled example.io/should_be_probed = true
+
+```
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+    - job_name: "blackbox-microservices"
+      metrics_path: /probe
+      params:
+        module: [http_2xx]
+      # Autodiscovery through kube-api-server 
+      # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config
+      kubernetes_sd_configs:
+      - role: service
+      relabel_configs:
+        # Example relabel to probe only some services that have "example.io/should_be_probed = true" annotation
+        - source_labels: [__meta_kubernetes_service_annotation_example_io_should_be_probed]
+          action: keep
+          regex: true
+        - source_labels: [__address__]
+          target_label: __param_target
+        - target_label: __address__
+          replacement:  my-prometheus-blackbox-exporter:9115
+        - source_labels: [__param_target]
+          target_label: instance
+        - action: labelmap
+          regex: __meta_kubernetes_service_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          target_label: app
+        - source_labels: [__meta_kubernetes_service_name]
+          target_label: kubernetes_service_name
+```
+
+### Step 6: Test with relabeler 
+
+ * https://relabeler.promlabs.com
+
+```
+
+
+```
+
+### Step 7: Scrapeconfig einbauen 
+
+```
+## von kube-prometheus-grafana in values und ugraden 
+ helm upgrade prometheus prometheus-community/kube-prometheus-stack -f values.yml --namespace monitoring --create-namespace --version 61.3.1
+```
+
+### Step 8: annotation in service einfügen 
+
+```
+kind: Service
+apiVersion: v1
+metadata:
+  name: apple-service
+  annotations:
+    example.io/should_be_probed: "true"
+
+spec:
+  selector:
+    app: apple
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5678 # Default port for image
+```
+
+
+```
+kubectl apply -f service.yml
+```
+
+### Step 9: Look into Status -> Discovery Services and wait
+
+  * blackbox services should now appear under blackbox_microservices
+  * and not being dropped
+
+### Step 10: Unter http://64.227.125.201:30090/targets?search= gucken
+
+  * .. ob das funktioniert
+
+### Step 11: Hauptseite (status code 200) 
+
+  * Metrik angekommen `?
+  * http://64.227.125.201:30090/graph?g0.expr=probe_http_status_code&g0.tab=1&g0.display_mode=lines&g0.show_exemplars=0&g0.range_input=1h
+
+### Step 12: pod vom service stoppen
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apple-deployment
+spec:
+  selector:
+    matchLabels:
+      app: apple
+  replicas: 8
+  template:
+    metadata:
+      labels:
+        app: apple
+    spec:
+      containers:
+      - name: apple-app
+        image: hashicorp/http-echo
+        args:
+        - "-text=apple-<dein-name>"
+
+
+```
+
+```
+kubectl apply -f apple.yml # (deployment)
+
+```
+
+### Step 13: status_code 0
+
+
+  * Metrik angekommen `?
+  * http://64.227.125.201:30090/graph?g0.expr=probe_http_status_code&g0.tab=1&g0.display_mode=lines&g0.show_exemplars=0&g0.range_input=1h
+
 ## Tipps & Tricks 
 
 ### Netzwerkverbindung zum Pod testen
@@ -5562,6 +5871,10 @@ docker container ls
 
   * https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/#DeploymentSpec
 
+### Tasks Documentation - Good one !
+
+  * https://kubernetes.io/docs/tasks
+
 ## Kubernetes - Überblick
 
 ### Allgemeine Einführung in Container (Dev/Ops)
@@ -6424,7 +6737,7 @@ kubectl get pods -o wide
 ### Example (that does not work) 
 
 ```
-kubectl run testpod --image=dockertrainereu/foo2
+kubectl run testpod --image=foo2
 ## ImageErrPull - Image konnte nicht geladen werden 
 kubectl get pods 
 ## Weitere status - info 
@@ -6470,10 +6783,11 @@ kubectl apply -f nginx-static.yml
 ```
 
 ```
+kubectl get pod/nginx-static-web -o wide 
 kubectl describe pod nginx-static-web 
 ## show config 
 kubectl get pod/nginx-static-web -o yaml
-kubectl get pod/nginx-static-web -o wide 
+
 ```
 
 ### kubectl/manifest/replicaset
@@ -6515,6 +6829,7 @@ spec:
 
 ```
 kubectl apply -f .
+kubectl get all 
 ```
 
 ### kubectl/manifest/deployments
@@ -6623,8 +6938,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: svc-nginx
-  labels:
-    run: svc-my-nginx
 spec:
   type: ClusterIP
   ports:
@@ -8937,6 +9250,10 @@ Restore is done on the K10 - Interface
   * [Installation DigitalOcean](https://docs.kasten.io/install/digitalocean/digitalocean.html)
   * [Installation Kubernetes (Other distributions)](https://docs.kasten.io/install/other/other.html#prerequisites)
 
+
+### Kasten.io overview
+
+  * https://docs.kasten.io/latest/usage/overview.html
 
 ## Kubernetes Monitoring 
 
