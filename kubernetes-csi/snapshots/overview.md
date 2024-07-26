@@ -23,7 +23,7 @@ driver: nfs.csi.k8s.io
 deletionPolicy: Delete
 ```
 
-### Step 2: 
+### Step 2: create volume snapshot 
 
 ```
 apiVersion: snapshot.storage.k8s.io/v1
@@ -34,4 +34,25 @@ spec:
   volumeSnapshotClassName: csi-nfs-snapclass
   source:
     persistentVolumeClaimName: pvc-nfs-dynamic
+```
+
+### Step 3: Restore from snapshot 
+
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-nfs-snapshot-restored
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: nfs-csi
+  dataSource:
+    name: test-nfs-snapshot
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io
 ```
