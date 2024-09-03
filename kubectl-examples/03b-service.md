@@ -114,7 +114,23 @@ spec:
        
 ```        
 
+## Example getting a specific ip from loadbalancer (if supported) 
 
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-nginx2
+spec:
+  type: LoadBalancer
+  # this line to get a specific ip if supported
+  loadBalancerIP: 10.34.12.34
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    run: my-nginx
+```       
 
 
 
