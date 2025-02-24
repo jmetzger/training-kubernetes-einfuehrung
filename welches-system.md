@@ -66,9 +66,12 @@ Ref: https://ubuntu.com/blog/introduction-to-microk8s-part-1-2
   * Supports plugin (Different name ?)
 
 
-## k3s
+## k3s (wsl oder virtuelle Maschine) 
 
-
+  * sehr schlank.
+  * lokal installierbar (eine node, ca 5 minuten)
+  * ein einziges binary
+  * https://docs.k3s.io/quick-start
 
 ## kind (Kubernetes-In-Docker)
 
