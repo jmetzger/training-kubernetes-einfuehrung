@@ -104,7 +104,9 @@ kubectl get pods -l app=nginx
 kubectl describe pod nginx 
 
 # Pod löschen 
-kubectl delete pod nginx 
+kubectl delete pod nginx
+# Löscht alle Pods im eigenen Namespace bzw. Default 
+kubectl delete pods --all 
 
 # Kommando in pod ausführen 
 kubectl exec -it nginx -- bash 
