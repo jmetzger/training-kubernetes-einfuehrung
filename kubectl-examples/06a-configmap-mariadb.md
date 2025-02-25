@@ -62,7 +62,15 @@ spec:
 
 ```
 kubectl apply -f .
+kubectl get pods 
 kubectl exec -it deploy/mariadb-deployment -- bash 
+```
+
+```
+env
+env | grep ROOT
+env | grep TEST
+exit
 ```
 
 ## Schritt 3: Service for mariadb 
