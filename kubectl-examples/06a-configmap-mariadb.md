@@ -62,6 +62,7 @@ spec:
 
 ```
 kubectl apply -f .
+kubectl exec -it deploy/mariadb-deployment -- bash 
 ```
 
 ## Schritt 3: Service for mariadb 
