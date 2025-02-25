@@ -259,7 +259,7 @@
      * [Debugging von Ingress](/kubernetes/debugging-ingress.md)
      * [Ebenen des Loggings](ebenen-des-loggings.md) 
      * [Working with kubectl logs](/kubectl/logs.md)
-     * [Built-In Monitoring tools - kubectl top pods/nodes](microk8s/metrics-server.md)
+     * [Built-In Monitoring tools - kubectl top pods/nodes](/metrics-server-helm.md)
      * [Protokollieren mit Elasticsearch und Fluentd (Devs/Ops)](microk8s/fluent-kibana-elastic-mit-microk8s.md)
      * [Long Installation step-by-step - Digitalocean](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes)
      * Container Level Monitoring (Devs/Ops)
