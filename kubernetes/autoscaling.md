@@ -1,5 +1,9 @@
 # Horizontal Pod Autoscaler (HPA)
 
+## Overview
+
+![image](https://github.com/user-attachments/assets/5b0f80d9-9f17-4c8a-896b-2ae1bb7506d7)
+
 ## Example: newest version with autoscaling/v2 used to be hpa/v1
 
 ### Prerequisites 
