@@ -20,6 +20,7 @@ metadata:
 data:
   # als Wertepaare
   MARIADB_ROOT_PASSWORD: 11abc432
+  TEST_CASE: 47
 ```
 
 ```
