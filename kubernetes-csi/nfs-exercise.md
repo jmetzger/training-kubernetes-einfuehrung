@@ -1,6 +1,6 @@
 # NFS 
 
-## Alternative (better !): Step 1: Do the same with helm - chart 
+## Step 1: Do the same with helm - chart 
 
 ```
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
