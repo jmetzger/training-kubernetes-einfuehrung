@@ -56,6 +56,10 @@
      * [Ingress HA-Proxy Sticky Session](ingress/ha-proxy/load-balancing-sticky-session.md)
      * [https mit ingressController und Letsencrypt](ingress/https-letsencrypt.md)
     
+  1. Kubernetes Secrets und Encrypting von z.B. Credentials 
+     * [Kubernetes secrets Typen](/kubernetes/secrets/secrets.md) 
+     * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md) 
+    
   1. Kubernetes Pod Termination
      * [LifeCycle Termination](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)
      * [preStopHook](https://www.datree.io/resources/kubernetes-guide-graceful-shutdown-with-lifecycle-prestop-hook)
@@ -212,10 +216,6 @@
 
   1. Kubernetes - ENV - Variablen für den Container setzen
      * [ENV - Variablen - Übung](/kubernetes/uebungen-env-variablen.md)
-
-  1. Kubernetes Secrets und Encrypting von z.B. Credentials 
-     * [Kubernetes secrets Typen](/kubernetes/secrets/secrets.md) 
-     * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md) 
 
   1. Kubernetes - Arbeiten mit einer lokalen Registry (microk8s) 
      * [microk8s lokale Registry](/microk8s/registry.md)
