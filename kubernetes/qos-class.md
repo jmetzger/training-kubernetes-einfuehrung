@@ -65,5 +65,6 @@ spec:
 
 ```
 kubectl apply -f .
+kubectl describe po qos-demo 
 ```
 
