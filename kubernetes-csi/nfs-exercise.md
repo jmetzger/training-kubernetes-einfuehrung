@@ -93,8 +93,14 @@ spec:
 ```
 kubectl apply -f .
 kubectl get pods
+```
+
+
+```
 kubectl exec -it nginx-nfs -- bash 
 ```
+
+## Step 5: Testing
 
 ```
 cd /mnt/nfs
@@ -107,6 +113,42 @@ tail -f /mnt/nfs/outfile
 CTRL+C
 exit
 ```
+
+## Step 6: Destroy 
+
+```
+kubectl delete -f 03-pod.yaml 
+
+## Verify in nfs - trainer !! 
+```
+
+## Step 7: Recreate 
+
+```
+kubectl apply -f 03-pod.yaml
+```
+
+```
+kubectl exec -it nginx-nfs -- bash
+```
+
+```
+# is old data here ? 
+head /mnt/nfs/outfile 
+#
+tail -f /mnt/nfs/outfile
+```
+
+```
+CTRL + C
+exit
+```
+## Step 8: Cleanup 
+
+```
+kubectl delete -f .
+```
+
 
 ## Reference:
 
