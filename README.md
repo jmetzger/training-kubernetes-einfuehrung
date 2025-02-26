@@ -47,6 +47,7 @@
      * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
      * [ConfigMap Example](/kubectl-examples/06-configmap.md)
      * [ConfigMap Example MariaDB](/kubectl-examples/06a-configmap-mariadb.md)
+     * [Secrets Example MariaDB](/kubectl-examples/07-mariadb-secret.md)
      * [Connect to external database](/databases/connect-to-external-db.md)
      * [Hintergrund statefulsets](/kubernetes/statefulsets.md)
      * [Example stateful set](/kubectl-examples/10-statefulset.md)
