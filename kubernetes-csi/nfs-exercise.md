@@ -56,6 +56,11 @@ spec:
   storageClassName: nfs-csi
 ```
 
+```
+kubectl apply -f .
+kubectl get pvc 
+```
+
 ## Step 4: Pod 
 
 ```
