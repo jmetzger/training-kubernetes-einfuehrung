@@ -63,8 +63,39 @@ spec:
         cpu: "700m"
 ```
 
+
+
 ```
 kubectl apply -f .
 kubectl describe po qos-demo 
 ```
 
+## Burstable 
+
+
+* For a Pod to be given a QoS class of BestEffort, the Containers in the Pod must not have any memory or CPU limits or requests
+
+
+```
+pods/qos/qos-pod-2.yaml
+Copy pods/qos/qos-pod-2.yaml to clipboard
+apiVersion: v1
+kind: Pod
+metadata:
+  name: qos-demo-2
+  namespace: qos-example
+spec:
+  containers:
+  - name: qos-demo-2-ctr
+    image: nginx
+    resources:
+      limits:
+        memory: "200Mi"
+      requests:
+        memory: "100Mi"
+```
+
+
+## BestEffort
+
+  * gar keine Limits und Requests gesetzt (bitte nicht machen) 
