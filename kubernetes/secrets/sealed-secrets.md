@@ -21,13 +21,9 @@ install -m 755 kubeseal /usr/local/bin/kubeseal
 ## Schritt 2: Walkthrough - Server Installation mit kubectl client 
 
 ```
-# auf dem Client 
-# cd 
-# mkdir manifests/seal-controller/ #
-# cd manifests/seal-controller
-# Neueste Version 
-wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.17.5/controller.yaml
-kubectl apply -f controller.yaml 
+helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
+helm install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.17.1
+
 ```
 
 ## Schritt 3: Walkthrough - Verwendung (als normaler/unpriviligierter Nutzer)
