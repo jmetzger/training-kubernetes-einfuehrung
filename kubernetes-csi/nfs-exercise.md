@@ -12,7 +12,7 @@ curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.6.
 
 ```
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
-helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version v4.6.0
+helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version v4.10.0
 ```
 
 ## Step 2: Storage Class 
