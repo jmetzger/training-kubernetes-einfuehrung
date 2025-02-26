@@ -17,6 +17,10 @@ kubectl explain pod.spec.containers.resources
   * Burstable
   * BestEffort 
 
+## Wie werden die Pods evicted 
+
+  * Das wird in der folgenden Reihenfolge gemacht: Zu erst alle BestEffort, dann burstable und zum Schluss Guaranteed
+
 ## Guaranteed 
 
 ```
@@ -69,6 +73,15 @@ spec:
 kubectl apply -f .
 kubectl describe po qos-demo 
 ```
+
+## Risiko Guaranteed
+
+
+ * Limit: CPU: Diese wird maximal zur Verfügung gestellt
+ * Limit: Memory: Wenn die Anwendung das Limit überschreitet, greift der OOM-Killer (Out of Memory Killer)
+ * Wenn Limit Memory: Dann auch dafür sorgen, dass das laufende Programme selbst auch eine Speichergrenze
+   * Java-Programm ohne Speichergrenze oder zu hoher Speichergrenze 
+
 
 ## Burstable 
 
