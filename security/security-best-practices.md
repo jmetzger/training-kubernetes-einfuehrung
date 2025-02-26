@@ -26,14 +26,19 @@ OPA Gateway
 
 6.5.2. CI / CD Pipeline 
 
-6.5.3 Registry (when uploading them) 
+6.5.3 Registry (when uploading them)
+```
 
-
+```
 6.6. Restrict ssh Access 
 (no ssh-access to cluster nodes please  !)
+```
 
+```
 6.7. Use NetworkPolicies 
 
 https://docs.openshift.com/container-platform/4.12/networking/network_policy/about-network-policy.html
--> BUT: Use the specific Network Policies of your CNI 
+-> BUT: Use the specific Network Policies of your CNI
+
+```
 ```
