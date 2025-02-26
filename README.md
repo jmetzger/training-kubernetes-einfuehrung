@@ -58,7 +58,8 @@
     
   1. Kubernetes Secrets und Encrypting von z.B. Credentials 
      * [Kubernetes secrets Typen](/kubernetes/secrets/secrets.md) 
-     * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md) 
+     * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md)
+     * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     
   1. Kubernetes Pod Termination
      * [LifeCycle Termination](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)
