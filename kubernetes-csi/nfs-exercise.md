@@ -92,7 +92,20 @@ spec:
 
 ```
 kubectl apply -f .
-kubectl get pods 
+kubectl get pods
+kubectl exec -it nginx-nfs -- bash 
+```
+
+```
+cd /var/nfs
+ls -la
+# outfile
+tail -f /mnt/nfs/outfile
+```
+
+```
+CTRL+C
+exit
 ```
 
 ## Reference:
