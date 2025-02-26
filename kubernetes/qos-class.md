@@ -29,7 +29,21 @@ limit: das braucht er maximal)
 
 Garantied ist die höchste Stufe und diese werden bei fehlenden Ressourcen 
 als letztes "evicted"
+```
 
+## Guaranteed Exercise 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir qos
+cd qos
+nano 01-pod.yaml
+```
+
+
+```
 apiVersion: v1
 
 kind: Pod
@@ -50,5 +64,7 @@ spec:
         cpu: "700m"
 ```
 
-
+```
+kubectl apply -f .
+```
 
