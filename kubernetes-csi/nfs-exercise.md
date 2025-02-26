@@ -92,6 +92,7 @@ spec:
 
 ```
 kubectl apply -f .
+kubectl get pods 
 ```
 
 ## Reference:
