@@ -35,7 +35,7 @@ volumeBindingMode: Immediate
 
 ```
 cd
-mkdir manifests
+mkdir -p manifests
 cd manifests
 mkdir csi
 cd csi
