@@ -1,14 +1,6 @@
 # NFS 
 
-## Step 1a: Treiber installieren (manifests)
-
-  * https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/docs/install-csi-driver-v4.6.0.md
-
-```
-curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.6.0/deploy/install-driver.sh | bash -s v4.6.0 --
-```
-
-## Alternative (better !): Step 1b: Do the same with helm - chart 
+## Alternative (better !): Step 1: Do the same with helm - chart 
 
 ```
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
