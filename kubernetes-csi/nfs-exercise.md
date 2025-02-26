@@ -13,8 +13,8 @@ helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-syste
 cd
 mkdir manifests
 cd manifests
-mkdir csi
-cd csi
+mkdir csi-storage
+cd csi-storage 
 nano 01-storageclass.yml
 ```
 
@@ -34,6 +34,15 @@ volumeBindingMode: Immediate
 ## Step 3: Persistent Volume Claim 
 
 ```
+cd
+mkdir manifests
+cd manifests
+mkdir csi
+cd csi
+nano 02-pvc.yaml
+```
+
+```
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -48,6 +57,10 @@ spec:
 ```
 
 ## Step 4: Pod 
+
+```
+nano 03-pod.yaml
+```
 
 ```
 kind: Pod
@@ -72,6 +85,9 @@ spec:
         claimName: pvc-nfs-dynamic
 ```
 
+```
+kubectl apply -f .
+```
 
 ## Reference:
 
