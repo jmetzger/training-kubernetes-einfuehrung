@@ -49,7 +49,6 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: qos-demo
-  namespace: qos-example
 spec:
   containers:
   - name: qos-demo-ctr
