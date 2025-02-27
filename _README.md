@@ -13,6 +13,7 @@
   1. Kubernetes - Überblick
      * [Warum Kubernetes, was macht Kubernetes](#warum-kubernetes-was-macht-kubernetes)
      * [Aufbau Allgemein](#aufbau-allgemein)
+     * [Ausbaustufen Kubernetes](#ausbaustufen-kubernetes)
      * [Wann macht Kubernetes Sinn, wann nicht?](#wann-macht-kubernetes-sinn-wann-nicht)
      * [Aufbau mit helm,OpenShift,Rancher(RKE),microk8s](#aufbau-mit-helmopenshiftrancherrkemicrok8s)
      * [Welches System ? (minikube, micro8ks etc.)](#welches-system--minikube-micro8ks-etc)
@@ -46,12 +47,23 @@
      * [Permanente Weiterleitung mit Ingress](#permanente-weiterleitung-mit-ingress)
      * [ConfigMap Example](#configmap-example)
      * [ConfigMap Example MariaDB](#configmap-example-mariadb)
+     * [Secrets Example MariaDB](#secrets-example-mariadb)
      * [Connect to external database](#connect-to-external-database)
      * [Hintergrund statefulsets](#hintergrund-statefulsets)
      * [Example stateful set](#example-stateful-set)
 
   1. Kubernetes Ingress
      * [Ingress HA-Proxy Sticky Session](#ingress-ha-proxy-sticky-session)
+     * [https mit ingressController und Letsencrypt](#https-mit-ingresscontroller-und-letsencrypt)
+    
+  1. Kubernetes Secrets und Encrypting von z.B. Credentials 
+     * [Kubernetes secrets Typen](#kubernetes-secrets-typen)
+     * [Sealed Secrets - bitnami](#sealed-secrets---bitnami)
+     * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+
+  1. Kubernetes Security
+     * [Best practices security pods](#best-practices-security-pods)
+     * [Best practices in general](#best-practices-in-general)
     
   1. Kubernetes Pod Termination
      * [LifeCycle Termination](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)
@@ -59,6 +71,9 @@
     
   1. LoadBalancer on Premise (metallb)
      * [Metallb](#metallb)
+
+  1. Metrics-Server
+     * [Metrics-Server mit helm installieren](#metrics-server-mit-helm-installieren)
 
   1. Kubernetes Storage (CSI) 
      * [Überblick Persistant Volumes (CSI)](#überblick-persistant-volumes-csi)
@@ -206,10 +221,6 @@
 
   1. Kubernetes - ENV - Variablen für den Container setzen
      * [ENV - Variablen - Übung](#env---variablen---übung)
-
-  1. Kubernetes Secrets und Encrypting von z.B. Credentials 
-     * [Kubernetes secrets Typen](#kubernetes-secrets-typen)
-     * [Sealed Secrets - bitnami](#sealed-secrets---bitnami)
 
   1. Kubernetes - Arbeiten mit einer lokalen Registry (microk8s) 
      * [microk8s lokale Registry](#microk8s-lokale-registry)
@@ -504,6 +515,11 @@ Er stellt sicher, dass Container in einem Pod ausgeführt werden.
   * https://www.redhat.com/de/topics/containers/kubernetes-architecture
 
 
+### Ausbaustufen Kubernetes
+
+
+![image](https://github.com/user-attachments/assets/355652f2-1a2e-441b-93c2-5b68508158b1)
+
 ### Wann macht Kubernetes Sinn, wann nicht?
 
 
@@ -614,9 +630,12 @@ Ref: https://ubuntu.com/blog/introduction-to-microk8s-part-1-2
   * Supports plugin (Different name ?)
 
 
-### k3s
+### k3s (wsl oder virtuelle Maschine) 
 
-
+  * sehr schlank.
+  * lokal installierbar (eine node, ca 5 minuten)
+  * ein einziges binary
+  * https://docs.k3s.io/quick-start
 
 ### kind (Kubernetes-In-Docker)
 
@@ -993,7 +1012,9 @@ kubectl get pods -l app=nginx
 kubectl describe pod nginx 
 
 ## Pod löschen 
-kubectl delete pod nginx 
+kubectl delete pod nginx
+## Löscht alle Pods im eigenen Namespace bzw. Default 
+kubectl delete pods --all 
 
 ## Kommando in pod ausführen 
 kubectl exec -it nginx -- bash 
@@ -1357,7 +1378,23 @@ spec:
        
 ```        
 
+### Example getting a specific ip from loadbalancer (if supported) 
 
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-nginx2
+spec:
+  type: LoadBalancer
+  # this line to get a specific ip if supported
+  loadBalancerIP: 10.34.12.34
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    run: my-nginx
+```       
 
 
 
@@ -1386,6 +1423,35 @@ spec:
 
   * kubectl muss eingerichtet sein
   * helm 
+
+
+### Walkthrough Simple (Setup Ingress Controller) 
+
+```
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm install nginx-ingress ingress-nginx/ingress-nginx --namespace ingress --create-namespace
+```
+
+```
+## See when the external ip comes available
+kubectl -n ingress get pods
+kubectl -n ingress get svc
+```
+
+```
+## Output  
+NAME                                     TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)                      AGE     SELECTOR
+nginx-ingress-ingress-nginx-controller   LoadBalancer   10.245.78.34   157.245.20.222   80:31588/TCP,443:30704/TCP   4m39s   app.kubernetes.io/component=controller,app.kubernetes.io/instance=nginx-ingress,app.kubernetes.io/name=ingress-nginx
+```
+
+```
+## Now setup wildcard - domain for training purpose 
+*.lab.t3isp.de A 157.245.20.222 
+
+
+```
+
+
 
 ### Walkthrough (Setup Ingress Controller) 
 
@@ -2018,6 +2084,7 @@ metadata:
 data:
   # als Wertepaare
   MARIADB_ROOT_PASSWORD: 11abc432
+  TEST_CASE: "47"
 ```
 
 ```
@@ -2059,6 +2126,15 @@ spec:
 
 ```
 kubectl apply -f .
+kubectl get pods 
+kubectl exec -it deploy/mariadb-deployment -- bash 
+```
+
+```
+env
+env | grep ROOT
+env | grep TEST
+exit
 ```
 
 ### Schritt 3: Service for mariadb 
@@ -2164,6 +2240,80 @@ show databases;
   * So kubectl apply -f deploy.yml will not have any effect
   * to fix, use stakater/reloader: https://github.com/stakater/Reloader
 
+
+### Secrets Example MariaDB
+
+
+### Schritt 1: secret  
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir secrettest
+cd secrettest 
+```
+
+```
+kubectl create secret generic mariadb-secret --from-literal=MARIADB_ROOT_PASSWORD=11abc432 --dry-run=client -o yaml > 01-secrets.yml
+```
+
+```
+kubectl apply -f .
+kubectl get secrets 
+kubectl get secrets  mariadb-secret  -o yaml
+```
+
+
+### Schritt 2: Deployment 
+```
+nano 02-deploy.yml
+```
+
+```
+##deploy.yml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb-cont
+        image: mariadb:latest
+        envFrom:
+        - secretRef:
+            name: mariadb-secret
+
+```
+
+```
+kubectl apply -f .
+```
+
+### Testing 
+
+```
+## Führt den Befehl env in einem Pod des Deployments aus  
+kubectl exec deployment/mariadb-deployment -- env
+## eigentlich macht er das:
+## kubectl exec mariadb-deployment-c6df6f959-q6swp -- env
+```
+
+
+### Important Sidenode 
+
+  * If configmap changes, deployment does not know
+  * So kubectl apply -f deploy.yml will not have any effect
+  * to fix, use stakater/reloader: https://github.com/stakater/Relo
 
 ### Connect to external database
 
@@ -2436,6 +2586,280 @@ ping web-0.nginx
 
   * https://www.haproxy.com/documentation/kubernetes-ingress/ingress-tutorials/load-balancing/
 
+### https mit ingressController und Letsencrypt
+
+
+### Schritt 1: cert-manager installieren 
+
+```
+helm repo add jetstack https://charts.jetstack.io
+helm install cert-manager jetstack/cert-manager \
+--namespace cert-manager --create-namespace \
+--version v1.12.0 \
+--set installCRDs=true
+```
+
+### Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
+
+```
+## cluster-issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: your-email@example.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+```
+
+### Schritt 3: Herausfinden, ob Zertifikate erstellt werden 
+
+```
+kubectl describe certificate example-tls
+kubectl get cert
+```
+
+
+### Schritt 4: Ingress-Objekt mit TLS erstellen 
+
+```
+## tls-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - test.devopslearnwith.us
+    secretName: example-tls
+  rules:
+  - host: test.devopslearnwith.us
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: example-service
+            port:
+              number: 80
+```
+
+```
+Schritt 5: Testen
+```
+
+
+### Ref: 
+
+  * https://hbayraktar.medium.com/installing-cert-manager-and-nginx-ingress-with-lets-encrypt-on-kubernetes-fe0dff4b1924
+
+## Kubernetes Secrets und Encrypting von z.B. Credentials 
+
+### Kubernetes secrets Typen
+
+
+### Welche Arten von Secrets gibt es ?
+
+| Built-in Type	| Usage |
+| ------------- | ----- |
+| Opaque	| arbitrary user-defined data |
+| kubernetes.io/service-account-token	 | ServiceAccount token |
+| kubernetes.io/dockercfg	| serialized ~/.dockercfg file |
+| kubernetes.io/dockerconfigjson | serialized ~/.docker/config.json file |
+| kubernetes.io/basic-auth | credentials for basic authentication |
+| kubernetes.io/ssh-auth | credentials for SSH authentication |
+| kubernetes.io/tls	| data for a TLS client or server |
+| bootstrap.kubernetes.io/token	| bootstrap token data |
+
+  * Ref: https://kubernetes.io/docs/concepts/configuration/secret/#secret-types
+
+  
+
+### Sealed Secrets - bitnami
+
+
+### 2 Komponenten 
+
+ * Sealed Secrets besteht aus 2 Teilen 
+   * kubeseal, um z.B. die Passwörter zu verschlüsseln 
+   * Dem Operator (ein Controller), der das Entschlüsseln übernimmt  
+
+### Schritt 1: Walkthrough - Client Installation (als root)
+
+```
+## Binary für Linux runterladen, entpacken und installieren 
+## Achtung: Immer die neueste Version von den Releases nehmen, siehe unten:
+## Install as root 
+cd /usr/src 
+wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.17.5/kubeseal-0.17.5-linux-amd64.tar.gz
+tar xzvf kubeseal-0.17.5-linux-amd64.tar.gz 
+install -m 755 kubeseal /usr/local/bin/kubeseal
+```
+
+### Schritt 2: Walkthrough - Server Installation mit kubectl client 
+
+```
+helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
+helm install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.17.1
+
+```
+
+### Schritt 3: Walkthrough - Verwendung (als normaler/unpriviligierter Nutzer)
+
+```
+kubeseal --fetch-cert 
+
+## Secret - config erstellen mit dry-run, wird nicht auf Server angewendet (nicht an Kube-Api-Server geschickt) 
+kubectl -n default create secret generic basic-auth --from-literal=user=admin --from-literal=password=change-me --dry-run=client -o yaml > basic-auth.yaml
+cat basic-auth.yaml 
+
+## öffentlichen Schlüssel zum Signieren holen 
+kubeseal --fetch-cert > pub-sealed-secrets.pem
+cat pub-sealed-secrets.pem 
+
+kubeseal --format=yaml --cert=pub-sealed-secrets.pem < basic-auth.yaml > basic-auth-sealed.yaml
+cat basic-auth-sealed.yaml 
+
+## Ausgangsfile von dry-run löschen 
+rm basic-auth.yaml
+
+## Ist das secret basic-auth vorher da ? 
+kubectl get secrets basic-auth 
+
+kubectl apply -f basic-auth-sealed.yaml
+
+## Kurz danach erstellt der Controller aus dem sealed secret das secret 
+kubectl get secret 
+kubectl get secret -o yaml
+
+```
+
+```
+## Ich kann dieses jetzt ganz normal in meinem pod verwenden.
+## Step 3: setup another pod to use it in addition 
+## vi 02-secret-app.yml 
+apiVersion: v1    
+kind: Pod    
+metadata:    
+  name: secret-app    
+spec:    
+  containers:    
+    - name: env-ref-demo    
+      image: nginx    
+      envFrom:                                                                                                                              
+      - secretRef:
+          name: basic-auth
+
+
+```
+
+### Hinweis: Ubuntu snaps 
+
+```
+Installation über snap funktioniert nur, wenn ich auf meinem Client
+ausschliesslich als root arbeite 
+```
+
+### Wie kann man sicherstellen, dass nach der automatischen Änderung des Secretes, der Pod bzw. Deployment neu gestartet wird ?
+
+  * https://github.com/stakater/Reloader
+ 
+### Ref: 
+  
+  * Controller: https://github.com/bitnami-labs/sealed-secrets/releases/
+
+
+
+### registry mit secret auth
+
+  * https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+
+## Kubernetes Security
+
+### Best practices security pods
+
+
+```
+5. Security / Best practice pods 
+
+5.1. Pods 
+1) Use Readiness / Liveness check 
+
+Not we really security, but to have a stable system 
+
+2) Use Non-Root Images 
+(is not allowed in OpenShift anyways)
+
+3) SecurityContext: Restrict the Features in the pod/container as much as possible
+
+Essentially covered by Default SCC's:
+https://docs.openshift.com/container-platform/4.18/authentication/managing-security-context-constraints.html
+
+Essentially use the v2 versions. 
+
+Question will Always be: Do I really Need this for this post 
+(e.g. HostNetwork). Is there are better/safer way to achieve this 
+```
+
+### Best practices in general
+
+
+```
+6. Security (other stuff) 
+6.1. Be sure upgrade your system and use the newest versions (OS / OpenShift) 
+6.2. Setup Firewall rules, for the cluster components. (OpenShift) - 
+https://docs.openshift.com/container-platform/4.16/installing/install_config/configuring-firewall.html
+
+6.3. Do not install any components, that you do not Need (with helm)
+
+6.4. Always download Images instead of using them locally. 
+
+I think it also has to do with auth. When set to always, the pod will pull the image from the registry, hence it has to do auth and have valid credentials to actually get the image.
+If the image is already in the node, and let's say permission has been removed to access that image for that node in the registry, a pod could still be created since the image is already there.
+
+-> Wie sicherstellen, dass das gesetzt ist ? 
+OPA Gateway 
+```
+
+
+
+```
+6.5. Scan all your Images before using them
+
+6.5.1. In development
+
+6.5.2. CI / CD Pipeline 
+
+6.5.3 Registry (when uploading them)
+```
+
+```
+6.6. Restrict ssh Access 
+(no ssh-access to cluster nodes please  !)
+```
+
+```
+6.7. Use NetworkPolicies 
+
+https://docs.openshift.com/container-platform/4.12/networking/network_policy/about-network-policy.html
+-> BUT: Use the specific Network Policies of your CNI
+
+```
+```
+
 ## Kubernetes Pod Termination
 
 ### LifeCycle Termination
@@ -2505,6 +2929,43 @@ metadata:
 
   * [Set IP to specific interface and node](https://metallb.universe.tf/configuration/_advanced_l2_configuration/)
 
+## Metrics-Server
+
+### Metrics-Server mit helm installieren
+
+
+### Warum ? Was macht er ? 
+
+```
+Der Metrics-Server sammelt Informationen von den einzelnen Nodes und Pods
+Er bietet mit 
+
+kubectl top pods
+kubectl top nodes 
+
+ein einfaches Interface, um einen ersten Eindruck über die Auslastung zu bekommen. 
+```
+
+### Walktrough 
+
+```
+helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+helm -n kube-system upgrade --install metrics-server metrics-server/metrics-server --version 3.12.2
+
+
+
+## Es dauert jetzt einen Moment bis dieser aktiv ist auch nach der Installation 
+## Auf dem Client
+kubectl top nodes 
+kubectl top pods 
+
+```
+
+### Kubernetes 
+
+  * https://kubernetes-sigs.github.io/metrics-server/
+  * kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
 ## Kubernetes Storage (CSI) 
 
 ### Überblick Persistant Volumes (CSI)
@@ -2551,29 +3012,21 @@ The main difference relies on the moment when you want to configure storage. For
 ### Übung Persistant Storage
 
 
-### Step 1a: Treiber installieren (manifests)
-
-  * https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/docs/install-csi-driver-v4.6.0.md
-
-```
-curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.6.0/deploy/install-driver.sh | bash -s v4.6.0 --
-```
-
-### Alternative: Step 1b: Do the same with helm - chart 
+### Step 1: Do the same with helm - chart 
 
 ```
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
-helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version v4.6.0
+helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version v4.10.0
 ```
 
 ### Step 2: Storage Class 
 
 ```
 cd
-mkdir manifests
+mkdir -p manifests
 cd manifests
-mkdir csi
-cd csi
+mkdir csi-storage
+cd csi-storage 
 nano 01-storageclass.yml
 ```
 
@@ -2584,13 +3037,22 @@ metadata:
   name: nfs-csi
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 10.135.0.12
+  server: 10.135.0.69
   share: /var/nfs
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
 ```
 
 ### Step 3: Persistent Volume Claim 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir csi
+cd csi
+nano 02-pvc.yaml
+```
 
 ```
 apiVersion: v1
@@ -2606,7 +3068,16 @@ spec:
   storageClassName: nfs-csi
 ```
 
+```
+kubectl apply -f .
+kubectl get pvc 
+```
+
 ### Step 4: Pod 
+
+```
+nano 03-pod.yaml
+```
 
 ```
 kind: Pod
@@ -2629,6 +3100,65 @@ spec:
     - name: persistent-storage
       persistentVolumeClaim:
         claimName: pvc-nfs-dynamic
+```
+
+```
+kubectl apply -f .
+kubectl get pods
+```
+
+
+```
+kubectl exec -it nginx-nfs -- bash 
+```
+
+### Step 5: Testing
+
+```
+cd /mnt/nfs
+ls -la
+## outfile
+tail -f /mnt/nfs/outfile
+```
+
+```
+CTRL+C
+exit
+```
+
+### Step 6: Destroy 
+
+```
+kubectl delete -f 03-pod.yaml 
+
+### Verify in nfs - trainer !! 
+```
+
+### Step 7: Recreate 
+
+```
+kubectl apply -f 03-pod.yaml
+```
+
+```
+kubectl exec -it nginx-nfs -- bash
+```
+
+```
+## is old data here ? 
+head /mnt/nfs/outfile 
+##
+tail -f /mnt/nfs/outfile
+```
+
+```
+CTRL + C
+exit
+```
+### Step 8: Cleanup 
+
+```
+kubectl delete -f .
 ```
 
 
@@ -3664,6 +4194,172 @@ kubectl delete ns policy-demo-$KURZ
 ### Kubernetes Autoscaling
 
 
+### Overview
+
+![image](https://github.com/user-attachments/assets/5b0f80d9-9f17-4c8a-896b-2ae1bb7506d7)
+
+### Example: newest version with autoscaling/v2 used to be hpa/v1
+
+#### Prerequisites 
+
+  * Metrics-Server needs to be running 
+
+```
+## Test with
+kubectl top pods 
+```
+
+```
+## Install
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+## after that at will be available in kube-system namespace as pod
+kubectl -n kube-system get pods | grep -i metrics 
+```
+
+#### Step 1: deploy app 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir hpa 
+cd hpa 
+vi 01-deploy.yaml 
+```
+
+
+```
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      containers:
+      - name: hello
+        image: k8s.gcr.io/hpa-example
+        resources:
+          requests:
+            cpu: 100m
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: hello
+spec:
+  selector:
+    app: hello
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hello
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hello
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+```
+
+### Step 2: Load Generator 
+
+```
+vi 02-loadgenerator.yml 
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  labels:
+    app: load-generator
+spec:
+  replicas: 100
+  selector:
+    matchLabels:
+      app: load-generator
+  template:
+    metadata:
+      name: load-generator
+      labels:
+        app: load-generator
+    spec:
+      containers:
+      - name: load-generator
+        image: busybox
+        command:
+        - /bin/sh
+        - -c
+        - "while true; do wget -q -O- http://hello.default.svc.cluster.local; done"
+
+```
+
+### Downscaling 
+ 
+   * Downscalinng will happen after 5 minutes o
+
+```
+## Adjust down to 1 minute 
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hello
+spec:
+  # change to 60 secs here 
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 60
+  # end of behaviour change
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hello
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+
+```
+
+```
+For scaling down the stabilization window is 300 seconds (or the value of the --horizontal-pod-autoscaler-downscale-stabilization flag if provided)
+```
+
+### Reference 
+
+  * https://docs.digitalocean.com/tutorials/cluster-autoscaling-ca-hpa/
+  * https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-more-specific-metrics
+  * https://medium.com/expedia-group-tech/autoscaling-in-kubernetes-why-doesnt-the-horizontal-pod-autoscaler-work-for-me-5f0094694054
+## Autoscaling 
+
 ### Example: 
 
 ```
@@ -4262,6 +4958,10 @@ kubectl explain pod.spec.containers.resources
   * Burstable
   * BestEffort 
 
+### Wie werden die Pods evicted 
+
+  * Das wird in der folgenden Reihenfolge gemacht: Zu erst alle BestEffort, dann burstable und zum Schluss Guaranteed
+
 ### Guaranteed 
 
 ```
@@ -4274,13 +4974,26 @@ limit: das braucht er maximal)
 
 Garantied ist die höchste Stufe und diese werden bei fehlenden Ressourcen 
 als letztes "evicted"
+```
 
+### Guaranteed Exercise 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir qos
+cd qos
+nano 01-pod.yaml
+```
+
+
+```
 apiVersion: v1
 
 kind: Pod
 metadata:
   name: qos-demo
-  namespace: qos-example
 spec:
   containers:
   - name: qos-demo-ctr
@@ -4297,6 +5010,49 @@ spec:
 
 
 
+```
+kubectl apply -f .
+kubectl describe po qos-demo 
+```
+
+### Risiko Guaranteed
+
+
+ * Limit: CPU: Diese wird maximal zur Verfügung gestellt
+ * Limit: Memory: Wenn die Anwendung das Limit überschreitet, greift der OOM-Killer (Out of Memory Killer)
+ * Wenn Limit Memory: Dann auch dafür sorgen, dass das laufende Programme selbst auch eine Speichergrenze
+   * Java-Programm ohne Speichergrenze oder zu hoher Speichergrenze 
+
+
+### Burstable 
+
+
+* For a Pod to be given a QoS class of BestEffort, the Containers in the Pod must not have any memory or CPU limits or requests
+
+
+```
+pods/qos/qos-pod-2.yaml
+Copy pods/qos/qos-pod-2.yaml to clipboard
+apiVersion: v1
+kind: Pod
+metadata:
+  name: qos-demo-2
+  namespace: qos-example
+spec:
+  containers:
+  - name: qos-demo-2-ctr
+    image: nginx
+    resources:
+      limits:
+        memory: "200Mi"
+      requests:
+        memory: "100Mi"
+```
+
+
+### BestEffort
+
+  * gar keine Limits und Requests gesetzt (bitte nicht machen) 
 
 ### LiveNess/Readiness - Probe / HealthChecks
 
@@ -6173,9 +6929,12 @@ Ref: https://ubuntu.com/blog/introduction-to-microk8s-part-1-2
   * Supports plugin (Different name ?)
 
 
-### k3s
+### k3s (wsl oder virtuelle Maschine) 
 
-
+  * sehr schlank.
+  * lokal installierbar (eine node, ca 5 minuten)
+  * ein einziges binary
+  * https://docs.k3s.io/quick-start
 
 ### kind (Kubernetes-In-Docker)
 
@@ -6678,7 +7437,9 @@ kubectl get pods -l app=nginx
 kubectl describe pod nginx 
 
 ## Pod löschen 
-kubectl delete pod nginx 
+kubectl delete pod nginx
+## Löscht alle Pods im eigenen Namespace bzw. Default 
+kubectl delete pods --all 
 
 ## Kommando in pod ausführen 
 kubectl exec -it nginx -- bash 
@@ -7006,7 +7767,23 @@ spec:
        
 ```        
 
+### Example getting a specific ip from loadbalancer (if supported) 
 
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-nginx2
+spec:
+  type: LoadBalancer
+  # this line to get a specific ip if supported
+  loadBalancerIP: 10.34.12.34
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    run: my-nginx
+```       
 
 
 
@@ -7873,127 +8650,6 @@ kubectl exec -it print-envs-complete -- bash
 ##env | grep -e APP_ -e MYSQL 
 ```
 
-## Kubernetes Secrets und Encrypting von z.B. Credentials 
-
-### Kubernetes secrets Typen
-
-
-### Welche Arten von Secrets gibt es ?
-
-| Built-in Type	| Usage |
-| ------------- | ----- |
-| Opaque	| arbitrary user-defined data |
-| kubernetes.io/service-account-token	 | ServiceAccount token |
-| kubernetes.io/dockercfg	| serialized ~/.dockercfg file |
-| kubernetes.io/dockerconfigjson | serialized ~/.docker/config.json file |
-| kubernetes.io/basic-auth | credentials for basic authentication |
-| kubernetes.io/ssh-auth | credentials for SSH authentication |
-| kubernetes.io/tls	| data for a TLS client or server |
-| bootstrap.kubernetes.io/token	| bootstrap token data |
-
-  * Ref: https://kubernetes.io/docs/concepts/configuration/secret/#secret-types
-
-  
-
-### Sealed Secrets - bitnami
-
-
-### 2 Komponenten 
-
- * Sealed Secrets besteht aus 2 Teilen 
-   * kubeseal, um z.B. die Passwörter zu verschlüsseln 
-   * Dem Operator (ein Controller), der das Entschlüsseln übernimmt  
-
-### Schritt 1: Walkthrough - Client Installation (als root)
-
-```
-## Binary für Linux runterladen, entpacken und installieren 
-## Achtung: Immer die neueste Version von den Releases nehmen, siehe unten:
-## Install as root 
-cd /usr/src 
-wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.17.5/kubeseal-0.17.5-linux-amd64.tar.gz
-tar xzvf kubeseal-0.17.5-linux-amd64.tar.gz 
-install -m 755 kubeseal /usr/local/bin/kubeseal
-```
-
-### Schritt 2: Walkthrough - Server Installation mit kubectl client 
-
-```
-## auf dem Client 
-## cd 
-## mkdir manifests/seal-controller/ #
-## cd manifests/seal-controller
-## Neueste Version 
-wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.17.5/controller.yaml
-kubectl apply -f controller.yaml 
-```
-
-### Schritt 3: Walkthrough - Verwendung (als normaler/unpriviligierter Nutzer)
-
-```
-kubeseal --fetch-cert 
-
-## Secret - config erstellen mit dry-run, wird nicht auf Server angewendet (nicht an Kube-Api-Server geschickt) 
-kubectl -n default create secret generic basic-auth --from-literal=user=admin --from-literal=password=change-me --dry-run=client -o yaml > basic-auth.yaml
-cat basic-auth.yaml 
-
-## öffentlichen Schlüssel zum Signieren holen 
-kubeseal --fetch-cert > pub-sealed-secrets.pem
-cat pub-sealed-secrets.pem 
-
-kubeseal --format=yaml --cert=pub-sealed-secrets.pem < basic-auth.yaml > basic-auth-sealed.yaml
-cat basic-auth-sealed.yaml 
-
-## Ausgangsfile von dry-run löschen 
-rm basic-auth.yaml
-
-## Ist das secret basic-auth vorher da ? 
-kubectl get secrets basic-auth 
-
-kubectl apply -f basic-auth-sealed.yaml
-
-## Kurz danach erstellt der Controller aus dem sealed secret das secret 
-kubectl get secret 
-kubectl get secret -o yaml
-
-```
-
-```
-## Ich kann dieses jetzt ganz normal in meinem pod verwenden.
-## Step 3: setup another pod to use it in addition 
-## vi 02-secret-app.yml 
-apiVersion: v1    
-kind: Pod    
-metadata:    
-  name: secret-app    
-spec:    
-  containers:    
-    - name: env-ref-demo    
-      image: nginx    
-      envFrom:                                                                                                                              
-      - secretRef:
-          name: basic-auth
-
-
-```
-
-### Hinweis: Ubuntu snaps 
-
-```
-Installation über snap funktioniert nur, wenn ich auf meinem Client
-ausschliesslich als root arbeite 
-```
-
-### Wie kann man sicherstellen, dass nach der automatischen Änderung des Secretes, der Pod bzw. Deployment neu gestartet wird ?
-
-  * https://github.com/stakater/Reloader
- 
-### Ref: 
-  
-  * Controller: https://github.com/bitnami-labs/sealed-secrets/releases/
-
-
-
 ## Kubernetes - Arbeiten mit einer lokalen Registry (microk8s) 
 
 ### microk8s lokale Registry
@@ -8055,6 +8711,172 @@ kubectl rollout restart deploy/webserver
 
 ### Ausblick AutoScaling (Ops)
 
+
+### Overview
+
+![image](https://github.com/user-attachments/assets/5b0f80d9-9f17-4c8a-896b-2ae1bb7506d7)
+
+### Example: newest version with autoscaling/v2 used to be hpa/v1
+
+#### Prerequisites 
+
+  * Metrics-Server needs to be running 
+
+```
+## Test with
+kubectl top pods 
+```
+
+```
+## Install
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+## after that at will be available in kube-system namespace as pod
+kubectl -n kube-system get pods | grep -i metrics 
+```
+
+#### Step 1: deploy app 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir hpa 
+cd hpa 
+vi 01-deploy.yaml 
+```
+
+
+```
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      containers:
+      - name: hello
+        image: k8s.gcr.io/hpa-example
+        resources:
+          requests:
+            cpu: 100m
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: hello
+spec:
+  selector:
+    app: hello
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hello
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hello
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+```
+
+### Step 2: Load Generator 
+
+```
+vi 02-loadgenerator.yml 
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  labels:
+    app: load-generator
+spec:
+  replicas: 100
+  selector:
+    matchLabels:
+      app: load-generator
+  template:
+    metadata:
+      name: load-generator
+      labels:
+        app: load-generator
+    spec:
+      containers:
+      - name: load-generator
+        image: busybox
+        command:
+        - /bin/sh
+        - -c
+        - "while true; do wget -q -O- http://hello.default.svc.cluster.local; done"
+
+```
+
+### Downscaling 
+ 
+   * Downscalinng will happen after 5 minutes o
+
+```
+## Adjust down to 1 minute 
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hello
+spec:
+  # change to 60 secs here 
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 60
+  # end of behaviour change
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hello
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+
+```
+
+```
+For scaling down the stabilization window is 300 seconds (or the value of the --horizontal-pod-autoscaler-downscale-stabilization flag if provided)
+```
+
+### Reference 
+
+  * https://docs.digitalocean.com/tutorials/cluster-autoscaling-ca-hpa/
+  * https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-more-specific-metrics
+  * https://medium.com/expedia-group-tech/autoscaling-in-kubernetes-why-doesnt-the-horizontal-pod-autoscaler-work-for-me-5f0094694054
+## Autoscaling 
 
 ### Example: 
 
@@ -9330,8 +10152,10 @@ ein einfaches Interface, um einen ersten Eindruck über die Auslastung zu bekomm
 ### Walktrough 
 
 ```
-## Auf einem der Nodes im Cluster (HA-Cluster) 
-microk8s enable metrics-server 
+helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+helm -n kube-system upgrade --install metrics-server metrics-server/metrics-server --version 3.12.2
+
+
 
 ## Es dauert jetzt einen Moment bis dieser aktiv ist auch nach der Installation 
 ## Auf dem Client
@@ -9944,7 +10768,9 @@ kubectl get pods -l app=nginx
 kubectl describe pod nginx 
 
 ## Pod löschen 
-kubectl delete pod nginx 
+kubectl delete pod nginx
+## Löscht alle Pods im eigenen Namespace bzw. Default 
+kubectl delete pods --all 
 
 ## Kommando in pod ausführen 
 kubectl exec -it nginx -- bash 
