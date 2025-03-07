@@ -13,6 +13,7 @@
   1. Kubernetes - Überblick
      * [Warum Kubernetes, was macht Kubernetes](#warum-kubernetes-was-macht-kubernetes)
      * [Aufbau Allgemein](#aufbau-allgemein)
+     * [Kubernetes Architektur Deep-Dive](https://github.com/jmetzger/training-kubernetes-advanced/assets/1933318/1ca0d174-f354-43b2-81cc-67af8498b56c)
      * [Ausbaustufen Kubernetes](#ausbaustufen-kubernetes)
      * [Wann macht Kubernetes Sinn, wann nicht?](#wann-macht-kubernetes-sinn-wann-nicht)
      * [Aufbau mit helm,OpenShift,Rancher(RKE),microk8s](#aufbau-mit-helmopenshiftrancherrkemicrok8s)
@@ -508,12 +509,16 @@ Er stellt sicher, dass Container in einem Pod ausgeführt werden.
 
   * Läuft auf jedem Node 
   * = Netzwerk-Proxy für die Kubernetes-Netzwerk-Services.
-  * Kube-proxy verwaltet die Netzwerkkommunikation innerhalb oder außerhalb Ihres Clusters.
+  * Kube-proxy verwaltet die Netzwerkkommunikation der Services innerhalb des Clusters  
   
 ### Referenzen 
 
   * https://www.redhat.com/de/topics/containers/kubernetes-architecture
 
+
+### Kubernetes Architektur Deep-Dive
+
+  * https://github.com/jmetzger/training-kubernetes-advanced/assets/1933318/1ca0d174-f354-43b2-81cc-67af8498b56c
 
 ### Ausbaustufen Kubernetes
 
@@ -1063,7 +1068,7 @@ kubectl logs --tail=5 <your pod>
 ## Synopsis (most simplistic example 
 ## kubectl run NAME --image=IMAGE_EG_FROM_DOCKER
 ## example
-kubectl run nginx --image=nginx 
+kubectl run nginx --image=nginx:1.23 
 
 kubectl get pods 
 ## on which node does it run ? 
@@ -1214,6 +1219,31 @@ spec:
 kubectl apply -f . 
 ```
 
+### Explore 
+
+```
+kubectl get all
+```
+
+### Optional: Change Replicas 
+
+  * from 8 to 12
+
+```
+nano nginx-deployment.yml 
+```
+
+```
+## Ändern der replicas  von 8 auf 12 
+## danach
+kubectl get all 
+kubectl apply -f .
+kubectl get all 
+kubectl get pods -w
+
+```
+
+
 ### New Version 
 
 ```
@@ -1221,11 +1251,22 @@ nano nginx-deployment.yml
 ```
 
 ```
+## Version 1:
+## Ändern des images von nginx:1.22 in nginx:1.23
+## danach 
+kubectl apply -f . && watch kubectl get pods 
+```
+
+
+```
+## Version 2: 
+
 ## Ändern des images von nginx:1.22 in nginx:1.23
 ## danach 
 kubectl apply -f .
 kubectl get all 
 kubectl get pods -w
+
 
 ```
 
@@ -1321,13 +1362,18 @@ spec:
 ```        
 
 ```
-kubectl apply -f . 
+kubectl apply -f .
+## wie ist die ClusterIP ?  
+kubectl get all
+kubectl get svc svc-nginx
+kubectl describe svc svc-nginx 
+
 ```
 
 ### Example II : Short version 
 
 ```
-nano svc.yml
+nano service.yml
 ## in Zeile type: 
 ## ClusterIP ersetzt durch NodePort 
 
@@ -1812,6 +1858,10 @@ kubectl explain --api-version=networking.k8s.io/v1 ingress.spec.rules.http.paths
 ### Solution
 
 ```
+nano ingress.yaml
+```
+
+```
 ## in kubernetes 1.22.2 - ingress.yml needs to be modified like so.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -1839,6 +1889,12 @@ spec:
               name: banana-service
               port:
                 number: 80                
+```
+
+```
+kubectl apply -f .
+kubectl get ingress example-ingress
+kubectl describe ingress example-ingress
 ```
 
 ### Achtung: Ingress mit Helm - annotations
@@ -3814,6 +3870,8 @@ The flannel daemon is started using the arguments in ${SNAP_DATA}/args/flanneld.
 ### DNS - Resolution - Services
 
 
+### Exercise 
+
 ```
 kubectl run podtest --rm -ti --image busybox -- /bin/sh
 If you don't see a command prompt, try pressing enter.
@@ -3835,6 +3893,14 @@ writing to stdout
 apple-tln1
 -                    100% |**************************************************************************************************************|    11  0:00:00 ETA
 written to stdout
+```
+
+### How to find the FQDN (Full qualified domain name) 
+
+```
+## in busybox (clusterIP)
+nslookup 10.109.6.53
+name = svc-nginx.jochen.svc.cluster.local
 ```
 
 ### Kubernetes Firewall / Cilium Calico
@@ -6848,7 +6914,7 @@ Er stellt sicher, dass Container in einem Pod ausgeführt werden.
 
   * Läuft auf jedem Node 
   * = Netzwerk-Proxy für die Kubernetes-Netzwerk-Services.
-  * Kube-proxy verwaltet die Netzwerkkommunikation innerhalb oder außerhalb Ihres Clusters.
+  * Kube-proxy verwaltet die Netzwerkkommunikation der Services innerhalb des Clusters  
   
 ### Referenzen 
 
@@ -7488,7 +7554,7 @@ kubectl logs --tail=5 <your pod>
 ## Synopsis (most simplistic example 
 ## kubectl run NAME --image=IMAGE_EG_FROM_DOCKER
 ## example
-kubectl run nginx --image=nginx 
+kubectl run nginx --image=nginx:1.23 
 
 kubectl get pods 
 ## on which node does it run ? 
@@ -7634,6 +7700,31 @@ spec:
 kubectl apply -f . 
 ```
 
+### Explore 
+
+```
+kubectl get all
+```
+
+### Optional: Change Replicas 
+
+  * from 8 to 12
+
+```
+nano nginx-deployment.yml 
+```
+
+```
+## Ändern der replicas  von 8 auf 12 
+## danach
+kubectl get all 
+kubectl apply -f .
+kubectl get all 
+kubectl get pods -w
+
+```
+
+
 ### New Version 
 
 ```
@@ -7641,11 +7732,22 @@ nano nginx-deployment.yml
 ```
 
 ```
+## Version 1:
+## Ändern des images von nginx:1.22 in nginx:1.23
+## danach 
+kubectl apply -f . && watch kubectl get pods 
+```
+
+
+```
+## Version 2: 
+
 ## Ändern des images von nginx:1.22 in nginx:1.23
 ## danach 
 kubectl apply -f .
 kubectl get all 
 kubectl get pods -w
+
 
 ```
 
@@ -7710,13 +7812,18 @@ spec:
 ```        
 
 ```
-kubectl apply -f . 
+kubectl apply -f .
+## wie ist die ClusterIP ?  
+kubectl get all
+kubectl get svc svc-nginx
+kubectl describe svc svc-nginx 
+
 ```
 
 ### Example II : Short version 
 
 ```
-nano svc.yml
+nano service.yml
 ## in Zeile type: 
 ## ClusterIP ersetzt durch NodePort 
 
@@ -8121,6 +8228,10 @@ kubectl explain --api-version=networking.k8s.io/v1 ingress.spec.rules.http.paths
 ### Solution
 
 ```
+nano ingress.yaml
+```
+
+```
 ## in kubernetes 1.22.2 - ingress.yml needs to be modified like so.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -8148,6 +8259,12 @@ spec:
               name: banana-service
               port:
                 number: 80                
+```
+
+```
+kubectl apply -f .
+kubectl get ingress example-ingress
+kubectl describe ingress example-ingress
 ```
 
 ### Achtung: Ingress mit Helm - annotations
