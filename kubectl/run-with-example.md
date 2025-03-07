@@ -6,7 +6,7 @@
 # Synopsis (most simplistic example 
 # kubectl run NAME --image=IMAGE_EG_FROM_DOCKER
 # example
-kubectl run nginx --image=nginx 
+kubectl run nginx --image=nginx:1.23 
 
 kubectl get pods 
 # on which node does it run ? 
