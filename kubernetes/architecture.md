@@ -71,7 +71,7 @@ Er stellt sicher, dass Container in einem Pod ausgeführt werden.
 
   * Läuft auf jedem Node 
   * = Netzwerk-Proxy für die Kubernetes-Netzwerk-Services.
-  * Kube-proxy verwaltet die Netzwerkkommunikation innerhalb oder außerhalb Ihres Clusters.
+  * Kube-proxy verwaltet die Netzwerkkommunikation der Services innerhalb des Clusters  
   
 ## Referenzen 
 
