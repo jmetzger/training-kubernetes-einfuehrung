@@ -38,6 +38,12 @@ spec:
 kubectl apply -f . 
 ```
 
+## Explore 
+
+```
+kubectl get all
+```
+
 ## New Version 
 
 ```
