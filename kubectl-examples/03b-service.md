@@ -57,7 +57,12 @@ spec:
 ```        
 
 ```
-kubectl apply -f . 
+kubectl apply -f .
+# wie ist die ClusterIP ?  
+kubectl get all
+kubectl get svc svc-nginx
+kubectl describe svc svc-nginx 
+
 ```
 
 ## Example II : Short version 
