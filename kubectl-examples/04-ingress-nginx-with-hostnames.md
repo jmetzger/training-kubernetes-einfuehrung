@@ -153,6 +153,10 @@ kubectl explain --api-version=networking.k8s.io/v1 ingress.spec.rules.http.paths
 ## Solution
 
 ```
+nano ingress.yaml
+```
+
+```
 # in kubernetes 1.22.2 - ingress.yml needs to be modified like so.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -180,4 +184,10 @@ spec:
               name: banana-service
               port:
                 number: 80                
+```
+
+```
+kubectl apply -f .
+kubectl get ingress example-ingress
+kubectl describe ingress example-ingress
 ```
