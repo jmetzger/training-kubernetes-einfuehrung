@@ -61,6 +61,7 @@ kubectl apply -f .
 # wie ist die ClusterIP ?  
 kubectl get all
 kubectl get svc svc-nginx
+# Find endpoints / did svc find pods ?
 kubectl describe svc svc-nginx 
 
 ```
