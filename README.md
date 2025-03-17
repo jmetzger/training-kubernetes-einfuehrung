@@ -18,6 +18,7 @@
      * [Wann macht Kubernetes Sinn, wann nicht?](/kubernetes/wann-sinnvoll-wann-nicht.md)   
      * [Aufbau mit helm,OpenShift,Rancher(RKE),microk8s](/kubernetes/aufbau-helm-microk8s-kubernetes.md)
      * [Welches System ? (minikube, micro8ks etc.)](welches-system.md)
+     * [Installer für grosse Cluster](/kubernetes/grosse-installation-installer.md)
      * [Installation - Welche Komponenten from scratch](/kubernetes/installation-components-overview.md)
 
   1. kubectl 
