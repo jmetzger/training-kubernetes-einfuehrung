@@ -19,4 +19,3 @@ No, the **Kubernetes API server does not directly clean up events in etcd**.
 - The API server **stores and serves** event data from `etcd`, but it **does not handle cleanup**.  
 - The **controller manager** is responsible for **event garbage collection** after TTL expiration.  
 
-Let me know if you need more details! 🚀
