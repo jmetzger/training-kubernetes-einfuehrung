@@ -96,6 +96,7 @@
      * [High Availability multiple data-centers](ha/overview.md)
 
   1. Kubernetes -> etcd
+     * [etcd - cleaning of events](etcd/garbage-collection-events.md)
      * [etcd in multi-data-center setup](/etcd/overview.md)
   
   1. Kubernetes Storage 
