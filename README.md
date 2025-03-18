@@ -92,6 +92,9 @@
      * [Kubernetes-Plugin Intellij](https://www.jetbrains.com/help/idea/kubernetes.html)
      * [Intellij - Helm Support Through Kubernetes Plugin](https://blog.jetbrains.com/idea/2018/10/intellij-idea-2018-3-helm-support/)
 
+  1. Kubernetes -> High Availability Cluster (multi-data center)
+     * [High Availability multiple data-centers](ha/overview.md)
+
   1. Kubernetes -> etcd
      * [etcd in multi-data-center setup](/etcd/overview.md)
   
