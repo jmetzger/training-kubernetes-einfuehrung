@@ -6,7 +6,7 @@
 # Zeige Informationen über das Cluster 
 kubectl cluster-info 
 
-# Welche api-resources gibt es ?
+# Welche Ressourcen / Objekte gibt es, z.B. Pod 
 kubectl api-resources 
 kubectl api-resources | grep namespaces 
 
