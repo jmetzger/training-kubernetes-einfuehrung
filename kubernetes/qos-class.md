@@ -86,7 +86,7 @@ kubectl describe po qos-demo
 ## Burstable 
 
 
-* For a Pod to be given a QoS class of BestEffort, the Containers in the Pod must not have any memory or CPU limits or requests
+* At least one Container in the Pod has a memory or CPU request or limit
 
 
 ```
