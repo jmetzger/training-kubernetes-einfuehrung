@@ -1,13 +1,8 @@
 # Helm - Grundlagen
 
-## Wo ? 
+## Wo kann ich Helm-Charts suchen ? 
 
-```
-artifacts helm 
-
-```
-
- * https://artifacthub.io/
+ * Im Telefonbuch von helm [https://artifacthub.io/](artifacthub.io)
 
 ## Komponenten 
 
