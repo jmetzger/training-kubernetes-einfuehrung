@@ -202,3 +202,7 @@ worker1        Ready    <none>          11m    v1.28.6
 worker2        Ready    <none>          10m    v1.28.6
 worker3        Ready    <none>          9m9s   v1.28.6
 ```
+
+## Do it with ansible 
+
+  * https://spacelift.io/blog/ansible-kubernetes
