@@ -1,5 +1,8 @@
 # NFS 
 
+  * Step 1 + 2 : nur Trainer
+  * ab Step 3: Trainees 
+
 ## Step 1: Do the same with helm - chart 
 
 ```
