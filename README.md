@@ -186,6 +186,8 @@
      * [References](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/#DeploymentSpec)
      * [Tasks Documentation - Good one !](https://kubernetes.io/docs/tasks)
  
+  1. Documentation for Settings right resources/limits
+     * [Goldilocks](https://www.fairwinds.com/blog/introducing-goldilocks-a-tool-for-recommending-resource-requests)
 
 ## Backlog 
 
