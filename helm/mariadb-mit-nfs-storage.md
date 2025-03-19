@@ -68,8 +68,6 @@ auth:
   password: "newUserPassword123"
   replicationPassword: "newReplicationPassword123"
 
-passwordUpdateJob:
-  enabled: true
 ````
 
 ```
