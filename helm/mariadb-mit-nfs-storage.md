@@ -18,7 +18,7 @@ cd mariadb-nfs
 helm repo add bitnami https://charts.bitnami.com/bitnami
 ```
 
-## Step 1: Walkthrough Again 
+## Step 2: Walkthrough Again 
 
 ```
 # Change values.yaml
@@ -41,4 +41,22 @@ auth:
 
 ```
 helm upgrade --install mariadb bitnami/mariadb --version 20.4.1 -f values.yaml
+```
+
+## Step 3: Testing 
+
+```
+mariadb -uroot -pnewRootPassword123 
+show master status;
+create schema isgus;
+exit 
+exit
+
+
+kubectl exec -it mariadb-secondary-0 -- bash 
+mariadb -uroot -pnewRootPassword123 
+show slave status \G
+show schemas;
+exit 
+exit 
 ```
