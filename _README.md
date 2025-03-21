@@ -18,6 +18,7 @@
      * [Wann macht Kubernetes Sinn, wann nicht?](#wann-macht-kubernetes-sinn-wann-nicht)
      * [Aufbau mit helm,OpenShift,Rancher(RKE),microk8s](#aufbau-mit-helmopenshiftrancherrkemicrok8s)
      * [Welches System ? (minikube, micro8ks etc.)](#welches-system--minikube-micro8ks-etc)
+     * [Installer für grosse Cluster](#installer-für-grosse-cluster)
      * [Installation - Welche Komponenten from scratch](#installation---welche-komponenten-from-scratch)
 
   1. kubectl 
@@ -90,6 +91,14 @@
   1. Helm (IDE - Support) 
      * [Kubernetes-Plugin Intellij](https://www.jetbrains.com/help/idea/kubernetes.html)
      * [Intellij - Helm Support Through Kubernetes Plugin](https://blog.jetbrains.com/idea/2018/10/intellij-idea-2018-3-helm-support/)
+
+  1. Kubernetes -> High Availability Cluster (multi-data center)
+     * [High Availability multiple data-centers](#high-availability-multiple-data-centers)
+     * [PodAntiAffinity für Hochverfügbarkeit](https://github.com/infracloudio/kubernetes-scheduling-examples/blob/master/podAffinity/deployment-AntiAffinity.yaml)
+
+  1. Kubernetes -> etcd
+     * [etcd - cleaning of events](#etcd---cleaning-of-events)
+     * [etcd in multi-data-center setup](#etcd-in-multi-data-center-setup)
   
   1. Kubernetes Storage 
      * [Praxis. Beispiel (Dev/Ops)](#praxis-beispiel-devops)
@@ -178,6 +187,8 @@
      * [References](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/#DeploymentSpec)
      * [Tasks Documentation - Good one !](https://kubernetes.io/docs/tasks)
  
+  1. Documentation for Settings right resources/limits
+     * [Goldilocks](https://www.fairwinds.com/blog/introducing-goldilocks-a-tool-for-recommending-resource-requests)
 
 ## Backlog 
 
@@ -659,6 +670,47 @@ it is not suitable for production.
 
 
 
+### Installer für grosse Cluster
+
+
+### Tanzuh (vmware) 
+
+ * Lizenzkosten
+
+#### Alternative (Cluster API) 
+
+  * 1 Management Cluster
+  * jedes weiteres wird vom Management Cluster ausgerollt.
+  * Beschreibung Deines Cluster als Konfiguration
+  * feststehende images für die Basis des Clusters
+
+##### Nachteile: 
+
+   * nur auf der Kommandozeile
+   * keinen Support
+
+### Rancherlabs Ranger (SuSE) 
+
+   * Grafische Weboberfläche
+   * kann eine oder mehrere Cluster verwaltetn
+
+### OpenStack (Alternative: vmware) - OpenSource 
+
+    * API für OpenStack (Nutzung dieser API über Terraform oder OpenTofu) - > Terraform -> Infrastructur as code. (.tf)  
+    * Schritt 1: virtuellen Maschinen ausrollen. 
+
+#### Schritt 2: Kubernetes ausrollen 
+
+    * Ansible (leichter bestimmte zu Konfigurieren) 
+    * kubeadmin 
+
+### Proxmox 
+
+    
+
+
+ 
+
 ### Installation - Welche Komponenten from scratch
 
 
@@ -919,7 +971,7 @@ kubectl get pods
 ## Zeige Informationen über das Cluster 
 kubectl cluster-info 
 
-## Welche api-resources gibt es ?
+## Welche Ressourcen / Objekte gibt es, z.B. Pod 
 kubectl api-resources 
 kubectl api-resources | grep namespaces 
 
@@ -1366,6 +1418,7 @@ kubectl apply -f .
 ## wie ist die ClusterIP ?  
 kubectl get all
 kubectl get svc svc-nginx
+## Find endpoints / did svc find pods ?
 kubectl describe svc svc-nginx 
 
 ```
@@ -1737,6 +1790,7 @@ apiVersion: v1
 metadata:
   name: apple-service
 spec:
+  type: ClusterIP
   selector:
     app: apple
   ports:
@@ -1777,6 +1831,7 @@ apiVersion: v1
 metadata:
   name: banana-service
 spec:
+  type: ClusterIP
   selector:
     app: banana
   ports:
@@ -3068,11 +3123,14 @@ The main difference relies on the moment when you want to configure storage. For
 ### Übung Persistant Storage
 
 
+  * Step 1 + 2 : nur Trainer
+  * ab Step 3: Trainees 
+
 ### Step 1: Do the same with helm - chart 
 
 ```
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
-helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version v4.10.0
+helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version v4.11.0
 ```
 
 ### Step 2: Storage Class 
@@ -3316,14 +3374,9 @@ spec:
 ### Helm Grundlagen
 
 
-### Wo ? 
+### Wo kann ich Helm-Charts suchen ? 
 
-```
-artifacts helm 
-
-```
-
- * https://artifacthub.io/
+ * Im Telefonbuch von helm [https://artifacthub.io/](artifacthub.io)
 
 ### Komponenten 
 
@@ -3536,6 +3589,78 @@ helm install my-wordpress -f values.yml bitnami/wordpress
 ### Intellij - Helm Support Through Kubernetes Plugin
 
   * https://blog.jetbrains.com/idea/2018/10/intellij-idea-2018-3-helm-support/
+
+## Kubernetes -> High Availability Cluster (multi-data center)
+
+### High Availability multiple data-centers
+
+
+### What needs to be there ? 
+
+  * etcd in einer ungeraden Zahl an Rechenzentrum in ungerade Zahl, d.h. z.B. 1 etcd in 3 Rechnenzentren = 3 etcd (ungerade)
+    * etcd kann auch in einem Rechenzentrum in der Cloud sein, in der nur etcd läuft und keine anderen Komponenten (Schiedsrichter)
+  * Control Plane in jedem Rechenzentrum, was verwendet wird (nicht im "Schiedsrichter - Rechenzentrum)
+  * HA für ControlPlane (entweder HA Proxy oder kube-vip (ist dann LoadBalancer im Cluster kubernetes-native)
+
+### Ausblick für Kubernetes Applikationen selbst 
+
+  * Pods ausgerollt über (Deployment etc.) dürfen auch nicht nur in einem Rechenzentrum (pod anti affinity)
+  * IngressController in jedem Rechenzentrum (einfachste Variante : DaemonSet) 
+
+### PodAntiAffinity für Hochverfügbarkeit
+
+  * https://github.com/infracloudio/kubernetes-scheduling-examples/blob/master/podAffinity/deployment-AntiAffinity.yaml
+
+## Kubernetes -> etcd
+
+### etcd - cleaning of events
+
+## Who cleans up events in etc, kubernetes api server ?
+
+### Overview 
+No, the **Kubernetes API server does not directly clean up events in etcd**.  
+
+#### Who Cleans Up Events in etcd?
+- **The Kubernetes controller manager** is responsible for cleaning up expired events, **not the API server**.  
+- The **event garbage collection** process runs periodically to remove events whose **TTL (Time-to-Live)** has expired.  
+- The **default TTL is 1 hour**, but this can be configured using the `--event-ttl` flag in the API server settings.  
+
+#### How Does Event Cleanup Work?
+1. **Event is Created** → Stored in `etcd`.  
+2. **TTL Countdown Begins** → Typically 1 hour unless configured otherwise.  
+3. **Event Expires** → Becomes eligible for deletion.  
+4. **Garbage Collection (Controller Manager)** → Detects expired events and removes them from `etcd`.  
+
+#### Key Takeaway:
+- The API server **stores and serves** event data from `etcd`, but it **does not handle cleanup**.  
+- The **controller manager** is responsible for **event garbage collection** after TTL expiration.  
+
+
+### etcd in multi-data-center setup
+
+
+### Wieviele ? 
+
+  * Ungerade Zahl an etcd - Nodes (3,5,7 max. 7)
+  * Ausreichend in der Regel 3
+  * Wenn man möchte, dass 2 ausfallen können dann 5
+
+### Besonderheiten bei der Nutzung der etc. 
+
+  * Schnelle Platte, idealerweise ssd .
+  * Begrenzung des Key->Values Stores auf 2,1 GB (standardmäßig)
+
+### Besonderheiten multi-data-center Setup 
+
+  * Ursprünglich nicht dafür entwickelt.
+  * Sowohl ungerade Zahl an etcd-Nodes als auch ungerade Zahl an Rechenzentren.
+  * Ideal ist ein RTT (round trip time) von 10 ms / (maximal 100ms / 1.5 => ca. 66,6 ms)
+
+### etcd 
+
+  * Tuning: https://etcd.io/docs/v3.4/tuning/
+  * Maintenance: https://etcd.io/docs/v3.5/op-guide/maintenance/
+
 
 ## Kubernetes Storage 
 
@@ -5093,7 +5218,7 @@ kubectl describe po qos-demo
 ### Burstable 
 
 
-* For a Pod to be given a QoS class of BestEffort, the Containers in the Pod must not have any memory or CPU limits or requests
+* At least one Container in the Pod has a memory or CPU request or limit
 
 
 ```
@@ -5118,7 +5243,8 @@ spec:
 
 ### BestEffort
 
-  * gar keine Limits und Requests gesetzt (bitte nicht machen) 
+  * gar keine Limits und Requests gesetzt (bitte nicht machen)
+
 
 ### LiveNess/Readiness - Probe / HealthChecks
 
@@ -6697,6 +6823,12 @@ docker container ls
 
   * https://kubernetes.io/docs/tasks
 
+## Documentation for Settings right resources/limits
+
+### Goldilocks
+
+  * https://www.fairwinds.com/blog/introducing-goldilocks-a-tool-for-recommending-resource-requests
+
 ## Kubernetes - Überblick
 
 ### Allgemeine Einführung in Container (Dev/Ops)
@@ -7405,7 +7537,7 @@ docker push localhost:32000/myubuntu
 ## Zeige Informationen über das Cluster 
 kubectl cluster-info 
 
-## Welche api-resources gibt es ?
+## Welche Ressourcen / Objekte gibt es, z.B. Pod 
 kubectl api-resources 
 kubectl api-resources | grep namespaces 
 
@@ -7816,6 +7948,7 @@ kubectl apply -f .
 ## wie ist die ClusterIP ?  
 kubectl get all
 kubectl get svc svc-nginx
+## Find endpoints / did svc find pods ?
 kubectl describe svc svc-nginx 
 
 ```
@@ -8107,6 +8240,7 @@ apiVersion: v1
 metadata:
   name: apple-service
 spec:
+  type: ClusterIP
   selector:
     app: apple
   ports:
@@ -8147,6 +8281,7 @@ apiVersion: v1
 metadata:
   name: banana-service
 spec:
+  type: ClusterIP
   selector:
     app: banana
   ports:
@@ -9511,14 +9646,9 @@ Feststehende Struktur
 ### Grundlagen / Aufbau / Verwendung (Dev/Ops)
 
 
-### Wo ? 
+### Wo kann ich Helm-Charts suchen ? 
 
-```
-artifacts helm 
-
-```
-
- * https://artifacthub.io/
+ * Im Telefonbuch von helm [https://artifacthub.io/](artifacthub.io)
 
 ### Komponenten 
 
@@ -10787,7 +10917,7 @@ Eigenschaft: <return> # springt eingerückt in die nächste Zeile um 2 spaces ei
 ## Zeige Informationen über das Cluster 
 kubectl cluster-info 
 
-## Welche api-resources gibt es ?
+## Welche Ressourcen / Objekte gibt es, z.B. Pod 
 kubectl api-resources 
 kubectl api-resources | grep namespaces 
 
