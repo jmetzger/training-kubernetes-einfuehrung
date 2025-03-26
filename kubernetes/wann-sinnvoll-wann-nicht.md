@@ -15,7 +15,7 @@
   * bessere Hochverfügbarkeit out-of-the-box
   * Heilen von Systemen (neu starten von Containern) 
   * Automatische Überwachung mit deklarativem Management) - ich beschreibe, was ich will
-  * Neue Versionen zu auszurollen (Canary Deployment, Blue/Green Deployment) 
+  * Neue Versionen auszurollen (Canary Deployment, Blue/Green Deployment) 
 
 ## Mögliche Nachteile 
 
