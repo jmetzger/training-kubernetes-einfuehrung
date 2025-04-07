@@ -74,8 +74,10 @@
   1. LoadBalancer on Premise (metallb)
      * [Metallb](load-balancer/metallb.md)
 
-  1. Metrics-Server
+  1. Metrics-Server / Größe Cluster 
      * [Metrics-Server mit helm installieren](metrics-server-helm.md)
+     * [Speichernutzung und CPU berechnen für Anwendungen](https://learnk8s.io/kubernetes-node-size)
+
 
   1. Kubernetes Storage (CSI) 
      * [Überblick Persistant Volumes (CSI)](kubernetes-csi/overview.md)
