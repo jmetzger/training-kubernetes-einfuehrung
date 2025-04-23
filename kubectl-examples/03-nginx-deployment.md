@@ -44,7 +44,7 @@ kubectl apply -f .
 kubectl get all
 ```
 
-## Optional: Change Replicas 
+## Optional: Version 1: Change Replicas 
 
   * from 8 to 12
 
@@ -63,7 +63,7 @@ kubectl get pods -w
 ```
 
 
-## New Version 
+## Optional: Version 2: Change Replicas
 
 ```
 nano nginx-deployment.yml 
