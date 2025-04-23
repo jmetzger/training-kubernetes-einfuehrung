@@ -18,7 +18,7 @@ kubectl run podtest --rm -it --image busybox
 
 ```
 # wget befehl zum Kopieren
-ping 10.244.0.99
+ping -c4 10.244.0.99
 wget -O - http://10.244.0.99
 ```
 
