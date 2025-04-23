@@ -3,7 +3,10 @@
 ## Exercise 
 
 ```
-kubectl run podtest --rm -ti --image busybox -- /bin/sh
+kubectl run podtest --rm -ti --image busybox
+```
+
+```
 If you don't see a command prompt, try pressing enter.
 / # wget -O - http://apple-service.jochen
 Connecting to apple-service.jochen (10.245.39.214:80)
