@@ -153,7 +153,7 @@
 
   1. Weiter lernen 
      * [Lernumgebung](https://killercoda.com/)
-     * [Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
+     * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
      * [Udemy Online Training](https://www.udemy.com/course/certified-kubernetes-security-specialist/)
      * [Kubernetes Videos mit Hands On](https://www.youtube.com/watch?v=16fgzklcF7Y)
 
