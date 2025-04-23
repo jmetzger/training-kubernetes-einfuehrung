@@ -6,6 +6,18 @@
 kubectl run podtest --rm -ti --image busybox
 ```
 
+## Example with svc-nginx 
+
+```
+# in sh
+wget -O - http://svc-nginx
+wget -O - http://svc-nginx.jochen
+wget -O - http://svc-nginx.jochen.svc
+wget -O - http://svc-nginx.jochen.svc.cluster.local
+```
+
+## Example with apple-service 
+
 ```
 If you don't see a command prompt, try pressing enter.
 / # wget -O - http://apple-service.jochen
