@@ -43,4 +43,3 @@ kubectl get svc
 helm upgrade --install my-nginx bitnami/nginx --version 19.1.1 -f values.yaml
 ```
 
-``
