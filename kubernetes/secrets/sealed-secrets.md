@@ -12,10 +12,9 @@
 # Binary für Linux runterladen, entpacken und installieren 
 # Achtung: Immer die neueste Version von den Releases nehmen, siehe unten:
 # Install as root 
-cd /usr/src 
-wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.17.5/kubeseal-0.17.5-linux-amd64.tar.gz
-tar xzvf kubeseal-0.17.5-linux-amd64.tar.gz 
-install -m 755 kubeseal /usr/local/bin/kubeseal
+curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.29.0/kubeseal-0.29.0-linux-amd64.tar.gz"
+tar -xvzf kubeseal-0.29.0-linux-amd64.tar.gz kubeseal
+sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 ```
 
 ## Schritt 2: Walkthrough - Server Installation mit kubectl client 
