@@ -30,6 +30,17 @@ mountOptions:
 ## Step 3: PVC, Configmap, Deployment 
 
 ```
+mkdir -p manifests
+cd manifests
+mkdir mariadb-csi
+cd mariadb-csi
+```
+
+```
+nano 01-pvc.yaml
+```
+
+```
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -44,7 +55,15 @@ spec:
 ```
 
 ```
-## 01-configmap.yml
+kubectl apply -f .
+```
+
+```
+nano 02-configmap.yml
+```
+
+```
+## 02-configmap.yml
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -55,7 +74,11 @@ data:
 ```
 
 ```
-#deploy.yml
+nano 03-deployment.yml
+```
+
+
+```
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -84,4 +107,12 @@ spec:
       - name: persistent-storage
         persistentVolumeClaim:
           claimName: pvc-nfs-dynamic-mariadb
+```
+
+```
+kubectl apply -f .
+```
+
+```
+kubectl describe po mariadb-deployment-<euer-pod>
 ```
