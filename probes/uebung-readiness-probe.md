@@ -54,3 +54,10 @@ watch kubectl get pods -l app=nginx-readiness
 kubectl describe pod -l app=nginx-readiness
 ```
 
+
+## Optional: do it by hand 
+
+```
+# er nimmt den ersten, den er findet 
+kubectl exec deploy/nginx-readiness -- rm /tmp/ready
+```
