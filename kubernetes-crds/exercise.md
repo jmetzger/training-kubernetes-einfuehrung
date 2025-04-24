@@ -65,6 +65,10 @@ kubectl api-versions | grep stable
 ### Step 2: create custom object ;o) 
 
 ```
+nano 03-crontab.yaml
+```
+
+```
 # vi 03-crontab.yaml 
 apiVersion: "stable.example.com/v1"
 kind: CronTab
