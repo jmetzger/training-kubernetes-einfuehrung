@@ -1,4 +1,4 @@
-# Sealed Secret 
+# Exercise Sealed Secret with mariadb secrets  
 
 ##  Based on mariadb secrets exercise 
 
