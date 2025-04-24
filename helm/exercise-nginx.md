@@ -37,4 +37,3 @@ kubectl get svc
 ```
 
 
-```
