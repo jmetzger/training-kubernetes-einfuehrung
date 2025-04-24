@@ -2,7 +2,7 @@
 
 ## Prerequisites 
 
-  * kubectl needs to be installed and configured to access cluster
+  * helm needs a config-file (kubeconfig) to know how to connect and credentials in there 
   * Good: helm works as unprivileged user as well - Good for our setup 
   * install helm on ubuntu (client) as root: snap install --classic helm 
     * this installs helm3
