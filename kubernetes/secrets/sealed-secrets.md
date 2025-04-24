@@ -21,7 +21,7 @@ sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 
 ```
 helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
-helm install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.17.1
+helm install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.17.2
 
 ```
 
