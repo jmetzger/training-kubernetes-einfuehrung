@@ -6,11 +6,17 @@
 
 ## Komponenten 
 
-```
-Chart - beeinhaltet Beschreibung und Komponenten 
-tar.gz - Format 
-oder Verzeichnis 
+### Chart
 
+  * beeinhaltet Beschreibung und Komponenten 
+
+### Chart-Formate 
+
+  * url
+  * tar.gz - Format 
+  * oder Verzeichnis 
+
+```
 Wenn wir ein Chart ausführen wird eine Release erstellen 
 (parallel: image -> container, analog: chart -> release)
 ```
