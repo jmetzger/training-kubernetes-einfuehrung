@@ -43,3 +43,8 @@ kubectl get svc
 helm upgrade --install my-nginx bitnami/nginx --version 19.1.1 -f values.yaml
 ```
 
+## Part 4: Uninstall nginx 
+
+```
+helm uninstall my-nginx 
+```
