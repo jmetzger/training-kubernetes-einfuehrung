@@ -11,6 +11,10 @@ cd manifests/crds
 ```
 
 ```
+nano 01-crd.yml
+```
+
+```
 # vi 01-crd.yaml 
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
