@@ -85,11 +85,13 @@
      * [Übung Persistant Storage](kubernetes-csi/nfs-exercise.md)
      * [Beispiel mariadb](kubernetes-csi/example-mariadb.md)
 
-  1. Helm (Kubernetes Paketmanager) 
+  1. Helm (Kubernetes Paketmanager)
+     * [Helm Spickzettel](/helm/spickzettel.md) 
      * [Helm Grundlagen](/helm/grundlagen.md)
      * [Helm Warum ?](/helm/warum.md)
      * [Helm Example](/helm/example.md)
      * [Helm Exercise with nginx](/helm/exercise-nginx.md)
+      
 
   1. Helm (IDE - Support) 
      * [Kubernetes-Plugin Intellij](https://www.jetbrains.com/help/idea/kubernetes.html)
