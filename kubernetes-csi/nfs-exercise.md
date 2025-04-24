@@ -61,7 +61,9 @@ spec:
 
 ```
 kubectl apply -f .
-kubectl get pvc 
+kubectl get pvc
+#
+kubectl get pv 
 ```
 
 ## Step 4: Pod 
