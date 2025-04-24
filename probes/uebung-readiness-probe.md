@@ -59,5 +59,14 @@ kubectl describe pod -l app=nginx-readiness
 
 ```
 # er nimmt den ersten, den er findet 
-kubectl exec deploy/nginx-readiness -- rm /tmp/ready
+kubectl exec nginx-readiness-<hash>-<id> -- rm /tmp/ready
+# ist nach kurzer Zeit nicht mehr ready 
+watch kubectl get pods -l app=nginx-readiness 
+```
+
+```
+# er nimmt den ersten, den er findet 
+kubectl exec nginx-readiness-<hash>-<id> -- touch /tmp/ready
+# ist nach kurzer Zeit wieder ready 
+watch kubectl get pods -l app=nginx-readiness 
 ```
