@@ -57,5 +57,16 @@ kubectl get pods
 kubectl get nodes -o wide 
 
 # Testen mit curl
+# Achtung bei digitalocean sperrt das firewall 
 curl http://<node-ip>:<euer-teilnehmer-port-s-o>
+```
+
+```
+# Alternative:
+kubectl run -it --rm podtest --image busybox
+```
+
+```
+# In der busybox
+wget -O - <node-ip>:<dein-port>
 ```
