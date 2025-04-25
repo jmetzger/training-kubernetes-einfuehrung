@@ -1,4 +1,4 @@
-# Termination Hooks 
+# How to increase time before stopping a pod
 
 When stopping (terminating) a pod in Kubernetes, there **are hooks available**, but they're limited to the **termination lifecycle**. If you're thinking of stopping a pod *without* killing it and still triggering hooks, that's trickier (more on that below). Here's a full breakdown of what's available:
 
@@ -32,46 +32,6 @@ spec:
 
 - Combine this with `preStop` to allow your container to finish in-flight work or deregister from a service.
 
----
-
-## 🚫 No Hook for "Pausing" a Pod
-There is **no lifecycle hook** for when a pod is paused (e.g., marked `NotReady` or manually paused via the runtime).
-
-If you're trying to:
-
-- Stop processing
-- Wait for an event
-- Delay termination for a custom reason
-
-...then the best you can do is **fake a "pause" using readiness probes** or a custom controller.
-
----
-
-## ⚡ Advanced Alternatives
-If you're looking for **"hooks" based on events other than termination**, consider:
-
-### 🔹 Using a **Readiness Probe** + internal logic
-Your app goes into "standby mode" and reports `NotReady`:
-- This triggers the pod to stop receiving traffic.
-- Your app still runs but isn't considered healthy.
-
-### 🔹 Using **Finalizers** (for custom resource cleanup)
-If you're working with custom resources or controllers:
-- Finalizers let you **delay deletion** until cleanup is done.
-- Not for regular pods — but useful in operator logic.
-
----
-
-## Summary
-
-| Action                        | Native Hook? | Notes |
-|-----------------------------|--------------|-------|
-| Pod termination (SIGTERM)   | ✅ `preStop`  | Great for cleanup before shutdown |
-| Pod pause / standby         | ❌ No         | Simulate via readiness probes |
-| Pod deletion delay          | ✅ grace period, finalizers | For graceful shutdown or CRD cleanup |
-| Pod start / postStart       | ✅ `postStart`| Only runs at container startup |
-
----
 
 If you tell me **what kind of "stop" you're envisioning**, I can help tailor a hook-like workaround. For example:  
 → *“I want to stop background work when CPU is high”* or  
