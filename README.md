@@ -106,7 +106,7 @@
 
   1. Kubernetes -> High Availability Cluster (multi-data center)
      * [High Availability multiple data-centers](ha/overview.md)
-     * [PodAntiAffinity für Hochverfügbarkeit](https://github.com/infracloudio/kubernetes-scheduling-examples/blob/master/podAffinity/deployment-AntiAffinity.yaml)
+     * [PodAntiAffinity für Hochverfügbarkeit](kubernetes-ha/podAntiAffinity.md)
 
   1. Kubernetes -> etcd
      * [etcd - cleaning of events](etcd/garbage-collection-events.md)
