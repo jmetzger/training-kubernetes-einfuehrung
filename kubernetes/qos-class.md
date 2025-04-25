@@ -88,14 +88,24 @@ kubectl describe po qos-demo
 
 * At least one Container in the Pod has a memory or CPU request or limit
 
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir burstable
+cd burstable
+```
 
 ```
-pods/qos/qos-pod-2.yaml
-Copy pods/qos/qos-pod-2.yaml to clipboard
+nano 01-pod.yaml
+```
+
+
+```
 apiVersion: v1
 kind: Pod
 metadata:
-  name: qos-demo-2
+  name: qos-burstable
   namespace: qos-example
 spec:
   containers:
@@ -108,6 +118,10 @@ spec:
         memory: "100Mi"
 ```
 
+```
+kubectl apply -f .
+kubectl describe po qos-burstable
+```
 
 ## BestEffort
 
