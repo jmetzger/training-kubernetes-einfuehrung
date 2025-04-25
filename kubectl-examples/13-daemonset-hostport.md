@@ -5,7 +5,7 @@
   * Übung: tln1 -> 8001
   * ....   tln8 -> 8008
 
-## Exercise mit HostPort 
+## Exercise mit HostPort (Teil 1) 
 
 
 ```
@@ -69,4 +69,17 @@ kubectl run -it --rm podtest --image busybox
 ```
 # In der busybox
 wget -O - <node-ip>:<dein-port>
+```
+
+
+## Exercise mit HostPort (Teil 2) - Umschauen  
+
+````
+# Wir suchen uns einen pod raus, z.B. nginx-hostport-t7pxd
+kubectl debug -it nginx-hostport-t7pxd --image=busybox
+```
+
+```
+# in busybox ephemeral container 
+ip a
 ```
