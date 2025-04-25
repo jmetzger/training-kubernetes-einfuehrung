@@ -4,3 +4,10 @@
 # node/<name-meines-nodes>
 kubectl debug -it node/node-6icn1 --image=busybox
 ```
+
+```
+# im pod
+ip a
+cd /host
+ls -la
+```
