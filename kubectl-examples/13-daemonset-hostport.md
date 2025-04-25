@@ -53,6 +53,9 @@ kubectl get pods
 ```
 
 ```
+# Externe IP finden
+kubectl get nodes -o wide 
+
 # Testen mit curl
 curl http://<node-ip>:<euer-teilnehmer-port-s-o>
 ```
