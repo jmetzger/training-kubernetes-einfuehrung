@@ -82,4 +82,6 @@ kubectl debug -it nginx-hostport-t7pxd --image=busybox
 ```
 # in busybox ephemeral container 
 ip a
+# und direkt connection von nginx prüfen
+wget -O - http://localhost:80  
 ```
