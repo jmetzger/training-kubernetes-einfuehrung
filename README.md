@@ -57,9 +57,12 @@
   1. Kubernetes API-Objekte (Teil 2)
      *  [Jobs](kubectl-examples/12-job.md)
      *  [Cronjobs](kubectl-examples/11-cronjob.md)
+     *  [Daemonset with HostPort](kubectl-examples/13-daemonset-hostport.md)
+     *  [Daemonset with HostNetwork](/kubectl-examples/14-daemonset-hostnetwork.md)
 
   1. Kubernetes Ingress
      * [Ingress HA-Proxy Sticky Session](ingress/ha-proxy/load-balancing-sticky-session.md)
+     * [Nginx Ingress Session Stickyness](ingress/nginx/session-stickyness.md)
      * [https mit ingressController und Letsencrypt](ingress/https-letsencrypt.md)
     
   1. Kubernetes Secrets und Encrypting von z.B. Credentials 
