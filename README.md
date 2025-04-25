@@ -70,6 +70,7 @@
   1. Kubernetes Pod Termination
      * [LifeCycle Termination](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)
      * [preStopHook](https://www.datree.io/resources/kubernetes-guide-graceful-shutdown-with-lifecycle-prestop-hook)
+     * [How to wait till a pod gets terminated](pods/termination/hooks.md)
     
   1. LoadBalancer on Premise (metallb)
      * [Metallb](load-balancer/metallb.md)
