@@ -70,11 +70,11 @@ wget -O - <node-ip>:80
 ```
 
 
-## Exercise mit HostPort (Teil 2) - Umschauen  
+## Exercise mit HostNetwork (Teil 2) - Umschauen  
 
 ```
 # Wir suchen uns einen pod raus, z.B. nginx-hostport-t7pxd
-kubectl debug -it nginx-hostport-t7pxd --image=busybox
+kubectl debug -it nginx-hostnetwork-skmrg  --image=busybox
 ```
 
 ```
