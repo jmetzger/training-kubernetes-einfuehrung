@@ -106,7 +106,6 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: qos-burstable
-  namespace: qos-example
 spec:
   containers:
   - name: qos-demo-2-ctr
