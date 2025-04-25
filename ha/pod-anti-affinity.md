@@ -42,7 +42,7 @@ spec:
             topologyKey: "kubernetes.io/hostname"
       containers:
       - name: nginx
-        image: nginx:1.7.9
+        image: nginx:1.27
         ports:
         - containerPort: 80
 ```
