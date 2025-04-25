@@ -98,8 +98,7 @@
      * [Helm Grundlagen](/helm/grundlagen.md)
      * [Helm Warum ?](/helm/warum.md)
      * [Helm Example](/helm/example.md)
-     * [Helm Exercise with nginx](/helm/exercise-nginx.md)
-      
+     * [Helm Exercise with nginx](/helm/exercise-nginx.md) 
 
   1. Helm (IDE - Support) 
      * [Kubernetes-Plugin Intellij](https://www.jetbrains.com/help/idea/kubernetes.html)
@@ -156,7 +155,7 @@
   1. Tipps & Tricks 
      * [Netzwerkverbindung zum Pod testen](/tipps-tricks/verbindung-zu-pod-testen.md)
      * [Debug Container neben Container erstellen](kubernetes-networks/debug-container.md)
-     * [Debug Pod auf Node erstellen]()
+     * [Debug Pod auf Node erstellen](tipps-tricks/kubectl-debug-node.md)
      
   1. Kubernetes Administration /Upgrades 
      * [Kubernetes Administration / Upgrades](kubernetes-cluster-update-path.md)
