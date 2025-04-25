@@ -47,7 +47,8 @@ spec:
 
 ```
 kubectl apply -f .
-kubectl get ds
+kubectl get ds nginx-hostport
+kubectl describe ds nginx-hostport
 kubectl get pods
 ```
 
