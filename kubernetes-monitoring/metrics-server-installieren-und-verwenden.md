@@ -16,3 +16,5 @@ kubectl run nginx-data --image=nginx:1.27
 # how much does it use ? 
 kubectl top pods nginx-data 
 ```
+
+![image](https://github.com/user-attachments/assets/edc6a4f7-e0af-4904-8c97-c97d84e745cf)
