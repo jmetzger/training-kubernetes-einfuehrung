@@ -1,54 +1,50 @@
 # Daemonset 
 
-## Variante mit HostPort 
-
-  * Übung: tln1 -> 8001
-  * ....   tln8 -> 8008
-
-## Exercise mit HostPort (Teil 1) 
+## Exercise mit HostNetwork (Teil 1) 
 
 
 ```
 cd
 mkdir -p manifests
 cd manifests
-mkdir host
+mkdir hostnetwork
 ```
 
 ```
-nano 01-hostport.yml
+nano 01-hostnetwork.yml
 ```
 
 ```
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: nginx-hostport
+  name: nginx-hostnetwork
 spec:
   selector:
     matchLabels:
-      app: nginx-hostport
+      app: nginx-hostnetwork
   template:
     metadata:
       labels:
-        app: nginx-hostport
+        app: nginx-hostnetwork
     spec:
+      hostNetwork: true     # Ganzer Netzwerk-Namespace des Hosts
       containers:
       - name: nginx
         image: nginx:1.25
         ports:
-        - containerPort: 80
-          hostPort: 800x   # Achtung Port ersetzen durch eigenen (s.o.)
+        - containerPort: 80   # Kein hostPort nötig – läuft direkt auf dem Host
         resources:
           limits:
             cpu: "100m"
             memory: "128Mi"
+
 ```
 
 ```
 kubectl apply -f .
-kubectl get ds nginx-hostport
-kubectl describe ds nginx-hostport
+kubectl get ds nginx-hostnetwork
+kubectl describe ds nginx-hostnetwork
 kubectl get pods
 ```
 
@@ -58,7 +54,8 @@ kubectl get nodes -o wide
 
 # Testen mit curl
 # Achtung bei digitalocean sperrt das firewall 
-curl http://<node-ip>:<euer-teilnehmer-port-s-o>
+# Port von nginx 
+curl http://<node-ip>:80
 ```
 
 ```
@@ -68,7 +65,7 @@ kubectl run -it --rm podtest --image busybox
 
 ```
 # In der busybox
-wget -O - <node-ip>:<dein-port>
+wget -O - <node-ip>:80
 ```
 
 
