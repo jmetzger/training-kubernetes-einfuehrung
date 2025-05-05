@@ -1,7 +1,8 @@
 # Aufbau 
 
 ## Schaubild 
-![image](https://github.com/jmetzger/training-kubernetes-einfuehrung/assets/1933318/80bf0da5-ab7a-4cc2-9ce4-d3c55b7d8b90)
+![image](https://github.com/user-attachments/assets/f4de7c54-33a8-46e5-916c-1119575b1aed)
+
 
 ## Komponenten / Grundbegriffe
 
