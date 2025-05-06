@@ -65,6 +65,7 @@
 
   1. Kubernetes Praxis
      * [Befehle in pod ausführen - Übung](kubectl-examples/15-exec-example.md)
+     * [Welche Pods mit Namen gehören zu einem Service](tipps-tricks/welche-pods-mit-namen-gehoeren-zu-einem-service.md)
 
   1. Kubernetes Ingress
      * [Ingress HA-Proxy Sticky Session](ingress/ha-proxy/load-balancing-sticky-session.md)
