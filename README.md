@@ -63,6 +63,9 @@
      *  [Daemonset with HostPort](kubectl-examples/13-daemonset-hostport.md)
      *  [Daemonset with HostNetwork](/kubectl-examples/14-daemonset-hostnetwork.md)
 
+  1. Kubernetes Praxis
+     * [Befehle in pod ausführen - Übung](kubectl-examples/15-exec-example.md)
+
   1. Kubernetes Ingress
      * [Ingress HA-Proxy Sticky Session](ingress/ha-proxy/load-balancing-sticky-session.md)
      * [Nginx Ingress Session Stickyness](ingress/nginx/session-stickyness.md)
