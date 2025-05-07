@@ -21,6 +21,9 @@
      * [Installer für grosse Cluster](#installer-für-grosse-cluster)
      * [Installation - Welche Komponenten from scratch](#installation---welche-komponenten-from-scratch)
 
+  1. Kubernetes Installation
+     * [k3s installation](#k3s-installation)
+
   1. kubectl 
      * [kubectl einrichten mit namespace](#kubectl-einrichten-mit-namespace)
      * [kubectl cheatsheet kubernetes](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
@@ -54,28 +57,51 @@
      * [Hintergrund statefulsets](#hintergrund-statefulsets)
      * [Example stateful set](#example-stateful-set)
 
+  1. Kubernetes API-Objekte (Teil 2)
+     *  [Jobs](kubectl-examples/12-job.md)
+     *  [Cronjobs](kubectl-examples/11-cronjob.md)
+     *  [DaemonSet - einfaches Beispiel](kubectl-examples/14-daemonset-simple.md)
+     *  [Daemonset with HostPort](kubectl-examples/13-daemonset-hostport.md)
+     *  [Daemonset with HostNetwork](/kubectl-examples/14-daemonset-hostnetwork.md)
+
+  1. Kubernetes Praxis
+     * [Befehle in pod ausführen - Übung](#befehle-in-pod-ausführen---übung)
+     * [Welche Pods mit Namen gehören zu einem Service](#welche-pods-mit-namen-gehören-zu-einem-service)
+
   1. Kubernetes Ingress
      * [Ingress HA-Proxy Sticky Session](#ingress-ha-proxy-sticky-session)
+     * [Nginx Ingress Session Stickyness](#nginx-ingress-session-stickyness)
      * [https mit ingressController und Letsencrypt](#https-mit-ingresscontroller-und-letsencrypt)
     
   1. Kubernetes Secrets und Encrypting von z.B. Credentials 
      * [Kubernetes secrets Typen](#kubernetes-secrets-typen)
      * [Sealed Secrets - bitnami](#sealed-secrets---bitnami)
+     * [Exercise Sealed Secret mariadb](#exercise-sealed-secret-mariadb)
      * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
   1. Kubernetes Security
      * [Best practices security pods](#best-practices-security-pods)
      * [Best practices in general](#best-practices-in-general)
     
+  1. ServiceMesh
+     * [Why a ServiceMesh ?](#why-a-servicemesh-)
+     * [How does a ServiceMeshs work? (example istio](#how-does-a-servicemeshs-work-example-istio)
+     * [istio security features](#istio-security-features)
+     * [istio-service mesh - ambient mode](#istio-service-mesh---ambient-mode)
+     * [Performance comparison - baseline,sidecar,ambient](#performance-comparison---baselinesidecarambient)
+    
   1. Kubernetes Pod Termination
      * [LifeCycle Termination](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)
      * [preStopHook](https://www.datree.io/resources/kubernetes-guide-graceful-shutdown-with-lifecycle-prestop-hook)
+     * [How to wait till a pod gets terminated](#how-to-wait-till-a-pod-gets-terminated)
     
   1. LoadBalancer on Premise (metallb)
      * [Metallb](#metallb)
 
-  1. Metrics-Server
+  1. Metrics-Server / Größe Cluster 
      * [Metrics-Server mit helm installieren](#metrics-server-mit-helm-installieren)
+     * [Speichernutzung und CPU berechnen für Anwendungen](https://learnk8s.io/kubernetes-node-size)
+
 
   1. Kubernetes Storage (CSI) 
      * [Überblick Persistant Volumes (CSI)](#überblick-persistant-volumes-csi)
@@ -83,10 +109,12 @@
      * [Übung Persistant Storage](#übung-persistant-storage)
      * [Beispiel mariadb](#beispiel-mariadb)
 
-  1. Helm (Kubernetes Paketmanager) 
+  1. Helm (Kubernetes Paketmanager)
+     * [Helm Spickzettel](#helm-spickzettel)
      * [Helm Grundlagen](#helm-grundlagen)
      * [Helm Warum ?](#helm-warum-)
      * [Helm Example](#helm-example)
+     * [Helm Exercise with nginx](#helm-exercise-with-nginx)
 
   1. Helm (IDE - Support) 
      * [Kubernetes-Plugin Intellij](https://www.jetbrains.com/help/idea/kubernetes.html)
@@ -94,7 +122,8 @@
 
   1. Kubernetes -> High Availability Cluster (multi-data center)
      * [High Availability multiple data-centers](#high-availability-multiple-data-centers)
-     * [PodAntiAffinity für Hochverfügbarkeit](https://github.com/infracloudio/kubernetes-scheduling-examples/blob/master/podAffinity/deployment-AntiAffinity.yaml)
+     * [PodAntiAffinity für Hochverfügbarkeit](#podantiaffinity-für-hochverfügbarkeit)
+     * [PodAffinity](#podaffinity)
 
   1. Kubernetes -> etcd
      * [etcd - cleaning of events](#etcd---cleaning-of-events)
@@ -139,10 +168,12 @@
      * [Prometheus Monitoring Server (Overview)](#prometheus-monitoring-server-overview)
      * [Prometheus / Grafana Stack installieren](#prometheus--grafana-stack-installieren)
      * [Prometheus / blackbox exporter](#prometheus--blackbox-exporter)
+     * [Kubernetes Metrics Server verwenden](#kubernetes-metrics-server-verwenden)
 
   1. Tipps & Tricks 
      * [Netzwerkverbindung zum Pod testen](#netzwerkverbindung-zum-pod-testen)
      * [Debug Container neben Container erstellen](#debug-container-neben-container-erstellen)
+     * [Debug Pod auf Node erstellen](#debug-pod-auf-node-erstellen)
      
   1. Kubernetes Administration /Upgrades 
      * [Kubernetes Administration / Upgrades](#kubernetes-administration--upgrades)
@@ -151,7 +182,7 @@
 
   1. Weiter lernen 
      * [Lernumgebung](https://killercoda.com/)
-     * [Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
+     * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
      * [Udemy Online Training](https://www.udemy.com/course/certified-kubernetes-security-specialist/)
      * [Kubernetes Videos mit Hands On](https://www.youtube.com/watch?v=16fgzklcF7Y)
 
@@ -186,6 +217,9 @@
   1. Documentation
      * [References](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/#DeploymentSpec)
      * [Tasks Documentation - Good one !](https://kubernetes.io/docs/tasks)
+    
+  1. AWS
+     * [ECS (managed containers) vs. Kubernetes](#ecs-managed-containers-vs-kubernetes)
  
   1. Documentation for Settings right resources/limits
      * [Goldilocks](https://www.fairwinds.com/blog/introducing-goldilocks-a-tool-for-recommending-resource-requests)
@@ -450,7 +484,8 @@ RUN apt-get update && \
 
 
 ### Schaubild 
-![image](https://github.com/jmetzger/training-kubernetes-einfuehrung/assets/1933318/80bf0da5-ab7a-4cc2-9ce4-d3c55b7d8b90)
+![image](https://github.com/user-attachments/assets/f4de7c54-33a8-46e5-916c-1119575b1aed)
+
 
 ### Komponenten / Grundbegriffe
 
@@ -552,9 +587,9 @@ Er stellt sicher, dass Container in einem Pod ausgeführt werden.
 
   * Skalieren von Anwendungen. 
   * bessere Hochverfügbarkeit out-of-the-box
-  * Heilen von Systemen (neu starten von Pods) 
+  * Heilen von Systemen (neu starten von Containern) 
   * Automatische Überwachung mit deklarativem Management) - ich beschreibe, was ich will
-  * Neue Versionen zu auszurollen (Canary Deployment, Blue/Green Deployment) 
+  * Neue Versionen auszurollen (Canary Deployment, Blue/Green Deployment) 
 
 ### Mögliche Nachteile 
 
@@ -926,6 +961,34 @@ runcmd:
   - chmod 0440 /etc/sudoers.d/11trainingdo
 ```
 
+## Kubernetes Installation
+
+### k3s installation
+
+
+### Exercise 
+
+```
+Schritt 1: windows store ubuntu installieren und ausführen
+
+Siehe: 
+https://docs.k3s.io/quick-start
+
+## in den root benutzer wechseln
+sudo su - 
+## passwort eingeben 
+
+curl -sfL https://get.k3s.io | sh -
+
+systemctl stop k3s 
+systemctl disable k3s 
+systemctl start k3s
+
+## Verwenden 
+kubectl cluster-info 
+kubectl get nodes 
+```
+
 ## kubectl 
 
 ### kubectl einrichten mit namespace
@@ -1277,26 +1340,7 @@ kubectl apply -f .
 kubectl get all
 ```
 
-### Optional: Change Replicas 
-
-  * from 8 to 12
-
-```
-nano nginx-deployment.yml 
-```
-
-```
-## Ändern der replicas  von 8 auf 12 
-## danach
-kubectl get all 
-kubectl apply -f .
-kubectl get all 
-kubectl get pods -w
-
-```
-
-
-### New Version 
+### Optional: Change image - Version 
 
 ```
 nano nginx-deployment.yml 
@@ -1336,7 +1380,10 @@ Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
 
 ```
 kubectl run podtest --rm -it --image busybox -- /bin/sh
-## und es geht noch einfacher 
+```
+
+```
+## und es geht noch einfacher
 kubectl run podtest --rm -it --image busybox 
 ```
 
@@ -1344,6 +1391,7 @@ kubectl run podtest --rm -it --image busybox
 
 ```
 ## wget befehl zum Kopieren
+ping -c4 10.244.0.99
 wget -O - http://10.244.0.99
 ```
 
@@ -1873,7 +1921,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "<euername>.app1.t3isp.de"
+  - host: "<euername>.lab1.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -2612,6 +2660,9 @@ cd sts
 
 ```
 
+```
+nano 01-svc.yml
+```
 
 ```
 ## vi 01-svc.yml 
@@ -2633,6 +2684,10 @@ spec:
   clusterIP: None
   selector:
     app: nginx
+```
+
+```
+nano 02-sts.yml
 ```
 
 ```
@@ -2658,7 +2713,7 @@ spec:
         image: registry.k8s.io/nginx-slim:0.8
         ports:
         - containerPort: 80
-          name: web
+          name: web-nginx
 ```
 
 ```
@@ -2671,11 +2726,19 @@ kubectl apply -f .
 
 ```
 kubectl run --rm -it podtester --image=busybox
+```
 
+```
+## In der shell
 ## web ist der name des statefulsets 
 ping web-0.nginx 
 ping web-1.nginx 
+exit
+```
 
+```
+## web-0 / web-1 
+kubectl get pods 
 kubectl delete sts web 
 kubectl apply -f .
 kubectl run --rm -it podtest --image=busybox 
@@ -2688,6 +2751,44 @@ ping web-0.nginx
 
   * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/
 
+## Kubernetes API-Objekte (Teil 2)
+
+## Kubernetes Praxis
+
+### Befehle in pod ausführen - Übung
+
+
+```
+kubectl run my-nginx --image=nginx:1.23 
+```
+
+```
+kubectl exec my-nginx -- ls -la
+kubectl exec -it my-nginx -- bash 
+kubectl exec -it my-nginx -- sh 
+```
+
+```
+## in der shell 
+cat /etc/os-release
+cd /var/log/nginx 
+ls -la 
+exit 
+```
+
+```
+## Logs ausgeben 
+kubectl logs my-nginx 
+```
+
+### Welche Pods mit Namen gehören zu einem Service
+
+
+```
+kubectl get svc svc-nginx -o wide
+kubectl get pods -l web=my-nginx
+```
+
 ## Kubernetes Ingress
 
 ### Ingress HA-Proxy Sticky Session
@@ -2696,6 +2797,157 @@ ping web-0.nginx
 ### It easy to setup session stickyness 
 
   * https://www.haproxy.com/documentation/kubernetes-ingress/ingress-tutorials/load-balancing/
+
+### Nginx Ingress Session Stickyness
+
+
+Yes, **session stickiness (affinity)** via **cookie-based stickiness** **does work** with the **open-source NGINX Ingress Controller**.
+
+Here’s what you need to know to get it working:
+
+---
+
+#### ✅ How to Enable Sticky Sessions with Open Source NGINX Ingress
+
+The open-source NGINX Ingress Controller supports sticky sessions using **annotations** and **cookies**.
+
+##### Example Ingress YAML:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "route"
+    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: myapp.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: my-app-service
+                port:
+                  number: 80
+```
+
+---
+
+#### 🧠 Explanation of the Annotations
+
+- `nginx.ingress.kubernetes.io/affinity: "cookie"`  
+  → Enables cookie-based affinity.
+
+- `nginx.ingress.kubernetes.io/session-cookie-name: "route"`  
+  → Names the session cookie (optional, default is `INGRESSCOOKIE`).
+
+- `nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"`  
+  → Defines how the cookie value is hashed. Can be `md5`, `sha1`, `index`, etc.
+
+You can also optionally define:
+```yaml
+nginx.ingress.kubernetes.io/session-cookie-path: "/"
+nginx.ingress.kubernetes.io/session-cookie-expires: "172800"   # in seconds
+nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+```
+
+---
+
+#### 🔍 Important Notes
+
+- This works **only with the open-source NGINX ingress controller**.  
+  (The annotations won’t apply to controllers like Traefik, HAProxy, or cloud-specific ones like AWS ALB.)
+
+- You must ensure that **all replicas of the app can handle the traffic** if they receive the same cookie.
+
+- This stickiness is **not persistent across restarts** unless the session cookie is preserved client-side (and the pod labels/service don't change unpredictably).
+
+---
+
+#### 💡 Bonus Tip: Enable Ingress Logging (Optional but Useful)
+To troubleshoot or verify stickiness:
+```yaml
+controller:
+  config:
+    enable-access-log: "true"
+    log-format-upstream: "$request_id $remote_addr to $upstream_addr via $cookie_route"
+```
+
+---
+
+Want a ready-made Helm values file or `kubectl` manifest for this?
+### 🧭 Flow Overview: Cookie-Based Stickiness in NGINX Ingress
+
+```
+[Client Browser] 
+     ⇅
+[NGINX Ingress Controller (Ingress Pod)]
+     ⇅
+[Kubernetes Service (ClusterIP)]
+     ⇅
+[App Pod A / B / C (Behind the Service)]
+```
+
+---
+
+### 🔁 What Actually Happens (Step-by-Step)
+
+#### 1. **Client makes a request**
+- Let's say the client hits `myapp.example.com`.
+
+#### 2. **Ingress Controller (NGINX) receives the request**
+- NGINX is exposed via a LoadBalancer, NodePort, or IngressClass.
+- It parses the Ingress resource and applies sticky session rules based on annotations.
+
+#### 3. **First Request: No Cookie**
+- No session cookie is present, so:
+  - NGINX picks a backend pod **randomly** via the Kubernetes `Service`.
+  - It sets a sticky cookie on the response, e.g.:
+    ```
+    Set-Cookie: route=backend1; Path=/; HttpOnly
+    ```
+
+#### 4. **Subsequent Requests: Cookie Present**
+- On later requests, the client sends back:
+  ```
+  Cookie: route=backend1
+  ```
+- NGINX uses this cookie value to route to the **same backend pod**.
+
+---
+
+### 🔎 So Where Does the Kubernetes `Service` Come In?
+
+The Kubernetes `Service` is used **internally by NGINX** to **proxy requests to pods**.
+
+#### NGINX configuration looks like this (simplified):
+
+```nginx
+upstream myapp-service {
+    sticky cookie route;
+    server 10.0.1.2:8080;  # Pod A
+    server 10.0.1.3:8080;  # Pod B
+}
+```
+
+- These IPs are discovered **via the Kubernetes Service** using Endpoints or EndpointSlices.
+- NGINX tracks these pods and their IPs automatically (via a sync controller loop).
+
+---
+
+### ✅ Who Makes Routing Decisions?
+
+- 🔸 **NGINX Ingress Controller** makes the routing decision **based on the cookie value**, not Kubernetes.
+- 🔹 Kubernetes `Service` is just a **source of backend pod IPs**, not the router in this case.
+
+---
+
 
 ### https mit ingressController und Letsencrypt
 
@@ -2814,17 +3066,16 @@ Schritt 5: Testen
 ## Binary für Linux runterladen, entpacken und installieren 
 ## Achtung: Immer die neueste Version von den Releases nehmen, siehe unten:
 ## Install as root 
-cd /usr/src 
-wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.17.5/kubeseal-0.17.5-linux-amd64.tar.gz
-tar xzvf kubeseal-0.17.5-linux-amd64.tar.gz 
-install -m 755 kubeseal /usr/local/bin/kubeseal
+curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.29.0/kubeseal-0.29.0-linux-amd64.tar.gz"
+tar -xvzf kubeseal-0.29.0-linux-amd64.tar.gz kubeseal
+sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 ```
 
 ### Schritt 2: Walkthrough - Server Installation mit kubectl client 
 
 ```
 helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
-helm install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.17.1
+helm install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.17.2
 
 ```
 
@@ -2893,6 +3144,67 @@ ausschliesslich als root arbeite
   * Controller: https://github.com/bitnami-labs/sealed-secrets/releases/
 
 
+
+### Exercise Sealed Secret mariadb
+
+
+### Prerequisites: MariaDB secrets done 
+
+[MariaDB Secret](#secrets-example-mariadb)
+
+###  Based on mariadb secrets exercise 
+
+```
+cd
+cd manifests/secrettest
+```
+
+```
+## Cleanup
+kubectl delete -f 02-deploy.yml
+kubectl delete -f 01-secrets.yml
+## rm
+rm 01-secrets.yml 
+```
+
+
+```
+## öffentlichen Schlüssel zum Signieren holen 
+kubeseal --fetch-cert --controller-namespace=kube-system --controller-name=sealed-secrets > pub-sealed-secrets.pem
+cat pub-sealed-secrets.pem 
+```
+
+```
+## Secret - config erstellen mit dry-run, wird nicht auf Server angewendet (nicht an Kube-Api-Server geschickt) 
+kubectl create secret generic mariadb-secret --from-literal=MARIADB_ROOT_PASSWORD=11abc432 --dry-run=client -o yaml > 01-top-secret.yaml
+cat 01-top-secret.yaml 
+```
+
+```
+kubeseal --format=yaml --cert=pub-sealed-secrets.pem < 01-top-secret.yaml > 01-top-secret-sealed.yaml
+cat 01-top-secret-sealed.yaml 
+
+## Ausgangsfile von dry-run löschen 
+rm 01-top-secret.yaml
+
+## Ist das secret basic-auth vorher da ? 
+kubectl get secrets mariadb-secret  
+
+kubectl apply -f .
+
+## Kurz danach erstellt der Controller aus dem sealed secret das secret 
+kubectl get secret
+
+kubectl get sealedsecrets 
+kubectl get secret mariadb-secret -o yaml
+```
+
+```
+kubectl exec -it deploy/mariadb-deployment -- env | grep ROOT
+kubectl delete -f 01-top-secret-sealed.yaml
+kubectl get secrets
+kubectl get sealedsecrets 
+```
 
 ### registry mit secret auth
 
@@ -2971,6 +3283,126 @@ https://docs.openshift.com/container-platform/4.12/networking/network_policy/abo
 ```
 ```
 
+## ServiceMesh
+
+### Why a ServiceMesh ?
+
+
+### What is a service mesh ?
+
+```
+A service mesh is an infrastructure layer
+that gives applications capabilities
+like zero-trust security, observability,
+and advanced traffic management, without code changes.
+```
+
+### Advantages / Features 
+
+ 1. Observability & monitoring
+ 1. Traffic management
+ 1. Resilience & Reliability 
+ 1. Security
+ 1. Service Discovery
+
+#### Observability & monitoring
+
+  * Service mesh offers:
+    * valuable insights into the communication between services
+    * effective monitoring to help in troubleshooting application errors.
+
+#### Traffic management
+
+  * Service mesh offers:
+    * intelligent request distribution
+    * load balancing, 
+    * support for canary deployments. 
+    * These capabilities enhance resource utilization and enable efficient traffic management
+
+#### Resilience & Reliability 
+
+  * By handling retries, timeouts, and failures,
+    * service mesh contributes to the overall stability and resilience of services
+    * reducing the impact of potential disruptions.
+
+#### Security
+
+  * Service mesh enforces security policies, and handles authentication, authorization, and encryption
+    * ensuring secure communication between services and eventually, strengthening the overall security posture of the application.
+
+#### Service Discovery
+
+  * With service discovery features, service mesh can simplify the process of locating and routing services dynamically
+  * adapting to system changes seamlessly. This enables easier management and interaction between services.
+
+### Overall benefits 
+
+```
+Microservices communication:
+Adopting a service mesh can simplify the implementation of a microservices architecture by abstracting away infrastructure complexities.
+It provides a standardized approach to manage and orchestrate communication within the microservices ecosystem.
+```
+
+
+### How does a ServiceMeshs work? (example istio
+
+
+![image](https://github.com/user-attachments/assets/ad858ca2-2bdc-4604-beef-f543f833e56f)
+
+![image](https://github.com/user-attachments/assets/cad96bcb-8fb8-445c-b371-5a3b728a0a5f)
+* Source: kubebyexample.com 
+
+### istio security features
+
+
+### Overview 
+
+![image](https://github.com/user-attachments/assets/c31b0e10-bdb9-43e1-a162-274711079e94)
+
+### Security needs of microservices 
+
+![image](https://github.com/user-attachments/assets/35092c36-ffd8-428b-bf71-b60ff3749fb7)
+
+### Implementation of security 
+
+![image](https://github.com/user-attachments/assets/2fce84cf-4483-4772-aabf-c27d099e303e)
+
+
+### istio-service mesh - ambient mode
+
+
+### Light: Only Layer 4 per node (ztunnel) 
+
+  * No sidecar (envoy-proxy) per Pod, but one ztunnel agent per Node (Layer 4)
+  * Enables security features (mtls, traffic encryption)
+
+#### Like so:
+
+  ![image](https://github.com/user-attachments/assets/755931d7-5bdd-43c9-8f93-28e8ee0b2bf3)
+
+### Full fledged: Layer 4 (ztunnel) per Node & Layer 7 per Namespace
+
+  * One waypoint - proxy is rolled out per Namespace, which connects to the ztunnel agents 
+
+![image](https://github.com/user-attachments/assets/a2aadab7-2ec0-446f-a35a-e972b8ac46b8)
+
+#### Features in "fully-fledged" - ambient - mode 
+
+![image](https://github.com/user-attachments/assets/30b89a37-cb71-46e9-a395-aafb593ebb12)
+
+
+### Advantages:
+
+  * Less overhead
+  * One can start step-by-step moving towards a mesh (Layer 4 firstly and if wanted Layer 7 for specicfic namespaces)
+  * Old pattern: sidecar and new pattern: ambient can live side by side. 
+
+### Performance comparison - baseline,sidecar,ambient
+
+
+  * https://livewyer.io/blog/2024/06/06/comparison-of-service-meshes-part-two/
+  * https://github.com/livewyer-ops/poc-servicemesh2024/blob/main/docs/test-report-istio.md
+
 ## Kubernetes Pod Termination
 
 ### LifeCycle Termination
@@ -2980,6 +3412,47 @@ https://docs.openshift.com/container-platform/4.12/networking/network_policy/abo
 ### preStopHook
 
   * https://www.datree.io/resources/kubernetes-guide-graceful-shutdown-with-lifecycle-prestop-hook
+
+### How to wait till a pod gets terminated
+
+
+When stopping (terminating) a pod in Kubernetes, there **are hooks available**, but they're limited to the **termination lifecycle**. If you're thinking of stopping a pod *without* killing it and still triggering hooks, that's trickier (more on that below). Here's a full breakdown of what's available:
+
+---
+
+### ✅ **Kubernetes Hooks for Pod Termination**
+
+#### 1. **`preStop` Hook**
+Executed **before the container is terminated** (but *after* the SIGTERM signal is sent).
+
+##### Example:
+```yaml
+lifecycle:
+  preStop:
+    exec:
+      command: ["/bin/sh", "-c", "echo pre-stop hook running; sleep 10"]
+```
+
+- You can use this to delay shutdown or do cleanup.
+- Note: Kubernetes still sends `SIGTERM` as normal; `preStop` doesn't block that, but the container stays up for the duration of the hook.
+
+---
+
+#### 2. **`terminationGracePeriodSeconds`**
+Specifies how long Kubernetes will wait before force-killing the container with `SIGKILL`.
+
+```yaml
+spec:
+  terminationGracePeriodSeconds: 30
+```
+
+- Combine this with `preStop` to allow your container to finish in-flight work or deregister from a service.
+
+
+If you tell me **what kind of "stop" you're envisioning**, I can help tailor a hook-like workaround. For example:  
+→ *“I want to stop background work when CPU is high”* or  
+→ *“Pause processing until a Kafka topic is ready”* — totally different tactics.
+
 
 ## LoadBalancer on Premise (metallb)
 
@@ -3040,7 +3513,7 @@ metadata:
 
   * [Set IP to specific interface and node](https://metallb.universe.tf/configuration/_advanced_l2_configuration/)
 
-## Metrics-Server
+## Metrics-Server / Größe Cluster 
 
 ### Metrics-Server mit helm installieren
 
@@ -3076,6 +3549,10 @@ kubectl top pods
 
   * https://kubernetes-sigs.github.io/metrics-server/
   * kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+### Speichernutzung und CPU berechnen für Anwendungen
+
+  * https://learnk8s.io/kubernetes-node-size
 
 ## Kubernetes Storage (CSI) 
 
@@ -3151,7 +3628,7 @@ metadata:
   name: nfs-csi
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 10.135.0.69
+  server: 10.135.0.67
   share: /var/nfs
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -3184,7 +3661,9 @@ spec:
 
 ```
 kubectl apply -f .
-kubectl get pvc 
+kubectl get pvc
+##
+kubectl get pv 
 ```
 
 ### Step 4: Pod 
@@ -3221,12 +3700,11 @@ kubectl apply -f .
 kubectl get pods
 ```
 
+### Step 5: Testing
 
 ```
 kubectl exec -it nginx-nfs -- bash 
 ```
-
-### Step 5: Testing
 
 ```
 cd /mnt/nfs
@@ -3313,6 +3791,17 @@ mountOptions:
 ### Step 3: PVC, Configmap, Deployment 
 
 ```
+mkdir -p manifests
+cd manifests
+mkdir mariadb-csi
+cd mariadb-csi
+```
+
+```
+nano 01-pvc.yaml
+```
+
+```
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -3327,7 +3816,15 @@ spec:
 ```
 
 ```
-### 01-configmap.yml
+kubectl apply -f .
+```
+
+```
+nano 02-configmap.yml
+```
+
+```
+### 02-configmap.yml
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -3338,7 +3835,11 @@ data:
 ```
 
 ```
-##deploy.yml
+nano 03-deployment.yml
+```
+
+
+```
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -3369,7 +3870,36 @@ spec:
           claimName: pvc-nfs-dynamic-mariadb
 ```
 
-## Helm (Kubernetes Paketmanager) 
+```
+kubectl apply -f .
+```
+
+```
+kubectl describe po mariadb-deployment-<euer-pod>
+```
+
+## Helm (Kubernetes Paketmanager)
+
+### Helm Spickzettel
+
+
+### Alle installierten Releases anschauen 
+
+```
+## im eigenen Namespaces 
+helm list
+## in allen Namespaces 
+helm list -A
+```
+
+### Installieren am besten mit upgraden 
+
+
+```
+## helm install release-name repo/chart --version 1.9.9. -f values.yaml
+## z.B.
+helm upgrade --install my-nginx bitnami/nginx --version 19.1.1 -f values.yaml
+```
 
 ### Helm Grundlagen
 
@@ -3380,11 +3910,17 @@ spec:
 
 ### Komponenten 
 
-```
-Chart - beeinhaltet Beschreibung und Komponenten 
-tar.gz - Format 
-oder Verzeichnis 
+#### Chart
 
+  * beeinhaltet Beschreibung und Komponenten 
+
+#### Chart-Formate 
+
+  * url
+  * .tgz (abkürzung tar.gz) - Format 
+  * oder Verzeichnis 
+
+```
 Wenn wir ein Chart ausführen wird eine Release erstellen 
 (parallel: image -> container, analog: chart -> release)
 ```
@@ -3411,7 +3947,8 @@ kubectl cluster-info
 
 ```
 Ein Paket für alle Komponenten
-Einfaches Installieren, Updaten und deinstallieren 
+Einfaches Installieren, Updaten und deinstallieren
+Konfigurations-Values-Files übergeben zum Konfigurieren
 Feststehende Struktur 
 ```
 
@@ -3420,8 +3957,8 @@ Feststehende Struktur
 
 ### Prerequisites 
 
-  * kubectl needs to be installed and configured to access cluster
-  * Good: helm works as unprivileged user as well - Good for our setup 
+  * helm needs a config-file (kubeconfig) to know how to connect and credentials in there 
+  * Good: helm (as well as kubectl) works as unprivileged user as well - Good for our setup 
   * install helm on ubuntu (client) as root: snap install --classic helm 
     * this installs helm3
   * Please only use: helm3. No server-side components needed (in cluster) 
@@ -3580,6 +4117,71 @@ helm install my-wordpress -f values.yml bitnami/wordpress
   * https://github.com/bitnami/charts/tree/master/bitnami/mysql/#installing-the-chart
   * https://helm.sh/docs/intro/quickstart/
 
+### Helm Exercise with nginx
+
+
+### Part 1: Install old version 
+
+```
+## https://artifacthub.io/packages/helm/bitnami/nginx/17.3.3
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm upgrade --install my-nginx bitnami/nginx --version 17.3.3
+kubectl get pods 
+```
+
+```
+helm list
+helm list -A (über alle namespaces hinweg)
+helm get all my-nginx 
+helm get values my-nginx 
+helm get manifest my-nginx
+## chart von online
+helm show values bitnami/nginx # latest version 
+helm show values bitnami/nginx --version 17.3.3
+
+```
+
+
+### Part 2: Set Service to NodePort 
+
+```
+cd 
+mkdir -p helm-values
+cd helm-values
+mkdir nginx
+cd nginx
+```
+
+```
+nano values.yaml
+```
+
+```
+service:
+  type: NodePort
+```
+
+```
+kubectl get pods 
+helm upgrade --install my-nginx bitnami/nginx --version 17.3.3 -f values.yaml
+helm get values my-nginx 
+kubectl get pods
+kubectl get svc 
+```
+
+### Part 3: Upgrade auf die neueste Version mit NodePort 
+
+
+```
+helm upgrade --install my-nginx bitnami/nginx --version 19.1.1 -f values.yaml
+```
+
+### Part 4: Uninstall nginx 
+
+```
+helm uninstall my-nginx 
+```
+
 ## Helm (IDE - Support) 
 
 ### Kubernetes-Plugin Intellij
@@ -3609,7 +4211,61 @@ helm install my-wordpress -f values.yml bitnami/wordpress
 
 ### PodAntiAffinity für Hochverfügbarkeit
 
-  * https://github.com/infracloudio/kubernetes-scheduling-examples/blob/master/podAffinity/deployment-AntiAffinity.yaml
+### PodAffinity
+
+
+### Exercise 
+
+```
+## Deployment 1 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-a
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-a
+  template:
+    metadata:
+      labels:
+        app: app-a
+    spec:
+      containers:
+      - name: app-a
+        image: nginx
+```
+
+```
+## Deployment 2 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-b
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-b
+  template:
+    metadata:
+      labels:
+        app: app-b
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - app-a
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: app-b
+        image: nginx
 
 ## Kubernetes -> etcd
 
@@ -3998,7 +4654,22 @@ The flannel daemon is started using the arguments in ${SNAP_DATA}/args/flanneld.
 ### Exercise 
 
 ```
-kubectl run podtest --rm -ti --image busybox -- /bin/sh
+kubectl run podtest --rm -ti --image busybox
+```
+
+### Example with svc-nginx 
+
+```
+## in sh
+wget -O - http://svc-nginx
+wget -O - http://svc-nginx.jochen
+wget -O - http://svc-nginx.jochen.svc
+wget -O - http://svc-nginx.jochen.svc.cluster.local
+```
+
+### Example with apple-service 
+
+```
 If you don't see a command prompt, try pressing enter.
 / # wget -O - http://apple-service.jochen
 Connecting to apple-service.jochen (10.245.39.214:80)
@@ -5220,15 +5891,24 @@ kubectl describe po qos-demo
 
 * At least one Container in the Pod has a memory or CPU request or limit
 
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir burstable
+cd burstable
+```
 
 ```
-pods/qos/qos-pod-2.yaml
-Copy pods/qos/qos-pod-2.yaml to clipboard
+nano 01-pod.yaml
+```
+
+
+```
 apiVersion: v1
 kind: Pod
 metadata:
-  name: qos-demo-2
-  namespace: qos-example
+  name: qos-burstable
 spec:
   containers:
   - name: qos-demo-2-ctr
@@ -5240,6 +5920,10 @@ spec:
         memory: "100Mi"
 ```
 
+```
+kubectl apply -f .
+kubectl describe po qos-burstable
+```
 
 ### BestEffort
 
@@ -5847,6 +6531,28 @@ kubectl apply -f apple.yml # (deployment)
   * Metrik angekommen `?
   * http://64.227.125.201:30090/graph?g0.expr=probe_http_status_code&g0.tab=1&g0.display_mode=lines&g0.show_exemplars=0&g0.range_input=1h
 
+### Kubernetes Metrics Server verwenden
+
+
+### Schritt 1: Trainer installs metrics-server
+
+```
+helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+helm upgrade --install metrics-server metrics-server/metrics-server --namespace=metrics --create-namespace
+## Check it pods are running 
+kubectl -n metrics get pods
+```
+
+### Schritt 2: Use it 
+
+```
+kubectl run nginx-data --image=nginx:1.27
+## how much does it use ? 
+kubectl top pods nginx-data 
+```
+
+![image](https://github.com/user-attachments/assets/edc6a4f7-e0af-4904-8c97-c97d84e745cf)
+
 ## Tipps & Tricks 
 
 ### Netzwerkverbindung zum Pod testen
@@ -5862,7 +6568,10 @@ Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
 
 ```
 kubectl run podtest --rm -it --image busybox -- /bin/sh
-## und es geht noch einfacher 
+```
+
+```
+## und es geht noch einfacher
 kubectl run podtest --rm -it --image busybox 
 ```
 
@@ -5870,6 +6579,7 @@ kubectl run podtest --rm -it --image busybox
 
 ```
 ## wget befehl zum Kopieren
+ping -c4 10.244.0.99
 wget -O - http://10.244.0.99
 ```
 
@@ -5954,6 +6664,21 @@ kubectl debug node/mynode -it --image=ubuntu
 ### Reference 
 
   * https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/#ephemeral-container
+
+### Debug Pod auf Node erstellen
+
+
+```
+## node/<name-meines-nodes>
+kubectl debug -it node/node-6icn1 --image=busybox
+```
+
+```
+## im pod
+ip a
+cd /host
+ls -la
+```
 
 ## Kubernetes Administration /Upgrades 
 
@@ -6155,7 +6880,7 @@ kubectl get pods
 
   * https://killercoda.com/
 
-### Bestimmte Tasks lernen
+### Kubernetes Doku - Bestimmte Tasks lernen
 
   * https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/
 
@@ -6823,6 +7548,43 @@ docker container ls
 
   * https://kubernetes.io/docs/tasks
 
+## AWS
+
+### ECS (managed containers) vs. Kubernetes
+
+
+
+Perfekt – bei **wenigen Containern ohne Skalierungsbedarf** und wenn du **ausschließlich in AWS arbeitest**, ist **Amazon ECS mit Fargate** in der Regel die beste Wahl.
+
+#### ✅ **Warum ECS mit Fargate passt:**
+
+* Du brauchst **keine Cluster-Infrastruktur verwalten** (Fargate = serverless).
+* **Automatisches Provisioning** der Ressourcen.
+* Du zahlst nur für das, was du nutzt (CPU/RAM).
+* **Einfaches Deployment** via AWS CLI, CDK oder Console.
+* Ideal für kleine oder mittlere Workloads mit stabiler Last.
+
+#### Beispielhafte Einsatzfälle:
+
+* Kleiner Webservice (z. B. Flask, Express, Spring Boot)
+* Cronjobs oder Hintergrundprozesse
+* API-Gateways oder Backend-Komponenten
+
+#### Wann **doch Kubernetes (EKS)** in Betracht kommt:
+
+* Du hast **bereits Know-how oder Tools auf K8s-Basis** (z. B. Helm, ArgoCD).
+* Bestimmte Komponenten nutzen (Ingress, Gateway API, SideCar) - helm
+* Operatoren nutzen (z.B. mariadb) 
+* Du planst **zukünftig Komplexität oder Wachstum** (z. B. mehrere Teams, Multi-Tenants, CI/CD-Integration).
+* Du willst dich **nicht an AWS binden**.
+
+---
+
+**Fazit:**
+
+> Für dein Szenario: **Amazon ECS mit Fargate** – einfach, günstig, minimaler Wartungsaufwand.
+
+
 ## Documentation for Settings right resources/limits
 
 ### Goldilocks
@@ -6952,9 +7714,9 @@ Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität
 
   * Skalieren von Anwendungen. 
   * bessere Hochverfügbarkeit out-of-the-box
-  * Heilen von Systemen (neu starten von Pods) 
+  * Heilen von Systemen (neu starten von Containern) 
   * Automatische Überwachung mit deklarativem Management) - ich beschreibe, was ich will
-  * Neue Versionen zu auszurollen (Canary Deployment, Blue/Green Deployment) 
+  * Neue Versionen auszurollen (Canary Deployment, Blue/Green Deployment) 
 
 ### Mögliche Nachteile 
 
@@ -6976,7 +7738,8 @@ Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität
 
 
 ### Schaubild 
-![image](https://github.com/jmetzger/training-kubernetes-einfuehrung/assets/1933318/80bf0da5-ab7a-4cc2-9ce4-d3c55b7d8b90)
+![image](https://github.com/user-attachments/assets/f4de7c54-33a8-46e5-916c-1119575b1aed)
+
 
 ### Komponenten / Grundbegriffe
 
@@ -7838,26 +8601,7 @@ kubectl apply -f .
 kubectl get all
 ```
 
-### Optional: Change Replicas 
-
-  * from 8 to 12
-
-```
-nano nginx-deployment.yml 
-```
-
-```
-## Ändern der replicas  von 8 auf 12 
-## danach
-kubectl get all 
-kubectl apply -f .
-kubectl get all 
-kubectl get pods -w
-
-```
-
-
-### New Version 
+### Optional: Change image - Version 
 
 ```
 nano nginx-deployment.yml 
@@ -8323,7 +9067,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: "<euername>.app1.t3isp.de"
+  - host: "<euername>.lab1.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -9639,7 +10383,8 @@ kubectl delete ns policy-demo<tln>
 
 ```
 Ein Paket für alle Komponenten
-Einfaches Installieren, Updaten und deinstallieren 
+Einfaches Installieren, Updaten und deinstallieren
+Konfigurations-Values-Files übergeben zum Konfigurieren
 Feststehende Struktur 
 ```
 
@@ -9652,11 +10397,17 @@ Feststehende Struktur
 
 ### Komponenten 
 
-```
-Chart - beeinhaltet Beschreibung und Komponenten 
-tar.gz - Format 
-oder Verzeichnis 
+#### Chart
 
+  * beeinhaltet Beschreibung und Komponenten 
+
+#### Chart-Formate 
+
+  * url
+  * .tgz (abkürzung tar.gz) - Format 
+  * oder Verzeichnis 
+
+```
 Wenn wir ein Chart ausführen wird eine Release erstellen 
 (parallel: image -> container, analog: chart -> release)
 ```
@@ -9683,8 +10434,8 @@ kubectl cluster-info
 
 ### Prerequisites 
 
-  * kubectl needs to be installed and configured to access cluster
-  * Good: helm works as unprivileged user as well - Good for our setup 
+  * helm needs a config-file (kubeconfig) to know how to connect and credentials in there 
+  * Good: helm (as well as kubectl) works as unprivileged user as well - Good for our setup 
   * install helm on ubuntu (client) as root: snap install --classic helm 
     * this installs helm3
   * Please only use: helm3. No server-side components needed (in cluster) 
