@@ -39,7 +39,7 @@ spec:
 
 ```
 nano 02-sts.yml
-``
+```
 
 ```
 # vi 02-sts.yml 
