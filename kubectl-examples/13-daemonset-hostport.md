@@ -13,6 +13,7 @@ cd
 mkdir -p manifests
 cd manifests
 mkdir host
+cd host
 ```
 
 ```
