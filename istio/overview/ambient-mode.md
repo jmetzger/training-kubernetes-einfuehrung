@@ -9,7 +9,7 @@
 
   ![image](https://github.com/user-attachments/assets/755931d7-5bdd-43c9-8f93-28e8ee0b2bf3)
 
-## Full fledged: Layer 4 (ztunnel) per Node & Layer 7 per Namespace (
+## Full fledged: Layer 4 (ztunnel) per Node & Layer 7 per Namespace
 
   * One waypoint - proxy is rolled out per Namespace, which connects to the ztunnel agents 
 
