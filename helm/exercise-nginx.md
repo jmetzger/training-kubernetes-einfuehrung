@@ -11,6 +11,7 @@ kubectl get pods
 
 ```
 helm list
+helm list -A (über alle namespaces hinweg)
 helm get all
 helm get values
 helm get manifest
