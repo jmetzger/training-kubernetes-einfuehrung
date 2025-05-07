@@ -48,7 +48,7 @@ kubectl apply -f .
 kubectl get secret
 
 kubectl get sealedsecrets 
-kubectl get secret -o yaml
+kubectl get secret mariadb-secret -o yaml
 ```
 
 ```
