@@ -60,6 +60,7 @@
   1. Kubernetes API-Objekte (Teil 2)
      *  [Jobs](kubectl-examples/12-job.md)
      *  [Cronjobs](kubectl-examples/11-cronjob.md)
+     *  [DaemonSet - einfaches Beispiel](kubectl-examples/14-daemonset-simple.md)
      *  [Daemonset with HostPort](kubectl-examples/13-daemonset-hostport.md)
      *  [Daemonset with HostNetwork](/kubectl-examples/14-daemonset-hostnetwork.md)
 
