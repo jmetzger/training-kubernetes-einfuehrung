@@ -64,7 +64,7 @@ spec:
         image: registry.k8s.io/nginx-slim:0.8
         ports:
         - containerPort: 80
-          name: web
+          name: web-nginx
 ```
 
 ```
