@@ -77,11 +77,19 @@ kubectl apply -f .
 
 ```
 kubectl run --rm -it podtester --image=busybox
+```
 
+```
+# In der shell
 # web ist der name des statefulsets 
 ping web-0.nginx 
 ping web-1.nginx 
+exit
+```
 
+```
+# web-0 / web-1 
+kubectl get pods 
 kubectl delete sts web 
 kubectl apply -f .
 kubectl run --rm -it podtest --image=busybox 
