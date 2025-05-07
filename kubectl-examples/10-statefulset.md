@@ -38,6 +38,10 @@ spec:
 ```
 
 ```
+nano 02-sts.yml
+``
+
+```
 # vi 02-sts.yml 
 apiVersion: apps/v1
 kind: StatefulSet
