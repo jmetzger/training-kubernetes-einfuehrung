@@ -7,6 +7,7 @@ cd
 mkdir -p manifests
 cd manifests
 mkdir ds
+cd ds 
 ```
 
 ```
