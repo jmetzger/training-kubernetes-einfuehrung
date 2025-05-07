@@ -76,6 +76,7 @@
   1. Kubernetes Secrets und Encrypting von z.B. Credentials 
      * [Kubernetes secrets Typen](/kubernetes/secrets/secrets.md) 
      * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md)
+     * [Exercise Sealed Secret mariadb](/kubectl-examples/08-sealed-secret.md)
      * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
   1. Kubernetes Security
