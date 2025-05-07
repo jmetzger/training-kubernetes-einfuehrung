@@ -100,12 +100,11 @@ kubectl apply -f .
 kubectl get pods
 ```
 
+## Step 5: Testing
 
 ```
 kubectl exec -it nginx-nfs -- bash 
 ```
-
-## Step 5: Testing
 
 ```
 cd /mnt/nfs
