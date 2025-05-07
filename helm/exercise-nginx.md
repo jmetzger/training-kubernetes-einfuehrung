@@ -43,7 +43,8 @@ service:
 
 ```
 kubectl get pods 
-helm upgrade --install my-nginx bitnami/nginx --version 17.3.3 -f values.yaml 
+helm upgrade --install my-nginx bitnami/nginx --version 17.3.3 -f values.yaml
+helm get values my-nginx 
 kubectl get pods
 kubectl get svc 
 ```
