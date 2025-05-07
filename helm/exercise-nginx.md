@@ -12,9 +12,13 @@ kubectl get pods
 ```
 helm list
 helm list -A (über alle namespaces hinweg)
-helm get all
-helm get values
-helm get manifest
+helm get all my-nginx 
+helm get values my-nginx 
+helm get manifest my-nginx
+# chart von online
+helm show values bitnami/nginx # latest version 
+helm show values bitnami/nginx --version 17.3.3
+
 ```
 
 
