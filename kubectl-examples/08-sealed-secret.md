@@ -7,6 +7,11 @@
 ##  Based on mariadb secrets exercise 
 
 ```
+cd
+cd manifests/secrettest
+```
+
+```
 # Cleanup
 kubectl delete -f 02-deploy.yml
 kubectl delete -f 01-secrets.yml
