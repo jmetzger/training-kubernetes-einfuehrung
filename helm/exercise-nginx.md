@@ -7,9 +7,15 @@
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm upgrade --install my-nginx bitnami/nginx --version 17.3.3
 kubectl get pods 
-
+```
 
 ```
+helm list
+helm get all
+helm get values
+helm get manifest
+```
+
 
 ## Part 2: Set Service to NodePort 
 
