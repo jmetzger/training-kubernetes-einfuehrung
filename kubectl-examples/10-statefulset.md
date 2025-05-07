@@ -11,6 +11,9 @@ cd sts
 
 ```
 
+```
+nano 01-svc.yml
+```
 
 ```
 # vi 01-svc.yml 
