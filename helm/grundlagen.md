@@ -13,7 +13,7 @@
 ### Chart-Formate 
 
   * url
-  * tar.gz - Format 
+  * .tgz (abkürzung tar.gz) - Format 
   * oder Verzeichnis 
 
 ```
