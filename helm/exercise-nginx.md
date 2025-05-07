@@ -25,6 +25,7 @@ helm show values bitnami/nginx --version 17.3.3
 ## Part 2: Set Service to NodePort 
 
 ```
+cd 
 mkdir -p helm-values
 cd helm-values
 mkdir nginx
