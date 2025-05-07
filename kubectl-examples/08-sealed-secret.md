@@ -1,5 +1,9 @@
 # Exercise Sealed Secret with mariadb secrets  
 
+## Prerequisites: MariaDB secrets done 
+
+[MariaDB Secret](kubectl-examples/07-mariadb-secret.md)
+
 ##  Based on mariadb secrets exercise 
 
 ```
