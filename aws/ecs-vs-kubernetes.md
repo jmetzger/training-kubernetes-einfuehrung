@@ -20,7 +20,9 @@ Perfekt – bei **wenigen Containern ohne Skalierungsbedarf** und wenn du **auss
 ### Wann **doch Kubernetes (EKS)** in Betracht kommt:
 
 * Du hast **bereits Know-how oder Tools auf K8s-Basis** (z. B. Helm, ArgoCD).
-* Du planst **zukünftig Komplexität oder Wachstum** (z. B. mehrere Teams, Tenants, CI/CD-Integration).
+* Bestimmte Komponenten nutzen (Ingress, Gateway API, SideCar) - helm
+* Operatoren nutzen (z.B. mariadb) 
+* Du planst **zukünftig Komplexität oder Wachstum** (z. B. mehrere Teams, Multi-Tenants, CI/CD-Integration).
 * Du willst dich **nicht an AWS binden**.
 
 ---
@@ -29,4 +31,3 @@ Perfekt – bei **wenigen Containern ohne Skalierungsbedarf** und wenn du **auss
 
 > Für dein Szenario: **Amazon ECS mit Fargate** – einfach, günstig, minimaler Wartungsaufwand.
 
-Möchtest du ein Beispiel-Setup oder Terraform/CDK-Vorlage für einen ECS-Fargate-Dienst?
