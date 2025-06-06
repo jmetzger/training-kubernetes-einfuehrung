@@ -14,7 +14,8 @@ sudo su -
 
 curl -sfL https://get.k3s.io | sh -
 
-systemctl stop k3s 
+systemctl stop k3s
+# k3s automatischer start beim booten ausschalten
 systemctl disable k3s 
 systemctl start k3s
 
