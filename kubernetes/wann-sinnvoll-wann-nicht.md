@@ -25,9 +25,10 @@
     * Über adequate Backup-Lösungen nachzudenken (Moving Target, Kubernetes Aware Backups) 
     * Bereitsstellung von Monitoring Daten Log-Aggregierungslösung 
 
-## Klassische Anwendungsfällen 
+## Klassische Anwendungsfällen (wo Kubernetes von Vorteil) 
 
   * Webbasierte Anwendungen (z.B. auch API's bzw. Web)
+  * Ausser Problematik: Session StickyNess 
  
 
 
