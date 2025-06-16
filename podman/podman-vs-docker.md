@@ -54,12 +54,3 @@ Fast wie bei Docker.
 
 ---
 
-Wenn du magst, kann ich dir noch:
-
-* **ein kleines Podman-Lab-Skript**
-* **ein Vergleichsszenario Podman vs Docker**
-* **eine Rootless-Setup-Anleitung**
-* **oder sogar ein Kubernetes-nahes Podman-Pod-Beispiel**
-
-zusammenstellen.
-👉 *Was davon interessiert dich?*
