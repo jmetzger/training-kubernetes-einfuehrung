@@ -21,7 +21,7 @@
 
 ##### etcd
 
-  * Verwalten der Konfiguration des Clusters (key/value - pairs) 
+  * Verwalten der Konfiguration und des Status des Clusters (key/value - pairs) 
   
 ##### kube-controller-manager  
   
