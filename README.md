@@ -9,6 +9,9 @@
      * [Container vs. Virtuelle Maschine](container-vs-vm.md)
      * [Was ist ein Dockerfile](dockerfile.md) 
      * [Dockerfile - image kleinhalten](dockerfile-image-small.md)
+    
+  1. Podman
+     * [Podman vs. Docker](podman/podman-vs-docker.md)
 
   1. Kubernetes - Überblick
      * [Warum Kubernetes, was macht Kubernetes](warum-kubernetes.md)
@@ -20,9 +23,6 @@
      * [Welches System ? (minikube, micro8ks etc.)](welches-system.md)
      * [Installer für grosse Cluster](/kubernetes/grosse-installation-installer.md)
      * [Installation - Welche Komponenten from scratch](/kubernetes/installation-components-overview.md)
-
-  1. Kubernetes Installation
-     * [k3s installation](/installation/k3s.md)
 
   1. kubectl 
      * [kubectl einrichten mit namespace](/kubectl/kubectl-einrichten.md)
@@ -78,6 +78,12 @@
      * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md)
      * [Exercise Sealed Secret mariadb](/kubectl-examples/08-sealed-secret.md)
      * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+
+## Backlog 
+
+
+  1. Kubernetes Installation
+     * [k3s installation](/installation/k3s.md)
 
   1. Kubernetes Security
      * [Best practices security pods](security/best-practice-pods.md)
