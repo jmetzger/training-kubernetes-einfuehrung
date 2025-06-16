@@ -6,12 +6,12 @@
 
 ## Komponenten / Grundbegriffe
 
-### Master (Control Plane)
+### Control Plane (Master)
 
 #### Aufgaben 
 
-  * Der Master koordiniert den Cluster
-  * Der Master koordiniert alle Aktivitäten in Ihrem Cluster
+  * Der Control Plane (Master) koordiniert den Cluster
+  * Der Control Plane (Master) koordiniert alle Aktivitäten in Ihrem Cluster
     * Planen von Anwendungen
     * Verwalten des gewünschten Status der Anwendungen
     * Skalieren von Anwendungen
