@@ -120,6 +120,23 @@ spec:
        
 ```        
 
+## Example III 
+
+```
+nano service.yml
+# in Zeile type: 
+# NodePort ersetzt durch LoadBalancer  
+
+kubectl apply -f .
+kubectl get svc svc-nginx
+kubectl get svc svc-nginx -w 
+# spätestens nach 5 Minuten bekommen wir eine externe ip
+# z.B. 41.32.44.45
+
+curl http://41.32.44.45 
+```
+
+
 ## Example getting a specific ip from loadbalancer (if supported) 
 
 ```
