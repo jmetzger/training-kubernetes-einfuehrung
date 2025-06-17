@@ -144,7 +144,7 @@ kubectl apply -f ingress.yml
 
 # 1. Which resources does our version of kubectl support 
 # Can we find Ingress as "Kind" here.
-kubectl api-ressources 
+kubectl api-resources 
 
 # 2. Let's see, how the configuration works 
 kubectl explain --api-version=networking.k8s.io/v1 ingress.spec.rules.http.paths.backend.service
