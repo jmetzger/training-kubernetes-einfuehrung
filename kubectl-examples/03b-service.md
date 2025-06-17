@@ -120,7 +120,7 @@ spec:
        
 ```        
 
-## Example III 
+## Example III: Service mit LoadBalancer (ExternalIP)
 
 ```
 nano service.yml
