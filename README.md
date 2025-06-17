@@ -82,7 +82,6 @@
   1. Weiter lernen 
      * [Lernumgebung](https://killercoda.com/)
      * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
-     * [Udemy Online Training](https://www.udemy.com/course/certified-kubernetes-security-specialist/)
      * [Kubernetes Videos mit Hands On](https://www.youtube.com/watch?v=16fgzklcF7Y)
     
   1. Kubernetes Installation
