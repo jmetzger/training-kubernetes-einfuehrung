@@ -79,11 +79,16 @@
      * [Exercise Sealed Secret mariadb](/kubectl-examples/08-sealed-secret.md)
      * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
-## Backlog 
-
-
+  1. Weiter lernen 
+     * [Lernumgebung](https://killercoda.com/)
+     * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
+     * [Udemy Online Training](https://www.udemy.com/course/certified-kubernetes-security-specialist/)
+     * [Kubernetes Videos mit Hands On](https://www.youtube.com/watch?v=16fgzklcF7Y)
+    
   1. Kubernetes Installation
      * [k3s installation](/installation/k3s.md)
+
+## Backlog 
 
   1. Kubernetes Security
      * [Best practices security pods](security/best-practice-pods.md)
@@ -185,12 +190,6 @@
      * [Kubernetes Administration / Upgrades](kubernetes-cluster-update-path.md)
      * [Terminierung von Container vermeiden](avoid-termination-container.md)
      * [Praktische Umsetzung RBAC anhand eines Beispiels (Ops)](/kubernetes/rbac-create-user-multi.md)
-
-  1. Weiter lernen 
-     * [Lernumgebung](https://killercoda.com/)
-     * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
-     * [Udemy Online Training](https://www.udemy.com/course/certified-kubernetes-security-specialist/)
-     * [Kubernetes Videos mit Hands On](https://www.youtube.com/watch?v=16fgzklcF7Y)
 
   1. Documentation (Use Cases) 
      * [Case Studies Kubernetes](https://kubernetes.io/case-studies/)
