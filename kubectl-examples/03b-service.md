@@ -129,6 +129,7 @@ nano service.yml
 
 kubectl apply -f .
 kubectl get svc svc-nginx
+kubectl describe svc svc-nginx 
 kubectl get svc svc-nginx -w 
 # spätestens nach 5 Minuten bekommen wir eine externe ip
 # z.B. 41.32.44.45
