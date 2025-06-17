@@ -155,7 +155,7 @@ kubectl explain --api-version=networking.k8s.io/v1 ingress.spec.rules.http.paths
 ## Solution
 
 ```
-nano ingress.yaml
+nano ingress.yml
 ```
 
 ```
