@@ -191,5 +191,6 @@ spec:
 ```
 kubectl apply -f .
 kubectl get ingress example-ingress
+# mit describe herausfinden, ob er die services gefundet 
 kubectl describe ingress example-ingress
 ```
