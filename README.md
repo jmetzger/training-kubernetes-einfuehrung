@@ -48,6 +48,7 @@
      * [Documentation for default ingress nginx](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
      * [Beispiel Ingress](/kubectl-examples/04-ingress-nginx.md)
      * [Beispiel mit Hostnamen](/kubectl-examples/04-ingress-nginx-with-hostnames.md)
+     * [Beispiel Deployment mit Ingress und Hostnamen](kubectl-examples/04-ingress-nginx-with-hostnames-deployment.md)
      * [Achtung: Ingress mit Helm - annotations](/ingress-mit-helm-class-achtung.md)
      * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
      * [ConfigMap Example](/kubectl-examples/06-configmap.md)
