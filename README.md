@@ -119,6 +119,7 @@
      * [Schritt 3: Remote Verbindung einrichten](microk8s/cluster.md)
     
   1. Installation mit kubeadm
+     * [Schritt für Schritt mit kubeadm](kubeadm/installation-cni-calico.md)
      
 
 ## Backlog 
