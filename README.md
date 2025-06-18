@@ -87,6 +87,9 @@
      * [Lernumgebung](https://killercoda.com/)
      * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
      * [Kubernetes Videos mit Hands On](https://www.youtube.com/watch?v=16fgzklcF7Y)
+
+  1. Kubernetes Monitoring 
+     * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
     
   1. Kubernetes Installation
      * [k3s installation](/installation/k3s.md)
@@ -115,7 +118,6 @@
   1. Metrics-Server / Größe Cluster 
      * [Metrics-Server mit helm installieren](metrics-server-helm.md)
      * [Speichernutzung und CPU berechnen für Anwendungen](https://learnk8s.io/kubernetes-node-size)
-
 
   1. Kubernetes Storage (CSI) 
      * [Überblick Persistant Volumes (CSI)](kubernetes-csi/overview.md)
@@ -179,7 +181,6 @@
      * [Taints / Toleratioins](kubernetes/taints-tolerations.md)
      
   1. Kubernetes Monitoring 
-     * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
      * [Prometheus / Grafana Stack installieren](prometheus-grafana/install-with-helm.md)
      * [Prometheus / blackbox exporter](prometheus-grafana/z_blackbox-exporter.md)
      * [Kubernetes Metrics Server verwenden](kubernetes-monitoring/metrics-server-installieren-und-verwenden.md)
