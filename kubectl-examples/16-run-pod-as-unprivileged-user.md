@@ -33,3 +33,12 @@ spec:
 kubectl apply -f .
 kubectl get pods
 ```
+
+
+## Schritt 2: Debuggen 
+
+```
+# CrashLoopBackoff 
+kubectl get pods nginx-unprivileged 
+kubectl describe pods nginx-unprivileged
+```
