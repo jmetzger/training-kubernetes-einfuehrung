@@ -112,6 +112,14 @@
   1. Metrics-Server / Größe Cluster 
      * [Metrics-Server mit helm installieren](metrics-server-helm.md)
      * [Speichernutzung und CPU berechnen für Anwendungen](https://learnk8s.io/kubernetes-node-size)
+    
+  1. Installation mit microk8s
+     * [Schritt 1: auf 3 Maschinen mit Ubuntu 24.04LTS](microk8s/installation-ubuntu-snap.md)
+     * [Schritt 2: cluster - node2 + node3 einbinden - master ist node 1](microk8s/cluster.md)
+     * [Schritt 3: Remote Verbindung einrichten](microk8s/cluster.md)
+    
+  1. Installation mit kubeadm
+     
 
 ## Backlog 
 
