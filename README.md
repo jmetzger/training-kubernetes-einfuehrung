@@ -91,6 +91,12 @@
   1. Kubernetes Monitoring 
      * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
      * [Prometheus / Grafana Stack installieren](prometheus-grafana/install-with-helm.md)
+
+  1. Kubernetes Storage (CSI) 
+     * [Überblick Persistant Volumes (CSI)](kubernetes-csi/overview.md)
+     * [Liste der Treiber mit Features (CSI)](https://kubernetes-csi.github.io/docs/drivers.html)
+     * [Übung Persistant Storage](kubernetes-csi/nfs-exercise.md)
+     * [Beispiel mariadb](kubernetes-csi/example-mariadb.md)
     
   1. Kubernetes Installation
      * [k3s installation](/installation/k3s.md)
