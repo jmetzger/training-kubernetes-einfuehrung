@@ -68,6 +68,9 @@
      * [Befehle in pod ausführen - Übung](kubectl-examples/15-exec-example.md)
      * [Welche Pods mit Namen gehören zu einem Service](tipps-tricks/welche-pods-mit-namen-gehoeren-zu-einem-service.md)
 
+  1. Kubernetes Debugging
+     * [Probleme über Logs identifiziert - z.B. non-root image](kubectl-examples/16-run-pod-as-unprivileged-user.md)
+   
   1. Kubernetes Ingress
      * [Ingress HA-Proxy Sticky Session](ingress/ha-proxy/load-balancing-sticky-session.md)
      * [Nginx Ingress Session Stickyness](ingress/nginx/session-stickyness.md)
