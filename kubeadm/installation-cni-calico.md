@@ -2,9 +2,10 @@
 
 ## Version 
 
-  * Ubuntu 20.04 LTS 
+  * Ubuntu 20.04 LTS
+  * 1 control plane und 3 worker nodes 
 
-## Done for you 
+## Done for you (for 4 Servers)
 
   * Servers are setup:
     * ssh-running
