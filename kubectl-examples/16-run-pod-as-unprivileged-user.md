@@ -42,3 +42,22 @@ kubectl get pods
 kubectl get pods nginx-unprivileged 
 kubectl describe pods nginx-unprivileged
 ```
+
+```
+# permission denied identifiziert 
+kubectl logs nginx-unprivileged
+```
+
+## Schritt 3: Lösung anderes image nehmen 
+
+```
+# in pod.yaml
+# Zeile image: nginx:1.25
+# in -> image: bitnami/nginx:1.25
+# ändern
+```
+
+```
+kubectl apply -f .
+kubectl get pods
+```
