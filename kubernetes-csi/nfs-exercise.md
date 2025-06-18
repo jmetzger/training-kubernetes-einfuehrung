@@ -73,8 +73,8 @@ nano 03-pod.yaml
 ```
 
 ```
-kind: Pod
 apiVersion: v1
+kind: Pod
 metadata:
   name: nginx-nfs
 spec:
