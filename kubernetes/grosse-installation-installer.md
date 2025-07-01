@@ -24,7 +24,9 @@
 ## OpenStack (Alternative: vmware) - OpenSource 
 
     * API für OpenStack (Nutzung dieser API über Terraform oder OpenTofu) - > Terraform -> Infrastructur as code. (.tf)  
-    * Schritt 1: virtuellen Maschinen ausrollen. 
+
+### Schritt 1: virtuellen Maschinen ausrollen. 
+
 
 ### Schritt 2: Kubernetes ausrollen 
 
@@ -32,6 +34,15 @@
     * kubeadmin 
 
 ## Proxmox 
+
+### Schritt 1: virtuellen Maschinen ausrollen. 
+
+
+### Schritt 2: Kubernetes ausrollen 
+
+    * Ansible (leichter bestimmte zu Konfigurieren) 
+    * kubeadmin 
+
 
     
 
