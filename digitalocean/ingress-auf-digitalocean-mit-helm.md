@@ -15,7 +15,7 @@
 
 ```
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm install nginx-ingress ingress-nginx/ingress-nginx --namespace ingress --create-namespace
+helm install nginx-ingress ingress-nginx/ingress-nginx --namespace ingress --create-namespace --version 4.12.3
 ```
 
 ```
