@@ -10,9 +10,6 @@
      * [Was ist ein Dockerfile](dockerfile.md) 
      * [Dockerfile - image kleinhalten](dockerfile-image-small.md)
     
-  1. Podman
-     * [Podman vs. Docker](podman/podman-vs-docker.md)
-
   1. Kubernetes - Überblick
      * [Warum Kubernetes, was macht Kubernetes](warum-kubernetes.md)
      * [Aufbau Allgemein](/kubernetes/architecture.md)
@@ -123,6 +120,9 @@
      
 
 ## Backlog 
+
+ 1. Podman
+     * [Podman vs. Docker](podman/podman-vs-docker.md)
 
   1. Kubernetes Security
      * [Best practices security pods](security/best-practice-pods.md)
