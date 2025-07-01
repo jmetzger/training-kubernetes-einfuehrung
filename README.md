@@ -29,6 +29,7 @@
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](/kubectl/spickzettel.md)
      * [kubectl example with run](/kubectl/run-with-example.md)
      * [Bauen einer Applikation mit Resource Objekten](bauen-einer-webanwendung.md)
+     * [Anatomie einer Webanwendungen](anatomie-einer-webanwendung.md)
      * [kubectl/manifest/pod](/kubectl-examples/01-pod-nginx.md)
      * ReplicaSets (Theorie) - (Devs/Ops)
      * [kubectl/manifest/replicaset](/kubectl-examples/01a-replicaset-nginx.md)
