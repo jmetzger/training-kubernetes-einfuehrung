@@ -6,7 +6,7 @@
 cd
 mkdir .kube
 cd .kube
-cp -a /tmp/config config
+cp /tmp/config config
 ls -la
 # Alternative: nano config befüllen 
 # das bekommt ihr aus Eurem Cluster Management Tool 
