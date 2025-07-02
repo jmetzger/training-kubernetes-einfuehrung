@@ -2,7 +2,7 @@
 
 ## Wo kann ich Helm-Charts suchen ? 
 
- * Im Telefonbuch von helm [https://artifacthub.io/](artifacthub.io)
+ * Im Telefonbuch von helm [https://artifacthub.io/](https://artifacthub.io)
 
 ## Komponenten 
 
