@@ -2,7 +2,8 @@
 
 ## Grafik 
 
-![](/images/helm_flowchart_300px.jpg)
+![image](https://github.com/user-attachments/assets/ee8d147e-a04b-46ef-b81d-d36cade484d3)
+
 
 ## Der Weg 
 
