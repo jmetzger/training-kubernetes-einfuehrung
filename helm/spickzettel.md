@@ -5,6 +5,8 @@
 ```
 # im eigenen Namespaces 
 helm list
+# in einem speziellen namespace
+helm -n ingress list
 # in allen Namespaces 
 helm list -A
 ```
