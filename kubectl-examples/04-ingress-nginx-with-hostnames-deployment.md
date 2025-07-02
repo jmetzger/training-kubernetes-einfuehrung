@@ -275,3 +275,18 @@ kubectl get ingress example-ingress
 # mit describe herausfinden, ob er die services gefundet 
 kubectl describe ingress example-ingress
 ```
+
+
+## Step 5: Testing 
+
+
+```
+# Im Browser auf:
+# hier euer Name 
+http://jochen.lab.t3isp.de/apple
+http://jochen.lab.t3isp.de/apple/
+http://jochen.lab.t3isp.de/apple/foo 
+http://jochen.lab.t3isp.de/banana
+# geht nicht 
+http://jochen.lab.t3isp.de/banana/nix
+```
