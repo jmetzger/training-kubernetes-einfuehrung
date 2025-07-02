@@ -181,7 +181,7 @@ nano ingress.yaml
 ```
 
 ```
-# auf apiVersion: extensions.k8s.io/v1beta1
+# auf apiVersion: extensions/v1beta1
 # wird -> networking.k8s.io/v1
 ```
 
