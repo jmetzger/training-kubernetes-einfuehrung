@@ -10,9 +10,6 @@
      * [Was ist ein Dockerfile](#was-ist-ein-dockerfile)
      * [Dockerfile - image kleinhalten](#dockerfile---image-kleinhalten)
     
-  1. Podman
-     * [Podman vs. Docker](#podman-vs-docker)
-
   1. Kubernetes - Überblick
      * [Warum Kubernetes, was macht Kubernetes](#warum-kubernetes-was-macht-kubernetes)
      * [Aufbau Allgemein](#aufbau-allgemein)
@@ -27,11 +24,13 @@
   1. kubectl 
      * [kubectl einrichten mit namespace](#kubectl-einrichten-mit-namespace)
      * [kubectl cheatsheet kubernetes](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+     * [kubectl mit verschiedenen Clustern arbeiten](#kubectl-mit-verschiedenen-clustern-arbeiten)
 
   1. Kubernetes Praxis API-Objekte 
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](#das-tool-kubectl-devsops---spickzettel)
      * [kubectl example with run](#kubectl-example-with-run)
      * [Bauen einer Applikation mit Resource Objekten](#bauen-einer-applikation-mit-resource-objekten)
+     * [Anatomie einer Webanwendungen](#anatomie-einer-webanwendungen)
      * [kubectl/manifest/pod](#kubectlmanifestpod)
      * ReplicaSets (Theorie) - (Devs/Ops)
      * [kubectl/manifest/replicaset](#kubectlmanifestreplicaset)
@@ -69,20 +68,16 @@
      * [Befehle in pod ausführen - Übung](#befehle-in-pod-ausführen---übung)
      * [Welche Pods mit Namen gehören zu einem Service](#welche-pods-mit-namen-gehören-zu-einem-service)
 
+  1. Helm (Kubernetes Paketmanager)
+     * [Helm Spickzettel](#helm-spickzettel)
+     * [Helm Grundlagen](#helm-grundlagen)
+     * [Helm Warum ?](#helm-warum-)
+     * [Helm Example](#helm-example)
+     * [Helm Exercise with nginx](#helm-exercise-with-nginx)
+
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](#probleme-über-logs-identifiziert---zb-non-root-image)
    
-  1. Kubernetes Ingress
-     * [Ingress HA-Proxy Sticky Session](#ingress-ha-proxy-sticky-session)
-     * [Nginx Ingress Session Stickyness](#nginx-ingress-session-stickyness)
-     * [https mit ingressController und Letsencrypt](#https-mit-ingresscontroller-und-letsencrypt)
-    
-  1. Kubernetes Secrets und Encrypting von z.B. Credentials 
-     * [Kubernetes secrets Typen](#kubernetes-secrets-typen)
-     * [Sealed Secrets - bitnami](#sealed-secrets---bitnami)
-     * [Exercise Sealed Secret mariadb](#exercise-sealed-secret-mariadb)
-     * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
-
   1. Weiter lernen 
      * [Lernumgebung](https://killercoda.com/)
      * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
@@ -112,8 +107,31 @@
   1. Metrics-Server / Größe Cluster 
      * [Metrics-Server mit helm installieren](#metrics-server-mit-helm-installieren)
      * [Speichernutzung und CPU berechnen für Anwendungen](https://learnk8s.io/kubernetes-node-size)
+    
+  1. Installation mit microk8s
+     * [Schritt 1: auf 3 Maschinen mit Ubuntu 24.04LTS](#schritt-1-auf-3-maschinen-mit-ubuntu-2404lts)
+     * [Schritt 2: cluster - node2 + node3 einbinden - master ist node 1](#schritt-2-cluster---node2-+-node3-einbinden---master-ist-node-1)
+     * [Schritt 3: Remote Verbindung einrichten](#schritt-3-remote-verbindung-einrichten)
+    
+  1. Installation mit kubeadm
+     * [Schritt für Schritt mit kubeadm](#schritt-für-schritt-mit-kubeadm)
+     
 
 ## Backlog 
+
+  1. Podman
+     * [Podman vs. Docker](#podman-vs-docker)
+
+  1. Kubernetes Ingress
+     * [Ingress HA-Proxy Sticky Session](#ingress-ha-proxy-sticky-session)
+     * [Nginx Ingress Session Stickyness](#nginx-ingress-session-stickyness)
+     * [https mit ingressController und Letsencrypt](#https-mit-ingresscontroller-und-letsencrypt)
+    
+  1. Kubernetes Secrets und Encrypting von z.B. Credentials 
+     * [Kubernetes secrets Typen](#kubernetes-secrets-typen)
+     * [Sealed Secrets - bitnami](#sealed-secrets---bitnami)
+     * [Exercise Sealed Secret mariadb](#exercise-sealed-secret-mariadb)
+     * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
   1. Kubernetes Security
      * [Best practices security pods](#best-practices-security-pods)
@@ -132,14 +150,7 @@
      * [Liste der Treiber mit Features (CSI)](https://kubernetes-csi.github.io/docs/drivers.html)
      * [Übung Persistant Storage](#übung-persistant-storage)
      * [Beispiel mariadb](#beispiel-mariadb)
-
-  1. Helm (Kubernetes Paketmanager)
-     * [Helm Spickzettel](#helm-spickzettel)
-     * [Helm Grundlagen](#helm-grundlagen)
-     * [Helm Warum ?](#helm-warum-)
-     * [Helm Example](#helm-example)
-     * [Helm Exercise with nginx](#helm-exercise-with-nginx)
-
+  
   1. Helm (IDE - Support) 
      * [Kubernetes-Plugin Intellij](https://www.jetbrains.com/help/idea/kubernetes.html)
      * [Intellij - Helm Support Through Kubernetes Plugin](https://blog.jetbrains.com/idea/2018/10/intellij-idea-2018-3-helm-support/)
@@ -470,66 +481,6 @@ RUN apt-get update && \
  * https://codeburst.io/docker-from-scratch-2a84552470c8
 
 
-## Podman
-
-### Podman vs. Docker
-
----
-
-### Was ist Podman?
-
-**Podman** (kurz für: *Pod Manager*) ist eine Open-Source-Container-Engine, die als Alternative zu Docker entwickelt wurde.
-
----
-
-### Warum Podman?
-
-Hier die wichtigsten Gründe, warum Podman gerne verwendet wird:
-
-| Vorteil                                         | Erklärung                                                                                                                                                                 |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Daemonless**                                  | Podman benötigt keinen zentralen Hintergrunddienst (Daemon), sondern läuft als normaler Benutzerprozess. Dadurch weniger Angriffsfläche und flexibler.                    |
-| **Rootless Support**                            | Container können ohne Root-Rechte gestartet werden, was Sicherheitsvorteile bringt.                                                                                       |
-| **Docker-kompatibel**                           | Podman kann Dockerfiles bauen und verwendet dieselben Container Images. Auch `podman` CLI ist zu `docker` CLI fast identisch (`alias docker=podman` geht oft problemlos). |
-| **Pods-Unterstützung**                          | Inspiriert von Kubernetes: Mehrere Container in einem gemeinsamen Netzwerk-Namespace (Pod). Praktisch für lokale Kubernetes-ähnliche Setups.                              |
-| **Bessere Integration für Systemd**             | Einfaches Erstellen von Systemd-Units aus Containern (`podman generate systemd`). Ideal für Serverdienste ohne externes Orchestration-Tool.                               |
-| **Kein Root-Daemon**                            | Keine ständigen Root-Rechte nötig, weniger Sicherheitsrisiko durch kompromittierte Daemons.                                                                               |
-| **Red Hat / Fedora / CentOS bevorzugen Podman** | Dort wird Podman inzwischen oft als Standardlösung ausgeliefert.                                                                                                          |
-
----
-
-### Typische Einsatzbereiche
-
-* Entwicklung: wie Docker
-* Serverbetrieb: Container als Systemdienste
-* Kubernetes-nahes Testing (Pods)
-* Rootless Deployment auf Servern ohne Container-Daemon
-
----
-
-### Beispiel: Container starten
-
-```bash
-podman run -d -p 8080:80 nginx
-```
-
-Fast wie bei Docker.
-
----
-
-### Podman vs Docker kurz gesagt:
-
-|                     | Docker     | Podman            |
-| ------------------- | ---------- | ----------------- |
-| Daemon              | ja         | nein              |
-| Rootless            | begrenzt   | ja                |
-| Kubernetes-nah      | weniger    | stärker           |
-| Systemd-Integration | wenig      | stark             |
-| Kompatibilität      | verbreitet | Docker-kompatibel |
-
----
-
-
 ## Kubernetes - Überblick
 
 ### Warum Kubernetes, was macht Kubernetes
@@ -664,7 +615,7 @@ Er stellt sicher, dass Container in einem Pod ausgeführt werden.
   * Skalieren von Anwendungen. 
   * bessere Hochverfügbarkeit out-of-the-box
   * Heilen von Systemen (neu starten von Containern) 
-  * Automatische Überwachung mit deklarativem Management) - ich beschreibe, was ich will
+  * Automatische Überwachung (mit deklarativem Management) - ich beschreibe, was ich will
   * Neue Versionen auszurollen (Canary Deployment, Blue/Green Deployment) 
 
 ### Mögliche Nachteile 
@@ -809,7 +760,9 @@ it is not suitable for production.
 ### OpenStack (Alternative: vmware) - OpenSource 
 
     * API für OpenStack (Nutzung dieser API über Terraform oder OpenTofu) - > Terraform -> Infrastructur as code. (.tf)  
-    * Schritt 1: virtuellen Maschinen ausrollen. 
+
+#### Schritt 1: virtuellen Maschinen ausrollen. 
+
 
 #### Schritt 2: Kubernetes ausrollen 
 
@@ -817,6 +770,15 @@ it is not suitable for production.
     * kubeadmin 
 
 ### Proxmox 
+
+#### Schritt 1: virtuellen Maschinen ausrollen. 
+
+
+#### Schritt 2: Kubernetes ausrollen 
+
+    * Ansible (leichter bestimmte zu Konfigurieren) 
+    * kubeadmin 
+
 
     
 
@@ -1049,7 +1011,7 @@ runcmd:
 cd
 mkdir .kube
 cd .kube
-cp -a /tmp/config config
+cp /tmp/config config
 ls -la
 ## Alternative: nano config befüllen 
 ## das bekommt ihr aus Eurem Cluster Management Tool 
@@ -1071,6 +1033,21 @@ kubectl get pods
 ### kubectl cheatsheet kubernetes
 
   * https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
+### kubectl mit verschiedenen Clustern arbeiten
+
+
+```
+### Zwei config in KUBECONFIG env variable 
+export KUBECONFIG=~/.kube/config:~/.kube/config.single
+kubectl config view 
+cp config config.bkup 
+kbuectl config view --flatten > config.yaml 
+kubectl config get-contexts 
+kubectl config use-context do-fra1-single 
+kubectl get nodes 
+kubectl config use-context do-fra-bka-cluster 
+```
 
 ## Kubernetes Praxis API-Objekte 
 
@@ -1257,6 +1234,11 @@ kubectl describe pods testpod
 
 
 ![image](https://github.com/jmetzger/training-kubernetes-einfuehrung/assets/1933318/69da28e4-eb8e-402c-99f6-89ccb231f386)
+
+### Anatomie einer Webanwendungen
+
+
+![image](https://github.com/user-attachments/assets/0a0c519e-fad3-4aac-b945-2e0a7fc2999c)
 
 ### kubectl/manifest/pod
 
@@ -1644,7 +1626,7 @@ spec:
 
 ```
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm install nginx-ingress ingress-nginx/ingress-nginx --namespace ingress --create-namespace
+helm upgrade --install nginx-ingress ingress-nginx/ingress-nginx --namespace ingress --create-namespace --version 4.12.3
 ```
 
 ```
@@ -2235,40 +2217,95 @@ kubectl apply -f ingress.yml
 
   * https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
 
-### Find the problem 
+### Step 4: Find the problem 
+
+#### Fix 4.1: Fehler: no matches kind "Ingress" in version "extensions/v1beta1"
 
 ```
-## Hints 
+## Gibt es diese Landkarte überhaupt
+kubectl api-versions
+## auf welcher Landkarte/Gruppe befindet sich Ingress jetzt 
+kubectl explain ingress 
+## -> jetzt auf networing.k8s.io/v1 
 
-## 1. Which resources does our version of kubectl support 
-## Can we find Ingress as "Kind" here.
-kubectl api-resources 
-
-## 2. Let's see, how the configuration works 
-kubectl explain --api-version=networking.k8s.io/v1 ingress.spec.rules.http.paths.backend.service
-
-## now we can adjust our config 
 ```
 
-### Solution
+```
+nano ingress.yaml
+```
+
+```
+## auf apiVersion: extensions/v1beta1
+## wird -> networking.k8s.io/v1
+```
+
+```
+kubectl apply -f .
+```
+
+### Fix 4.2: Bad Request unkown field ServiceName / ServicePort 
+
+
+```
+## was geht für die Property backend 
+kubectl explain ingress.spec.rules.http.paths.backend
+## und was geht für service
+kubectl explain ingress.spec.rules.http.paths.backend.service
+```
 
 ```
 nano ingress.yml
 ```
 
 ```
-## in kubernetes 1.22.2 - ingress.yml needs to be modified like so.
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: example-ingress
-  annotations:
-    ingress.kubernetes.io/rewrite-target: /
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: "app12.lab1.t3isp.de"
-    http:
+## Wir ersetzen 
+## serviceName: apple-service 
+## durch:
+## service: 
+##   name: apple-service 
+
+## das gleiche für banana 
+```
+
+```
+kubectl apply -f . 
+```
+
+
+### Fix 4.3. BadRequest unknown field servicePort
+
+```
+## was geht für die Property backend 
+kubectl explain ingress.spec.rules.http.paths.backend
+## und was geht für service
+kubectl explain ingress.spec.rules.http.paths.backend.service.port
+## number 
+kubectl explain ingress.spec.rules.http.paths.backend.service.port
+```
+
+```
+## neue Variante sieht so aus
+backend:
+  service:
+    name: apple-service
+    port:
+      number: 80
+## das gleich für banana-service
+```
+
+```
+kubectl apply -f .
+```
+
+
+### Fix 4.4. pathType must be specificied 
+
+```
+## Was macht das ?
+kubectl explain ingress.spec.rules.http.paths.pathType
+```
+
+```
       paths:
         - path: /apple
           pathType: Prefix
@@ -2278,7 +2315,7 @@ spec:
               port:
                 number: 80
         - path: /banana
-          pathType: Prefix
+          pathType: Exact 
           backend:
             service:
               name: banana-service
@@ -2291,6 +2328,21 @@ kubectl apply -f .
 kubectl get ingress example-ingress
 ## mit describe herausfinden, ob er die services gefundet 
 kubectl describe ingress example-ingress
+```
+
+
+### Step 5: Testing 
+
+
+```
+## Im Browser auf:
+## hier euer Name 
+http://jochen.lab.t3isp.de/apple
+http://jochen.lab.t3isp.de/apple/
+http://jochen.lab.t3isp.de/apple/foo 
+http://jochen.lab.t3isp.de/banana
+## geht nicht 
+http://jochen.lab.t3isp.de/banana/nix
 ```
 
 ### Achtung: Ingress mit Helm - annotations
@@ -3082,6 +3134,321 @@ kubectl get svc svc-nginx -o wide
 kubectl get pods -l web=my-nginx
 ```
 
+## Helm (Kubernetes Paketmanager)
+
+### Helm Spickzettel
+
+
+### Alle installierten Releases anschauen 
+
+```
+## im eigenen Namespaces 
+helm list
+## in einem speziellen namespace
+helm -n ingress list
+## in allen Namespaces 
+helm list -A
+```
+
+### Installieren am besten mit upgraden 
+
+
+```
+## helm install release-name repo/chart --version 1.9.9. -f values.yaml
+## z.B.
+## Schritt 1: repo bekanntmachen 
+helm repo add bitnami https://charts.bitnami.com/bitnami
+## Schritt 2: Installieen bzw. Upgrade 
+helm upgrade --install my-nginx bitnami/nginx --version 19.1.1 -f values.yaml
+```
+
+### Helm Grundlagen
+
+
+### Wo kann ich Helm-Charts suchen ? 
+
+ * Im Telefonbuch von helm [https://artifacthub.io/](https://artifacthub.io)
+
+### Komponenten 
+
+#### Chart
+
+  * beeinhaltet Beschreibung und Komponenten 
+
+#### Chart - Bereitstellungsformen 
+
+  * url
+  * .tgz (abkürzung tar.gz) - Format 
+  * oder Verzeichnis 
+
+```
+Wenn wir ein Chart installieren, wird eine Release erstellen 
+(parallel: image -> container, analog: chart -> release)
+```
+
+### Installation 
+
+#### Was brauchen wir ? 
+
+  * helm  client muss installiert sein
+
+#### Und sonst so ? 
+
+```
+## Beispiel ubuntu 
+## snap install --classic helm
+
+## Cluster auf das ich zugreifen kann und im client -> helm und kubectl 
+## Voraussetzung auf dem Client-Rechner (helm ist nichts als anderes als ein Client-Programm) 
+Ein lauffähiges kubectl auf dem lokalen System (welches sich mit dem Cluster verbinden.
+-> saubere -> .kube/config 
+
+## Test
+kubectl cluster-info 
+
+```
+
+
+### Helm Warum ?
+
+
+```
+Ein Paket für alle Komponenten
+Einfaches Installieren, Updaten und deinstallieren
+Konfigurations-Values-Files übergeben zum Konfigurieren
+Feststehende Struktur 
+```
+
+### Helm Example
+
+
+### Prerequisites 
+
+  * helm needs a config-file (kubeconfig) to know how to connect and credentials in there 
+  * Good: helm (as well as kubectl) works as unprivileged user as well - Good for our setup 
+  * install helm on ubuntu (client) as root: snap install --classic helm 
+    * this installs helm3
+  * Please only use: helm3. No server-side components needed (in cluster) 
+    * Get away from examples using helm2 (hint: helm init) - uses tiller  
+
+### Simple Walkthrough (Example 0: Step 1)
+
+```
+## Repo hinzufpgen 
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+## gecachte Informationen aktualieren 
+helm repo update
+
+helm search repo bitnami 
+## helm install release-name bitnami/mysql
+```
+
+### Simple Walkthrough (Example 0: Step 2: for learning - pull)
+
+```
+helm pull bitnami/mysql
+tar xvfz mysql*
+
+```
+
+
+
+### Simple Walkthrough (Example 0: Step 3: install) 
+
+```
+helm install my-mysql bitnami/mysql
+## Chart runterziehen ohne installieren 
+## helm pull bitnami/mysql
+
+## Release anzeigen zu lassen
+helm list 
+
+## Status einer Release / Achtung, heisst nicht unbedingt nicht, dass pod läuft 
+helm status my-mysql 
+
+## weitere release installieren 
+## helm install neuer-release-name  bitnami/mysql 
+
+
+```
+
+### Under the hood 
+
+```
+## Helm speichert Informationen über die Releases in den Secrets
+kubectl get secrets | grep helm 
+
+
+```
+
+
+### Example 1: - To get know the structure 
+
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm search repo bitnami 
+helm repo update
+helm pull bitnami/mysql 
+tar xzvf mysql-9.0.0.tgz 
+
+## Show how the template would look like being sent to kube-api-server 
+helm template bitnami/mysql
+
+```
+
+
+
+### Example 2: We will setup mysql without persistent storage (not helpful in production ;o() 
+
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm search repo bitnami 
+helm repo update
+
+helm install my-mysql bitnami/mysql
+
+
+```
+
+
+### Example 2 - continue - fehlerbehebung 
+
+```
+helm uninstall my-mysql 
+## Install with persistentStorage disabled - Setting a specific value 
+helm install my-mysql --set primary.persistence.enabled=false bitnami/mysql
+
+## just as notice 
+## helm uninstall my-mysql 
+
+```
+
+### Example 2b: using a values file 
+
+```
+## mkdir helm-mysql
+## cd helm-mysql
+## vi values.yml 
+primary:
+  persistence:
+    enabled: false 
+```
+
+```
+helm uninstall my-mysql
+helm install my-mysql bitnami/mysql -f values.yml 
+```
+
+### Example 3: Install wordpress 
+
+### Example 3.1: Setting values with --set 
+
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm install my-wordpress \
+  --set wordpressUsername=admin \
+  --set wordpressPassword=password \
+  --set mariadb.auth.rootPassword=secretpassword \
+    bitnami/wordpress
+```
+
+### Example 3.2: Setting values with values.yml file 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir helm-wordpress
+cd helm-wordpress
+nano values.yml 
+```
+
+```
+## values.yml
+wordpressUsername: admin
+wordpressPassword: password
+mariadb:
+  auth:
+    rootPassword: secretpassword
+```
+
+```
+## helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm install my-wordpress -f values.yml bitnami/wordpress
+
+```
+
+
+### Referenced
+
+  * https://github.com/bitnami/charts/tree/master/bitnami/mysql/#installing-the-chart
+  * https://helm.sh/docs/intro/quickstart/
+
+### Helm Exercise with nginx
+
+
+### Part 1: Install old version 
+
+```
+## https://artifacthub.io/packages/helm/bitnami/nginx/17.3.3
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm upgrade --install my-nginx bitnami/nginx --version 17.3.3
+kubectl get pods 
+```
+
+```
+helm list
+helm list -A (über alle namespaces hinweg)
+helm get all my-nginx 
+helm get values my-nginx 
+helm get manifest my-nginx
+## chart von online
+helm show values bitnami/nginx # latest version 
+helm show values bitnami/nginx --version 17.3.3
+
+```
+
+
+### Part 2: Set Service to NodePort 
+
+```
+cd 
+mkdir -p helm-values
+cd helm-values
+mkdir nginx
+cd nginx
+```
+
+```
+nano values.yaml
+```
+
+```
+service:
+  type: NodePort
+```
+
+```
+kubectl get pods 
+helm upgrade --install my-nginx bitnami/nginx --version 17.3.3 -f values.yaml
+helm get values my-nginx 
+kubectl get pods
+kubectl get svc 
+```
+
+### Part 3: Upgrade auf die neueste Version mit NodePort 
+
+
+```
+helm upgrade --install my-nginx bitnami/nginx --version 21.0.3 -f values.yaml
+```
+
+### Part 4: Uninstall nginx 
+
+```
+helm uninstall my-nginx 
+```
+
 ## Kubernetes Debugging
 
 ### Probleme über Logs identifiziert - z.B. non-root image
@@ -3148,427 +3515,6 @@ kubectl logs nginx-unprivileged
 kubectl apply -f .
 kubectl get pods
 ```
-
-## Kubernetes Ingress
-
-### Ingress HA-Proxy Sticky Session
-
-
-### It easy to setup session stickyness 
-
-  * https://www.haproxy.com/documentation/kubernetes-ingress/ingress-tutorials/load-balancing/
-
-### Nginx Ingress Session Stickyness
-
-
-Yes, **session stickiness (affinity)** via **cookie-based stickiness** **does work** with the **open-source NGINX Ingress Controller**.
-
-Here’s what you need to know to get it working:
-
----
-
-#### ✅ How to Enable Sticky Sessions with Open Source NGINX Ingress
-
-The open-source NGINX Ingress Controller supports sticky sessions using **annotations** and **cookies**.
-
-##### Example Ingress YAML:
-
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: my-app-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/affinity: "cookie"
-    nginx.ingress.kubernetes.io/session-cookie-name: "route"
-    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: myapp.example.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: my-app-service
-                port:
-                  number: 80
-```
-
----
-
-#### 🧠 Explanation of the Annotations
-
-- `nginx.ingress.kubernetes.io/affinity: "cookie"`  
-  → Enables cookie-based affinity.
-
-- `nginx.ingress.kubernetes.io/session-cookie-name: "route"`  
-  → Names the session cookie (optional, default is `INGRESSCOOKIE`).
-
-- `nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"`  
-  → Defines how the cookie value is hashed. Can be `md5`, `sha1`, `index`, etc.
-
-You can also optionally define:
-```yaml
-nginx.ingress.kubernetes.io/session-cookie-path: "/"
-nginx.ingress.kubernetes.io/session-cookie-expires: "172800"   # in seconds
-nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
-```
-
----
-
-#### 🔍 Important Notes
-
-- This works **only with the open-source NGINX ingress controller**.  
-  (The annotations won’t apply to controllers like Traefik, HAProxy, or cloud-specific ones like AWS ALB.)
-
-- You must ensure that **all replicas of the app can handle the traffic** if they receive the same cookie.
-
-- This stickiness is **not persistent across restarts** unless the session cookie is preserved client-side (and the pod labels/service don't change unpredictably).
-
----
-
-#### 💡 Bonus Tip: Enable Ingress Logging (Optional but Useful)
-To troubleshoot or verify stickiness:
-```yaml
-controller:
-  config:
-    enable-access-log: "true"
-    log-format-upstream: "$request_id $remote_addr to $upstream_addr via $cookie_route"
-```
-
----
-
-Want a ready-made Helm values file or `kubectl` manifest for this?
-### 🧭 Flow Overview: Cookie-Based Stickiness in NGINX Ingress
-
-```
-[Client Browser] 
-     ⇅
-[NGINX Ingress Controller (Ingress Pod)]
-     ⇅
-[Kubernetes Service (ClusterIP)]
-     ⇅
-[App Pod A / B / C (Behind the Service)]
-```
-
----
-
-### 🔁 What Actually Happens (Step-by-Step)
-
-#### 1. **Client makes a request**
-- Let's say the client hits `myapp.example.com`.
-
-#### 2. **Ingress Controller (NGINX) receives the request**
-- NGINX is exposed via a LoadBalancer, NodePort, or IngressClass.
-- It parses the Ingress resource and applies sticky session rules based on annotations.
-
-#### 3. **First Request: No Cookie**
-- No session cookie is present, so:
-  - NGINX picks a backend pod **randomly** via the Kubernetes `Service`.
-  - It sets a sticky cookie on the response, e.g.:
-    ```
-    Set-Cookie: route=backend1; Path=/; HttpOnly
-    ```
-
-#### 4. **Subsequent Requests: Cookie Present**
-- On later requests, the client sends back:
-  ```
-  Cookie: route=backend1
-  ```
-- NGINX uses this cookie value to route to the **same backend pod**.
-
----
-
-### 🔎 So Where Does the Kubernetes `Service` Come In?
-
-The Kubernetes `Service` is used **internally by NGINX** to **proxy requests to pods**.
-
-#### NGINX configuration looks like this (simplified):
-
-```nginx
-upstream myapp-service {
-    sticky cookie route;
-    server 10.0.1.2:8080;  # Pod A
-    server 10.0.1.3:8080;  # Pod B
-}
-```
-
-- These IPs are discovered **via the Kubernetes Service** using Endpoints or EndpointSlices.
-- NGINX tracks these pods and their IPs automatically (via a sync controller loop).
-
----
-
-### ✅ Who Makes Routing Decisions?
-
-- 🔸 **NGINX Ingress Controller** makes the routing decision **based on the cookie value**, not Kubernetes.
-- 🔹 Kubernetes `Service` is just a **source of backend pod IPs**, not the router in this case.
-
----
-
-
-### https mit ingressController und Letsencrypt
-
-
-### Schritt 1: cert-manager installieren 
-
-```
-helm repo add jetstack https://charts.jetstack.io
-helm install cert-manager jetstack/cert-manager \
---namespace cert-manager --create-namespace \
---version v1.12.0 \
---set installCRDs=true
-```
-
-### Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
-
-```
-## cluster-issuer.yaml
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: letsencrypt-prod
-spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    email: your-email@example.com
-    privateKeySecretRef:
-      name: letsencrypt-prod
-    solvers:
-    - http01:
-        ingress:
-          class: nginx
-```
-
-### Schritt 3: Herausfinden, ob Zertifikate erstellt werden 
-
-```
-kubectl describe certificate example-tls
-kubectl get cert
-```
-
-
-### Schritt 4: Ingress-Objekt mit TLS erstellen 
-
-```
-## tls-ingress.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: example-ingress
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  ingressClassName: nginx
-  tls:
-  - hosts:
-    - test.devopslearnwith.us
-    secretName: example-tls
-  rules:
-  - host: test.devopslearnwith.us
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: example-service
-            port:
-              number: 80
-```
-
-```
-Schritt 5: Testen
-```
-
-
-### Ref: 
-
-  * https://hbayraktar.medium.com/installing-cert-manager-and-nginx-ingress-with-lets-encrypt-on-kubernetes-fe0dff4b1924
-
-## Kubernetes Secrets und Encrypting von z.B. Credentials 
-
-### Kubernetes secrets Typen
-
-
-### Welche Arten von Secrets gibt es ?
-
-| Built-in Type	| Usage |
-| ------------- | ----- |
-| Opaque	| arbitrary user-defined data |
-| kubernetes.io/service-account-token	 | ServiceAccount token |
-| kubernetes.io/dockercfg	| serialized ~/.dockercfg file |
-| kubernetes.io/dockerconfigjson | serialized ~/.docker/config.json file |
-| kubernetes.io/basic-auth | credentials for basic authentication |
-| kubernetes.io/ssh-auth | credentials for SSH authentication |
-| kubernetes.io/tls	| data for a TLS client or server |
-| bootstrap.kubernetes.io/token	| bootstrap token data |
-
-  * Ref: https://kubernetes.io/docs/concepts/configuration/secret/#secret-types
-
-  
-
-### Sealed Secrets - bitnami
-
-
-### 2 Komponenten 
-
- * Sealed Secrets besteht aus 2 Teilen 
-   * kubeseal, um z.B. die Passwörter zu verschlüsseln 
-   * Dem Operator (ein Controller), der das Entschlüsseln übernimmt  
-
-### Schritt 1: Walkthrough - Client Installation (als root)
-
-```
-## Binary für Linux runterladen, entpacken und installieren 
-## Achtung: Immer die neueste Version von den Releases nehmen, siehe unten:
-## Install as root 
-curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.29.0/kubeseal-0.29.0-linux-amd64.tar.gz"
-tar -xvzf kubeseal-0.29.0-linux-amd64.tar.gz kubeseal
-sudo install -m 755 kubeseal /usr/local/bin/kubeseal
-```
-
-### Schritt 2: Walkthrough - Server Installation mit kubectl client 
-
-```
-helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
-helm install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.17.2
-
-```
-
-### Schritt 3: Walkthrough - Verwendung (als normaler/unpriviligierter Nutzer)
-
-```
-kubeseal --fetch-cert 
-
-## Secret - config erstellen mit dry-run, wird nicht auf Server angewendet (nicht an Kube-Api-Server geschickt) 
-kubectl -n default create secret generic basic-auth --from-literal=user=admin --from-literal=password=change-me --dry-run=client -o yaml > basic-auth.yaml
-cat basic-auth.yaml 
-
-## öffentlichen Schlüssel zum Signieren holen 
-kubeseal --fetch-cert > pub-sealed-secrets.pem
-cat pub-sealed-secrets.pem 
-
-kubeseal --format=yaml --cert=pub-sealed-secrets.pem < basic-auth.yaml > basic-auth-sealed.yaml
-cat basic-auth-sealed.yaml 
-
-## Ausgangsfile von dry-run löschen 
-rm basic-auth.yaml
-
-## Ist das secret basic-auth vorher da ? 
-kubectl get secrets basic-auth 
-
-kubectl apply -f basic-auth-sealed.yaml
-
-## Kurz danach erstellt der Controller aus dem sealed secret das secret 
-kubectl get secret 
-kubectl get secret -o yaml
-
-```
-
-```
-## Ich kann dieses jetzt ganz normal in meinem pod verwenden.
-## Step 3: setup another pod to use it in addition 
-## vi 02-secret-app.yml 
-apiVersion: v1    
-kind: Pod    
-metadata:    
-  name: secret-app    
-spec:    
-  containers:    
-    - name: env-ref-demo    
-      image: nginx    
-      envFrom:                                                                                                                              
-      - secretRef:
-          name: basic-auth
-
-
-```
-
-### Hinweis: Ubuntu snaps 
-
-```
-Installation über snap funktioniert nur, wenn ich auf meinem Client
-ausschliesslich als root arbeite 
-```
-
-### Wie kann man sicherstellen, dass nach der automatischen Änderung des Secretes, der Pod bzw. Deployment neu gestartet wird ?
-
-  * https://github.com/stakater/Reloader
- 
-### Ref: 
-  
-  * Controller: https://github.com/bitnami-labs/sealed-secrets/releases/
-
-
-
-### Exercise Sealed Secret mariadb
-
-
-### Prerequisites: MariaDB secrets done 
-
-[MariaDB Secret](#secrets-example-mariadb)
-
-###  Based on mariadb secrets exercise 
-
-```
-cd
-cd manifests/secrettest
-```
-
-```
-## Cleanup
-kubectl delete -f 02-deploy.yml
-kubectl delete -f 01-secrets.yml
-## rm
-rm 01-secrets.yml 
-```
-
-
-```
-## öffentlichen Schlüssel zum Signieren holen 
-kubeseal --fetch-cert --controller-namespace=kube-system --controller-name=sealed-secrets > pub-sealed-secrets.pem
-cat pub-sealed-secrets.pem 
-```
-
-```
-## Secret - config erstellen mit dry-run, wird nicht auf Server angewendet (nicht an Kube-Api-Server geschickt) 
-kubectl create secret generic mariadb-secret --from-literal=MARIADB_ROOT_PASSWORD=11abc432 --dry-run=client -o yaml > 01-top-secret.yaml
-cat 01-top-secret.yaml 
-```
-
-```
-kubeseal --format=yaml --cert=pub-sealed-secrets.pem < 01-top-secret.yaml > 01-top-secret-sealed.yaml
-cat 01-top-secret-sealed.yaml 
-
-## Ausgangsfile von dry-run löschen 
-rm 01-top-secret.yaml
-
-## Ist das secret basic-auth vorher da ? 
-kubectl get secrets mariadb-secret  
-
-kubectl apply -f .
-
-## Kurz danach erstellt der Controller aus dem sealed secret das secret 
-kubectl get secret
-
-kubectl get sealedsecrets 
-kubectl get secret mariadb-secret -o yaml
-```
-
-```
-kubectl exec -it deploy/mariadb-deployment -- env | grep ROOT
-kubectl delete -f 01-top-secret-sealed.yaml
-kubectl get secrets
-kubectl get sealedsecrets 
-```
-
-### registry mit secret auth
-
-  * https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 
 ## Weiter lernen 
 
@@ -3808,7 +3754,7 @@ metadata:
   name: nfs-csi
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 10.135.0.67
+  server: 10.135.0.70
   share: /var/nfs
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -4253,6 +4199,812 @@ kubectl top pods
 
   * https://learnk8s.io/kubernetes-node-size
 
+## Installation mit microk8s
+
+### Schritt 1: auf 3 Maschinen mit Ubuntu 24.04LTS
+
+
+### Walkthrough
+
+```
+sudo snap install microk8s --classic
+## Important enable dns // otherwice not dns lookup is possible 
+microk8s enable dns 
+microk8s status
+
+## Execute kubectl commands like so 
+microk8s kubectl
+microk8s kubectl cluster-info
+
+## Make it easier with an alias 
+echo "alias kubectl='microk8s kubectl'" >> ~/.bashrc
+source ~/.bashrc
+kubectl
+
+```
+### Working with snaps 
+
+```
+snap info microk8s 
+
+```
+
+### Ref:
+
+  * https://microk8s.io/docs/setting-snap-channel
+
+### Schritt 2: cluster - node2 + node3 einbinden - master ist node 1
+
+
+### Walkthrough 
+
+```
+## auf master (jeweils für jedes node neu ausführen)
+microk8s add-node
+
+## dann auf jeweiligem node vorigen Befehl der ausgegeben wurde ausführen
+## Kann mehr als 60 sekunden dauern ! Geduld...Geduld..Geduld 
+##z.B. -> ACHTUNG evtl. IP ändern 
+microk8s join 10.128.63.86:25000/567a21bdfc9a64738ef4b3286b2b8a69
+
+```
+
+### Auf einem Node addon aktivieren z.B. ingress
+
+```
+gucken, ob es auf dem anderen node auch aktiv ist. 
+```
+
+### Add Node only as Worker-Node 
+
+```
+microk8s join 10.135.0.15:25000/5857843e774c2ebe368e14e8b95bdf80/9bf3ceb70a58 --worker
+Contacting cluster at 10.135.0.15
+
+root@n41:~# microk8s status
+This MicroK8s deployment is acting as a node in a cluster.
+Please use the master node.
+```
+
+
+
+### Ref:
+
+  * https://microk8s.io/docs/high-availability
+
+### Schritt 3: Remote Verbindung einrichten
+
+
+### Walkthrough 
+
+```
+## auf master (jeweils für jedes node neu ausführen)
+microk8s add-node
+
+## dann auf jeweiligem node vorigen Befehl der ausgegeben wurde ausführen
+## Kann mehr als 60 sekunden dauern ! Geduld...Geduld..Geduld 
+##z.B. -> ACHTUNG evtl. IP ändern 
+microk8s join 10.128.63.86:25000/567a21bdfc9a64738ef4b3286b2b8a69
+
+```
+
+### Auf einem Node addon aktivieren z.B. ingress
+
+```
+gucken, ob es auf dem anderen node auch aktiv ist. 
+```
+
+### Add Node only as Worker-Node 
+
+```
+microk8s join 10.135.0.15:25000/5857843e774c2ebe368e14e8b95bdf80/9bf3ceb70a58 --worker
+Contacting cluster at 10.135.0.15
+
+root@n41:~# microk8s status
+This MicroK8s deployment is acting as a node in a cluster.
+Please use the master node.
+```
+
+
+
+### Ref:
+
+  * https://microk8s.io/docs/high-availability
+
+## Installation mit kubeadm
+
+### Schritt für Schritt mit kubeadm
+
+
+### Version 
+
+  * Ubuntu 20.04 LTS
+  * 1 control plane und 3 worker nodes 
+
+### Done for you (for 4 Servers)
+
+  * Servers are setup:
+    * ssh-running
+    * kubeadm, kubelet, kubectl installed
+    * containerd - runtime installed 
+
+  * Installed on all nodes (with cloud-init)
+
+```
+##!/bin/bash 
+
+groupadd sshadmin
+USERS="mysupersecretuser"
+SUDO_USER="mysupersecretuser"
+PASS="yoursupersecretpass"
+for USER in $USERS
+do
+  echo "Adding user $USER"
+  useradd -s /bin/bash --create-home $USER
+  usermod -aG sshadmin $USER
+  echo "$USER:$PASS | chpasswd
+done
+
+## We can sudo with $SUDO_USER
+usermod -aG sudo $SUDO_USER
+
+## 20.04 and 22.04 this will be in the subfolder
+if [ -f /etc/ssh/sshd_config.d/50-cloud-init.conf ]
+then
+  sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config.d/50-cloud-init.conf
+fi
+
+### both is needed 
+sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config
+
+usermod -aG sshadmin root
+
+## TBD - Delete AllowUsers Entries with sed 
+## otherwice we cannot login by group 
+
+echo "AllowGroups sshadmin" >> /etc/ssh/sshd_config 
+systemctl reload sshd
+
+## Now let us do some generic setup
+echo "Installing kubeadm kubelet kubectl"
+
+#### A lot of stuff needs to be done here
+#### https://www.linuxtechi.com/install-kubernetes-on-ubuntu-22-04/
+
+## 1. no swap please
+swapoff -a
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+## 2. Loading necessary modules
+echo "overlay" >> /etc/modules-load.d/containerd.conf
+echo "br_netfilter" >> /etc /modules-load.d/containerd.conf
+modprobe overlay
+modprobe br_netfilter
+
+## 3. necessary kernel settings
+echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/kubernetes.conf
+sysctl --system
+
+## 4. Update the meta-information
+apt-get -y update
+
+## 5. Installing container runtime
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmour -o /etc/apt/trusted.gpg.d/docker.add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"       apt-get install -y containerd.io
+
+## 6. Configure containerd
+containerd config default > /etc/containerd/config.toml
+sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+systemctl restart containerd
+systemctl enable containerd
+
+## 7. Add Kubernetes Repository for Kubernetes
+mkdir -m 755 /etc/apt/keyrings
+apt-get install -y apt-transport-https ca-certificates curl gpg
+curl -fsSL https://pkgs.k8s.io/core:/stable:/$K8S_VERSION/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/$K8S_VERSI                                                                                                               # 8. Install kubectl kubeadm kubectl
+apt-get -y update
+apt-get install -y kubelet kubeadm kubectl
+apt-mark hold -y kubelet kubeadm kubectl
+
+## 9. Install helm
+snap install helm --classic
+
+## Installing nfs-common
+apt-get -y install nfs-common
+```
+
+
+### Prerequisites 
+
+  * 4 Servers setup and reachable through ssh.
+  * user: 11trainingdo
+  * pass: PLEASE ask your instructor 
+
+
+```
+## Important - Servers are not reachable through
+## Domain !! Only IP. 
+controlplane.tln<nr>.t3isp.de 
+worker1.tln<nr>.do.t3isp.de
+worker2.tln<nr>.do.t3isp.de
+worker3.tln<nr>.do.t3isp.de
+```
+
+### Step 1: Setup controlnode (login through ssh) 
+
+```
+## This CIDR is the recommendation for calico
+## Other CNI's might be different 
+CLUSTER_CIDR="192.168.0.0/16"
+
+kubeadm init --pod-network-cidr=$CLUSTER_CIDR && \
+  mkdir -p /root/.kube && \
+  cp -i /etc/kubernetes/admin.conf /root/.kube/config && \
+  chown $(id -u):$(id -g) /root/.kube/config && \
+  cp -i /root/.kube/config /tmp/config.kubeadm && \
+  chmod o+r /tmp/config.kubeadm 
+```
+
+```
+## Copy output of join (needed for workers) 
+## e.g. 
+kubeadm join 159.89.99.35:6443 --token rpylp0.rdphpzbavdyx3llz \
+        --discovery-token-ca-cert-hash sha256:05d42f2c051a974a27577270e09c77602eeec85523b1815378b815b64cb99932
+```
+
+### Step 2: Setup worker1 - node (login through ssh) 
+
+```
+## use join command from Step 1:
+kubeadm join 159.89.99.35:6443 --token rpylp0.rdphpzbavdyx3llz \
+        --discovery-token-ca-cert-hash sha256:05d42f2c051a974a27577270e09c77602eeec85523b1815378b815b64cb99932
+```
+
+### Step 3: Setup worker2 - node (login through ssh) 
+
+```
+## use join command from Step 1:
+kubeadm join 159.89.99.35:6443 --token rpylp0.rdphpzbavdyx3llz \
+        --discovery-token-ca-cert-hash sha256:05d42f2c051a974a27577270e09c77602eeec85523b1815378b815b64cb99932
+```
+
+### Step 4: Setup worker3 - node (login through ssh) 
+
+```
+## use join command from Step 1:
+kubeadm join 159.89.99.35:6443 --token rpylp0.rdphpzbavdyx3llz \
+        --discovery-token-ca-cert-hash sha256:05d42f2c051a974a27577270e09c77602eeec85523b1815378b815b64cb99932
+```
+
+### Step 5: CNI-Setup (calico) on controlnode (login through ssh) 
+
+```
+kubectl get nodes 
+```
+
+```
+## Output
+root@controlplane:~# kubectl get nodes
+NAME           STATUS     ROLES           AGE     VERSION
+controlplane   NotReady   control-plane   6m27s   v1.28.6
+worker1        NotReady   <none>          3m18s   v1.28.6
+worker2        NotReady   <none>          2m10s   v1.28.6
+worker3        NotReady   <none>          60s     v1.28.6
+```
+
+```
+## Installing calico CNI 
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.29.2/manifests/tigera-operator.yaml
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.29.2/manifests/custom-resources.yaml
+kubectl get ns
+kubectl -n calico-system get all
+kubectl -n calico-system get pods -o wide -w 
+```
+
+```
+## After if all pods are up and running -> CTRL + C
+```
+
+```
+kubectl -n calico-system get pods -o wide
+## all nodes should be ready now 
+kubectl get nodes -o wide 
+```
+
+```
+## Output
+root@controlplane:~# kubectl get nodes
+NAME           STATUS   ROLES           AGE    VERSION
+controlplane   Ready    control-plane   14m    v1.28.6
+worker1        Ready    <none>          11m    v1.28.6
+worker2        Ready    <none>          10m    v1.28.6
+worker3        Ready    <none>          9m9s   v1.28.6
+```
+
+### Do it with ansible 
+
+  * https://spacelift.io/blog/ansible-kubernetes
+
+## Podman
+
+### Podman vs. Docker
+
+---
+
+### Was ist Podman?
+
+**Podman** (kurz für: *Pod Manager*) ist eine Open-Source-Container-Engine, die als Alternative zu Docker entwickelt wurde.
+
+---
+
+### Warum Podman?
+
+Hier die wichtigsten Gründe, warum Podman gerne verwendet wird:
+
+| Vorteil                                         | Erklärung                                                                                                                                                                 |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Daemonless**                                  | Podman benötigt keinen zentralen Hintergrunddienst (Daemon), sondern läuft als normaler Benutzerprozess. Dadurch weniger Angriffsfläche und flexibler.                    |
+| **Rootless Support**                            | Container können ohne Root-Rechte gestartet werden, was Sicherheitsvorteile bringt.                                                                                       |
+| **Docker-kompatibel**                           | Podman kann Dockerfiles bauen und verwendet dieselben Container Images. Auch `podman` CLI ist zu `docker` CLI fast identisch (`alias docker=podman` geht oft problemlos). |
+| **Pods-Unterstützung**                          | Inspiriert von Kubernetes: Mehrere Container in einem gemeinsamen Netzwerk-Namespace (Pod). Praktisch für lokale Kubernetes-ähnliche Setups.                              |
+| **Bessere Integration für Systemd**             | Einfaches Erstellen von Systemd-Units aus Containern (`podman generate systemd`). Ideal für Serverdienste ohne externes Orchestration-Tool.                               |
+| **Kein Root-Daemon**                            | Keine ständigen Root-Rechte nötig, weniger Sicherheitsrisiko durch kompromittierte Daemons.                                                                               |
+| **Red Hat / Fedora / CentOS bevorzugen Podman** | Dort wird Podman inzwischen oft als Standardlösung ausgeliefert.                                                                                                          |
+
+---
+
+### Typische Einsatzbereiche
+
+* Entwicklung: wie Docker
+* Serverbetrieb: Container als Systemdienste
+* Kubernetes-nahes Testing (Pods)
+* Rootless Deployment auf Servern ohne Container-Daemon
+
+---
+
+### Beispiel: Container starten
+
+```bash
+podman run -d -p 8080:80 nginx
+```
+
+Fast wie bei Docker.
+
+---
+
+### Podman vs Docker kurz gesagt:
+
+|                     | Docker     | Podman            |
+| ------------------- | ---------- | ----------------- |
+| Daemon              | ja         | nein              |
+| Rootless            | begrenzt   | ja                |
+| Kubernetes-nah      | weniger    | stärker           |
+| Systemd-Integration | wenig      | stark             |
+| Kompatibilität      | verbreitet | Docker-kompatibel |
+
+---
+
+
+## Kubernetes Ingress
+
+### Ingress HA-Proxy Sticky Session
+
+
+### It easy to setup session stickyness 
+
+  * https://www.haproxy.com/documentation/kubernetes-ingress/ingress-tutorials/load-balancing/
+
+### Nginx Ingress Session Stickyness
+
+
+Yes, **session stickiness (affinity)** via **cookie-based stickiness** **does work** with the **open-source NGINX Ingress Controller**.
+
+Here’s what you need to know to get it working:
+
+---
+
+#### ✅ How to Enable Sticky Sessions with Open Source NGINX Ingress
+
+The open-source NGINX Ingress Controller supports sticky sessions using **annotations** and **cookies**.
+
+##### Example Ingress YAML:
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "route"
+    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: myapp.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: my-app-service
+                port:
+                  number: 80
+```
+
+---
+
+#### 🧠 Explanation of the Annotations
+
+- `nginx.ingress.kubernetes.io/affinity: "cookie"`  
+  → Enables cookie-based affinity.
+
+- `nginx.ingress.kubernetes.io/session-cookie-name: "route"`  
+  → Names the session cookie (optional, default is `INGRESSCOOKIE`).
+
+- `nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"`  
+  → Defines how the cookie value is hashed. Can be `md5`, `sha1`, `index`, etc.
+
+You can also optionally define:
+```yaml
+nginx.ingress.kubernetes.io/session-cookie-path: "/"
+nginx.ingress.kubernetes.io/session-cookie-expires: "172800"   # in seconds
+nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+```
+
+---
+
+#### 🔍 Important Notes
+
+- This works **only with the open-source NGINX ingress controller**.  
+  (The annotations won’t apply to controllers like Traefik, HAProxy, or cloud-specific ones like AWS ALB.)
+
+- You must ensure that **all replicas of the app can handle the traffic** if they receive the same cookie.
+
+- This stickiness is **not persistent across restarts** unless the session cookie is preserved client-side (and the pod labels/service don't change unpredictably).
+
+---
+
+#### 💡 Bonus Tip: Enable Ingress Logging (Optional but Useful)
+To troubleshoot or verify stickiness:
+```yaml
+controller:
+  config:
+    enable-access-log: "true"
+    log-format-upstream: "$request_id $remote_addr to $upstream_addr via $cookie_route"
+```
+
+---
+
+Want a ready-made Helm values file or `kubectl` manifest for this?
+### 🧭 Flow Overview: Cookie-Based Stickiness in NGINX Ingress
+
+```
+[Client Browser] 
+     ⇅
+[NGINX Ingress Controller (Ingress Pod)]
+     ⇅
+[Kubernetes Service (ClusterIP)]
+     ⇅
+[App Pod A / B / C (Behind the Service)]
+```
+
+---
+
+### 🔁 What Actually Happens (Step-by-Step)
+
+#### 1. **Client makes a request**
+- Let's say the client hits `myapp.example.com`.
+
+#### 2. **Ingress Controller (NGINX) receives the request**
+- NGINX is exposed via a LoadBalancer, NodePort, or IngressClass.
+- It parses the Ingress resource and applies sticky session rules based on annotations.
+
+#### 3. **First Request: No Cookie**
+- No session cookie is present, so:
+  - NGINX picks a backend pod **randomly** via the Kubernetes `Service`.
+  - It sets a sticky cookie on the response, e.g.:
+    ```
+    Set-Cookie: route=backend1; Path=/; HttpOnly
+    ```
+
+#### 4. **Subsequent Requests: Cookie Present**
+- On later requests, the client sends back:
+  ```
+  Cookie: route=backend1
+  ```
+- NGINX uses this cookie value to route to the **same backend pod**.
+
+---
+
+### 🔎 So Where Does the Kubernetes `Service` Come In?
+
+The Kubernetes `Service` is used **internally by NGINX** to **proxy requests to pods**.
+
+#### NGINX configuration looks like this (simplified):
+
+```nginx
+upstream myapp-service {
+    sticky cookie route;
+    server 10.0.1.2:8080;  # Pod A
+    server 10.0.1.3:8080;  # Pod B
+}
+```
+
+- These IPs are discovered **via the Kubernetes Service** using Endpoints or EndpointSlices.
+- NGINX tracks these pods and their IPs automatically (via a sync controller loop).
+
+---
+
+### ✅ Who Makes Routing Decisions?
+
+- 🔸 **NGINX Ingress Controller** makes the routing decision **based on the cookie value**, not Kubernetes.
+- 🔹 Kubernetes `Service` is just a **source of backend pod IPs**, not the router in this case.
+
+---
+
+
+### https mit ingressController und Letsencrypt
+
+
+### Schritt 1: cert-manager installieren 
+
+```
+helm repo add jetstack https://charts.jetstack.io
+helm install cert-manager jetstack/cert-manager \
+--namespace cert-manager --create-namespace \
+--version v1.12.0 \
+--set installCRDs=true
+```
+
+### Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
+
+```
+## cluster-issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: your-email@example.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+```
+
+### Schritt 3: Herausfinden, ob Zertifikate erstellt werden 
+
+```
+kubectl describe certificate example-tls
+kubectl get cert
+```
+
+
+### Schritt 4: Ingress-Objekt mit TLS erstellen 
+
+```
+## tls-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - test.devopslearnwith.us
+    secretName: example-tls
+  rules:
+  - host: test.devopslearnwith.us
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: example-service
+            port:
+              number: 80
+```
+
+```
+Schritt 5: Testen
+```
+
+
+### Ref: 
+
+  * https://hbayraktar.medium.com/installing-cert-manager-and-nginx-ingress-with-lets-encrypt-on-kubernetes-fe0dff4b1924
+
+## Kubernetes Secrets und Encrypting von z.B. Credentials 
+
+### Kubernetes secrets Typen
+
+
+### Welche Arten von Secrets gibt es ?
+
+| Built-in Type	| Usage |
+| ------------- | ----- |
+| Opaque	| arbitrary user-defined data |
+| kubernetes.io/service-account-token	 | ServiceAccount token |
+| kubernetes.io/dockercfg	| serialized ~/.dockercfg file |
+| kubernetes.io/dockerconfigjson | serialized ~/.docker/config.json file |
+| kubernetes.io/basic-auth | credentials for basic authentication |
+| kubernetes.io/ssh-auth | credentials for SSH authentication |
+| kubernetes.io/tls	| data for a TLS client or server |
+| bootstrap.kubernetes.io/token	| bootstrap token data |
+
+  * Ref: https://kubernetes.io/docs/concepts/configuration/secret/#secret-types
+
+  
+
+### Sealed Secrets - bitnami
+
+
+### 2 Komponenten 
+
+ * Sealed Secrets besteht aus 2 Teilen 
+   * kubeseal, um z.B. die Passwörter zu verschlüsseln 
+   * Dem Operator (ein Controller), der das Entschlüsseln übernimmt  
+
+### Schritt 1: Walkthrough - Client Installation (als root)
+
+```
+## Binary für Linux runterladen, entpacken und installieren 
+## Achtung: Immer die neueste Version von den Releases nehmen, siehe unten:
+## Install as root 
+curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.29.0/kubeseal-0.29.0-linux-amd64.tar.gz"
+tar -xvzf kubeseal-0.29.0-linux-amd64.tar.gz kubeseal
+sudo install -m 755 kubeseal /usr/local/bin/kubeseal
+```
+
+### Schritt 2: Walkthrough - Server Installation mit kubectl client 
+
+```
+helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
+helm install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.17.2
+
+```
+
+### Schritt 3: Walkthrough - Verwendung (als normaler/unpriviligierter Nutzer)
+
+```
+kubeseal --fetch-cert 
+
+## Secret - config erstellen mit dry-run, wird nicht auf Server angewendet (nicht an Kube-Api-Server geschickt) 
+kubectl -n default create secret generic basic-auth --from-literal=user=admin --from-literal=password=change-me --dry-run=client -o yaml > basic-auth.yaml
+cat basic-auth.yaml 
+
+## öffentlichen Schlüssel zum Signieren holen 
+kubeseal --fetch-cert > pub-sealed-secrets.pem
+cat pub-sealed-secrets.pem 
+
+kubeseal --format=yaml --cert=pub-sealed-secrets.pem < basic-auth.yaml > basic-auth-sealed.yaml
+cat basic-auth-sealed.yaml 
+
+## Ausgangsfile von dry-run löschen 
+rm basic-auth.yaml
+
+## Ist das secret basic-auth vorher da ? 
+kubectl get secrets basic-auth 
+
+kubectl apply -f basic-auth-sealed.yaml
+
+## Kurz danach erstellt der Controller aus dem sealed secret das secret 
+kubectl get secret 
+kubectl get secret -o yaml
+
+```
+
+```
+## Ich kann dieses jetzt ganz normal in meinem pod verwenden.
+## Step 3: setup another pod to use it in addition 
+## vi 02-secret-app.yml 
+apiVersion: v1    
+kind: Pod    
+metadata:    
+  name: secret-app    
+spec:    
+  containers:    
+    - name: env-ref-demo    
+      image: nginx    
+      envFrom:                                                                                                                              
+      - secretRef:
+          name: basic-auth
+
+
+```
+
+### Hinweis: Ubuntu snaps 
+
+```
+Installation über snap funktioniert nur, wenn ich auf meinem Client
+ausschliesslich als root arbeite 
+```
+
+### Wie kann man sicherstellen, dass nach der automatischen Änderung des Secretes, der Pod bzw. Deployment neu gestartet wird ?
+
+  * https://github.com/stakater/Reloader
+ 
+### Ref: 
+  
+  * Controller: https://github.com/bitnami-labs/sealed-secrets/releases/
+
+
+
+### Exercise Sealed Secret mariadb
+
+
+### Prerequisites: MariaDB secrets done 
+
+[MariaDB Secret](#secrets-example-mariadb)
+
+###  Based on mariadb secrets exercise 
+
+```
+cd
+cd manifests/secrettest
+```
+
+```
+## Cleanup
+kubectl delete -f 02-deploy.yml
+kubectl delete -f 01-secrets.yml
+## rm
+rm 01-secrets.yml 
+```
+
+
+```
+## öffentlichen Schlüssel zum Signieren holen 
+kubeseal --fetch-cert --controller-namespace=kube-system --controller-name=sealed-secrets > pub-sealed-secrets.pem
+cat pub-sealed-secrets.pem 
+```
+
+```
+## Secret - config erstellen mit dry-run, wird nicht auf Server angewendet (nicht an Kube-Api-Server geschickt) 
+kubectl create secret generic mariadb-secret --from-literal=MARIADB_ROOT_PASSWORD=11abc432 --dry-run=client -o yaml > 01-top-secret.yaml
+cat 01-top-secret.yaml 
+```
+
+```
+kubeseal --format=yaml --cert=pub-sealed-secrets.pem < 01-top-secret.yaml > 01-top-secret-sealed.yaml
+cat 01-top-secret-sealed.yaml 
+
+## Ausgangsfile von dry-run löschen 
+rm 01-top-secret.yaml
+
+## Ist das secret basic-auth vorher da ? 
+kubectl get secrets mariadb-secret  
+
+kubectl apply -f .
+
+## Kurz danach erstellt der Controller aus dem sealed secret das secret 
+kubectl get secret
+
+kubectl get sealedsecrets 
+kubectl get secret mariadb-secret -o yaml
+```
+
+```
+kubectl exec -it deploy/mariadb-deployment -- env | grep ROOT
+kubectl delete -f 01-top-secret-sealed.yaml
+kubectl get secrets
+kubectl get sealedsecrets 
+```
+
+### registry mit secret auth
+
+  * https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+
 ## Kubernetes Security
 
 ### Best practices security pods
@@ -4510,7 +5262,7 @@ metadata:
   name: nfs-csi
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 10.135.0.67
+  server: 10.135.0.70
   share: /var/nfs
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -4758,310 +5510,6 @@ kubectl apply -f .
 
 ```
 kubectl describe po mariadb-deployment-<euer-pod>
-```
-
-## Helm (Kubernetes Paketmanager)
-
-### Helm Spickzettel
-
-
-### Alle installierten Releases anschauen 
-
-```
-## im eigenen Namespaces 
-helm list
-## in allen Namespaces 
-helm list -A
-```
-
-### Installieren am besten mit upgraden 
-
-
-```
-## helm install release-name repo/chart --version 1.9.9. -f values.yaml
-## z.B.
-helm upgrade --install my-nginx bitnami/nginx --version 19.1.1 -f values.yaml
-```
-
-### Helm Grundlagen
-
-
-### Wo kann ich Helm-Charts suchen ? 
-
- * Im Telefonbuch von helm [https://artifacthub.io/](artifacthub.io)
-
-### Komponenten 
-
-#### Chart
-
-  * beeinhaltet Beschreibung und Komponenten 
-
-#### Chart-Formate 
-
-  * url
-  * .tgz (abkürzung tar.gz) - Format 
-  * oder Verzeichnis 
-
-```
-Wenn wir ein Chart ausführen wird eine Release erstellen 
-(parallel: image -> container, analog: chart -> release)
-```
-
-### Installation 
-
-```
-## Beispiel ubuntu 
-## snap install --classic helm
-
-## Cluster auf das ich zugreifen kann und im client -> helm und kubectl 
-## Voraussetzung auf dem Client-Rechner (helm ist nichts als anderes als ein Client-Programm) 
-Ein lauffähiges kubectl auf dem lokalen System (welches sich mit dem Cluster verbinden.
--> saubere -> .kube/config 
-
-## Test
-kubectl cluster-info 
-
-```
-
-
-### Helm Warum ?
-
-
-```
-Ein Paket für alle Komponenten
-Einfaches Installieren, Updaten und deinstallieren
-Konfigurations-Values-Files übergeben zum Konfigurieren
-Feststehende Struktur 
-```
-
-### Helm Example
-
-
-### Prerequisites 
-
-  * helm needs a config-file (kubeconfig) to know how to connect and credentials in there 
-  * Good: helm (as well as kubectl) works as unprivileged user as well - Good for our setup 
-  * install helm on ubuntu (client) as root: snap install --classic helm 
-    * this installs helm3
-  * Please only use: helm3. No server-side components needed (in cluster) 
-    * Get away from examples using helm2 (hint: helm init) - uses tiller  
-
-### Simple Walkthrough (Example 0: Step 1)
-
-```
-## Repo hinzufpgen 
-helm repo add bitnami https://charts.bitnami.com/bitnami 
-## gecachte Informationen aktualieren 
-helm repo update
-
-helm search repo bitnami 
-## helm install release-name bitnami/mysql
-```
-
-### Simple Walkthrough (Example 0: Step 2: for learning - pull)
-
-```
-helm pull bitnami/mysql
-tar xvfz mysql*
-
-```
-
-
-
-### Simple Walkthrough (Example 0: Step 3: install) 
-
-```
-helm install my-mysql bitnami/mysql
-## Chart runterziehen ohne installieren 
-## helm pull bitnami/mysql
-
-## Release anzeigen zu lassen
-helm list 
-
-## Status einer Release / Achtung, heisst nicht unbedingt nicht, dass pod läuft 
-helm status my-mysql 
-
-## weitere release installieren 
-## helm install neuer-release-name  bitnami/mysql 
-
-
-```
-
-### Under the hood 
-
-```
-## Helm speichert Informationen über die Releases in den Secrets
-kubectl get secrets | grep helm 
-
-
-```
-
-
-### Example 1: - To get know the structure 
-
-```
-helm repo add bitnami https://charts.bitnami.com/bitnami 
-helm search repo bitnami 
-helm repo update
-helm pull bitnami/mysql 
-tar xzvf mysql-9.0.0.tgz 
-
-## Show how the template would look like being sent to kube-api-server 
-helm template bitnami/mysql
-
-```
-
-
-
-### Example 2: We will setup mysql without persistent storage (not helpful in production ;o() 
-
-```
-helm repo add bitnami https://charts.bitnami.com/bitnami 
-helm search repo bitnami 
-helm repo update
-
-helm install my-mysql bitnami/mysql
-
-
-```
-
-
-### Example 2 - continue - fehlerbehebung 
-
-```
-helm uninstall my-mysql 
-## Install with persistentStorage disabled - Setting a specific value 
-helm install my-mysql --set primary.persistence.enabled=false bitnami/mysql
-
-## just as notice 
-## helm uninstall my-mysql 
-
-```
-
-### Example 2b: using a values file 
-
-```
-## mkdir helm-mysql
-## cd helm-mysql
-## vi values.yml 
-primary:
-  persistence:
-    enabled: false 
-```
-
-```
-helm uninstall my-mysql
-helm install my-mysql bitnami/mysql -f values.yml 
-```
-
-### Example 3: Install wordpress 
-
-### Example 3.1: Setting values with --set 
-
-```
-helm repo add bitnami https://charts.bitnami.com/bitnami 
-helm install my-wordpress \
-  --set wordpressUsername=admin \
-  --set wordpressPassword=password \
-  --set mariadb.auth.rootPassword=secretpassword \
-    bitnami/wordpress
-```
-
-### Example 3.2: Setting values with values.yml file 
-
-```
-cd
-mkdir -p manifests
-cd manifests
-mkdir helm-wordpress
-cd helm-wordpress
-nano values.yml 
-```
-
-```
-## values.yml
-wordpressUsername: admin
-wordpressPassword: password
-mariadb:
-  auth:
-    rootPassword: secretpassword
-```
-
-```
-## helm repo add bitnami https://charts.bitnami.com/bitnami 
-helm install my-wordpress -f values.yml bitnami/wordpress
-
-```
-
-
-### Referenced
-
-  * https://github.com/bitnami/charts/tree/master/bitnami/mysql/#installing-the-chart
-  * https://helm.sh/docs/intro/quickstart/
-
-### Helm Exercise with nginx
-
-
-### Part 1: Install old version 
-
-```
-## https://artifacthub.io/packages/helm/bitnami/nginx/17.3.3
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm upgrade --install my-nginx bitnami/nginx --version 17.3.3
-kubectl get pods 
-```
-
-```
-helm list
-helm list -A (über alle namespaces hinweg)
-helm get all my-nginx 
-helm get values my-nginx 
-helm get manifest my-nginx
-## chart von online
-helm show values bitnami/nginx # latest version 
-helm show values bitnami/nginx --version 17.3.3
-
-```
-
-
-### Part 2: Set Service to NodePort 
-
-```
-cd 
-mkdir -p helm-values
-cd helm-values
-mkdir nginx
-cd nginx
-```
-
-```
-nano values.yaml
-```
-
-```
-service:
-  type: NodePort
-```
-
-```
-kubectl get pods 
-helm upgrade --install my-nginx bitnami/nginx --version 17.3.3 -f values.yaml
-helm get values my-nginx 
-kubectl get pods
-kubectl get svc 
-```
-
-### Part 3: Upgrade auf die neueste Version mit NodePort 
-
-
-```
-helm upgrade --install my-nginx bitnami/nginx --version 19.1.1 -f values.yaml
-```
-
-### Part 4: Uninstall nginx 
-
-```
-helm uninstall my-nginx 
 ```
 
 ## Helm (IDE - Support) 
@@ -8431,7 +8879,7 @@ Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität
   * Skalieren von Anwendungen. 
   * bessere Hochverfügbarkeit out-of-the-box
   * Heilen von Systemen (neu starten von Containern) 
-  * Automatische Überwachung mit deklarativem Management) - ich beschreibe, was ich will
+  * Automatische Überwachung (mit deklarativem Management) - ich beschreibe, was ich will
   * Neue Versionen auszurollen (Canary Deployment, Blue/Green Deployment) 
 
 ### Mögliche Nachteile 
@@ -11130,7 +11578,7 @@ Feststehende Struktur
 
 ### Wo kann ich Helm-Charts suchen ? 
 
- * Im Telefonbuch von helm [https://artifacthub.io/](artifacthub.io)
+ * Im Telefonbuch von helm [https://artifacthub.io/](https://artifacthub.io)
 
 ### Komponenten 
 
@@ -11138,18 +11586,24 @@ Feststehende Struktur
 
   * beeinhaltet Beschreibung und Komponenten 
 
-#### Chart-Formate 
+#### Chart - Bereitstellungsformen 
 
   * url
   * .tgz (abkürzung tar.gz) - Format 
   * oder Verzeichnis 
 
 ```
-Wenn wir ein Chart ausführen wird eine Release erstellen 
+Wenn wir ein Chart installieren, wird eine Release erstellen 
 (parallel: image -> container, analog: chart -> release)
 ```
 
 ### Installation 
+
+#### Was brauchen wir ? 
+
+  * helm  client muss installiert sein
+
+#### Und sonst so ? 
 
 ```
 ## Beispiel ubuntu 
