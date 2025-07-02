@@ -68,20 +68,16 @@
      * [Befehle in pod ausführen - Übung](kubectl-examples/15-exec-example.md)
      * [Welche Pods mit Namen gehören zu einem Service](tipps-tricks/welche-pods-mit-namen-gehoeren-zu-einem-service.md)
 
+  1. Helm (Kubernetes Paketmanager)
+     * [Helm Spickzettel](/helm/spickzettel.md) 
+     * [Helm Grundlagen](/helm/grundlagen.md)
+     * [Helm Warum ?](/helm/warum.md)
+     * [Helm Example](/helm/example.md)
+     * [Helm Exercise with nginx](/helm/exercise-nginx.md) 
+
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](kubectl-examples/16-run-pod-as-unprivileged-user.md)
    
-  1. Kubernetes Ingress
-     * [Ingress HA-Proxy Sticky Session](ingress/ha-proxy/load-balancing-sticky-session.md)
-     * [Nginx Ingress Session Stickyness](ingress/nginx/session-stickyness.md)
-     * [https mit ingressController und Letsencrypt](ingress/https-letsencrypt.md)
-    
-  1. Kubernetes Secrets und Encrypting von z.B. Credentials 
-     * [Kubernetes secrets Typen](/kubernetes/secrets/secrets.md) 
-     * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md)
-     * [Exercise Sealed Secret mariadb](/kubectl-examples/08-sealed-secret.md)
-     * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
-
   1. Weiter lernen 
      * [Lernumgebung](https://killercoda.com/)
      * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
@@ -123,8 +119,19 @@
 
 ## Backlog 
 
- 1. Podman
+  1. Podman
      * [Podman vs. Docker](podman/podman-vs-docker.md)
+
+  1. Kubernetes Ingress
+     * [Ingress HA-Proxy Sticky Session](ingress/ha-proxy/load-balancing-sticky-session.md)
+     * [Nginx Ingress Session Stickyness](ingress/nginx/session-stickyness.md)
+     * [https mit ingressController und Letsencrypt](ingress/https-letsencrypt.md)
+    
+  1. Kubernetes Secrets und Encrypting von z.B. Credentials 
+     * [Kubernetes secrets Typen](/kubernetes/secrets/secrets.md) 
+     * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md)
+     * [Exercise Sealed Secret mariadb](/kubectl-examples/08-sealed-secret.md)
+     * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
   1. Kubernetes Security
      * [Best practices security pods](security/best-practice-pods.md)
@@ -143,21 +150,14 @@
      * [Liste der Treiber mit Features (CSI)](https://kubernetes-csi.github.io/docs/drivers.html)
      * [Übung Persistant Storage](kubernetes-csi/nfs-exercise.md)
      * [Beispiel mariadb](kubernetes-csi/example-mariadb.md)
-
-  1. Helm (Kubernetes Paketmanager)
-     * [Helm Spickzettel](/helm/spickzettel.md) 
-     * [Helm Grundlagen](/helm/grundlagen.md)
-     * [Helm Warum ?](/helm/warum.md)
-     * [Helm Example](/helm/example.md)
-     * [Helm Exercise with nginx](/helm/exercise-nginx.md) 
-
+  
   1. Helm (IDE - Support) 
      * [Kubernetes-Plugin Intellij](https://www.jetbrains.com/help/idea/kubernetes.html)
      * [Intellij - Helm Support Through Kubernetes Plugin](https://blog.jetbrains.com/idea/2018/10/intellij-idea-2018-3-helm-support/)
 
   1. Kubernetes -> High Availability Cluster (multi-data center)
      * [High Availability multiple data-centers](ha/overview.md)
-     * [PodAntiAffinity für Hochverfügbarkeit](kubernetes-ha/podAntiAffinity.md)
+     * [PodAntiAffinity für Hochverfügbarkeit](kubernetes-ha/podtiAffinity.md)
      * [PodAffinity](ha/pod-affinity.md)
 
   1. Kubernetes -> etcd
