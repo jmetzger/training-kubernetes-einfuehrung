@@ -17,7 +17,7 @@
   * oder Verzeichnis 
 
 ```
-Wenn wir ein Chart ausführen wird eine Release erstellen 
+Wenn wir ein Chart installieren, wird eine Release erstellen 
 (parallel: image -> container, analog: chart -> release)
 ```
 
