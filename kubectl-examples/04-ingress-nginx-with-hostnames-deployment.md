@@ -163,7 +163,32 @@ kubectl apply -f ingress.yml
 
   * https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
 
-## Find the problem 
+## Step 4: Find the problem 
+
+### Fix 4.1: Fehler: no matches kind "Ingress" in version "extensions/v1beta1"
+
+```
+# Gibt es diese Landkarte überhaupt
+kubectl api-versions
+# auf welcher Landkarte/Gruppe befindet sich Ingress jetzt 
+kubectl explain ingress 
+# -> jetzt auf networing.k8s.io/v1 
+
+```
+
+```
+nano ingress.yaml
+```
+
+```
+# auf apiVersion: extensions.k8s.io/v1beta1
+# wird -> networking.k8s.io/v1
+```
+
+```
+kubectl apply -f .
+```
+
 
 ```
 # Hints 
