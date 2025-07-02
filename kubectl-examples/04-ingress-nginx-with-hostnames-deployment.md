@@ -244,22 +244,14 @@ kubectl apply -f .
 ```
 
 
-## Fix 4.4. 
-
+## Fix 4.4. pathType must be specificied 
 
 ```
-# in kubernetes 1.22.2 - ingress.yml needs to be modified like so.
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: example-ingress
-  annotations:
-    ingress.kubernetes.io/rewrite-target: /
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: "app12.lab1.t3isp.de"
-    http:
+# Was macht das ?
+kubectl explain ingress.spec.rules.http.paths.pathType
+```
+
+```
       paths:
         - path: /apple
           pathType: Prefix
@@ -269,7 +261,7 @@ spec:
               port:
                 number: 80
         - path: /banana
-          pathType: Prefix
+          pathType: Exact 
           backend:
             service:
               name: banana-service
