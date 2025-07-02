@@ -189,24 +189,63 @@ nano ingress.yaml
 kubectl apply -f .
 ```
 
-## Fix 4.2:
+## Fix 4.2: Bad Request unkown field ServiceName / ServicePort 
 
 
 ```
-# Hints 
-
-
-# 2. Let's see, how the configuration works 
-kubectl explain --api-version=networking.k8s.io/v1 ingress.spec.rules.http.paths.backend.service
-
-# now we can adjust our config 
+# was geht für die Property backend 
+kubectl explain ingress.spec.rules.http.paths.backend
+# und was geht für service
+kubectl explain ingress.spec.rules.http.paths.backend.service
 ```
-
-## Solution
 
 ```
 nano ingress.yml
 ```
+
+```
+# Wir ersetzen 
+# serviceName: apple-service 
+# durch:
+# service: 
+#   name: apple-service 
+
+# das gleiche für banana 
+```
+
+```
+kubectl apply -f . 
+```
+
+
+## Fix 4.3. BadRequest unknown field servicePort
+
+```
+# was geht für die Property backend 
+kubectl explain ingress.spec.rules.http.paths.backend
+# und was geht für service
+kubectl explain ingress.spec.rules.http.paths.backend.service.port
+# number 
+kubectl explain ingress.spec.rules.http.paths.backend.service.port
+```
+
+```
+# neue Variante sieht so aus
+backend:
+  service:
+    name: apple-service
+    port:
+      number: 80
+# das gleich für banana-service
+```
+
+```
+kubectl apply -f .
+```
+
+
+## Fix 4.4. 
+
 
 ```
 # in kubernetes 1.22.2 - ingress.yml needs to be modified like so.
