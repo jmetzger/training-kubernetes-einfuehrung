@@ -10,7 +10,7 @@
 
   * beeinhaltet Beschreibung und Komponenten 
 
-### Chart-Formate 
+### Chart - Bereitstellungsformen 
 
   * url
   * .tgz (abkürzung tar.gz) - Format 
