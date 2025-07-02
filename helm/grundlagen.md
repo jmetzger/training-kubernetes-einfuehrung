@@ -23,6 +23,12 @@ Wenn wir ein Chart installieren, wird eine Release erstellen
 
 ## Installation 
 
+### Was brauchen wir ? 
+
+  * helm  client muss installiert sein
+
+### Und sonst so ? 
+
 ```
 # Beispiel ubuntu 
 # snap install --classic helm
