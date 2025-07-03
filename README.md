@@ -73,7 +73,10 @@
      * [Helm Grundlagen](/helm/grundlagen.md)
      * [Helm Warum ?](/helm/warum.md)
      * [Helm Example](/helm/example.md)
-     * [Helm Exercise with nginx](/helm/exercise-nginx.md) 
+     * [Helm Exercise with nginx](/helm/exercise-nginx.md)
+    
+  1. Helm - Charts enwickeln
+     * [Unser erstes Helm Chart erstellen](helm/exercises/04a-create-chart-my-app-gruppenarbeit.md)
 
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](kubectl-examples/16-run-pod-as-unprivileged-user.md)
