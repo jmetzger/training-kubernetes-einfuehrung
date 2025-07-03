@@ -79,6 +79,9 @@
      * [Unser erstes Helm Chart erstellen](helm/exercises/04a-create-chart-my-app-gruppenarbeit.md)
      * [Wie starte ich am besten - Übung](helm/exercises/05-einfach-starten.md)
 
+  1. Helm und Kustomize kombinieren
+     * [Helm und Kustomize kombinieren](helm-kustomize/combine-helm-and-kustomize.md)
+
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](kubectl-examples/16-run-pod-as-unprivileged-user.md)
    
