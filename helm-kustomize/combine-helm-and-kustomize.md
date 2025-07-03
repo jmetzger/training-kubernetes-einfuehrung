@@ -74,7 +74,7 @@ cat > patches/deployment-patch.yaml << 'EOF'
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-chart
+  name: my-app-my-chart
 spec:
   template:
     spec:
