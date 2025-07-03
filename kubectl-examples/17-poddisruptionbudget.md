@@ -142,36 +142,7 @@ kubectl get pdb nginx-pdb
 kubectl get pods -l app=nginx-app
 ```
 
-### Schritt 5: Verschiedene PDB-Strategien testen
-
-```bash
-# PDB mit Prozentangabe erstellen
-nano pdb-percentage.yaml
-```
-
-```yaml
-# pdb-percentage.yaml - Mit Prozentangabe
-apiVersion: policy/v1
-kind: PodDisruptionBudget
-metadata:
-  name: nginx-pdb-percentage
-spec:
-  maxUnavailable: 50%
-  selector:
-    matchLabels:
-      app: nginx-app
-```
-
-```bash
-# Altes PDB löschen und neues anwenden
-kubectl delete pdb nginx-pdb
-kubectl apply -f pdb-percentage.yaml
-
-# Status überprüfen
-kubectl describe pdb nginx-pdb-percentage
-```
-
-### Schritt 6: PDB mit maxUnavailable
+### Schritt 5: PDB mit maxUnavailable
 
 ```bash
 # PDB mit maxUnavailable erstellen
@@ -196,7 +167,7 @@ kubectl apply -f pdb-max-unavailable.yaml
 kubectl get pdb nginx-pdb-max
 ```
 
-### Schritt 7: Cleanup
+### Schritt 6: Cleanup
 
 ```bash
 # Alle erstellten Ressourcen löschen
