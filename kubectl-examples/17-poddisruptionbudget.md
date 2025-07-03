@@ -76,8 +76,7 @@ spec:
 
 ```bash
 # Manifeste anwenden
-kubectl apply -f deployment-nginx.yaml
-kubectl apply -f service-nginx.yaml
+kubectl apply -f .
 
 # Status überprüfen
 kubectl get pods -l app=nginx-app
