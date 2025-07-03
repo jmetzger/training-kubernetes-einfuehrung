@@ -238,7 +238,7 @@ commonLabels:
 ```bash
 # Dry-run für Testing
 helm template my-app ./chart --values values-dev.yaml | \
-  kustomize build environments/dev | \
+  kubectl kustomize environments/dev | \
   kubectl apply --dry-run=client -f -
 ```
 
