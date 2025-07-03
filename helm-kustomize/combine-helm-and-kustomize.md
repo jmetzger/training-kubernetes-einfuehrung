@@ -83,11 +83,11 @@ spec:
       - name: my-chart
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "250m"
+            memory: "80Mi"
+            cpu: "300m"
           limits:
-            memory: "512Mi"
-            cpu: "500m"
+            memory: "80Mi"
+            cpu: "300m"
 EOF
 ```
 
