@@ -195,7 +195,7 @@ secretGenerator:
 ```bash
 # Dry-run für Testing
 helm template my-app ./chart --values values-dev.yaml | \
-  kustomize build environments/dev --enable-alpha-plugins | \
+  kustomize build environments/dev | \
   kubectl apply --dry-run=client -f -
 ```
 
@@ -210,65 +210,6 @@ helm template my-app ./chart | \
 
 ## Deployment Scripts
 
-### Automatisiertes Deployment
 
-```bash
-#!/bin/bash
-# deploy.sh
 
-ENVIRONMENT=$1
-CHART_VERSION=$2
 
-if [ -z "$ENVIRONMENT" ] || [ -z "$CHART_VERSION" ]; then
-    echo "Usage: $0 <environment> <chart-version>"
-    exit 1
-fi
-
-echo "Deploying to $ENVIRONMENT with chart version $CHART_VERSION"
-
-# Helm Template generieren
-helm template my-app ./chart \
-  --version $CHART_VERSION \
-  --values values-$ENVIRONMENT.yaml \
-  --output-dir ./temp/
-
-# Kustomize anwenden
-kustomize build environments/$ENVIRONMENT > final-manifests.yaml
-
-# Deployment
-kubectl apply -f final-manifests.yaml
-
-# Cleanup
-rm -rf ./temp final-manifests.yaml
-```
-
-## Troubleshooting
-
-### Häufige Probleme
-
-1. **Resource Name Conflicts**: Verwende eindeutige Namen in Helm Templates
-2. **Kustomize Patches**: Stelle sicher, dass Patch-Selektoren korrekt sind
-3. **Order of Operations**: Verstehe die Reihenfolge: Helm → Kustomize → Kubectl
-
-### Debugging
-
-```bash
-# Helm Template Output prüfen
-helm template my-app ./chart --debug
-
-# Kustomize Build Output prüfen
-kustomize build --enable-alpha-plugins
-
-# Finale Manifeste validieren
-kubectl apply --dry-run=client -f final-manifests.yaml
-```
-
-## Fazit
-
-Die Kombination von Helm und Kustomize bietet:
-
-- **Helm**: Paketierung, Versionierung, Templating
-- **Kustomize**: Flexible Anpassungen, Environment-Management
-- **Gemeinsam**: Robuste, skalierbare Deployment-Strategie
-
-Diese Kombination ist besonders wertvoll für Organisationen, die sowohl die Standardisierung von Helm als auch die Flexibilität von Kustomize benötigen.
