@@ -151,9 +151,3 @@ kubectl uncordon $NODE_NAME
 3. **Prozentangaben** sind nützlich bei variablen Replikaanzahlen
 4. **Testen Sie PDBs** vor der Produktionseinführung
 5. **Koordinieren Sie** PDBs mit HPA-Einstellungen
-
-## Übungsaufgaben
-
-1. Erstellen Sie ein PDB für eine Anwendung mit 5 Replikas, bei der maximal 2 Pods gleichzeitig ausfallen dürfen
-2. Testen Sie, was passiert, wenn Sie ein PDB mit minAvailable=3 auf ein Deployment mit nur 2 Replikas anwenden
-3. Erstellen Sie ein PDB mit 25% maxUnavailable für eine skalierbare Anwendung
