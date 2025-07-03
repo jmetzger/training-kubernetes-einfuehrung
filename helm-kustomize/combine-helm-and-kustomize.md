@@ -52,7 +52,7 @@ cd "$(dirname "$0")"
 # Speichere Helm Output als base.yaml
 cat <&0 > base.yaml
 # Führe kustomize build aus
-kustomize build .
+kubectl kustomize .
 EOF
 
 # Script ausführbar machen
