@@ -167,20 +167,151 @@ kubectl apply -f pdb-max-unavailable.yaml
 kubectl get pdb nginx-pdb-max
 ```
 
-### Schritt 6: Cleanup
+### Schritt 6: Cleanup der ersten Übung
 
 ```bash
 # Alle erstellten Ressourcen löschen
 kubectl delete -f deployment-nginx.yaml
 kubectl delete -f service-nginx.yaml
-kubectl delete -f pdb-percentage.yaml
 kubectl delete -f pdb-max-unavailable.yaml
 
 # Node wieder aktivieren (falls gedrained)
 kubectl uncordon $NODE_NAME
+```
+
+## Übung 2: PDB verhindert Deployment-Start
+
+### Schritt 1: Problematisches Szenario erstellen
+
+```bash
+# Deployment mit zu wenig Replikas erstellen
+nano deployment-insufficient.yaml
+```
+
+```yaml
+# deployment-insufficient.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+  labels:
+    app: web-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+```
+
+```bash
+# PDB mit zu hohen Anforderungen erstellen
+nano pdb-too-strict.yaml
+```
+
+```yaml
+# pdb-too-strict.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: web-app-pdb
+spec:
+  minAvailable: 3
+  selector:
+    matchLabels:
+      app: web-app
+```
+
+### Schritt 2: Problem demonstrieren
+
+```bash
+# Zuerst das PDB erstellen
+kubectl apply -f pdb-too-strict.yaml
+
+# PDB Status überprüfen
+kubectl get pdb web-app-pdb
+kubectl describe pdb web-app-pdb
+
+# Dann das Deployment erstellen
+kubectl apply -f deployment-insufficient.yaml
+
+# Status überprüfen
+kubectl get pods -l app=web-app
+kubectl get pdb web-app-pdb
+```
+
+### Schritt 3: Problem analysieren
+
+```bash
+# Detaillierte Analyse des PDB
+kubectl describe pdb web-app-pdb
+
+# Events überprüfen
+kubectl get events --sort-by=.metadata.creationTimestamp
+
+# Versuche ein Rolling Update (wird blockiert)
+kubectl patch deployment web-app -p '{"spec":{"template":{"spec":{"containers":[{"name":"nginx","image":"nginx:1.21"}]}}}}'
+
+# Status des Rolling Updates überprüfen
+kubectl rollout status deployment web-app --timeout=30s
+kubectl get rs -l app=web-app
+```
+
+### Schritt 4: Problem beheben
+
+```bash
+# Option 1: Replicas erhöhen
+kubectl scale deployment web-app --replicas=4
+
+# Status überprüfen
+kubectl get pods -l app=web-app
+kubectl get pdb web-app-pdb
+
+# Option 2: PDB anpassen
+nano pdb-fixed.yaml
+```
+
+```yaml
+# pdb-fixed.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: web-app-pdb-fixed
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: web-app
+```
+
+```bash
+# Altes PDB löschen und neues anwenden
+kubectl delete pdb web-app-pdb
+kubectl apply -f pdb-fixed.yaml
+
+# Rolling Update nun erfolgreich
+kubectl rollout restart deployment web-app
+kubectl rollout status deployment web-app
+```
+
+### Schritt 5: Cleanup der zweiten Übung
+
+```bash
+# Alle Ressourcen löschen
+kubectl delete -f deployment-insufficient.yaml
+kubectl delete -f pdb-fixed.yaml
 
 # Manifest-Dateien löschen (optional)
-rm deployment-nginx.yaml service-nginx.yaml pdb-nginx.yaml pdb-percentage.yaml pdb-max-unavailable.yaml
+rm deployment-insufficient.yaml pdb-too-strict.yaml pdb-fixed.yaml
 ```
 
 ## Best Practices
@@ -190,3 +321,5 @@ rm deployment-nginx.yaml service-nginx.yaml pdb-nginx.yaml pdb-percentage.yaml p
 3. **Prozentangaben** sind nützlich bei variablen Replikaanzahlen
 4. **Testen Sie PDBs** vor der Produktionseinführung
 5. **Koordinieren Sie** PDBs mit HPA-Einstellungen
+6. **Vermeiden Sie zu strenge PDBs** die Rolling Updates blockieren können
+7. **Stellen Sie sicher**, dass minAvailable <= Anzahl der Replikas ist
