@@ -108,6 +108,7 @@
   1. Kubernetes Security
      * [Best practices security pods](security/best-practice-pods.md)
      * [Best practices in general](security/security-best-practices.md)
+     * [Images in kubernetes von privatem Repo verwenden](kubectl-examples/19-imagepullsecrets.md)
    
   1. Kubernetes Installation
      * [k3s installation](/installation/k3s.md)
