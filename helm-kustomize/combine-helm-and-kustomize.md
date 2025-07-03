@@ -140,14 +140,14 @@ tree .
 
 ```bash
 # Teste das Setup mit dry-run
-helm install my-app ./my-chart --post-renderer ./kustomize/kustomize-post-renderer.sh --dry-run --debug
+helm upgrade --install -n my-kapp-<namenskuerzel> my-app ./my-chart --post-renderer ./kustomize/kustomize-post-renderer.sh --dry-run --debug --create-namespace 
 ```
 
 ### Schritt 11: Deployment ausführen
 
 ```bash
 # Führe das Deployment aus
-helm install my-app ./my-chart --post-renderer ./kustomize/kustomize-post-renderer.sh
+helm upgrade --install -n my-kapp-<namenskuerzel> my-app ./my-chart --post-renderer ./kustomize/kustomize-post-renderer.sh --create-namespace
 ```
 
 ### Schritt 12: Deployment prüfen
