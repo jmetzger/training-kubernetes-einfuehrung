@@ -21,11 +21,59 @@ Ein PodDisruptionBudget (PDB) ist ein Kubernetes-Objekt, das die Verfügbarkeit 
 ### Schritt 1: Deployment ohne PDB erstellen
 
 ```bash
-# Deployment mit 3 Replikas erstellen
-kubectl create deployment nginx-app --image=nginx --replicas=3
+# Deployment-Manifest erstellen
+nano deployment-nginx.yaml
+```
 
-# Service erstellen
-kubectl expose deployment nginx-app --port=80 --type=ClusterIP
+```yaml
+# deployment-nginx.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-app
+  labels:
+    app: nginx-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-app
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+```
+
+```bash
+# Service-Manifest erstellen
+nano service-nginx.yaml
+```
+
+```yaml
+# service-nginx.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-app
+spec:
+  selector:
+    app: nginx-app
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+```
+
+```bash
+# Manifeste anwenden
+kubectl apply -f deployment-nginx.yaml
+kubectl apply -f service-nginx.yaml
 
 # Status überprüfen
 kubectl get pods -l app=nginx-app
@@ -46,6 +94,11 @@ kubectl delete pods -l app=nginx-app --field-selector spec.nodeName=$NODE_NAME
 ```
 
 ### Schritt 3: PodDisruptionBudget erstellen
+
+```bash
+# PDB-Manifest erstellen
+nano pdb-nginx.yaml
+```
 
 ```yaml
 # pdb-nginx.yaml
@@ -88,6 +141,11 @@ kubectl get pods -l app=nginx-app
 
 ### Schritt 5: Verschiedene PDB-Strategien testen
 
+```bash
+# PDB mit Prozentangabe erstellen
+nano pdb-percentage.yaml
+```
+
 ```yaml
 # pdb-percentage.yaml - Mit Prozentangabe
 apiVersion: policy/v1
@@ -112,6 +170,11 @@ kubectl describe pdb nginx-pdb-percentage
 
 ### Schritt 6: PDB mit maxUnavailable
 
+```bash
+# PDB mit maxUnavailable erstellen
+nano pdb-max-unavailable.yaml
+```
+
 ```yaml
 # pdb-max-unavailable.yaml
 apiVersion: policy/v1
@@ -134,12 +197,16 @@ kubectl get pdb nginx-pdb-max
 
 ```bash
 # Alle erstellten Ressourcen löschen
-kubectl delete deployment nginx-app
-kubectl delete service nginx-app
-kubectl delete pdb nginx-pdb-percentage nginx-pdb-max
+kubectl delete -f deployment-nginx.yaml
+kubectl delete -f service-nginx.yaml
+kubectl delete -f pdb-percentage.yaml
+kubectl delete -f pdb-max-unavailable.yaml
 
 # Node wieder aktivieren (falls gedrained)
 kubectl uncordon $NODE_NAME
+
+# Manifest-Dateien löschen (optional)
+rm deployment-nginx.yaml service-nginx.yaml pdb-nginx.yaml pdb-percentage.yaml pdb-max-unavailable.yaml
 ```
 
 ## Best Practices
