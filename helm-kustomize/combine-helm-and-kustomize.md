@@ -196,8 +196,8 @@ kind: Kustomization
 resources:
 - ../../base.yaml
 
-patchesStrategicMerge:
-- patches/dev-resources.yaml
+patches:
+- path: patches/dev-resources.yaml
 
 replicas:
 - name: my-app
@@ -217,9 +217,9 @@ kind: Kustomization
 resources:
 - ../../base.yaml
 
-patchesStrategicMerge:
-- patches/prod-resources.yaml
-- patches/prod-security.yaml
+patches:
+- path: patches/prod-resources.yaml
+- path: patches/prod-security.yaml
 
 replicas:
 - name: my-app
