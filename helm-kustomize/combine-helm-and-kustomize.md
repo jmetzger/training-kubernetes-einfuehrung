@@ -149,6 +149,9 @@ helm upgrade --install -n my-kapp-<namenskuerzel> my-app ./my-chart --post-rende
 ```bash
 # Führe das Deployment aus
 helm upgrade --install -n my-kapp-<namenskuerzel> my-app ./my-chart --post-renderer ./kustomize/kustomize-post-renderer.sh --create-namespace
+
+helm -n my-kapp-<namenskuerzel> list 
+helm -n my-kapp-<namenskuerzel> get manifest my-app
 ```
 
 ### Schritt 12: Deployment prüfen
