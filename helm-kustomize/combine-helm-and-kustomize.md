@@ -18,26 +18,64 @@ Helm kann nach dem Template-Rendering einen Post-Renderer aufrufen. Hier kann Ku
 
 ## Übung 
 
-### 1. Einfaches Post-Rendering Setup
+### Schritt 1: Helm Chart erstellen
 
 ```bash
-# Helm Chart mit Kustomize Post-Rendering installieren
-helm create my-chart 
-helm install my-app2 ./my-chart --post-renderer ./kustomize-post-renderer.sh
+# Erstelle ein neues Helm Chart
+helm create my-chart
+cd my-chart
 ```
 
-### 2. Post-Renderer Script
+### Schritt 2: Post-Renderer Script erstellen
 
 ```bash
+# Erstelle das Post-Renderer Script
+cat > kustomize-post-renderer.sh << 'EOF'
 #!/bin/bash
-# kustomize-post-renderer.sh
 cat <&0 > base.yaml
 kustomize build
+EOF
+
+# Script ausführbar machen
+chmod +x kustomize-post-renderer.sh
 ```
 
-### 3. Kustomization.yaml für Post-Rendering
+### Schritt 3: Patches-Verzeichnis erstellen
 
-```yaml
+```bash
+# Erstelle patches Verzeichnis
+mkdir -p patches
+```
+
+### Schritt 4: Deployment Patch erstellen
+
+```bash
+# Erstelle deployment-patch.yaml
+cat > patches/deployment-patch.yaml << 'EOF'
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-chart
+spec:
+  template:
+    spec:
+      containers:
+      - name: my-chart
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+EOF
+```
+
+### Schritt 5: Kustomization.yaml erstellen
+
+```bash
+# Erstelle kustomization.yaml
+cat > kustomization.yaml << 'EOF'
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
@@ -50,28 +88,29 @@ patchesStrategicMerge:
 images:
 - name: nginx
   newTag: "1.21"
+EOF
 ```
 
-### 4. Deployment Patch Beispiel
+### Schritt 6: Deployment testen
 
-```yaml
-# patches/deployment-patch.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: my-app
-spec:
-  template:
-    spec:
-      containers:
-      - name: my-app
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
+```bash
+# Teste das Setup mit dry-run
+helm install my-app ./my-chart --post-renderer ./kustomize-post-renderer.sh --dry-run --debug
+```
+
+### Schritt 7: Deployment ausführen
+
+```bash
+# Führe das Deployment aus
+helm install my-app ./my-chart --post-renderer ./kustomize-post-renderer.sh
+```
+
+### Schritt 8: Deployment prüfen
+
+```bash
+# Prüfe das Deployment
+kubectl get pods
+kubectl describe deployment my-app-my-chart
 ```
 
 ## Environment-spezifische Anpassungen
@@ -141,55 +180,9 @@ commonLabels:
   environment: prod
 ```
 
-## Advanced Use Cases
-
-### 1. Multi-Cluster Deployments
-
-```bash
-# Deployment für verschiedene Cluster
-helm template my-app ./chart --values values-cluster-a.yaml | \
-  kustomize build environments/cluster-a | \
-  kubectl apply -f -
-```
-
-### 2. GitOps Integration
-
-```yaml
-# argocd-application.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: my-app
-spec:
-  source:
-    repoURL: https://github.com/my-org/my-repo
-    path: helm-kustomize
-    plugin:
-      name: helm-kustomize
-```
-
-### 3. Secrets Management
-
-```yaml
-# kustomization.yaml mit Secret Generator
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-- base.yaml
-
-secretGenerator:
-- name: app-secrets
-  env: secrets.env
-```
 
 ## Best Practices
 
-### 1. Versionierung
-
-- Helm Charts für Basis-Templates und Versionierung
-- Kustomize für environment-spezifische Anpassungen
-- Git Tags für Release-Versionen
 
 ### 2. Testing
 
@@ -200,16 +193,6 @@ helm template my-app ./chart --values values-dev.yaml | \
   kubectl apply --dry-run=client -f -
 ```
 
-### 3. Validation
-
-```bash
-# Validierung der finalen Manifeste
-helm template my-app ./chart | \
-  kustomize build | \
-  kubeval -
-```
-
-## Deployment Scripts
 
 
 
