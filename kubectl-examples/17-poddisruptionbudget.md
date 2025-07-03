@@ -7,7 +7,7 @@ Ein PodDisruptionBudget (PDB) ist ein Kubernetes-Objekt, das die Verfügbarkeit 
 ## Wann brauche ich ein PodDisruptionBudget unbedingt?
 
 - **Hochverfügbare Anwendungen**: Bei kritischen Services, die kontinuierlich erreichbar sein müssen
-- **Cluster-Wartung**: Wenn Nodes regelmäßig für Updates oder Wartung genommen werden
+- **Cluster-Wartung**: Wenn Nodes regelmäßig für Updates oder Wartung runtergenommen werden
 
 ## Wann ist ein PodDisruptionBudget nicht nötig?
 
