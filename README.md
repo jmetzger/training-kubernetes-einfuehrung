@@ -84,7 +84,10 @@
 
   1. Helm mit gitlab ci/cd
      * [Helm mit gitlab ci/cd ausrollen](helm/helm/gitlab-ci-cd/example-helm-kubernetes.md)
-
+    
+  1. Kubernetes Verläßlichkeit erreichen 
+     * [Keine 2 pods auf gleichem Node - PodAntinAffinity](kubectl-examples/18-pod-anti-affinity.md)
+      
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](kubectl-examples/16-run-pod-as-unprivileged-user.md)
    
