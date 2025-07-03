@@ -82,6 +82,9 @@
   1. Helm und Kustomize kombinieren
      * [Helm und Kustomize kombinieren](helm-kustomize/combine-helm-and-kustomize.md)
 
+  1. Helm mit gitlab ci/cd
+     * [Helm mit gitlab ci/cd ausrollen](helm/helm/gitlab-ci-cd/example-helm-kubernetes.md)
+
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](kubectl-examples/16-run-pod-as-unprivileged-user.md)
    
