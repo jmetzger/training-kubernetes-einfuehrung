@@ -74,7 +74,20 @@
      * [Helm Warum ?](#helm-warum-)
      * [Helm Example](#helm-example)
      * [Helm Exercise with nginx](#helm-exercise-with-nginx)
+    
+  1. Helm - Charts enwickeln
+     * [Unser erstes Helm Chart erstellen](#unser-erstes-helm-chart-erstellen)
+     * [Wie starte ich am besten - Übung](#wie-starte-ich-am-besten---übung)
 
+  1. Helm und Kustomize kombinieren
+     * [Helm und Kustomize kombinieren](#helm-und-kustomize-kombinieren)
+
+  1. Helm mit gitlab ci/cd
+     * [Helm mit gitlab ci/cd ausrollen](#helm-mit-gitlab-cicd-ausrollen)
+    
+  1. Kubernetes Verläßlichkeit erreichen 
+     * [Keine 2 pods auf gleichem Node - PodAntinAffinity](#keine-2-pods-auf-gleichem-node---podantinaffinity)
+      
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](#probleme-über-logs-identifiziert---zb-non-root-image)
    
@@ -83,16 +96,20 @@
      * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
      * [Kubernetes Videos mit Hands On](https://www.youtube.com/watch?v=16fgzklcF7Y)
 
-  1. Kubernetes Monitoring 
-     * [Prometheus Monitoring Server (Overview)](#prometheus-monitoring-server-overview)
-     * [Prometheus / Grafana Stack installieren](#prometheus--grafana-stack-installieren)
+  1. Kubernetes Monitoring/Security
+     * [Überwachung, ob Images veraltet sind, direkt in Kubernetes](#überwachung-ob-images-veraltet-sind-direkt-in-kubernetes)
 
   1. Kubernetes Storage (CSI) 
      * [Überblick Persistant Volumes (CSI)](#überblick-persistant-volumes-csi)
      * [Liste der Treiber mit Features (CSI)](https://kubernetes-csi.github.io/docs/drivers.html)
      * [Übung Persistant Storage](#übung-persistant-storage)
      * [Beispiel mariadb](#beispiel-mariadb)
-    
+
+  1. Kubernetes Security
+     * [Best practices security pods](#best-practices-security-pods)
+     * [Best practices in general](#best-practices-in-general)
+     * [Images in kubernetes von privatem Repo verwenden](#images-in-kubernetes-von-privatem-repo-verwenden)
+   
   1. Kubernetes Installation
      * [k3s installation](#k3s-installation)
     
@@ -133,9 +150,9 @@
      * [Exercise Sealed Secret mariadb](#exercise-sealed-secret-mariadb)
      * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
-  1. Kubernetes Security
-     * [Best practices security pods](#best-practices-security-pods)
-     * [Best practices in general](#best-practices-in-general)
+ 1. Kubernetes Monitoring 
+     * [Prometheus Monitoring Server (Overview)](#prometheus-monitoring-server-overview)
+     * [Prometheus / Grafana Stack installieren](#prometheus--grafana-stack-installieren)
         
   1. Kubernetes Pod Termination
      * [LifeCycle Termination](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)
@@ -3449,6 +3466,491 @@ helm upgrade --install my-nginx bitnami/nginx --version 21.0.3 -f values.yaml
 helm uninstall my-nginx 
 ```
 
+## Helm - Charts enwickeln
+
+### Unser erstes Helm Chart erstellen
+
+
+### Chart erstellen 
+
+```
+cd 
+mkdir my-charts
+cd my-charts
+```
+
+```
+helm create my-app
+``` 
+
+### Install helm - chart 
+
+```
+## Variante 1:
+helm -n my-app-<namenskuerzel> install my-app-release my-app --create-namespace 
+```
+
+```
+## Variante 2:
+cd my-app
+helm -n my-app-<namenskuerzel> install my-app-release . --create-namespace 
+```
+
+```
+kubectl -n my-app-<namenskuerzel> get all
+kubectl -n my-app-<namenskuerzel> get pods 
+```
+
+### Wie starte ich am besten - Übung
+
+
+### Exercise 
+
+```
+cd
+mkdir -p my-charts
+cd my-charts
+helm create simple-chart 
+```
+
+```
+## Alles Weg was wir nicht brauchen
+cd simple-chart
+rm values.yaml
+cd templates
+rm -f *.yaml
+rm -fR tests
+echo "Ausgabe nach Install" > NOTES.txt
+```
+
+```
+nano deploy.yaml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 8 # tells deployment to run 8 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.26
+        ports:
+        - containerPort: 80
+```
+
+```
+## aus dem templates ordner raus 
+cd ..
+## aus dem chart raus
+cd ..
+```
+
+```
+## Installieren 
+helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app simple-chart --create-namespace
+kubectl -n my-simple-app-<namenskuerzel> get all 
+```
+ 
+### Exercise Phase 2: Um Replicas erweitern 
+
+```
+cd simple-chart
+nano values.yaml
+```
+
+```
+deployment:
+  replicas: 5
+```
+
+```
+cd templates
+nano deploy.yaml
+```
+
+```
+## aus der Zeile:
+## replicas: 9
+## wird ->
+  replicas: {{ .Values.deployment.replicas }}
+```
+
+```
+ä Gehen aus dem Chart raus 
+cd ..
+cd ..
+helm template simple-chart
+helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app simple-chart --create-namespace
+kubectl -n my-simple-app-<namenskuerzel> get pods 
+```
+
+```
+nano simple-app-values.yaml
+```
+
+```
+deployment:
+  replicas: 2
+```
+
+```
+helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app simple-chart -f simple-app-values.yaml
+kubectl -n my-simple-app-<namenskuerzel> get pods
+```
+
+## Helm und Kustomize kombinieren
+
+### Helm und Kustomize kombinieren
+
+
+### Übersicht
+
+Die Kombination von Helm und Kustomize bietet die Flexibilität von Kustomize mit der Paketierung und Versionierung von Helm. Dies ist besonders nützlich für komplexe Deployments, die environment-spezifische Anpassungen benötigen.
+
+### Helm Post-Rendering mit Kustomize
+
+#### Grundlegendes Konzept
+
+Helm kann nach dem Template-Rendering einen Post-Renderer aufrufen. Hier kann Kustomize die gerenderten Manifeste weiter anpassen.
+
+#### Workflow
+
+1. Helm rendert Templates basierend auf Values
+2. Kustomize modifiziert die gerenderten Manifeste
+3. Finale Manifeste werden deployed
+
+### Übung 
+
+#### Schritt 1: Arbeitsverzeichnis erstellen
+
+```bash
+## Erstelle Arbeitsverzeichnis
+cd
+mkdir helm-kustomize-demo
+cd helm-kustomize-demo
+```
+
+#### Schritt 2: Helm Chart erstellen
+
+```bash
+## Erstelle ein neues Helm Chart
+helm create my-chart
+```
+
+#### Schritt 3: Kustomize-Verzeichnis erstellen
+
+```bash
+## Erstelle Kustomize-Verzeichnis
+mkdir kustomize
+cd kustomize
+```
+
+#### Schritt 4: Post-Renderer Script erstellen
+
+```bash
+## Erstelle das Post-Renderer Script
+cat > kustomize-post-renderer.sh << 'EOF'
+##!/bin/bash
+## Wechsle ins kustomize Verzeichnis
+cd "$(dirname "$0")"
+## Speichere Helm Output als base.yaml
+cat <&0 > base.yaml
+## Führe kustomize build aus
+kubectl kustomize .
+EOF
+
+## Script ausführbar machen
+chmod +x kustomize-post-renderer.sh
+```
+
+#### Schritt 5: Patches-Verzeichnis erstellen
+
+```bash
+## Erstelle patches Verzeichnis
+mkdir -p patches
+```
+
+#### Schritt 6: Deployment Patch erstellen
+
+```bash
+## Erstelle deployment-patch.yaml
+cat > patches/deployment-patch.yaml << 'EOF'
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-my-chart
+spec:
+  template:
+    spec:
+      containers:
+      - name: my-chart
+        resources:
+          requests:
+            memory: "80Mi"
+            cpu: "300m"
+          limits:
+            memory: "80Mi"
+            cpu: "300m"
+EOF
+```
+
+#### Schritt 7: Kustomization.yaml erstellen
+
+```bash
+## Erstelle kustomization.yaml
+cat > kustomization.yaml << 'EOF'
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- base.yaml
+
+patches:
+- path: patches/deployment-patch.yaml
+
+images:
+- name: nginx
+  newTag: "1.21"
+EOF
+```
+
+#### Schritt 8: Zurück ins Hauptverzeichnis
+
+```bash
+## Gehe zurück ins Hauptverzeichnis
+cd ..
+```
+
+#### Schritt 9: Verzeichnisstruktur prüfen
+
+```bash
+## Prüfe die Verzeichnisstruktur
+tree .
+## Ergebnis sollte sein:
+## .
+## ├── kustomize/
+## │   ├── kustomization.yaml
+## │   ├── kustomize-post-renderer.sh
+## │   └── patches/
+## │       └── deployment-patch.yaml
+## └── my-chart/
+##     ├── Chart.yaml
+##     ├── charts/
+##     ├── templates/
+##     └── values.yaml
+```
+
+#### Schritt 10: Deployment testen
+
+```bash
+## Teste das Setup mit dry-run
+helm upgrade --install -n my-kapp-<namenskuerzel> my-app ./my-chart --post-renderer ./kustomize/kustomize-post-renderer.sh --dry-run --debug --create-namespace 
+```
+
+#### Schritt 11: Deployment ausführen
+
+```bash
+## Führe das Deployment aus
+helm upgrade --install -n my-kapp-<namenskuerzel> my-app ./my-chart --post-renderer ./kustomize/kustomize-post-renderer.sh --create-namespace
+
+helm -n my-kapp-<namenskuerzel> list 
+helm -n my-kapp-<namenskuerzel> get manifest my-app
+```
+
+#### Schritt 12: Deployment prüfen
+
+```bash
+## Prüfe das Deployment
+kubectl -n my-kapp-<namenskuerzel> get pods
+kubectl -n my-kapp-<namenskuerzel> describe deployment my-app-my-chart
+```
+
+### Environment-spezifische Anpassungen
+
+#### Ordnerstruktur
+
+```
+helm-kustomize/
+├── chart/
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   └── templates/
+├── environments/
+│   ├── dev/
+│   │   ├── kustomization.yaml
+│   │   └── patches/
+│   ├── staging/
+│   │   ├── kustomization.yaml
+│   │   └── patches/
+│   └── prod/
+│       ├── kustomization.yaml
+│       └── patches/
+└── scripts/
+    └── deploy.sh
+```
+
+#### Development Environment
+
+```yaml
+## environments/dev/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base.yaml
+
+patches:
+- path: patches/dev-resources.yaml
+
+replicas:
+- name: my-app
+  count: 1
+
+commonLabels:
+  environment: dev
+```
+
+#### Production Environment
+
+```yaml
+## environments/prod/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base.yaml
+
+patches:
+- path: patches/prod-resources.yaml
+- path: patches/prod-security.yaml
+
+replicas:
+- name: my-app
+  count: 3
+
+commonLabels:
+  environment: prod
+```
+
+
+### Best Practices
+
+
+#### 2. Testing
+
+```bash
+## Dry-run für Testing
+helm template my-app ./chart --values values-dev.yaml | \
+  kubectl kustomize environments/dev | \
+  kubectl apply --dry-run=client -f -
+```
+
+
+
+
+
+
+## Helm mit gitlab ci/cd
+
+### Helm mit gitlab ci/cd ausrollen
+
+
+### Step 1: Create gitlab - repo and pipeline 
+
+```
+1. Create new repo on gitlab 
+2. Click on pipeline Editor and creat .gitlab-ci.yml with Button 
+
+```
+
+### Step 2: Push your helm chart files to repo 
+
+
+   * Now looks like this
+
+![image](https://github.com/user-attachments/assets/5e88593b-5b31-4adf-a2bb-e5e9a5129be5)
+
+### Step 3: Add your KUBECONFIG as Variable (type: File) to Variables 
+
+  * https://gitlab.com/jmetzger/training-helm-chart-kubernetes-gitlab-ci-cd/-/settings/ci_cd#js-cicd-variables-settings
+
+![image](https://github.com/user-attachments/assets/b5168cf3-dd74-4d86-becf-e807985dd471)
+
+### Step 4: Create a pipeline for deployment 
+
+```
+stages:          # List of stages for jobs, and their order of execution
+  - deploy
+
+variables:
+  APP_NAME: my-first-app
+
+deploy:
+  stage: deploy
+  image: 
+    name: alpine/helm:3.2.1
+## Important to unset entrypoint 
+    entrypoint: [""]
+  script:
+    - ls -la
+    - cd; mkdir .kube; cd .kube; cat $KUBECONFIG_SECRET > config; ls -la;
+    - cd $CI_PROJECT_DIR; helm upgrade ${APP_NAME} ./charts/my-app --install --namespace ${APP_NAME} --create-namespace -f ./config/values.yaml
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
+      when: always
+
+```
+
+
+### Reference: Example Project (Public)
+
+  * https://gitlab.com/jmetzger/training-helm-chart-kubernetes-gitlab-ci-cd
+
+## Kubernetes Verläßlichkeit erreichen 
+
+### Keine 2 pods auf gleichem Node - PodAntinAffinity
+
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: my-app
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: my-app
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+```
+
 ## Kubernetes Debugging
 
 ### Probleme über Logs identifiziert - z.B. non-root image
@@ -3530,155 +4032,52 @@ kubectl get pods
 
   * https://www.youtube.com/watch?v=16fgzklcF7Y
 
-## Kubernetes Monitoring 
+## Kubernetes Monitoring/Security
 
-### Prometheus Monitoring Server (Overview)
-
-
-### What does it do ?
-
-  * It monitors your system by collecting data
-  * Data is pulled from your system by defined endpoints (http) from your cluster 
-  * To provide data on your system, a lot of exporters are available, that
-    * collect the data and provide it in Prometheus
-
-### Technical 
-
-  * Prometheus has a TDB (Time Series Database) and is good as storing time series with data
-  * Prometheus includes a local on-disk time series database, but also optionally integrates with remote storage systems.
-  * Prometheus's local time series database stores data in a custom, highly efficient format on local storage.
-  * Ref: https://prometheus.io/docs/prometheus/latest/storage/
-
-### What are time series ? 
-
-  * A time series is a sequence of data points that occur in successive order over some period of time. 
-  * Beispiel: 
-    * Du willst die täglichen Schlusspreise für eine Aktie für ein Jahr dokumentieren
-    * Damit willst Du weitere Analysen machen 
-    * Du würdest das Paar Datum/Preis dann in der Datumsreihenfolge sortieren und so ausgeben
-    * Dies wäre eine "time series" 
-
-### Kompenenten von Prometheus 
-
-![Prometheus Schaubild](https://www.devopsschool.com/blog/wp-content/uploads/2021/01/What-is-Prometheus-Architecutre-components1-740x414.png)
-
-Quelle: https://www.devopsschool.com/
-
-#### Prometheus Server 
-
-1. Retrieval (Sammeln) 
-   * Data Retrieval Worker 
-     * pull metrics data
-1. Storage 
-   * Time Series Database (TDB)
-     * stores metrics data
-1. HTTP Server 
-   * Accepts PromQL - Queries (e.g. from Grafana)
-     * accept queries 
-  
-### Grafana ? 
-
-  * Grafana wird meist verwendet um die grafische Auswertung zu machen.
-  * Mit Grafana kann ich einfach Dashboards verwenden 
-  * Ich kann sehr leicht festlegen (Durch Data Sources), so meine Daten herkommen
-
-### Prometheus / Grafana Stack installieren
+### Überwachung, ob Images veraltet sind, direkt in Kubernetes
 
 
-  * using the kube-prometheus-stack (recommended !: includes important metrics)
+   * Can also update images (i would always go towards gitlab ci/cd doing this)
+   * Kann z.B. über slack benachrichtigen 
 
-### Step 1: Prepare values-file  
+### Setup (Achtung ungetestet)
 
 ```
-cd
-mkdir -p manifests 
-cd manifests 
-mkdir -p monitoring 
-cd monitoring 
+## Korrekte Struktur für aktuelle Keel Version
+helmProvider:
+  enabled: true
+
+## Korrekte Notification-Konfiguration
+notification:
+  slack:
+    enabled: true
+    token: "xoxb-YOUR-TOKEN"
+    channel: "#updates"
+
+## Korrekte Approval-Konfiguration
+approvals:
+  enabled: true
+
+## Korrekte Trigger-Konfiguration
+triggers:
+  poll:
+    enabled: true
+  pubsub:
+    enabled: false
+
 ```
 
 ```
-vi values.yml 
-```
+helm repo add keel https://charts.keel.sh
+helm repo update
+
+## 2. Installation mit der values.yaml
+helm install keel keel/keel \
+  --namespace keel \
+  --create-namespace \
+  -f values.yaml
 
 ```
-fullnameOverride: prometheus
-
-alertmanager:
-  fullnameOverride: alertmanager
-
-grafana:
-  fullnameOverride: grafana
-
-kube-state-metrics:
-  fullnameOverride: kube-state-metrics
-
-prometheus-node-exporter:
-  fullnameOverride: node-exporter
-```
-
-### Step 2: Install with helm 
-
-```
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm install prometheus prometheus-community/kube-prometheus-stack -f values.yml --namespace monitoring --create-namespace --version 61.3.1
-```
-
-### Step 3: Connect to prometheus from the outside world 
-
-#### Step 3.1: Start proxy to connect (to on Linux Client)
-
-```
-## this is shown in the helm information 
-helm -n monitoring get notes prometheus
-
-## Get pod that runs prometheus 
-kubectl -n monitoring get service 
-kubectl -n monitoring port-forward svc/prometheus-prometheus 9090 &
-
-```
-
-#### Step 3.2: Start a tunnel in (from) your local-system to the server 
-
-```
-ssh -L 9090:localhost:9090 tln1@164.92.129.7
-```
-
-#### Step 3.3: Open prometheus in your local browser 
-
-```
-## in browser
-http://localhost:9090 
-```
-
-### Step 4: Connect to the grafana from the outside world 
-
-#### Step 4.1: Start proxy to connect 
-
-```
-## Do the port forwarding 
-## Adjust your pods here
-kubectl -n monitoring get pods | grep grafana 
-kubectl -n monitoring port-forward grafana-56b45d8bd9-bp899 3000 &
-```
-
-#### Step 4.2: Start a tunnel in (from) your local-system to the server 
-
-```
-ssh -L 3000:localhost:3000 tln1@164.92.129.7
-```
-
-
-
-
-
-
-### References:
-
-  * https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md
-  * https://artifacthub.io/packages/helm/prometheus-community/prometheus
-
-  
 
 ## Kubernetes Storage (CSI) 
 
@@ -4003,6 +4402,128 @@ kubectl apply -f .
 ```
 kubectl describe po mariadb-deployment-<euer-pod>
 ```
+
+## Kubernetes Security
+
+### Best practices security pods
+
+
+```
+5. Security / Best practice pods 
+
+5.1. Pods 
+1) Use Readiness / Liveness check 
+
+Not we really security, but to have a stable system 
+
+2) Use Non-Root Images 
+(is not allowed in OpenShift anyways)
+
+3) SecurityContext: Restrict the Features in the pod/container as much as possible
+
+Essentially covered by Default SCC's:
+https://docs.openshift.com/container-platform/4.18/authentication/managing-security-context-constraints.html
+
+Essentially use the v2 versions. 
+
+Question will Always be: Do I really Need this for this post 
+(e.g. HostNetwork). Is there are better/safer way to achieve this 
+```
+
+### Best practices in general
+
+
+```
+6. Security (other stuff) 
+6.1. Be sure upgrade your system and use the newest versions (OS / OpenShift) 
+6.2. Setup Firewall rules, for the cluster components. (OpenShift) - 
+https://docs.openshift.com/container-platform/4.16/installing/install_config/configuring-firewall.html
+
+6.3. Do not install any components, that you do not Need (with helm)
+
+6.4. Always download Images instead of using them locally. 
+
+I think it also has to do with auth. When set to always, the pod will pull the image from the registry, hence it has to do auth and have valid credentials to actually get the image.
+If the image is already in the node, and let's say permission has been removed to access that image for that node in the registry, a pod could still be created since the image is already there.
+
+-> Wie sicherstellen, dass das gesetzt ist ? 
+OPA Gateway 
+```
+
+
+
+```
+6.5. Scan all your Images before using them
+
+6.5.1. In development
+
+6.5.2. CI / CD Pipeline 
+
+6.5.3 Registry (when uploading them)
+```
+
+```
+6.6. Restrict ssh Access 
+(no ssh-access to cluster nodes please  !)
+```
+
+```
+6.7. Use NetworkPolicies 
+
+https://docs.openshift.com/container-platform/4.12/networking/network_policy/about-network-policy.html
+-> BUT: Use the specific Network Policies of your CNI
+
+```
+```
+
+### Images in kubernetes von privatem Repo verwenden
+
+
+  * Zugriff auf registries mit authentifizierung
+
+### Exercise 
+
+```
+mkdir -p manifests
+cd manifests
+mkdir private-repo
+cd private-repo
+```
+
+```
+kubectl create secret docker-registry regcred --docker-server=registry.do.t3isp.de \
+--docker-username=11trainingdo --docker-password=<sehr-geheim> --dry-run=client -o yaml > 01-secret.yaml 
+```
+
+```
+kubectl create secret generic mariadb-secret --from-literal=MARIADB_ROOT_PASSWORD=11abc432 --dry-run=client -o yaml > 02-secret.yml
+```
+
+
+```
+nano 02-pod.yaml
+```
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: private-reg
+spec:
+  containers:
+  - name: private-reg-container
+    image: registry.do.t3isp.de/mariadb:11.4.5
+    envFrom:
+      - secretRef:
+          name: mariadb-secret
+  imagePullSecrets:
+  - name: regcred
+```
+
+```
+kubectl apply -f .
+kubectl get pods -o wide private-reg
+kubectl describe pods private-reg 
 
 ## Kubernetes Installation
 
@@ -5005,78 +5526,153 @@ kubectl get sealedsecrets
 
   * https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 
-## Kubernetes Security
-
-### Best practices security pods
+### Prometheus Monitoring Server (Overview)
 
 
-```
-5. Security / Best practice pods 
+### What does it do ?
 
-5.1. Pods 
-1) Use Readiness / Liveness check 
+  * It monitors your system by collecting data
+  * Data is pulled from your system by defined endpoints (http) from your cluster 
+  * To provide data on your system, a lot of exporters are available, that
+    * collect the data and provide it in Prometheus
 
-Not we really security, but to have a stable system 
+### Technical 
 
-2) Use Non-Root Images 
-(is not allowed in OpenShift anyways)
+  * Prometheus has a TDB (Time Series Database) and is good as storing time series with data
+  * Prometheus includes a local on-disk time series database, but also optionally integrates with remote storage systems.
+  * Prometheus's local time series database stores data in a custom, highly efficient format on local storage.
+  * Ref: https://prometheus.io/docs/prometheus/latest/storage/
 
-3) SecurityContext: Restrict the Features in the pod/container as much as possible
+### What are time series ? 
 
-Essentially covered by Default SCC's:
-https://docs.openshift.com/container-platform/4.18/authentication/managing-security-context-constraints.html
+  * A time series is a sequence of data points that occur in successive order over some period of time. 
+  * Beispiel: 
+    * Du willst die täglichen Schlusspreise für eine Aktie für ein Jahr dokumentieren
+    * Damit willst Du weitere Analysen machen 
+    * Du würdest das Paar Datum/Preis dann in der Datumsreihenfolge sortieren und so ausgeben
+    * Dies wäre eine "time series" 
 
-Essentially use the v2 versions. 
+### Kompenenten von Prometheus 
 
-Question will Always be: Do I really Need this for this post 
-(e.g. HostNetwork). Is there are better/safer way to achieve this 
-```
+![Prometheus Schaubild](https://www.devopsschool.com/blog/wp-content/uploads/2021/01/What-is-Prometheus-Architecutre-components1-740x414.png)
 
-### Best practices in general
+Quelle: https://www.devopsschool.com/
+
+#### Prometheus Server 
+
+1. Retrieval (Sammeln) 
+   * Data Retrieval Worker 
+     * pull metrics data
+1. Storage 
+   * Time Series Database (TDB)
+     * stores metrics data
+1. HTTP Server 
+   * Accepts PromQL - Queries (e.g. from Grafana)
+     * accept queries 
+  
+### Grafana ? 
+
+  * Grafana wird meist verwendet um die grafische Auswertung zu machen.
+  * Mit Grafana kann ich einfach Dashboards verwenden 
+  * Ich kann sehr leicht festlegen (Durch Data Sources), so meine Daten herkommen
+
+### Prometheus / Grafana Stack installieren
 
 
-```
-6. Security (other stuff) 
-6.1. Be sure upgrade your system and use the newest versions (OS / OpenShift) 
-6.2. Setup Firewall rules, for the cluster components. (OpenShift) - 
-https://docs.openshift.com/container-platform/4.16/installing/install_config/configuring-firewall.html
+  * using the kube-prometheus-stack (recommended !: includes important metrics)
 
-6.3. Do not install any components, that you do not Need (with helm)
-
-6.4. Always download Images instead of using them locally. 
-
-I think it also has to do with auth. When set to always, the pod will pull the image from the registry, hence it has to do auth and have valid credentials to actually get the image.
-If the image is already in the node, and let's say permission has been removed to access that image for that node in the registry, a pod could still be created since the image is already there.
-
--> Wie sicherstellen, dass das gesetzt ist ? 
-OPA Gateway 
-```
-
-
-
-```
-6.5. Scan all your Images before using them
-
-6.5.1. In development
-
-6.5.2. CI / CD Pipeline 
-
-6.5.3 Registry (when uploading them)
-```
+### Step 1: Prepare values-file  
 
 ```
-6.6. Restrict ssh Access 
-(no ssh-access to cluster nodes please  !)
+cd
+mkdir -p manifests 
+cd manifests 
+mkdir -p monitoring 
+cd monitoring 
 ```
 
 ```
-6.7. Use NetworkPolicies 
-
-https://docs.openshift.com/container-platform/4.12/networking/network_policy/about-network-policy.html
--> BUT: Use the specific Network Policies of your CNI
+vi values.yml 
+```
 
 ```
+fullnameOverride: prometheus
+
+alertmanager:
+  fullnameOverride: alertmanager
+
+grafana:
+  fullnameOverride: grafana
+
+kube-state-metrics:
+  fullnameOverride: kube-state-metrics
+
+prometheus-node-exporter:
+  fullnameOverride: node-exporter
 ```
+
+### Step 2: Install with helm 
+
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install prometheus prometheus-community/kube-prometheus-stack -f values.yml --namespace monitoring --create-namespace --version 61.3.1
+```
+
+### Step 3: Connect to prometheus from the outside world 
+
+#### Step 3.1: Start proxy to connect (to on Linux Client)
+
+```
+## this is shown in the helm information 
+helm -n monitoring get notes prometheus
+
+## Get pod that runs prometheus 
+kubectl -n monitoring get service 
+kubectl -n monitoring port-forward svc/prometheus-prometheus 9090 &
+
+```
+
+#### Step 3.2: Start a tunnel in (from) your local-system to the server 
+
+```
+ssh -L 9090:localhost:9090 tln1@164.92.129.7
+```
+
+#### Step 3.3: Open prometheus in your local browser 
+
+```
+## in browser
+http://localhost:9090 
+```
+
+### Step 4: Connect to the grafana from the outside world 
+
+#### Step 4.1: Start proxy to connect 
+
+```
+## Do the port forwarding 
+## Adjust your pods here
+kubectl -n monitoring get pods | grep grafana 
+kubectl -n monitoring port-forward grafana-56b45d8bd9-bp899 3000 &
+```
+
+#### Step 4.2: Start a tunnel in (from) your local-system to the server 
+
+```
+ssh -L 3000:localhost:3000 tln1@164.92.129.7
+```
+
+
+
+
+
+
+### References:
+
+  * https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md
+  * https://artifacthub.io/packages/helm/prometheus-community/prometheus
+
+  
 
 ## Kubernetes Pod Termination
 
