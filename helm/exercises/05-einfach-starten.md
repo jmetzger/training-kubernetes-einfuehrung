@@ -58,3 +58,49 @@ helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app simple-cha
 kubectl -n my-simple-app-<namenskuerzel> get all 
 ```
  
+## Exercise Phase 2: Um Replicas erweitern 
+
+```
+cd simple-chart
+nano values.yaml
+```
+
+```
+deployment:
+  replicas: 5
+```
+
+```
+cd templates
+nano deploy.yaml
+```
+
+````
+# aus der Zeile:
+# replicas: 9
+# wird ->
+  replicas: {{ .Values.deployment.replicas }}
+```
+
+```
+ä Gehen aus dem Chart raus 
+cd ..
+cd ..
+helm template simple-chart
+helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app simple-chart --create-namespace
+kubectl -n my-simple-app-<namenskuerzel> get pods 
+```
+
+```
+nano simple-app-values.yaml
+```
+
+```
+deployment:
+  replicas: 2
+```
+
+```
+helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app simple-chart -f simple-app-values.yaml
+kubectl -n my-simple-app-<namenskuerzel> get pods
+```
