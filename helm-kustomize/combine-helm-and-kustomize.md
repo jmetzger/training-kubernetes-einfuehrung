@@ -102,7 +102,7 @@ resources:
 - base.yaml
 
 patches:
-- patches/deployment-patch.yaml
+- path: patches/deployment-patch.yaml
 
 images:
 - name: nginx
