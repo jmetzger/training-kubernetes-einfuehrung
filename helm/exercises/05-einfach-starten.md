@@ -75,7 +75,7 @@ cd templates
 nano deploy.yaml
 ```
 
-````
+```
 # aus der Zeile:
 # replicas: 9
 # wird ->
