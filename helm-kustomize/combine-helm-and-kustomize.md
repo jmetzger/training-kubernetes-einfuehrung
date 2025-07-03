@@ -101,7 +101,7 @@ kind: Kustomization
 resources:
 - base.yaml
 
-patchesStrategicMerge:
+patches:
 - patches/deployment-patch.yaml
 
 images:
