@@ -47,8 +47,12 @@ cd kustomize
 # Erstelle das Post-Renderer Script
 cat > kustomize-post-renderer.sh << 'EOF'
 #!/bin/bash
+# Wechsle ins kustomize Verzeichnis
+cd "$(dirname "$0")"
+# Speichere Helm Output als base.yaml
 cat <&0 > base.yaml
-kustomize build
+# Führe kustomize build aus
+kustomize build .
 EOF
 
 # Script ausführbar machen
