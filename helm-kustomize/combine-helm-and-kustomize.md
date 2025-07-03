@@ -16,13 +16,14 @@ Helm kann nach dem Template-Rendering einen Post-Renderer aufrufen. Hier kann Ku
 2. Kustomize modifiziert die gerenderten Manifeste
 3. Finale Manifeste werden deployed
 
-## Praktische Beispiele
+## Übung 
 
 ### 1. Einfaches Post-Rendering Setup
 
 ```bash
 # Helm Chart mit Kustomize Post-Rendering installieren
-helm install my-app ./my-chart --post-renderer ./kustomize-post-renderer.sh
+helm create my-chart 
+helm install my-app2 ./my-chart --post-renderer ./kustomize-post-renderer.sh
 ```
 
 ### 2. Post-Renderer Script
