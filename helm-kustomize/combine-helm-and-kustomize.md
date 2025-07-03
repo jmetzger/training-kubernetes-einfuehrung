@@ -158,8 +158,8 @@ helm -n my-kapp-<namenskuerzel> get manifest my-app
 
 ```bash
 # Prüfe das Deployment
-kubectl get pods
-kubectl describe deployment my-app-my-chart
+kubectl -n my-kapp-<namenskuerzel> get pods
+kubectl -n my-kapp-<namenskuerzel> describe deployment my-app-my-chart
 ```
 
 ## Environment-spezifische Anpassungen
