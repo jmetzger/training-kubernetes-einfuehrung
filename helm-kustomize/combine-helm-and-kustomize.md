@@ -18,15 +18,30 @@ Helm kann nach dem Template-Rendering einen Post-Renderer aufrufen. Hier kann Ku
 
 ## Übung 
 
-### Schritt 1: Helm Chart erstellen
+### Schritt 1: Arbeitsverzeichnis erstellen
+
+```bash
+# Erstelle Arbeitsverzeichnis
+mkdir helm-kustomize-demo
+cd helm-kustomize-demo
+```
+
+### Schritt 2: Helm Chart erstellen
 
 ```bash
 # Erstelle ein neues Helm Chart
 helm create my-chart
-cd my-chart
 ```
 
-### Schritt 2: Post-Renderer Script erstellen
+### Schritt 3: Kustomize-Verzeichnis erstellen
+
+```bash
+# Erstelle Kustomize-Verzeichnis
+mkdir kustomize
+cd kustomize
+```
+
+### Schritt 4: Post-Renderer Script erstellen
 
 ```bash
 # Erstelle das Post-Renderer Script
@@ -40,14 +55,14 @@ EOF
 chmod +x kustomize-post-renderer.sh
 ```
 
-### Schritt 3: Patches-Verzeichnis erstellen
+### Schritt 5: Patches-Verzeichnis erstellen
 
 ```bash
 # Erstelle patches Verzeichnis
 mkdir -p patches
 ```
 
-### Schritt 4: Deployment Patch erstellen
+### Schritt 6: Deployment Patch erstellen
 
 ```bash
 # Erstelle deployment-patch.yaml
@@ -71,7 +86,7 @@ spec:
 EOF
 ```
 
-### Schritt 5: Kustomization.yaml erstellen
+### Schritt 7: Kustomization.yaml erstellen
 
 ```bash
 # Erstelle kustomization.yaml
@@ -91,21 +106,47 @@ images:
 EOF
 ```
 
-### Schritt 6: Deployment testen
+### Schritt 8: Zurück ins Hauptverzeichnis
+
+```bash
+# Gehe zurück ins Hauptverzeichnis
+cd ..
+```
+
+### Schritt 9: Verzeichnisstruktur prüfen
+
+```bash
+# Prüfe die Verzeichnisstruktur
+tree .
+# Ergebnis sollte sein:
+# .
+# ├── kustomize/
+# │   ├── kustomization.yaml
+# │   ├── kustomize-post-renderer.sh
+# │   └── patches/
+# │       └── deployment-patch.yaml
+# └── my-chart/
+#     ├── Chart.yaml
+#     ├── charts/
+#     ├── templates/
+#     └── values.yaml
+```
+
+### Schritt 10: Deployment testen
 
 ```bash
 # Teste das Setup mit dry-run
-helm install my-app ./my-chart --post-renderer ./kustomize-post-renderer.sh --dry-run --debug
+helm install my-app ./my-chart --post-renderer ./kustomize/kustomize-post-renderer.sh --dry-run --debug
 ```
 
-### Schritt 7: Deployment ausführen
+### Schritt 11: Deployment ausführen
 
 ```bash
 # Führe das Deployment aus
-helm install my-app ./my-chart --post-renderer ./kustomize-post-renderer.sh
+helm install my-app ./my-chart --post-renderer ./kustomize/kustomize-post-renderer.sh
 ```
 
-### Schritt 8: Deployment prüfen
+### Schritt 12: Deployment prüfen
 
 ```bash
 # Prüfe das Deployment
