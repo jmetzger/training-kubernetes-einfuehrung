@@ -51,3 +51,8 @@ cd ..
 # aus dem chart raus
 cd ..
 ```
+
+```
+helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app my-simple-chart --create-namespace
+```
+ 
