@@ -96,16 +96,19 @@
      * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
      * [Kubernetes Videos mit Hands On](https://www.youtube.com/watch?v=16fgzklcF7Y)
 
-  1. Kubernetes Monitoring 
-     * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
-     * [Prometheus / Grafana Stack installieren](prometheus-grafana/install-with-helm.md)
+  1. Kubernetes Monitoring/Security
+     * [Überwachung, ob Images veraltet sind, direkt in Kubernetes](kubernetes-monitoring/keel-monitor-outdated-images.md)
 
   1. Kubernetes Storage (CSI) 
      * [Überblick Persistant Volumes (CSI)](kubernetes-csi/overview.md)
      * [Liste der Treiber mit Features (CSI)](https://kubernetes-csi.github.io/docs/drivers.html)
      * [Übung Persistant Storage](kubernetes-csi/nfs-exercise.md)
      * [Beispiel mariadb](kubernetes-csi/example-mariadb.md)
-    
+
+  1. Kubernetes Security
+     * [Best practices security pods](security/best-practice-pods.md)
+     * [Best practices in general](security/security-best-practices.md)
+   
   1. Kubernetes Installation
      * [k3s installation](/installation/k3s.md)
     
@@ -146,9 +149,9 @@
      * [Exercise Sealed Secret mariadb](/kubectl-examples/08-sealed-secret.md)
      * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
-  1. Kubernetes Security
-     * [Best practices security pods](security/best-practice-pods.md)
-     * [Best practices in general](security/security-best-practices.md)
+ 1. Kubernetes Monitoring 
+     * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
+     * [Prometheus / Grafana Stack installieren](prometheus-grafana/install-with-helm.md)
         
   1. Kubernetes Pod Termination
      * [LifeCycle Termination](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)
