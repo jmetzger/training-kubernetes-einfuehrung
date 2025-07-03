@@ -22,6 +22,7 @@ Helm kann nach dem Template-Rendering einen Post-Renderer aufrufen. Hier kann Ku
 
 ```bash
 # Erstelle Arbeitsverzeichnis
+cd
 mkdir helm-kustomize-demo
 cd helm-kustomize-demo
 ```
