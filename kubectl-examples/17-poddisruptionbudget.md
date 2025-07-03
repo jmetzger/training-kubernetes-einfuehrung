@@ -22,6 +22,10 @@ Ein PodDisruptionBudget (PDB) ist ein Kubernetes-Objekt, das die Verfügbarkeit 
 
 ```bash
 # Deployment-Manifest erstellen
+mkdir -p manifests
+cd manifests
+mkdir pdb
+cd pdb 
 nano deployment-nginx.yaml
 ```
 
