@@ -55,5 +55,6 @@ cd ..
 ```
 # Installieren 
 helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app simple-chart --create-namespace
+kubectl -n my-simple-app-<namenskuerzel> get all 
 ```
  
