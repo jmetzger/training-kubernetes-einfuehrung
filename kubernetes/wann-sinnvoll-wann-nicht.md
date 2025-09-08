@@ -23,7 +23,8 @@
   * Debugging wird u.U. schwieriger
   * Mit Kubernetes erkaufe ich mir auch, die Notwendigkeit.
     * Über adequate Backup-Lösungen nachzudenken (Moving Target, Kubernetes Aware Backups) 
-    * Bereitsstellung von Monitoring Daten Log-Aggregierungslösung 
+    * Bereitsstellung von Monitoring
+    * Bereitsstellung Observability (Log-Aggregierungslösung, Tracing) 
 
 ## Klassische Anwendungsfällen (wo Kubernetes von Vorteil) 
 
