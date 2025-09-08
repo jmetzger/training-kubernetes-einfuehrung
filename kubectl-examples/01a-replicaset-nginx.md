@@ -43,7 +43,7 @@ kubectl get all
 kubectl describe pod/nginx-replica-set-lpkbs
 ```
 
-## Walthrough Skalien 
+## Walthrough Skalieren
 
 ```
 nano rs.yml
