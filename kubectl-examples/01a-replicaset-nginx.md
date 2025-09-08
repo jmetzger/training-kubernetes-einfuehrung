@@ -1,5 +1,7 @@
 # Replicaset
 
+## Walkthrough Erstellen 
+
 ```
 cd
 mkdir -p manifests
@@ -39,4 +41,22 @@ kubectl apply -f .
 kubectl get all
 # name anpassen
 kubectl describe pod/nginx-replica-set-lpkbs
+```
+
+## Walthrough Skalien 
+
+```
+nano rs.yml
+```
+
+```
+# Ändern 
+# replicas: 5
+# -> ändern in
+# replicas: 8
+```
+
+```
+kubectl apply -f .
+kubectl get pods
 ```
