@@ -36,5 +36,7 @@ spec:
 
 ```
 kubectl apply -f .
-kubectl get all 
+kubectl get all
+# name anpassen
+kubectl describe pod/nginx-replica-set-lpkbs
 ```
