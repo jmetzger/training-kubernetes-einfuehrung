@@ -81,7 +81,10 @@
 
   1. Helm und Kustomize kombinieren
      * [Helm und Kustomize kombinieren](helm-kustomize/combine-helm-and-kustomize.md)
-
+       
+  1. LoadBalancer on Premise (metallb)
+     * [Metallb](/metallb.md)
+       
   1. Helm mit gitlab ci/cd
      * [Helm mit gitlab ci/cd ausrollen](helm/helm/gitlab-ci-cd/example-helm-kubernetes.md)
     
@@ -120,6 +123,7 @@
      * [istio security features](istio/overview/security-features.md)
      * [istio-service mesh - ambient mode](/istio/overview/ambient-mode.md)
      * [Performance comparison - baseline,sidecar,ambient](/istio/overview/performance-comparison-baseline-sidecar-ambient.md)
+
     
   1. Metrics-Server / Größe Cluster 
      * [Metrics-Server mit helm installieren](metrics-server-helm.md)
@@ -158,10 +162,7 @@
      * [LifeCycle Termination](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination)
      * [preStopHook](https://www.datree.io/resources/kubernetes-guide-graceful-shutdown-with-lifecycle-prestop-hook)
      * [How to wait till a pod gets terminated](pods/termination/hooks.md)
-    
-  1. LoadBalancer on Premise (metallb)
-     * [Metallb](load-balancer/metallb.md)
-       
+           
   1. Kubernetes Storage (CSI) 
      * [Überblick Persistant Volumes (CSI)](kubernetes-csi/overview.md)
      * [Liste der Treiber mit Features (CSI)](https://kubernetes-csi.github.io/docs/drivers.html)
