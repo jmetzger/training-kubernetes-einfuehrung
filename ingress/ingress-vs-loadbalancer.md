@@ -9,6 +9,14 @@
 ## Nachteile sind 
 
   * Keine Routing von Pfaden (d.h. http://meine-domain.de und http://meine-domain.de/backend gehen beide zum gleich Service)
-  * Kein Auswertung von HTTP-Headern 
+  * Kein Auswertung von HTTP-Headern
+  * Sehr schlechte Stickyness - Features (maximal bindung über die IP) 
 
 
+## Vorteile von Ingress (gut für http und https)
+
+  * Routing von Pfaden ( (d.h. http://meine-domain.de und http://meine-domain.de/backend gehen beide zu unterschiedlichen Services)
+  * Auswertung von HTTP-Headern
+  * Anbieter mit sehr guter Session Stickyness
+  * Nur eine IP für alle Dienste (die IP, die Ingress selbst benötigt, um erreichbar zu sein)
+  * HTTPS Termination
