@@ -31,6 +31,8 @@ helm show values bitnami/nginx --version 17.3.3
 
 ## Part 2: Set Service to NodePort 
 
+### Optional: Ein bisschen Linux - Vodoo 
+
 ```
 # Identify how to set NodePort
 # e.g. looking for serve in templates
@@ -46,6 +48,8 @@ less svc.yaml
 # less mit q verlassen
 q
 ```
+
+### Werte setzen und upgrade 
 
 ```
 cd 
