@@ -26,6 +26,9 @@
      * [kubectl cheatsheet kubernetes](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
      * [kubectl mit verschiedenen Clustern arbeiten](/kubectl/use-context.md)
 
+  1. Kubernetes Ingress (Eingehender Traffik ins Cluster)
+     * [Wann LoadBalancer, wann Ingress](ingress/ingress-vs-loadbalancer.md)
+
   1. Kubernetes Praxis API-Objekte 
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](/kubectl/spickzettel.md)
      * [kubectl example with run](/kubectl/run-with-example.md)
