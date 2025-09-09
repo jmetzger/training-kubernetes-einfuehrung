@@ -60,6 +60,12 @@
      * [Hintergrund statefulsets](/kubernetes/statefulsets.md)
      * [Example stateful set](/kubectl-examples/10-statefulset.md)
 
+   1. Kubernetes Secrets und Encrypting von z.B. Credentials 
+     * [Kubernetes secrets Typen](/kubernetes/secrets/secrets.md) 
+     * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md)
+     * [Exercise Sealed Secret mariadb](/kubectl-examples/08-sealed-secret.md)
+     * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+
   1. Kubernetes API-Objekte (Teil 2)
      *  [Jobs](kubectl-examples/12-job.md)
      *  [Cronjobs](kubectl-examples/11-cronjob.md)
@@ -127,7 +133,7 @@
      * [istio-service mesh - ambient mode](/istio/overview/ambient-mode.md)
      * [Performance comparison - baseline,sidecar,ambient](/istio/overview/performance-comparison-baseline-sidecar-ambient.md)
 
-    
+
   1. Metrics-Server / Größe Cluster 
      * [Metrics-Server mit helm installieren](metrics-server-helm.md)
      * [Speichernutzung und CPU berechnen für Anwendungen](https://learnk8s.io/kubernetes-node-size)
@@ -149,14 +155,8 @@
   1. Kubernetes Ingress
      * [Ingress HA-Proxy Sticky Session](ingress/ha-proxy/load-balancing-sticky-session.md)
      * [Nginx Ingress Session Stickyness](ingress/nginx/session-stickyness.md)
-     * [https mit ingressController und Letsencrypt](ingress/https-letsencrypt.md)
-    
-  1. Kubernetes Secrets und Encrypting von z.B. Credentials 
-     * [Kubernetes secrets Typen](/kubernetes/secrets/secrets.md) 
-     * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md)
-     * [Exercise Sealed Secret mariadb](/kubectl-examples/08-sealed-secret.md)
-     * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
-
+     * [https mit ingressController und Letsencrypt](ingress/https-letsencrypt.md)  
+ 
  1. Kubernetes Monitoring 
      * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
      * [Prometheus / Grafana Stack installieren](prometheus-grafana/install-with-helm.md)
