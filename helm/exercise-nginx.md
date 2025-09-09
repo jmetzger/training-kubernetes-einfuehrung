@@ -32,6 +32,22 @@ helm show values bitnami/nginx --version 17.3.3
 ## Part 2: Set Service to NodePort 
 
 ```
+# Identify how to set NodePort
+# e.g. looking for serve in templates
+cd
+helm pull bitnami/nginx --untar
+cd nginx/templates
+# looking for a line with service and next line type
+less svc.yaml
+# /service -> nächste Eintrag n 
+```
+
+```
+# less mit q verlassen
+q
+```
+
+```
 cd 
 mkdir -p helm-values
 cd helm-values
