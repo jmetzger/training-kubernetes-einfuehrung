@@ -87,5 +87,6 @@ helm upgrade --install my-nginx bitnami/nginx --version 21.1.23 -f values.yaml
 ## Part 4: Uninstall nginx 
 
 ```
+# Achtung keine Deinstallation von CRD's, keine Deinstallation von PVC (Persistent Volume Claims) 
 helm uninstall my-nginx 
 ```
