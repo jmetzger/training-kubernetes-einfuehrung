@@ -81,7 +81,7 @@ kubectl get svc
 
 
 ```
-helm upgrade --install my-nginx bitnami/nginx --version 21.0.3 -f values.yaml
+helm upgrade --install my-nginx bitnami/nginx --version 21.1.23 -f values.yaml
 ```
 
 ## Part 4: Uninstall nginx 
