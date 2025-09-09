@@ -139,17 +139,86 @@ kubectl apply -f ingress.yml
 
 ## Find the problem 
 
+
+### Schritt 1: api-version ändern
+
 ```
-# Hints 
+# Welche Landkarten gibt es ?
+kubectl api-versions
+# Auf welcher Landkarte ist Ingress jetzt
+kubectl explain ingress
+```
 
-# 1. Which resources does our version of kubectl support 
-# Can we find Ingress as "Kind" here.
-kubectl api-resources 
+<img width="376" height="69" alt="image" src="https://github.com/user-attachments/assets/15111f3d-f82e-4b79-99c4-2670e4332524" />
 
-# 2. Let's see, how the configuration works 
-kubectl explain --api-version=networking.k8s.io/v1 ingress.spec.rules.http.paths.backend.service
+```
+# ingress ändern ingress.yml 
+# von
+# apiVersion: extensions/v1beta1
+# in
+apiVersion: networking.k8s.io/v1
+```
 
-# now we can adjust our config 
+### Schritt 2: Fehler Eigenschaften beheben 
+
+<img width="947" height="115" alt="image" src="https://github.com/user-attachments/assets/c2f7760e-2853-4f24-b6a1-20bafa779024" />
+
+```
+# Problem serviceName beheben
+# Was gibt es stattdessen
+# -> es gibt service aber keine serviceName 
+kubectl explain ingress.spec.rules.http.paths.backend
+# -> es gibt service.name 
+kubectl explain ingress.spec.rules.http.paths.backend.
+```
+
+```
+# Korrektur 2x in ingress.yaml: Inkl. servicePort (neu: service.port.number
+# vorher
+#  backend:
+#            serviceName: apple-service
+#            servicePort: 80
+# jetzt:
+  service:
+    name: apple-service
+    port:
+      number: 80
+```
+
+```
+kubectl apply -f . 
+```
+
+### Schritt 3: pathType ergänzen 
+
+<img width="907" height="46" alt="image" src="https://github.com/user-attachments/assets/8da36c28-7737-49ba-a9a0-994a21fd02fb" />
+
+
+  * Es wird festgelegt wie der Pfad ausgewertet
+
+```
+# Wir müssen pathType auf der 1. Unterebene von paths einfügen
+# Entweder exact oder prefix 
+```
+
+<img width="372" height="124" alt="image" src="https://github.com/user-attachments/assets/615884d5-2335-4dc1-99fd-cc79a224a8b6" />
+
+```
+kubectl apply -f .
+```
+
+### Schritt 4: Testen aufrufen 
+
+```
+curl http://<euername>.lab1.t3isp.de/apple
+curl http://<euername>.lab1.t3isp.de/apple/ # Sollte nicht funktioniert
+curl http://<euername>.lab1.t3isp.de/banana
+curl http://<euername>.lab1.t3isp.de/banana/
+curl http://<euername>.lab1.t3isp.de/banana/something
+```
+
+```
+Das kann man auch so im Browser eingeben
 ```
 
 ## Solution
