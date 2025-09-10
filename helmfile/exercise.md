@@ -183,6 +183,13 @@ kubectl -n prod-web-<dein-name> get deploy/nginx-prod
 helmfile list
 ```
 
+## 6.5) [Optional] Nur ein Environment Löschen 
+
+```
+helmfile -l env=dev destroy  
+```
+
+
 ## 7) Tabularasa: Alle löschen (alle releases= 
 
 > Unterschied zu helm: Braucht als Basis das helmfile.
