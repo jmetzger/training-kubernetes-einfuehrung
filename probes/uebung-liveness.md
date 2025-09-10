@@ -49,17 +49,19 @@ spec:
 
 ```
 # apply and test 
-kubectl apply -f 01-pod-liveness-command.yml 
-kubectl describe -l test=liveness pods 
-sleep 30
-kubectl describe -l test=liveness pods 
-sleep 5 
-kubectl describe -l test=liveness pods 
+kubectl apply -f 01-pod-liveness-command.yml
+echo "Was passiert nach 30 bzw weiteren 5 Sekunden ?" 
+kubectl describe -l test=liveness pods w
+```
+
+```
+# watch beeenden, nach 60 Sekunden 
+CRTL + C
 ```
 
 ```
 # cleanup
-kubectl delete -f 01-pod-liveness-command.yml
+kubectl delete -f .
  
 ``` 
 
