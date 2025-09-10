@@ -59,11 +59,6 @@ kubectl describe -l test=liveness pods | grep -A  40 Events
 ```
 
 ```
-# watch beeenden, nach 60 Sekunden 
-CRTL + C
-```
-
-```
 # cleanup
 kubectl delete -f .
  
