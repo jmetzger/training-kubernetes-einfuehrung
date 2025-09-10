@@ -145,9 +145,8 @@ serverBlock: |-
   }
 ```
 
+> Hiermit setzten wir eine eigene Seite 
 
-
-> Hinweis: Wir nutzen in `values/*.yaml` Go-Templates von Helmfile (`{{ .Environment.Values.* }}`), um je Environment sauber zu parametrisieren.
 
 ## 3) Repository & Dry-Run
 
