@@ -170,7 +170,7 @@ helmfile -l env=dev diff
 helmfile -l env=dev apply
 
 # Checks
-kubectl -n web-<euer-name> get deploy,po,svc,ingress
+kubectl -n dev-web-<dein-name> get deploy,po,svc,ingress
 ```
 
 ## 5) Deploy (prod)
@@ -180,8 +180,6 @@ kubectl -n web-<euer-name> get deploy,po,svc,ingress
 helmfile -l env=prod apply
 
 # Checks
-kubectl -n web-<euername> get deploy/nginx-prod
-kubectl -n web-<euername> get svc/ingress/nginx-prod
+kubectl -n prod-web-<dein-name> get deploy/nginx-prod
+kubectl -n prod-web-<dein-name> get svc/ingress/nginx-prod
 ```
-
-
