@@ -15,13 +15,11 @@
 helm plugin install https://github.com/databus23/helm-diff
 ```
 
----
-
 ## 1) Projekt anlegen
 
 ```bash
 cd
-mkdir -p helmfile-nginx/{environments,values}
+mkdir -p helmfile-nginx/values
 cd helmfile-nginx
 ```
 
@@ -30,9 +28,6 @@ cd helmfile-nginx
 ```
 helmfile-nginx/
 ├─ helmfile.yaml
-├─ environments/
-│  ├─ dev.yaml
-│  └─ prod.yaml
 └─ values/
    ├─ common.yaml
    ├─ dev.yaml
@@ -56,58 +51,30 @@ helmDefaults:
   wait: true
   atomic: true
   createNamespace: true
-  namespace: web
 
 repositories:
   - name: bitnami
     url: https://charts.bitnami.com/bitnami
 
-environments:
-  dev:
-    values:
-      - environments/dev.yaml
-  prod:
-    values:
-      - environments/prod.yaml
-
 releases:
-  - name: nginx-{{ .Environment.Name }}
-    namespace: web-<euernamenskuerzel>
+  - name: nginx-dev
+    namespace: web-<dein-name>
+    labels:
+      env: dev
     chart: bitnami/nginx
-    # Tipp: Version pinnen, z.B. "~18.0.0" – hier unpinned für die Übung
-    version: ""
+    # version: "~21.0.0"   # optional: für reproduzierbare Deploys pinnen
     values:
       - values/common.yaml
-      - values/{{ .Environment.Name }}.yaml
-    installed: true
-```
+      - values/dev.yaml
 
-### `environments/dev.yaml`
-
-```
-nano environments/dev.yaml
-```
-
-```yaml
-# environments/dev.yaml
-environmentName: dev
-ingressHost: dev.local
-serviceType: ClusterIP
-replicas: 1
-```
-
-### `environments/prod.yaml`
-
-```
-nano environments/prod.yaml
-```
-
-```yaml
-# environments/prod.yaml
-environmentName: prod
-ingressHost: www.example.com   # anpassen
-serviceType: ClusterIP         # ggf. LoadBalancer, wenn verfügbar
-replicas: 2
+  - name: nginx-prod
+    namespace: web-<dein-name>
+    labels:
+      env: prod
+    chart: bitnami/nginx
+    values:
+      - values/common.yaml
+      - values/prod.yaml
 ```
 
 ### `values/common.yaml`
@@ -139,13 +106,6 @@ serverBlock: |-
 containerPorts:
   http: 8080
 
-ingress:
-  enabled: true
-  ingressClassName: ""
-  hostname: ""    # wird per env gesetzt
-  path: /
-  pathType: Prefix
-  annotations: {}
 ```
 
 ### `values/dev.yaml`
@@ -154,15 +114,17 @@ ingress:
 nano values/dev.yaml
 ```
 
-```yaml
-# values/dev.yaml
-replicaCount: {{ .Environment.Values.replicas }}
+```
+replicaCount: 1
+serverBlock: |-
+  server {
+    listen 0.0.0.0:8080;
+    location / {
+      return 200 'Hello from NGINX (env=dev)';
+      add_header Content-Type text/plain;
+    }
+  }
 
-service:
-  type: {{ .Environment.Values.serviceType }}
-
-ingress:
-  hostname: {{ .Environment.Values.ingressHost }}
 ```
 
 ### `values/prod.yaml`
@@ -171,16 +133,19 @@ ingress:
 nano values/prod.yaml
 ```
 
-```yaml
-# values/prod.yaml
-replicaCount: {{ .Environment.Values.replicas }}
-
-service:
-  type: {{ .Environment.Values.serviceType }}
-
-ingress:
-  hostname: {{ .Environment.Values.ingressHost }}
 ```
+replicaCount: 2
+serverBlock: |-
+  server {
+    listen 0.0.0.0:8080;
+    location / {
+      return 200 'Hello from NGINX (env=prod)';
+      add_header Content-Type text/plain;
+    }
+  }
+```
+
+
 
 > Hinweis: Wir nutzen in `values/*.yaml` Go-Templates von Helmfile (`{{ .Environment.Values.* }}`), um je Environment sauber zu parametrisieren.
 
@@ -188,21 +153,21 @@ ingress:
 
 ```bash
 helmfile repos
-helmfile -e dev template      # rendert Manifeste für dev (Dry-Run ohne Cluster)
-helmfile -e prod template     # rendert für prod
+helmfile -l env=dev template      # rendert Manifeste für dev (Dry-Run ohne Cluster)
+helmfile -l env=prod template     # rendert für prod
 ```
 
 Optional (mit Diff-Plugin):
 
 ```bash
-helmfile -e dev diff
+helmfile -l env=dev diff
 ```
 
 ## 4) Deploy (dev)
 
 ```bash
 # Install/Upgrade dev
-helmfile -e dev apply
+helmfile -l env=dev apply
 
 # Checks
 kubectl -n web-<euer-name> get deploy,po,svc,ingress
@@ -212,7 +177,7 @@ kubectl -n web-<euer-name> get deploy,po,svc,ingress
 
 ```bash
 # Install/Upgrade prod
-helmfile -e prod apply
+helmfile -l env=prod apply
 
 # Checks
 kubectl -n web-<euername> get deploy/nginx-prod
