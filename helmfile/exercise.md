@@ -172,7 +172,6 @@ helmfile -l env=prod apply
 
 # Checks
 kubectl -n prod-web-<dein-name> get deploy/nginx-prod
-kubectl -n prod-web-<dein-name> get svc/ingress/nginx-prod
 ```
 
 ## 6) Alle releases anschauen 
