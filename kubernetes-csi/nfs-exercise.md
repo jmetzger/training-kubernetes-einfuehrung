@@ -34,6 +34,10 @@ reclaimPolicy: Retain
 volumeBindingMode: Immediate
 ```
 
+```
+kubectl apply -f .
+```
+
 ## Step 3: Persistent Volume Claim 
 
 ```
