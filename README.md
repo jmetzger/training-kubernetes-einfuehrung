@@ -134,6 +134,11 @@
   1. Metrics-Server / Größe Cluster 
      * [Metrics-Server mit helm installieren](metrics-server-helm.md)
      * [Speichernutzung und CPU berechnen für Anwendungen](https://learnk8s.io/kubernetes-node-size)
+
+  1. Kubernetes QoS / HealthChecks / Live / Readiness
+     * [Quality of Service - evict pods](kubernetes/qos-class.md)
+     * [LiveNess/Readiness - Probe / HealthChecks](probes/uebung-liveness.md)
+     * [Taints / Toleratioins](kubernetes/taints-tolerations.md)
     
   1. Installation mit microk8s
      * [Schritt 1: auf 3 Maschinen mit Ubuntu 24.04LTS](microk8s/installation-ubuntu-snap.md)
@@ -215,11 +220,6 @@
   1. Kubernetes Deployment Strategies
      * [Deployment green/blue,canary,rolling update](/deployment-strategies-en.md)
      * [Praxis-Übung A/B Deployment](/kubectl-examples/08-ab-deployment.md)
-    
-  1. Kubernetes QoS / HealthChecks / Live / Readiness
-     * [Quality of Service - evict pods](kubernetes/qos-class.md)
-     * [LiveNess/Readiness - Probe / HealthChecks](probes/uebung-liveness.md)
-     * [Taints / Toleratioins](kubernetes/taints-tolerations.md)
      
   1. Kubernetes Monitoring 
      * [Prometheus / blackbox exporter](prometheus-grafana/z_blackbox-exporter.md)
