@@ -16,6 +16,12 @@ kubectl top pods
 ```
 
 ```
+# Install with helm chart
+helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+helm upgrade --install  metrics-server metrics-server/metrics-server --version 3.13.0 --create-namespace --namespace=metrics-server --reset-values 
+```
+
+```
 # Install
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 # after that at will be available in kube-system namespace as pod
