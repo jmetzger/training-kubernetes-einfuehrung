@@ -5,7 +5,7 @@
 ```
 # https://artifacthub.io/packages/helm/bitnami/nginx/17.3.3
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm upgrade --install my-nginx bitnami/nginx --version 17.3.3
+helm upgrade --install my-nginx bitnami/nginx --reset-values --version 17.3.3
 kubectl get pods 
 ```
 
