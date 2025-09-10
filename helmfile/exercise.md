@@ -145,7 +145,7 @@ serverBlock: |-
   }
 ```
 
-> Hiermit setzten wir eine eigene Seite 
+> Hiermit setzen wir eine eigene Seite 
 
 
 ## 3) Repository & Dry-Run
