@@ -58,7 +58,7 @@ repositories:
 
 releases:
   - name: nginx-dev
-    namespace: web-<dein-name>
+    namespace: dev-web-<dein-name>
     labels:
       env: dev
     chart: bitnami/nginx
@@ -68,7 +68,7 @@ releases:
       - values/dev.yaml
 
   - name: nginx-prod
-    namespace: web-<dein-name>
+    namespace: prod-web-<dein-name>
     labels:
       env: prod
     chart: bitnami/nginx
