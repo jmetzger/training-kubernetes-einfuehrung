@@ -1,5 +1,14 @@
 # Spickzettel helm (Wichtigste Befehle) 
 
+## Hilfe 
+
+```
+helm help
+helm help <command>
+helm help upgrade
+```
+
+
 ## Alle helm-releases anzeigen 
 
 ```
