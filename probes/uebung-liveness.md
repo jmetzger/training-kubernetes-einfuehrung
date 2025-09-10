@@ -16,14 +16,14 @@ What does it do ?
 * After 35 seconds container will be restarted
 ```
 
-```
+```bash
 cd
 mkdir -p manifests/probes
 cd manifests/probes 
 nano 01-pod-liveness-command.yml 
 ```
 
-```
+```bash 
 apiVersion: v1
 kind: Pod
 metadata:
