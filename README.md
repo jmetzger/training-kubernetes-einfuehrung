@@ -57,6 +57,8 @@
      * [ConfigMap Example MariaDB](/kubectl-examples/06a-configmap-mariadb.md)
      * [Secrets Example MariaDB](/kubectl-examples/07-mariadb-secret.md)
      * [Connect to external database](/databases/connect-to-external-db.md)
+
+  1. Kubernetes Praxis (Stateful Sets)
      * [Hintergrund statefulsets](/kubernetes/statefulsets.md)
      * [Example stateful set](/kubectl-examples/10-statefulset.md)
 
