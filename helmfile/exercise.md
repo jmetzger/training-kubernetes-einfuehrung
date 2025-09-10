@@ -47,7 +47,8 @@ nano helmfile.yaml
 ```yaml
 # helmfile.yaml
 helmDefaults:
-  timeout: 5m
+# in seconds 
+  timeout: 300
   wait: true
   atomic: true
   createNamespace: true
