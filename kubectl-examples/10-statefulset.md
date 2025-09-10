@@ -26,8 +26,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nginx
-  labels:
-    app: nginx
 spec:
   ports:
   - port: 80
