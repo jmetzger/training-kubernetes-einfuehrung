@@ -2,7 +2,7 @@
 
 ## 0) Voraussetzungen
 
-* kubectl & Helm v3
+* kubectl & Helm
 * helmfile installiert (`helmfile version`)
 * Kubernetes‐Namespace `web` (wird unten automatisch angelegt)
 * Optional: Helm Diff Plugin (nur für `helmfile diff` nötig)
