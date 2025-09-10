@@ -170,7 +170,7 @@ helmfile -l env=dev diff
 helmfile -l env=dev apply
 
 # Checks
-kubectl -n dev-web-<dein-name> get deploy,po,svc,ingress
+kubectl -n dev-web-<dein-name> get all
 ```
 
 ## 5) Deploy (prod)
