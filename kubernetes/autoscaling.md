@@ -92,6 +92,10 @@ spec:
         averageUtilization: 80
 ```
 
+```
+kubectl apply -f .
+```
+
 ## Step 2: Load Generator 
 
 ```
