@@ -135,6 +135,18 @@ kubectl apply -f .
 ```
 
 
+## Step 3: Zurücklehnen und geniessen
+
+```
+watch kubectl get pods -l app=hello
+```
+
+```
+# 2.Session aufmachen und .. 
+watch kubectl get nodes
+```
+
+
 ## Downscaling 
  
    * Downscaling will happen after 5 minutes o
