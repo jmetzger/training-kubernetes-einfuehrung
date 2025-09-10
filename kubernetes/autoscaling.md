@@ -22,10 +22,8 @@ helm upgrade --install  metrics-server metrics-server/metrics-server --version 3
 ```
 
 ```
-# Install
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 # after that at will be available in kube-system namespace as pod
-kubectl -n kube-system get pods | grep -i metrics 
+kubectl -n merics-server get pods  
 ```
 
 ### Step 1: deploy app 
