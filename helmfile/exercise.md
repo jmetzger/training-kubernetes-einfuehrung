@@ -95,15 +95,6 @@ service:
   ports:
     http: 80
 
-# Einfache Index-Seite aktivieren
-serverBlock: |-
-  server {
-    listen 0.0.0.0:8080;
-    location / {
-      return 200 'Hello from NGINX via Helmfile (env={{ .Environment.Name }})';
-      add_header Content-Type text/plain;
-    }
-  }
 containerPorts:
   http: 8080
 
