@@ -70,8 +70,11 @@ service:
 
 ```
 kubectl get pods
-kubectl get svc 
-helm upgrade --install my-nginx bitnami/nginx --version 17.3.3 -f values.yaml
+kubectl get svc
+# reset-values empfohlen, weil er dann immer nur das nimmt was explizit in den default - values
+# des charts steht
+# und zusätzlich von unserem eigenes values file überschrieben wird 
+helm upgrade --install my-nginx bitnami/nginx --version 17.3.3 --reset-values -f values.yaml
 helm get values my-nginx 
 kubectl get pods
 kubectl get svc 
@@ -81,7 +84,7 @@ kubectl get svc
 
 
 ```
-helm upgrade --install my-nginx bitnami/nginx --version 21.1.23 -f values.yaml
+helm upgrade --install my-nginx bitnami/nginx --version 21.1.23 --reset-values -f values.yaml
 ```
 
 ## Part 4: Uninstall nginx 
