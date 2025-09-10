@@ -50,8 +50,6 @@ spec:
 ```
 # apply and test 
 kubectl apply -f .
-echo "Was passiert nach 30 bzw weiteren 5 Sekunden ?"
-# jede Sekunde Ausgabe 
 kubectl describe -l test=liveness pods | grep -A  40 Events
 sleep 30
 kubectl describe -l test=liveness pods | grep -A  40 Events
