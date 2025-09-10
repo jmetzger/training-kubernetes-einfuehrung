@@ -45,6 +45,10 @@ helmfile-nginx/
 
 ### `helmfile.yaml`
 
+```
+nano helmfile.yaml
+```
+
 ```yaml
 # helmfile.yaml
 helmDefaults:
@@ -80,6 +84,10 @@ releases:
 
 ### `environments/dev.yaml`
 
+```
+nano environments/dev.yaml
+```
+
 ```yaml
 # environments/dev.yaml
 environmentName: dev
@@ -90,6 +98,10 @@ replicas: 1
 
 ### `environments/prod.yaml`
 
+```
+nano environments/prod.yaml
+```
+
 ```yaml
 # environments/prod.yaml
 environmentName: prod
@@ -99,6 +111,10 @@ replicas: 2
 ```
 
 ### `values/common.yaml`
+
+```
+nano values/common.yaml
+```
 
 ```yaml
 # values/common.yaml (wird für dev & prod geladen)
@@ -134,6 +150,10 @@ ingress:
 
 ### `values/dev.yaml`
 
+```
+nano values/dev.yaml
+```
+
 ```yaml
 # values/dev.yaml
 replicaCount: {{ .Environment.Values.replicas }}
@@ -147,6 +167,10 @@ ingress:
 
 ### `values/prod.yaml`
 
+```
+nano values/prod.yaml
+```
+
 ```yaml
 # values/prod.yaml
 replicaCount: {{ .Environment.Values.replicas }}
@@ -159,8 +183,6 @@ ingress:
 ```
 
 > Hinweis: Wir nutzen in `values/*.yaml` Go-Templates von Helmfile (`{{ .Environment.Values.* }}`), um je Environment sauber zu parametrisieren.
-
----
 
 ## 3) Repository & Dry-Run
 
@@ -194,7 +216,7 @@ helmfile -e prod apply
 
 # Checks
 kubectl -n web-<euername> get deploy/nginx-prod
-kubectl -n web get-<euername> svc/ingress/nginx-prod
+kubectl -n web-<euername> get svc/ingress/nginx-prod
 ```
 
 
