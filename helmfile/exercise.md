@@ -186,7 +186,7 @@ kubectl -n prod-web-<dein-name> get svc/ingress/nginx-prod
 
 ## 6) Alle releases anschauen 
 
-> Unterschied zu helm: Braucht als Basis das helmfile
+> Unterschied zu helm: Braucht als Basis das helmfile. 
 > Zeigt alle releases aus dem helmfile
 
 ```
@@ -195,7 +195,7 @@ helmfile list
 
 ## 7) Tabularasa: Alle löschen (alle releases= 
 
-> Unterschied zu helm: Braucht als Basis das helmfile
+> Unterschied zu helm: Braucht als Basis das helmfile.
 > Löscht alle releases aus dem helmfile
 
 
