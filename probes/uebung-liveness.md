@@ -49,7 +49,7 @@ spec:
 
 ```
 # apply and test 
-kubectl apply -f 01-pod-liveness-command.yml
+kubectl apply -f .
 echo "Was passiert nach 30 bzw weiteren 5 Sekunden ?" 
 kubectl describe -l test=liveness pods w
 ```
