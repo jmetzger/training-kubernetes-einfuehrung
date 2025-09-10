@@ -130,6 +130,11 @@ spec:
 
 ```
 
+```
+kubectl apply -f .
+```
+
+
 ## Downscaling 
  
    * Downscaling will happen after 5 minutes o
