@@ -99,7 +99,7 @@ kubectl apply -f .
 ## Step 2: Load Generator 
 
 ```
-vi 02-loadgenerator.yml 
+nano 02-loadgenerator.yml 
 ```
 
 ```
@@ -126,13 +126,13 @@ spec:
         command:
         - /bin/sh
         - -c
-        - "while true; do wget -q -O- http://hello.default.svc.cluster.local; done"
+        - "while true; do wget -q -O- http://hello; done"
 
 ```
 
 ## Downscaling 
  
-   * Downscalinng will happen after 5 minutes o
+   * Downscaling will happen after 5 minutes o
 
 ```
 # Adjust down to 1 minute 
