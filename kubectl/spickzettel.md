@@ -1,5 +1,14 @@
 # Wichtige kubectl kommandos 
 
+## Hilfe
+
+```
+# Hilfe zu befehl
+kubectl help config
+# Hilfe nächste Ebene 
+kubectl config set-context --help
+```
+
 ## Allgemein 
 
 ```
