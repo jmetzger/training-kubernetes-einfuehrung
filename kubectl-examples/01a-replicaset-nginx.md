@@ -43,6 +43,20 @@ kubectl get all
 kubectl describe pod/nginx-replica-set-lpkbs
 ```
 
+## Pod löschen, was passiert 
+
+```
+# kubectl delete po nginx-r<TAB>
+# einfach einen pod raussuchen und löschen 
+# z.B. 
+kubectl delete po nginx-replica-set-xg8jp
+```
+
+```
+# gucken, welches sind die neuesten ? 
+kubectl get pods
+``` 
+
 ## Walthrough Skalieren
 
 ```
