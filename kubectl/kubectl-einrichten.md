@@ -18,9 +18,17 @@ kubectl cluster-info
 
 ## Arbeitsbereich konfigurieren 
 
-```
-kubectl create ns jochen
+kubectl create ns <euername>
 kubectl get ns
-kubectl config set-context --current --namespace jochen
+kubectl config set-context --current --namespace <euername>
 kubectl get pods
+```
+
+
+```
+# Beispiel 
+# kubectl create ns jochen
+# kubectl get ns
+# kubectl config set-context --current --namespace jochen
+# kubectl get pods
 ```
