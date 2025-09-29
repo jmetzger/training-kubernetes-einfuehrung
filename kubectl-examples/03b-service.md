@@ -1,5 +1,20 @@
 # Service - Examples 
 
+## Warum Services ? 
+
+  * Wenn in einem Deployment bei einem Wechsel des images neue Pods erstellen, erhalten diese neue IP-Adresse
+  * Nachteil: Man müsste diese dann in allen Applikation ständig ändern, die auf die Pods zugreifen.
+  * Lösung: Wir schalten einen Service davor !
+
+## Hintergrund IP-Wechsel 
+ 
+ <img width="930" height="134" alt="image" src="https://github.com/user-attachments/assets/26c16134-1f2a-4b42-8cca-355099d08604" />
+
+ * Image-Version wurde jetzt in Deployment geändert, Ergebnis:
+
+<img width="939" height="137" alt="image" src="https://github.com/user-attachments/assets/fb5a665b-98a7-445b-8ec7-27f12c2267e1" />
+
+
 ## Example I : Service with ClusterIP 
 
 ### Schritt 1: Vorbereitung 
