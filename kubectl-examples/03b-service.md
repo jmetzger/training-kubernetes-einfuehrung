@@ -2,6 +2,8 @@
 
 ## Example I : Service with ClusterIP 
 
+### Schritt 1: Vorbereitung 
+
 ```
 cd
 mkdir -p manifests
@@ -9,6 +11,8 @@ cd manifests
 mkdir 04-service 
 cd 04-service 
 ```
+
+### Schritt 2: Deployment erstellen 
 
 ```
 nano deploy.yml 
@@ -63,8 +67,24 @@ kubectl get all
 kubectl get svc svc-nginx
 # Find endpoints / did svc find pods ?
 kubectl describe svc svc-nginx 
+```
+
+### Schritt 3: Deployment löschen 
 
 ```
+kubectl delete -f deploy.yml
+# Keine endpunkte mehr 
+kubectl describe svc svc-nginx
+```
+
+ ### Schritt 4: Deployment wieder erstellen 
+
+```
+kubectl apply -f .
+# Endpunkte wieder da
+kubectl describe svc svc-nginx
+```
+
 
 ## Example II : Short version 
 
