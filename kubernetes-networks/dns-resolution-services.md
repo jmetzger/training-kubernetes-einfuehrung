@@ -20,6 +20,12 @@ wget -O - http://svc-nginx.jochen.svc.cluster.local
 
 ```
 # in busybox (clusterIP)
-nslookup 10.109.6.53
-name = svc-nginx.jochen.svc.cluster.local
+### Schritt 1: Service-IP ausfindig machen
+wget -O - http://svc-nginx
+# z.B. 10.109.24.227 
+
+### Schritt 2: nslookup mit dieser Service-IP
+nslookup 10.109.24.227
+# Ausgabe 
+# name = svc-nginx.jochen.svc.cluster.local
 ```
