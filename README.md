@@ -90,6 +90,10 @@
      * [Unser erstes Helm Chart erstellen](helm/exercises/04a-create-chart-my-app-gruppenarbeit.md)
      * [Wie starte ich am besten - Übung](helm/exercises/05-einfach-starten.md)
 
+  1. Helpful plugins
+     * [Use shortnames for kubectl - commands](https://gist.github.com/doevelopper/ff4a9a211e74f8a2d44eb4afb21f0a38)
+
+
   1. Helm und Kustomize kombinieren
      * [Helm und Kustomize kombinieren](helm-kustomize/combine-helm-and-kustomize.md)
        
