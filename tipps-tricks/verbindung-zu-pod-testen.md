@@ -14,13 +14,16 @@ Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
 ## Behelf: Eigenen Pod starten mit busybox 
 
 ```
-kubectl run podtest --rm -it --image busybox -- /bin/sh
+# der einfachste Weg
+kubectl run podtest --rm -it --image busybox 
 ```
 
 ```
-# und es geht noch einfacher
-kubectl run podtest --rm -it --image busybox 
+# Alternative 
+kubectl run podtest --rm -it --image busybox -- /bin/sh
 ```
+
+
 
 ## Example test connection 
 
