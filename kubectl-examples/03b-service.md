@@ -122,7 +122,12 @@ kubectl get svc
 
 ```
 kubectl get nodes -o wide
-# im client 
+```
+
+<img width="926" height="157" alt="image" src="https://github.com/user-attachments/assets/eb396f36-cff1-4b6d-b136-e110fff1c807" />
+
+```
+# im client Externe NodeIP und NodePort verwenden 
 curl http://164.92.193.245:30280
 ```
 
