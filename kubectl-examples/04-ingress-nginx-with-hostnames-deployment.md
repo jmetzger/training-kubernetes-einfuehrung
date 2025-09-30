@@ -189,7 +189,7 @@ nano ingress.yaml
 kubectl apply -f .
 ```
 
-## Fix 4.2: Bad Request unkown field ServiceName / ServicePort 
+### Fix 4.2: Bad Request unkown field ServiceName / ServicePort 
 
 
 ```
