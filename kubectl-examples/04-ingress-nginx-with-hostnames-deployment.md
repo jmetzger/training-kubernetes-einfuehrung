@@ -172,7 +172,7 @@ kubectl apply -f ingress.yml
 kubectl api-versions
 # auf welcher Landkarte/Gruppe befindet sich Ingress jetzt 
 kubectl explain ingress 
-# -> jetzt auf networing.k8s.io/v1 
+# -> jetzt auf networking.k8s.io/v1 
 
 ```
 
