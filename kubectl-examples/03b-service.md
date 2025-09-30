@@ -104,6 +104,10 @@ kubectl describe svc svc-nginx
 ## Example II : Short version 
 
 ```
+# Wo sind wir ?
+# cd; cd manifests/04-service 
+```
+
 nano service.yml
 # in Zeile type: 
 # ClusterIP ersetzt durch NodePort 
