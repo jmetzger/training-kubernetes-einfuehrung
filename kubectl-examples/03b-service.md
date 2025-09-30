@@ -108,6 +108,7 @@ kubectl describe svc svc-nginx
 # cd; cd manifests/04-service 
 ```
 
+```
 nano service.yml
 # in Zeile type: 
 # ClusterIP ersetzt durch NodePort 
