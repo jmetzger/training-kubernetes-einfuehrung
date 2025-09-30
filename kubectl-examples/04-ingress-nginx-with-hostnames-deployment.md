@@ -272,13 +272,15 @@ kubectl explain ingress.spec.rules.http.paths.pathType
 ```
 kubectl apply -f .
 kubectl get ingress example-ingress
-# mit describe herausfinden, ob er die services gefundet 
-kubectl describe ingress example-ingress
 ```
 
 
 ## Step 5: Testing 
 
+```
+# mit describe herausfinden, ob er die services gefundet 
+kubectl describe ingress example-ingress
+```
 
 ```
 # Im Browser auf:
