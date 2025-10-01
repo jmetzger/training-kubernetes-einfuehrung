@@ -94,7 +94,7 @@ cd charts
 helm show values beispiel-chart # latest version 
 ```
 
-## Part 4.4 Uninstall nginx 
+## Part 5 Uninstall nginx 
 
 ```
 # Achtung keine Deinstallation von CRD's, keine Deinstallation von PVC (Persistent Volume Claims), RBAC
