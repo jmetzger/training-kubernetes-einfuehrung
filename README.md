@@ -90,27 +90,13 @@
      * [Helm Warum ?](/helm/warum.md)
      * [Helm Example](/helm/example.md)
      * [Helm Exercise with nginx](/helm/exercise-nginx.md)
-    
-  1. Helm - Charts enwickeln
-     * [Unser erstes Helm Chart erstellen](helm/exercises/04a-create-chart-my-app-gruppenarbeit.md)
-     * [Wie starte ich am besten - Übung](helm/exercises/05-einfach-starten.md)
+
+  1. Helm - Fehleranalye
+     * [Beispiel Cloudpirates - helm chart nginx](helm/cloudpirates-helm-chart-nginx-fehleranalyse.md)
 
   1. Helpful plugins
      * [Use shortnames for kubectl - commands](https://gist.github.com/doevelopper/ff4a9a211e74f8a2d44eb4afb21f0a38)
 
-
-  1. Helm und Kustomize kombinieren
-     * [Helm und Kustomize kombinieren](helm-kustomize/combine-helm-and-kustomize.md)
-       
-  1. LoadBalancer on Premise (metallb)
-     * [Metallb](/metallb.md)
-       
-  1. Helm mit gitlab ci/cd
-     * [Helm mit gitlab ci/cd ausrollen](helm/helm/gitlab-ci-cd/example-helm-kubernetes.md)
-    
-  1. Kubernetes Verläßlichkeit erreichen 
-     * [Keine 2 pods auf gleichem Node - PodAntinAffinity](kubectl-examples/18-pod-anti-affinity.md)
-      
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](kubectl-examples/16-run-pod-as-unprivileged-user.md)
    
@@ -127,11 +113,6 @@
      * [Liste der Treiber mit Features (CSI)](https://kubernetes-csi.github.io/docs/drivers.html)
      * [Übung Persistant Storage](kubernetes-csi/nfs-exercise.md)
      * [Beispiel mariadb](kubernetes-csi/example-mariadb.md)
-
-  1. Kubernetes Security
-     * [Best practices security pods](security/best-practice-pods.md)
-     * [Best practices in general](security/security-best-practices.md)
-     * [Images in kubernetes von privatem Repo verwenden](kubectl-examples/19-imagepullsecrets.md)
    
   1. Kubernetes Installation
      * [k3s installation](/installation/k3s.md)
@@ -140,10 +121,6 @@
      * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
      * [Prometheus / Grafana Stack installieren](prometheus-grafana/install-with-helm.md)
  
-  1. Metrics-Server / Größe Cluster 
-     * [Metrics-Server mit helm installieren](metrics-server-helm.md)
-     * [Speichernutzung und CPU berechnen für Anwendungen](https://learnk8s.io/kubernetes-node-size)
-
   1. Kubernetes QoS / HealthChecks / Live / Readiness
      * [Quality of Service - evict pods](kubernetes/qos-class.md)
      * [LiveNess/Readiness - Probe / HealthChecks](probes/uebung-liveness.md)
@@ -181,15 +158,34 @@
      * [preStopHook](https://www.datree.io/resources/kubernetes-guide-graceful-shutdown-with-lifecycle-prestop-hook)
      * [How to wait till a pod gets terminated](pods/termination/hooks.md)
            
-  1. Kubernetes Storage (CSI) 
-     * [Überblick Persistant Volumes (CSI)](kubernetes-csi/overview.md)
-     * [Liste der Treiber mit Features (CSI)](https://kubernetes-csi.github.io/docs/drivers.html)
-     * [Übung Persistant Storage](kubernetes-csi/nfs-exercise.md)
-     * [Beispiel mariadb](kubernetes-csi/example-mariadb.md)
+  1. Kubernetes Security
+     * [Best practices security pods](security/best-practice-pods.md)
+     * [Best practices in general](security/security-best-practices.md)
+     * [Images in kubernetes von privatem Repo verwenden](kubectl-examples/19-imagepullsecrets.md)
   
   1. Helm (IDE - Support) 
      * [Kubernetes-Plugin Intellij](https://www.jetbrains.com/help/idea/kubernetes.html)
      * [Intellij - Helm Support Through Kubernetes Plugin](https://blog.jetbrains.com/idea/2018/10/intellij-idea-2018-3-helm-support/)
+
+  1. Helm - Charts enwickeln
+     * [Unser erstes Helm Chart erstellen](helm/exercises/04a-create-chart-my-app-gruppenarbeit.md)
+     * [Wie starte ich am besten - Übung](helm/exercises/05-einfach-starten.md)
+
+  1. Helm und Kustomize kombinieren
+     * [Helm und Kustomize kombinieren](helm-kustomize/combine-helm-and-kustomize.md)
+       
+  1. LoadBalancer on Premise (metallb)
+     * [Metallb](/metallb.md)
+       
+  1. Helm mit gitlab ci/cd
+     * [Helm mit gitlab ci/cd ausrollen](helm/helm/gitlab-ci-cd/example-helm-kubernetes.md)
+    
+  1. Kubernetes Verläßlichkeit erreichen 
+     * [Keine 2 pods auf gleichem Node - PodAntinAffinity](kubectl-examples/18-pod-anti-affinity.md)
+      
+  1. Metrics-Server / Größe Cluster 
+     * [Metrics-Server mit helm installieren](metrics-server-helm.md)
+     * [Speichernutzung und CPU berechnen für Anwendungen](https://learnk8s.io/kubernetes-node-size)
 
   1. Kubernetes -> High Availability Cluster (multi-data center)
      * [High Availability multiple data-centers](ha/overview.md)
