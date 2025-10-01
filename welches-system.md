@@ -56,6 +56,7 @@ Ref: https://ubuntu.com/blog/introduction-to-microk8s-part-1-2
 
   * Nicht so flexible wie kubeadm
   * z.B. freie Wahl des CNI - Providers (z.B Calico)
+  * nicht so flexibel bei speziell config (z.B.andere IP-Ranges) 
 
 ## minikube 
 
