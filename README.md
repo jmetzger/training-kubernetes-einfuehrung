@@ -108,9 +108,6 @@
      * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
      * [Kubernetes Videos mit Hands On](https://www.youtube.com/watch?v=16fgzklcF7Y)
 
-  1. Kubernetes Monitoring/Security
-     * [Überwachung, ob Images veraltet sind, direkt in Kubernetes](kubernetes-monitoring/keel-monitor-outdated-images.md)
-
   1. Kubernetes Storage (CSI) 
      * [Überblick Persistant Volumes (CSI)](kubernetes-csi/overview.md)
      * [Liste der Treiber mit Features (CSI)](https://kubernetes-csi.github.io/docs/drivers.html)
@@ -165,7 +162,10 @@
      * [Best practices security pods](security/best-practice-pods.md)
      * [Best practices in general](security/security-best-practices.md)
      * [Images in kubernetes von privatem Repo verwenden](kubectl-examples/19-imagepullsecrets.md)
-  
+
+  1. Kubernetes Monitoring/Security
+     * [Überwachung, ob Images veraltet sind, direkt in Kubernetes](kubernetes-monitoring/keel-monitor-outdated-images.md)
+
   1. Helm (IDE - Support) 
      * [Kubernetes-Plugin Intellij](https://www.jetbrains.com/help/idea/kubernetes.html)
      * [Intellij - Helm Support Through Kubernetes Plugin](https://blog.jetbrains.com/idea/2018/10/intellij-idea-2018-3-helm-support/)
