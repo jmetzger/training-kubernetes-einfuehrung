@@ -35,7 +35,7 @@ less beispiel-chart/values.yaml
 helm show values beispiel-chart | less
 ```
 
-### Part 4.2. values.yaml 
+### Part 4.2. values.yaml  (eigene Knfiguration) erstellen und anwenden 
 
 ```
 cd
@@ -44,6 +44,22 @@ cd helm-values
 mkdir beispiel-chart
 cd beispiel-chart
 nano values.yaml
+```
+
+```
+# in der Datei values.yaml
+replicaCount: 2
+service:
+  type: NodePort
+```
+
+```
+cd
+cd charts
+helm upgrade --install my-nginx beispiel-chart -f ../helm-values/beispiel-chart/values.yaml
+kubectl get pods
+# neue Revision 
+helm list 
 ```
 
 
