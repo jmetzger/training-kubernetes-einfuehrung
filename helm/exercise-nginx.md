@@ -5,6 +5,7 @@
 ```
 cd
 mkdir -p charts
+cd charts
 # mit helm neues Chart erstellen
 helm create beispiel-chart
 ``` 
