@@ -17,9 +17,11 @@ ein einfaches Interface, um einen ersten Eindruck über die Auslastung zu bekomm
 ```
 helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
 helm -n kube-system upgrade --install metrics-server metrics-server/metrics-server --version 3.13.0
+```
 
 
 
+```
 # Es dauert jetzt einen Moment bis dieser aktiv ist auch nach der Installation 
 # Auf dem Client
 kubectl top nodes 
