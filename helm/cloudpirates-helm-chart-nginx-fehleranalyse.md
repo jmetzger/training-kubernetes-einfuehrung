@@ -1,4 +1,4 @@
-# Cloud Pirates Charts Fehleranalyse 
+# Cloud Pirates Charts Fehleranalyse (nginx)
 
 ## Test (mit aktuell letzter Version 0.1.10)
 
