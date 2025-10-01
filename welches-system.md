@@ -22,7 +22,7 @@ So there are other tools/distri around helping you with that.
 
 ### Disadvantages 
 
-  * Plugins sind oftmals etwas schwierig zu aktivieren
+  * Zusatzkomponenten (bspw. metallb - LoadBalancer)  sind oftmals etwas schwieriger instalieren ( inkl. microk8s enable )
 
 ## microk8s 
 
@@ -31,8 +31,8 @@ So there are other tools/distri around helping you with that.
   * Created by Canonical (Ubuntu)
   * Runs on Linux
   * Runs only as snap
-  * In the meantime it is also available for Windows/Mac
-  * HA-Cluster 
+  * (In the meantime it is also available for Windows/Mac)
+  * HA-Cluster (control plane) 
 
 ### Production-Ready ? 
 
@@ -50,7 +50,12 @@ Ref: https://ubuntu.com/blog/introduction-to-microk8s-part-1-2
 ### Advantages
 
   * Easy to setup HA-Cluster (multi-node control plane)
-  * Easy to manage 
+  * Easy to manage
+
+### Disadvantages 
+
+  * Nicht so flexible wie kubeadm
+  * z.B. freie Wahl des CNI - Providers (z.B Calico)
 
 ## minikube 
 
