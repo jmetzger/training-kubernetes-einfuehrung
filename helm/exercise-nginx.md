@@ -1,12 +1,14 @@
-# Exercise nginx (von bitnami)
+# Exercise nginx (eigenes Chart lokal)
 
-## Vorbereitung: Artifacthub.io 
+## Part 1: Chart erstellen 
 
-  * Hier: auf [Artifact Hub-IO suchen](https://artifacthub.io)
-  * https://artifacthub.io/packages/helm/bitnami/nginx
+```
+cd
+mkdir -p charts
+# mit helm neues Chart erstellen
+helm chart beispiel-chart
+``` 
 
-
-## Part 1: Install old version 
 
 ### Part 1.1 Install (oci-version)
 
