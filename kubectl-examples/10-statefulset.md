@@ -87,7 +87,8 @@ exit
 
 ```
 # web-0 / web-1 
-kubectl get pods 
+kubectl get pods
+kubectl get sts web
 kubectl delete sts web 
 kubectl apply -f .
 kubectl run --rm -it podtest --image=busybox 
