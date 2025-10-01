@@ -21,6 +21,9 @@
      * [Installer für grosse Cluster](#installer-für-grosse-cluster)
      * [Installation - Welche Komponenten from scratch](#installation---welche-komponenten-from-scratch)
 
+  1. Kubernetes - Überblick
+     * [Liste wichtiger/sinnvoller Client-Tools](https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/tools/liste-client-tools.md)
+
   1. kubectl 
      * [kubectl einrichten mit namespace](#kubectl-einrichten-mit-namespace)
      * [kubectl cheatsheet kubernetes](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
@@ -79,29 +82,24 @@
      * [Befehle in pod ausführen - Übung](#befehle-in-pod-ausführen---übung)
      * [Welche Pods mit Namen gehören zu einem Service](#welche-pods-mit-namen-gehören-zu-einem-service)
 
+  1. Security
+     * [ServiceLinks nicht in env in Pod einbinden](#servicelinks-nicht-in-env-in-pod-einbinden)
+
   1. Helm (Kubernetes Paketmanager)
+     * [Helm - Was kann Helm](#helm---was-kann-helm)
      * [Helm Spickzettel](#helm-spickzettel)
+     * [Helm - Was kann Helm](#helm---was-kann-helm)
      * [Helm Grundlagen](#helm-grundlagen)
      * [Helm Warum ?](#helm-warum-)
      * [Helm Example](#helm-example)
      * [Helm Exercise with nginx](#helm-exercise-with-nginx)
-    
-  1. Helm - Charts enwickeln
-     * [Unser erstes Helm Chart erstellen](#unser-erstes-helm-chart-erstellen)
-     * [Wie starte ich am besten - Übung](#wie-starte-ich-am-besten---übung)
 
-  1. Helm und Kustomize kombinieren
-     * [Helm und Kustomize kombinieren](#helm-und-kustomize-kombinieren)
-       
-  1. LoadBalancer on Premise (metallb)
-     * [Metallb](#metallb)
-       
-  1. Helm mit gitlab ci/cd
-     * [Helm mit gitlab ci/cd ausrollen](#helm-mit-gitlab-cicd-ausrollen)
-    
-  1. Kubernetes Verläßlichkeit erreichen 
-     * [Keine 2 pods auf gleichem Node - PodAntinAffinity](#keine-2-pods-auf-gleichem-node---podantinaffinity)
-      
+  1. Helm - Fehleranalye
+     * [Beispiel Cloudpirates - helm chart nginx](#beispiel-cloudpirates---helm-chart-nginx)
+
+  1. Helpful plugins
+     * [Use shortnames for kubectl - commands](https://gist.github.com/doevelopper/ff4a9a211e74f8a2d44eb4afb21f0a38)
+
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](#probleme-über-logs-identifiziert---zb-non-root-image)
    
@@ -110,19 +108,11 @@
      * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
      * [Kubernetes Videos mit Hands On](https://www.youtube.com/watch?v=16fgzklcF7Y)
 
-  1. Kubernetes Monitoring/Security
-     * [Überwachung, ob Images veraltet sind, direkt in Kubernetes](#überwachung-ob-images-veraltet-sind-direkt-in-kubernetes)
-
   1. Kubernetes Storage (CSI) 
      * [Überblick Persistant Volumes (CSI)](#überblick-persistant-volumes-csi)
      * [Liste der Treiber mit Features (CSI)](https://kubernetes-csi.github.io/docs/drivers.html)
      * [Übung Persistant Storage](#übung-persistant-storage)
      * [Beispiel mariadb](#beispiel-mariadb)
-
-  1. Kubernetes Security
-     * [Best practices security pods](#best-practices-security-pods)
-     * [Best practices in general](#best-practices-in-general)
-     * [Images in kubernetes von privatem Repo verwenden](#images-in-kubernetes-von-privatem-repo-verwenden)
    
   1. Kubernetes Installation
      * [k3s installation](#k3s-installation)
@@ -131,10 +121,6 @@
      * [Prometheus Monitoring Server (Overview)](#prometheus-monitoring-server-overview)
      * [Prometheus / Grafana Stack installieren](#prometheus--grafana-stack-installieren)
  
-  1. Metrics-Server / Größe Cluster 
-     * [Metrics-Server mit helm installieren](#metrics-server-mit-helm-installieren)
-     * [Speichernutzung und CPU berechnen für Anwendungen](https://learnk8s.io/kubernetes-node-size)
-
   1. Kubernetes QoS / HealthChecks / Live / Readiness
      * [Quality of Service - evict pods](#quality-of-service---evict-pods)
      * [LiveNess/Readiness - Probe / HealthChecks](#livenessreadiness---probe--healthchecks)
@@ -172,15 +158,37 @@
      * [preStopHook](https://www.datree.io/resources/kubernetes-guide-graceful-shutdown-with-lifecycle-prestop-hook)
      * [How to wait till a pod gets terminated](#how-to-wait-till-a-pod-gets-terminated)
            
-  1. Kubernetes Storage (CSI) 
-     * [Überblick Persistant Volumes (CSI)](#überblick-persistant-volumes-csi)
-     * [Liste der Treiber mit Features (CSI)](https://kubernetes-csi.github.io/docs/drivers.html)
-     * [Übung Persistant Storage](#übung-persistant-storage)
-     * [Beispiel mariadb](#beispiel-mariadb)
-  
+  1. Kubernetes Security
+     * [Best practices security pods](#best-practices-security-pods)
+     * [Best practices in general](#best-practices-in-general)
+     * [Images in kubernetes von privatem Repo verwenden](#images-in-kubernetes-von-privatem-repo-verwenden)
+
+  1. Kubernetes Monitoring/Security
+     * [Überwachung, ob Images veraltet sind, direkt in Kubernetes](#überwachung-ob-images-veraltet-sind-direkt-in-kubernetes)
+
   1. Helm (IDE - Support) 
      * [Kubernetes-Plugin Intellij](https://www.jetbrains.com/help/idea/kubernetes.html)
      * [Intellij - Helm Support Through Kubernetes Plugin](https://blog.jetbrains.com/idea/2018/10/intellij-idea-2018-3-helm-support/)
+
+  1. Helm - Charts enwickeln
+     * [Unser erstes Helm Chart erstellen](#unser-erstes-helm-chart-erstellen)
+     * [Wie starte ich am besten - Übung](#wie-starte-ich-am-besten---übung)
+
+  1. Helm und Kustomize kombinieren
+     * [Helm und Kustomize kombinieren](#helm-und-kustomize-kombinieren)
+       
+  1. LoadBalancer on Premise (metallb)
+     * [Metallb](#metallb)
+       
+  1. Helm mit gitlab ci/cd
+     * [Helm mit gitlab ci/cd ausrollen](#helm-mit-gitlab-cicd-ausrollen)
+    
+  1. Kubernetes Verläßlichkeit erreichen 
+     * [Keine 2 pods auf gleichem Node - PodAntinAffinity](#keine-2-pods-auf-gleichem-node---podantinaffinity)
+      
+  1. Metrics-Server / Größe Cluster 
+     * [Metrics-Server mit helm installieren](#metrics-server-mit-helm-installieren)
+     * [Speichernutzung und CPU berechnen für Anwendungen](https://learnk8s.io/kubernetes-node-size)
 
   1. Kubernetes -> High Availability Cluster (multi-data center)
      * [High Availability multiple data-centers](#high-availability-multiple-data-centers)
@@ -688,7 +696,7 @@ So there are other tools/distri around helping you with that.
 
 #### Disadvantages 
 
-  * Plugins sind oftmals etwas schwierig zu aktivieren
+  * Zusatzkomponenten (bspw. metallb - LoadBalancer)  sind oftmals etwas schwieriger instalieren ( inkl. microk8s enable )
 
 ### microk8s 
 
@@ -697,8 +705,8 @@ So there are other tools/distri around helping you with that.
   * Created by Canonical (Ubuntu)
   * Runs on Linux
   * Runs only as snap
-  * In the meantime it is also available for Windows/Mac
-  * HA-Cluster 
+  * (In the meantime it is also available for Windows/Mac)
+  * HA-Cluster (control plane) 
 
 #### Production-Ready ? 
 
@@ -716,7 +724,13 @@ Ref: https://ubuntu.com/blog/introduction-to-microk8s-part-1-2
 #### Advantages
 
   * Easy to setup HA-Cluster (multi-node control plane)
-  * Easy to manage 
+  * Easy to manage
+
+#### Disadvantages 
+
+  * Nicht so flexible wie kubeadm
+  * z.B. freie Wahl des CNI - Providers (z.B Calico)
+  * nicht so flexibel bei speziell config (z.B.andere IP-Ranges) 
 
 ### minikube 
 
@@ -1023,6 +1037,12 @@ runcmd:
   - chmod 0440 /etc/sudoers.d/11trainingdo
 ```
 
+## Kubernetes - Überblick
+
+### Liste wichtiger/sinnvoller Client-Tools
+
+  * https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/tools/liste-client-tools.md
+
 ## kubectl 
 
 ### kubectl einrichten mit namespace
@@ -1047,10 +1067,19 @@ kubectl cluster-info
 ### Arbeitsbereich konfigurieren 
 
 ```
-kubectl create ns jochen
+kubectl create ns <euername>
 kubectl get ns
-kubectl config set-context --current --namespace jochen
+kubectl config set-context --current --namespace <euername>
 kubectl get pods
+```
+
+
+```
+## Beispiel 
+## kubectl create ns jochen
+## kubectl get ns
+## kubectl config set-context --current --namespace jochen
+## kubectl get pods
 ```
 
 ### kubectl cheatsheet kubernetes
@@ -1102,6 +1131,15 @@ kubectl config use-context do-fra-bka-cluster
 
 ### Das Tool kubectl (Devs/Ops) - Spickzettel
 
+
+### Hilfe
+
+```
+## Hilfe zu befehl
+kubectl help config
+## Hilfe nächste Ebene 
+kubectl config set-context --help
+```
 
 ### Allgemein 
 
@@ -1377,6 +1415,20 @@ kubectl get all
 kubectl describe pod/nginx-replica-set-lpkbs
 ```
 
+### Pod löschen, was passiert 
+
+```
+## kubectl delete po nginx-r<TAB>
+## einfach einen pod raussuchen und löschen 
+## z.B. 
+kubectl delete po nginx-replica-set-xg8jp
+```
+
+```
+## gucken, welches sind die neuesten ? 
+kubectl get pods
+``` 
+
 ### Walthrough Skalieren
 
 ```
@@ -1449,24 +1501,23 @@ kubectl get all
 nano nginx-deployment.yml 
 ```
 
+
+#### Version 1: (optical nicer)
+
 ```
-## Version 1:
 ## Ändern des images von nginx:1.22 in nginx:1.23
 ## danach 
 kubectl apply -f . && watch kubectl get pods 
 ```
 
+#### Version 2: 
 
 ```
-## Version 2: 
-
 ## Ändern des images von nginx:1.22 in nginx:1.23
 ## danach 
 kubectl apply -f .
 kubectl get all 
 kubectl get pods -w
-
-
 ```
 
 
@@ -1479,16 +1530,24 @@ kubectl get pods -w
 Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
 ```
 
+### Was wollen wir testen (auf der Verbindungsebene) ?
+
+<img width="900" height="343" alt="image" src="https://github.com/user-attachments/assets/937221ca-20ff-4b1f-926c-cee1f5923f60" />
+
+
 ### Behelf: Eigenen Pod starten mit busybox 
 
 ```
-kubectl run podtest --rm -it --image busybox -- /bin/sh
+## der einfachste Weg
+kubectl run podtest --rm -it --image busybox 
 ```
 
 ```
-## und es geht noch einfacher
-kubectl run podtest --rm -it --image busybox 
+## Alternative 
+kubectl run podtest --rm -it --image busybox -- /bin/sh
 ```
+
+
 
 ### Example test connection 
 
@@ -1508,7 +1567,24 @@ kubectl run podtest --rm -ti --image busybox -- /bin/sh
 ### kubectl/manifest/service
 
 
+### Warum Services ? 
+
+  * Wenn in einem Deployment bei einem Wechsel des images neue Pods erstellen, erhalten diese neue IP-Adresse
+  * Nachteil: Man müsste diese dann in allen Applikation ständig ändern, die auf die Pods zugreifen.
+  * Lösung: Wir schalten einen Service davor !
+
+### Hintergrund IP-Wechsel 
+ 
+ <img width="930" height="134" alt="image" src="https://github.com/user-attachments/assets/26c16134-1f2a-4b42-8cca-355099d08604" />
+
+ * Image-Version wurde jetzt in Deployment geändert, Ergebnis:
+
+<img width="939" height="137" alt="image" src="https://github.com/user-attachments/assets/fb5a665b-98a7-445b-8ec7-27f12c2267e1" />
+
+
 ### Example I : Service with ClusterIP 
+
+#### Schritt 1: Vorbereitung 
 
 ```
 cd
@@ -1517,6 +1593,8 @@ cd manifests
 mkdir 04-service 
 cd 04-service 
 ```
+
+#### Schritt 2: Deployment erstellen 
 
 ```
 nano deploy.yml 
@@ -1571,10 +1649,31 @@ kubectl get all
 kubectl get svc svc-nginx
 ## Find endpoints / did svc find pods ?
 kubectl describe svc svc-nginx 
-
 ```
 
+#### Schritt 3: Deployment löschen 
+
+```
+kubectl delete -f deploy.yml
+## Keine endpunkte mehr 
+kubectl describe svc svc-nginx
+```
+
+ ### Schritt 4: Deployment wieder erstellen 
+
+```
+kubectl apply -f .
+## Endpunkte wieder da
+kubectl describe svc svc-nginx
+```
+
+
 ### Example II : Short version 
+
+```
+## Wo sind wir ?
+## cd; cd manifests/04-service 
+```
 
 ```
 nano service.yml
@@ -1582,9 +1681,20 @@ nano service.yml
 ## ClusterIP ersetzt durch NodePort 
 
 kubectl apply -f .
+## NodePOrt ab 30.000 ausfindig machen
 kubectl get svc
+```
+
+<img width="793" height="44" alt="image" src="https://github.com/user-attachments/assets/16bf90d4-7c3f-4c8f-9846-2ff5d0e63fcf" />
+
+```
 kubectl get nodes -o wide
-## im client 
+```
+
+<img width="926" height="157" alt="image" src="https://github.com/user-attachments/assets/eb396f36-cff1-4b6d-b136-e110fff1c807" />
+
+```
+## im client Externe NodeIP und NodePort verwenden 
 curl http://164.92.193.245:30280
 ```
 
@@ -2366,7 +2476,7 @@ kubectl apply -f ingress.yml
 kubectl api-versions
 ## auf welcher Landkarte/Gruppe befindet sich Ingress jetzt 
 kubectl explain ingress 
-## -> jetzt auf networing.k8s.io/v1 
+## -> jetzt auf networking.k8s.io/v1 
 
 ```
 
@@ -2383,7 +2493,7 @@ nano ingress.yaml
 kubectl apply -f .
 ```
 
-### Fix 4.2: Bad Request unkown field ServiceName / ServicePort 
+#### Fix 4.2: Bad Request unkown field ServiceName / ServicePort 
 
 
 ```
@@ -2466,13 +2576,15 @@ kubectl explain ingress.spec.rules.http.paths.pathType
 ```
 kubectl apply -f .
 kubectl get ingress example-ingress
-## mit describe herausfinden, ob er die services gefundet 
-kubectl describe ingress example-ingress
 ```
 
 
 ### Step 5: Testing 
 
+```
+## mit describe herausfinden, ob er die services gefundet 
+kubectl describe ingress example-ingress
+```
 
 ```
 ## Im Browser auf:
@@ -3223,7 +3335,8 @@ exit
 
 ```
 ## web-0 / web-1 
-kubectl get pods 
+kubectl get pods
+kubectl get sts web
 kubectl delete sts web 
 kubectl apply -f .
 kubectl run --rm -it podtest --image=busybox 
@@ -3455,7 +3568,46 @@ kubectl get svc svc-nginx -o wide
 kubectl get pods -l web=my-nginx
 ```
 
+## Security
+
+### ServiceLinks nicht in env in Pod einbinden
+
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+## Das ist hier --_>
+      enableServiceLinks: false
+      containers:
+      - name: mariadb-cont
+        image: mariadb:10.11
+        envFrom:
+        - configMapRef:
+            name: mariadb-configmap
+```
+
 ## Helm (Kubernetes Paketmanager)
+
+### Helm - Was kann Helm
+
+
+- **Installieren** und **Deinstallieren** von Anwendungen in Kubernetes (`helm install / helm uninstall`)
+- **Upgraden** von bestehenden Installationen (`helm upgrade`)
+- **Rollbacks** durchführen, falls etwas schiefläuft (`helm rollback`)
+- **Anpassen** von Anwendungen durch Konfigurationswerte (`values.yaml`)
+- **Veröffentlichen** eigener Charts (z. B. in einem Helm-Repository)
 
 ### Helm Spickzettel
 
@@ -3507,6 +3659,15 @@ helm template my-nginx bitnami/nginx
 helm template bitnami/nginx
 ```  
 
+
+### Helm - Was kann Helm
+
+
+- **Installieren** und **Deinstallieren** von Anwendungen in Kubernetes (`helm install / helm uninstall`)
+- **Upgraden** von bestehenden Installationen (`helm upgrade`)
+- **Rollbacks** durchführen, falls etwas schiefläuft (`helm rollback`)
+- **Anpassen** von Anwendungen durch Konfigurationswerte (`values.yaml`)
+- **Veröffentlichen** eigener Charts (z. B. in einem Helm-Repository)
 
 ### Helm Grundlagen
 
@@ -3742,14 +3903,79 @@ helm install my-wordpress -f values.yml bitnami/wordpress
 ### Helm Exercise with nginx
 
 
-### Part 1: Install old version 
+### Part 1: Chart erstellen 
 
 ```
-## https://artifacthub.io/packages/helm/bitnami/nginx/17.3.3
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm upgrade --install my-nginx bitnami/nginx --reset-values --version 17.3.3
-kubectl get pods 
+cd
+mkdir -p charts
+cd charts
+## mit helm neues Chart erstellen
+helm create beispiel-chart
+``` 
+
+### Part 2: chart installieren 
+
 ```
+helm upgrade --install my-nginx beispiel-chart
+```
+
+### Part 3: funktioniert es ?
+
+```
+kubectl get pods
+helm list
+```
+
+### Part 4: Spezielle Konfiguration 
+
+#### Part 4.1: Analyse 
+
+```
+## Können wir die replicas und den type server ändern
+## Entweder variante 1 ins Chart
+less beispiel-chart/values.yaml
+## mit hlem bordmitteln
+helm show values beispiel-chart | less
+```
+
+#### Part 4.2. values.yaml  (eigene Knfiguration) erstellen und anwenden 
+
+```
+cd
+mkdir helm-values
+cd helm-values
+mkdir beispiel-chart
+cd beispiel-chart
+nano values.yaml
+```
+
+```
+## in der Datei values.yaml
+replicaCount: 2
+service:
+  type: NodePort
+```
+
+```
+cd
+cd charts
+helm upgrade --install my-nginx beispiel-chart --reset-values -f ../helm-values/beispiel-chart/values.yaml
+kubectl get pods
+## neue Revision 
+helm list
+## hier NodePort auslesen 
+kubectl get svc my-nginx-beispiel-chart
+kubectl get nodes -o wide  
+```
+
+```
+## Testen
+curl http://<ip-aus-nodes>:<nodePort>
+## z.B.
+curl http://159.223.24.231:32465
+```
+
+#### Part 4.3 Explore 
 
 ```
 helm list
@@ -3765,711 +3991,98 @@ helm get manifest my-nginx
 
 ```
 ## chart von online
-helm show values bitnami/nginx # latest version 
-helm show values bitnami/nginx --version 17.3.3
-
-```
-
-
-### Part 2: Set Service to NodePort 
-
-#### Optional: Ein bisschen Linux - Vodoo 
-
-```
-## Identify how to set NodePort
-## e.g. looking for serve in templates
+## für unser chart
 cd
-helm pull bitnami/nginx --untar
-cd nginx/templates
-## looking for a line with service and next line type
-less svc.yaml
-## /service -> nächste Eintrag n 
+cd charts 
+helm show values beispiel-chart # latest version 
+```
+
+### Part 5 Uninstall nginx 
+
+```
+## Achtung keine Deinstallation von CRD's, keine Deinstallation von PVC (Persistent Volume Claims), RBAC
+helm uninstall my-nginx
+
+## Überprüfung, ob Deinstallation erfolgt ist:
+helm list 
+```
+
+## Helm - Fehleranalye
+
+### Beispiel Cloudpirates - helm chart nginx
+
+
+### Test (mit aktuell letzter Version 0.1.10)
+
+```
+helm upgrade --install  my-nginx oci://registry-1.docker.io/cloudpirates/nginx --reset-values --version 0.1.10
+
+### wie sehen die logs aus
+kubectl logs deployment/my-nginx
 ```
 
 ```
-## less mit q verlassen
-q
+Permission denied port 80
 ```
 
-#### Werte setzen und upgrade 
+#### Lauffaehig mit (leider aktuell so nicht in der Doku)
 
 ```
-cd 
-mkdir -p helm-values
-cd helm-values
-mkdir nginx
-cd nginx
-```
-
-```
+cd
+mkdir helm-values/nginx 
+cd helm-values/nginx
 nano values.yaml
 ```
 
 ```
-service:
-  type: NodePort
+containerPorts:
+- name: http
+  containerPort: 8080
+  protocol: TCP
+
+serverConfig: |
+  server {
+    listen 0.0.0.0:8080;
+    root /usr/share/nginx/html;
+    index index.html index.htm;
+
+    location / {
+      try_files $uri $uri/ /index.html;
+    }
+  }
+livenessProbe:
+  type: httpGet
+  path: /
+readinessProbe:
+  type: httpGet
+  path: /
 ```
 
 ```
-kubectl get pods
-kubectl get svc
-## reset-values empfohlen, weil er dann immer nur das nimmt was explizit in den default - values
-## des charts steht
-## und zusätzlich von unserem eigenes values file überschrieben wird 
-helm upgrade --install my-nginx bitnami/nginx --version 17.3.3 --reset-values -f values.yaml
-helm get values my-nginx 
-kubectl get pods
-kubectl get svc 
+helm upgrade --install  my-nginx oci://registry-1.docker.io/cloudpirates/nginx --version 0.1.10 --reset-values -f values.yaml
 ```
 
-### Part 3: Upgrade auf die neueste Version mit NodePort 
-
-
+```bash
+kubectl exec -it deploy/my-nginx -- sh
 ```
-helm upgrade --install my-nginx bitnami/nginx --version 21.1.23 --reset-values -f values.yaml
 ```
-
-### Part 4: Uninstall nginx 
-
-```
-## Achtung keine Deinstallation von CRD's, keine Deinstallation von PVC (Persistent Volume Claims) 
-helm uninstall my-nginx 
+## in der shell
+id
 ```
 
-## Helm - Charts enwickeln
-
-### Unser erstes Helm Chart erstellen
-
-
-### Chart erstellen 
+<img width="707" height="65" alt="image" src="https://github.com/user-attachments/assets/b749f30f-843b-43f8-897e-9aa24704a5da" />
 
 ```
-cd 
-mkdir my-charts
-cd my-charts
-```
-
-```
-helm create my-app
+## pod läuft nicht unter root
+## Deshalb funktioniert ein Öffnen des Ports 80 beim Starten nicht
 ``` 
 
-### Install helm - chart 
 
-```
-## Variante 1:
-helm -n my-app-<namenskuerzel> install my-app-release my-app --create-namespace 
-```
+## Helpful plugins
 
-```
-## Variante 2:
-cd my-app
-helm -n my-app-<namenskuerzel> install my-app-release . --create-namespace 
-```
+### Use shortnames for kubectl - commands
 
-```
-kubectl -n my-app-<namenskuerzel> get all
-kubectl -n my-app-<namenskuerzel> get pods 
-```
-
-### Wie starte ich am besten - Übung
-
-
-### Exercise 
-
-```
-cd
-mkdir -p my-charts
-cd my-charts
-helm create simple-chart 
-```
-
-```
-## Alles Weg was wir nicht brauchen
-cd simple-chart
-rm values.yaml
-cd templates
-rm -f *.yaml
-rm -fR tests
-echo "Ausgabe nach Install" > NOTES.txt
-```
-
-```
-nano deploy.yaml
-```
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-spec:
-  selector:
-    matchLabels:
-      app: nginx
-  replicas: 8 # tells deployment to run 8 pods matching the template
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:1.26
-        ports:
-        - containerPort: 80
-```
-
-```
-## aus dem templates ordner raus 
-cd ..
-## aus dem chart raus
-cd ..
-```
-
-```
-## Installieren 
-helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app simple-chart --create-namespace
-kubectl -n my-simple-app-<namenskuerzel> get all 
-```
- 
-### Exercise Phase 2: Um Replicas erweitern 
-
-```
-cd simple-chart
-nano values.yaml
-```
-
-```
-deployment:
-  replicas: 5
-```
-
-```
-cd templates
-nano deploy.yaml
-```
-
-```
-## aus der Zeile:
-## replicas: 9
-## wird ->
-  replicas: {{ .Values.deployment.replicas }}
-```
-
-```
-ä Gehen aus dem Chart raus 
-cd ..
-cd ..
-helm template simple-chart
-helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app simple-chart --create-namespace
-kubectl -n my-simple-app-<namenskuerzel> get pods 
-```
-
-```
-nano simple-app-values.yaml
-```
-
-```
-deployment:
-  replicas: 2
-```
-
-```
-helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app simple-chart -f simple-app-values.yaml
-kubectl -n my-simple-app-<namenskuerzel> get pods
-```
-
-## Helm und Kustomize kombinieren
-
-### Helm und Kustomize kombinieren
-
-
-### Übersicht
-
-Die Kombination von Helm und Kustomize bietet die Flexibilität von Kustomize mit der Paketierung und Versionierung von Helm. Dies ist besonders nützlich für komplexe Deployments, die environment-spezifische Anpassungen benötigen.
-
-### Helm Post-Rendering mit Kustomize
-
-#### Grundlegendes Konzept
-
-Helm kann nach dem Template-Rendering einen Post-Renderer aufrufen. Hier kann Kustomize die gerenderten Manifeste weiter anpassen.
-
-#### Workflow
-
-1. Helm rendert Templates basierend auf Values
-2. Kustomize modifiziert die gerenderten Manifeste
-3. Finale Manifeste werden deployed
-
-### Übung 
-
-#### Schritt 1: Arbeitsverzeichnis erstellen
-
-```bash
-## Erstelle Arbeitsverzeichnis
-cd
-mkdir helm-kustomize-demo
-cd helm-kustomize-demo
-```
-
-#### Schritt 2: Helm Chart erstellen
-
-```bash
-## Erstelle ein neues Helm Chart
-helm create my-chart
-```
-
-#### Schritt 3: Kustomize-Verzeichnis erstellen
-
-```bash
-## Erstelle Kustomize-Verzeichnis
-mkdir kustomize
-cd kustomize
-```
-
-#### Schritt 4: Post-Renderer Script erstellen
-
-```bash
-## Erstelle das Post-Renderer Script
-cat > kustomize-post-renderer.sh << 'EOF'
-##!/bin/bash
-## Wechsle ins kustomize Verzeichnis
-cd "$(dirname "$0")"
-## Speichere Helm Output als base.yaml
-cat <&0 > base.yaml
-## Führe kustomize build aus
-kubectl kustomize .
-EOF
-
-## Script ausführbar machen
-chmod +x kustomize-post-renderer.sh
-```
-
-#### Schritt 5: Patches-Verzeichnis erstellen
-
-```bash
-## Erstelle patches Verzeichnis
-mkdir -p patches
-```
-
-#### Schritt 6: Deployment Patch erstellen
-
-```bash
-## Erstelle deployment-patch.yaml
-cat > patches/deployment-patch.yaml << 'EOF'
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: my-app-my-chart
-spec:
-  template:
-    spec:
-      containers:
-      - name: my-chart
-        resources:
-          requests:
-            memory: "80Mi"
-            cpu: "300m"
-          limits:
-            memory: "80Mi"
-            cpu: "300m"
-EOF
-```
-
-#### Schritt 7: Kustomization.yaml erstellen
-
-```bash
-## Erstelle kustomization.yaml
-cat > kustomization.yaml << 'EOF'
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-- base.yaml
-
-patches:
-- path: patches/deployment-patch.yaml
-
-images:
-- name: nginx
-  newTag: "1.21"
-EOF
-```
-
-#### Schritt 8: Zurück ins Hauptverzeichnis
-
-```bash
-## Gehe zurück ins Hauptverzeichnis
-cd ..
-```
-
-#### Schritt 9: Verzeichnisstruktur prüfen
-
-```bash
-## Prüfe die Verzeichnisstruktur
-tree .
-## Ergebnis sollte sein:
-## .
-## ├── kustomize/
-## │   ├── kustomization.yaml
-## │   ├── kustomize-post-renderer.sh
-## │   └── patches/
-## │       └── deployment-patch.yaml
-## └── my-chart/
-##     ├── Chart.yaml
-##     ├── charts/
-##     ├── templates/
-##     └── values.yaml
-```
-
-#### Schritt 10: Deployment testen
-
-```bash
-## Teste das Setup mit dry-run
-helm upgrade --install -n my-kapp-<namenskuerzel> my-app ./my-chart --post-renderer ./kustomize/kustomize-post-renderer.sh --dry-run --debug --create-namespace 
-```
-
-#### Schritt 11: Deployment ausführen
-
-```bash
-## Führe das Deployment aus
-helm upgrade --install -n my-kapp-<namenskuerzel> my-app ./my-chart --post-renderer ./kustomize/kustomize-post-renderer.sh --create-namespace
-
-helm -n my-kapp-<namenskuerzel> list 
-helm -n my-kapp-<namenskuerzel> get manifest my-app
-```
-
-#### Schritt 12: Deployment prüfen
-
-```bash
-## Prüfe das Deployment
-kubectl -n my-kapp-<namenskuerzel> get pods
-kubectl -n my-kapp-<namenskuerzel> describe deployment my-app-my-chart
-```
-
-### Environment-spezifische Anpassungen
-
-#### Ordnerstruktur
-
-```
-helm-kustomize/
-├── chart/
-│   ├── Chart.yaml
-│   ├── values.yaml
-│   └── templates/
-├── environments/
-│   ├── dev/
-│   │   ├── kustomization.yaml
-│   │   └── patches/
-│   ├── staging/
-│   │   ├── kustomization.yaml
-│   │   └── patches/
-│   └── prod/
-│       ├── kustomization.yaml
-│       └── patches/
-└── scripts/
-    └── deploy.sh
-```
-
-#### Development Environment
-
-```yaml
-## environments/dev/kustomization.yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-- ../../base.yaml
-
-patches:
-- path: patches/dev-resources.yaml
-
-replicas:
-- name: my-app
-  count: 1
-
-commonLabels:
-  environment: dev
-```
-
-#### Production Environment
-
-```yaml
-## environments/prod/kustomization.yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-- ../../base.yaml
-
-patches:
-- path: patches/prod-resources.yaml
-- path: patches/prod-security.yaml
-
-replicas:
-- name: my-app
-  count: 3
-
-commonLabels:
-  environment: prod
-```
-
-
-### Best Practices
-
-
-#### 2. Testing
-
-```bash
-## Dry-run für Testing
-helm template my-app ./chart --values values-dev.yaml | \
-  kubectl kustomize environments/dev | \
-  kubectl apply --dry-run=client -f -
-```
-
-
-
-
-
-
-## LoadBalancer on Premise (metallb)
-
-### Metallb
-
-
-### General 
-
-  * Supports bgp and arp 
-  * Divided into controller, speaker 
-
-### Installation Ways  
-
-  * helm 
-  * manifests 
-
-### Step 1: install metallb
-
-```
-## Just to show some basics 
-## Page from metallb says that digitalocean is not really supported well 
-## So we will not install the speaker .
-
-helm repo add metallb https://metallb.github.io/metallb 
-```
-
-```
-## Eventually disabling speaker 
-## vi values.yml 
-
-```
-
-```
-helm install metallb metallb/metallb --namespace=metallb-system --create-namespace --version 0.14.8
-```
-
-### Step 2: addresspool und Propagation-type (config) 
-
-```
-cd
-mkdir -p manifests
-cd manifests
-mkdir lb
-cd lb
-nano 01-addresspool.yml 
-```
-
-```
-apiVersion: metallb.io/v1beta1
-kind: IPAddressPool
-metadata:
-  name: first-pool
-  namespace: metallb-system
-spec:
-  addresses:
-  # we will use our external ip here 
-  - 134.209.231.154-134.209.231.154
-  # both notations are possible 
-  - 157.230.113.124/32
-```
-
-```
-kubectl apply -f .
-```
-
-```
-nano 02-advertisement.yml
-```
-
-```
-apiVersion: metallb.io/v1beta1
-kind: L2Advertisement
-metadata:
-  name: example
-  namespace: metallb-system
-```
-
-```
-kubectl apply -f .
-```
-
-### Schritt 4: Test do i get an external ip 
-
-```
-nano 03-deploy.yml
-```
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: my-nginx
-spec:
-  selector:
-    matchLabels:
-      run: web-nginx
-  replicas: 3
-  template:
-    metadata:
-      labels:
-        run: web-nginx
-    spec:
-      containers:
-      - name: cont-nginx
-        image: nginx
-        ports:
-        - containerPort: 80
-
-```
-
-
-```
-nano 04-service.yml
-```
-
-```
-apiVersion: v1
-kind: Service
-metadata:
-  name: svc-nginx
-  labels:
-    svc: nginx
-spec:
-  type: LoadBalancer
-  ports:
-  - port: 80
-    protocol: TCP
-  selector:
-    run: web-nginx
-```
-
-
-```
-kubectl apply -f .
-kubectl get pods
-kubectl get svc
-```
-
-```
-## auf dem client 
-curl http://<ip aus get svc>
-```
-
-```
-kubectl delete -f 03-deploy.yml 04-service.yml 
-```
-
-### Schritt 5: Referenz:
-
-  * https://metallb.io/installation/#installation-with-helm
-
-## Helm mit gitlab ci/cd
-
-### Helm mit gitlab ci/cd ausrollen
-
-
-### Step 1: Create gitlab - repo and pipeline 
-
-```
-1. Create new repo on gitlab 
-2. Click on pipeline Editor and creat .gitlab-ci.yml with Button 
-
-```
-
-### Step 2: Push your helm chart files to repo 
-
-
-   * Now looks like this
-
-![image](https://github.com/user-attachments/assets/5e88593b-5b31-4adf-a2bb-e5e9a5129be5)
-
-### Step 3: Add your KUBECONFIG as Variable (type: File) to Variables 
-
-  * https://gitlab.com/jmetzger/training-helm-chart-kubernetes-gitlab-ci-cd/-/settings/ci_cd#js-cicd-variables-settings
-
-![image](https://github.com/user-attachments/assets/b5168cf3-dd74-4d86-becf-e807985dd471)
-
-### Step 4: Create a pipeline for deployment 
-
-```
-stages:          # List of stages for jobs, and their order of execution
-  - deploy
-
-variables:
-  APP_NAME: my-first-app
-
-deploy:
-  stage: deploy
-  image: 
-    name: alpine/helm:3.2.1
-## Important to unset entrypoint 
-    entrypoint: [""]
-  script:
-    - ls -la
-    - cd; mkdir .kube; cd .kube; cat $KUBECONFIG_SECRET > config; ls -la;
-    - cd $CI_PROJECT_DIR; helm upgrade ${APP_NAME} ./charts/my-app --install --namespace ${APP_NAME} --create-namespace -f ./config/values.yaml
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'master'
-      when: always
-
-```
-
-
-### Reference: Example Project (Public)
-
-  * https://gitlab.com/jmetzger/training-helm-chart-kubernetes-gitlab-ci-cd
-
-## Kubernetes Verläßlichkeit erreichen 
-
-### Keine 2 pods auf gleichem Node - PodAntinAffinity
-
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: my-app
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: my-app
-  template:
-    metadata:
-      labels:
-        app: my-app
-    spec:
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchLabels:
-                app: my-app
-            topologyKey: kubernetes.io/hostname
-      containers:
-      - name: my-app
-        image: nginx:latest
-        ports:
-        - containerPort: 80
-```
+  * https://gist.github.com/doevelopper/ff4a9a211e74f8a2d44eb4afb21f0a38
 
 ## Kubernetes Debugging
 
@@ -4551,53 +4164,6 @@ kubectl get pods
 ### Kubernetes Videos mit Hands On
 
   * https://www.youtube.com/watch?v=16fgzklcF7Y
-
-## Kubernetes Monitoring/Security
-
-### Überwachung, ob Images veraltet sind, direkt in Kubernetes
-
-
-   * Can also update images (i would always go towards gitlab ci/cd doing this)
-   * Kann z.B. über slack benachrichtigen 
-
-### Setup (Achtung ungetestet)
-
-```
-## Korrekte Struktur für aktuelle Keel Version
-helmProvider:
-  enabled: true
-
-## Korrekte Notification-Konfiguration
-notification:
-  slack:
-    enabled: true
-    token: "xoxb-YOUR-TOKEN"
-    channel: "#updates"
-
-## Korrekte Approval-Konfiguration
-approvals:
-  enabled: true
-
-## Korrekte Trigger-Konfiguration
-triggers:
-  poll:
-    enabled: true
-  pubsub:
-    enabled: false
-
-```
-
-```
-helm repo add keel https://charts.keel.sh
-helm repo update
-
-## 2. Installation mit der values.yaml
-helm install keel keel/keel \
-  --namespace keel \
-  --create-namespace \
-  -f values.yaml
-
-```
 
 ## Kubernetes Storage (CSI) 
 
@@ -4927,128 +4493,6 @@ kubectl apply -f .
 kubectl describe po mariadb-deployment-<euer-pod>
 ```
 
-## Kubernetes Security
-
-### Best practices security pods
-
-
-```
-5. Security / Best practice pods 
-
-5.1. Pods 
-1) Use Readiness / Liveness check 
-
-Not we really security, but to have a stable system 
-
-2) Use Non-Root Images 
-(is not allowed in OpenShift anyways)
-
-3) SecurityContext: Restrict the Features in the pod/container as much as possible
-
-Essentially covered by Default SCC's:
-https://docs.openshift.com/container-platform/4.18/authentication/managing-security-context-constraints.html
-
-Essentially use the v2 versions. 
-
-Question will Always be: Do I really Need this for this post 
-(e.g. HostNetwork). Is there are better/safer way to achieve this 
-```
-
-### Best practices in general
-
-
-```
-6. Security (other stuff) 
-6.1. Be sure upgrade your system and use the newest versions (OS / OpenShift) 
-6.2. Setup Firewall rules, for the cluster components. (OpenShift) - 
-https://docs.openshift.com/container-platform/4.16/installing/install_config/configuring-firewall.html
-
-6.3. Do not install any components, that you do not Need (with helm)
-
-6.4. Always download Images instead of using them locally. 
-
-I think it also has to do with auth. When set to always, the pod will pull the image from the registry, hence it has to do auth and have valid credentials to actually get the image.
-If the image is already in the node, and let's say permission has been removed to access that image for that node in the registry, a pod could still be created since the image is already there.
-
--> Wie sicherstellen, dass das gesetzt ist ? 
-OPA Gateway 
-```
-
-
-
-```
-6.5. Scan all your Images before using them
-
-6.5.1. In development
-
-6.5.2. CI / CD Pipeline 
-
-6.5.3 Registry (when uploading them)
-```
-
-```
-6.6. Restrict ssh Access 
-(no ssh-access to cluster nodes please  !)
-```
-
-```
-6.7. Use NetworkPolicies 
-
-https://docs.openshift.com/container-platform/4.12/networking/network_policy/about-network-policy.html
--> BUT: Use the specific Network Policies of your CNI
-
-```
-```
-
-### Images in kubernetes von privatem Repo verwenden
-
-
-  * Zugriff auf registries mit authentifizierung
-
-### Exercise 
-
-```
-mkdir -p manifests
-cd manifests
-mkdir private-repo
-cd private-repo
-```
-
-```
-kubectl create secret docker-registry regcred --docker-server=registry.do.t3isp.de \
---docker-username=11trainingdo --docker-password=<sehr-geheim> --dry-run=client -o yaml > 01-secret.yaml 
-```
-
-```
-kubectl create secret generic mariadb-secret --from-literal=MARIADB_ROOT_PASSWORD=11abc432 --dry-run=client -o yaml > 02-secret.yml
-```
-
-
-```
-nano 02-pod.yaml
-```
-
-```
-apiVersion: v1
-kind: Pod
-metadata:
-  name: private-reg
-spec:
-  containers:
-  - name: private-reg-container
-    image: registry.do.t3isp.de/mariadb:11.4.5
-    envFrom:
-      - secretRef:
-          name: mariadb-secret
-  imagePullSecrets:
-  - name: regcred
-```
-
-```
-kubectl apply -f .
-kubectl get pods -o wide private-reg
-kubectl describe pods private-reg 
-
 ## Kubernetes Installation
 
 ### k3s installation
@@ -5227,47 +4671,6 @@ ssh -L 3000:localhost:3000 tln1@164.92.129.7
   * https://artifacthub.io/packages/helm/prometheus-community/prometheus
 
   
-
-## Metrics-Server / Größe Cluster 
-
-### Metrics-Server mit helm installieren
-
-
-### Warum ? Was macht er ? 
-
-```
-Der Metrics-Server sammelt Informationen von den einzelnen Nodes und Pods
-Er bietet mit 
-
-kubectl top pods
-kubectl top nodes 
-
-ein einfaches Interface, um einen ersten Eindruck über die Auslastung zu bekommen. 
-```
-
-### Walktrough 
-
-```
-helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
-helm -n kube-system upgrade --install metrics-server metrics-server/metrics-server --version 3.12.2
-
-
-
-## Es dauert jetzt einen Moment bis dieser aktiv ist auch nach der Installation 
-## Auf dem Client
-kubectl top nodes 
-kubectl top pods 
-
-```
-
-### Kubernetes 
-
-  * https://kubernetes-sigs.github.io/metrics-server/
-  * kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-
-### Speichernutzung und CPU berechnen für Anwendungen
-
-  * https://learnk8s.io/kubernetes-node-size
 
 ## Kubernetes QoS / HealthChecks / Live / Readiness
 
@@ -6480,332 +5883,173 @@ If you tell me **what kind of "stop" you're envisioning**, I can help tailor a h
 → *“Pause processing until a Kafka topic is ready”* — totally different tactics.
 
 
-## Kubernetes Storage (CSI) 
+## Kubernetes Security
 
-### Überblick Persistant Volumes (CSI)
+### Best practices security pods
 
-
-### Überblick 
-
-#### Warum CSI ?
-
-  * Each vendor can create his own driver for his storage 
-
-#### Vorteile ? 
 
 ```
-I. Automatically create storage when required.
-II. Make storage available to containers wherever they’re scheduled.
-III. Automatically delete the storage when no longer needed. 
+5. Security / Best practice pods 
+
+5.1. Pods 
+1) Use Readiness / Liveness check 
+
+Not we really security, but to have a stable system 
+
+2) Use Non-Root Images 
+(is not allowed in OpenShift anyways)
+
+3) SecurityContext: Restrict the Features in the pod/container as much as possible
+
+Essentially covered by Default SCC's:
+https://docs.openshift.com/container-platform/4.18/authentication/managing-security-context-constraints.html
+
+Essentially use the v2 versions. 
+
+Question will Always be: Do I really Need this for this post 
+(e.g. HostNetwork). Is there are better/safer way to achieve this 
 ```
 
-#### Wie war es vorher ?
+### Best practices in general
+
 
 ```
-Vendor needed to wait till his code was checked in in tree of kubernetes (in-tree)
+6. Security (other stuff) 
+6.1. Be sure upgrade your system and use the newest versions (OS / OpenShift) 
+6.2. Setup Firewall rules, for the cluster components. (OpenShift) - 
+https://docs.openshift.com/container-platform/4.16/installing/install_config/configuring-firewall.html
+
+6.3. Do not install any components, that you do not Need (with helm)
+
+6.4. Always download Images instead of using them locally. 
+
+I think it also has to do with auth. When set to always, the pod will pull the image from the registry, hence it has to do auth and have valid credentials to actually get the image.
+If the image is already in the node, and let's say permission has been removed to access that image for that node in the registry, a pod could still be created since the image is already there.
+
+-> Wie sicherstellen, dass das gesetzt ist ? 
+OPA Gateway 
 ```
 
-#### Unterschied static vs. dynamisch 
+
 
 ```
-The main difference relies on the moment when you want to configure storage. For instance, if you need to pre-populate data in a volume, you choose static provisioning. Whereas, if you need to create volumes on demand, you go for dynamic provisioning.
+6.5. Scan all your Images before using them
+
+6.5.1. In development
+
+6.5.2. CI / CD Pipeline 
+
+6.5.3 Registry (when uploading them)
 ```
 
-### Komponenten 
-
-#### Treiber 
-
-  * Für jede Storage Class (Storage Provider) muss es einen Treiber geben
-
-#### Storage Class 
-
-### Liste der Treiber mit Features (CSI)
-
-  * https://kubernetes-csi.github.io/docs/drivers.html
-
-### Übung Persistant Storage
-
-
-  * Step 1 + 2 : nur Trainer
-  * ab Step 3: Trainees 
-
-### Step 1: Do the same with helm - chart 
-
 ```
-helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
-helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version v4.11.0
+6.6. Restrict ssh Access 
+(no ssh-access to cluster nodes please  !)
 ```
 
-### Step 2: Storage Class 
+```
+6.7. Use NetworkPolicies 
+
+https://docs.openshift.com/container-platform/4.12/networking/network_policy/about-network-policy.html
+-> BUT: Use the specific Network Policies of your CNI
 
 ```
-cd
+```
+
+### Images in kubernetes von privatem Repo verwenden
+
+
+  * Zugriff auf registries mit authentifizierung
+
+### Exercise 
+
+```
 mkdir -p manifests
 cd manifests
-mkdir csi-storage
-cd csi-storage 
-nano 01-storageclass.yml
+mkdir private-repo
+cd private-repo
 ```
 
 ```
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: nfs-csi
-provisioner: nfs.csi.k8s.io
-parameters:
-  server: 10.135.0.70
-  share: /var/nfs
-reclaimPolicy: Retain
-volumeBindingMode: Immediate
+kubectl create secret docker-registry regcred --docker-server=registry.do.t3isp.de \
+--docker-username=11trainingdo --docker-password=<sehr-geheim> --dry-run=client -o yaml > 01-secret.yaml 
 ```
 
 ```
-kubectl apply -f .
+kubectl create secret generic mariadb-secret --from-literal=MARIADB_ROOT_PASSWORD=11abc432 --dry-run=client -o yaml > 02-secret.yml
 ```
 
-### Step 3: Persistent Volume Claim 
 
 ```
-cd
-mkdir -p manifests
-cd manifests
-mkdir csi
-cd csi
-nano 02-pvc.yaml
-```
-
-```
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-nfs-dynamic
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 2Gi
-  storageClassName: nfs-csi
-```
-
-```
-kubectl apply -f .
-kubectl get pvc
-##
-kubectl get pv 
-```
-
-### Step 4: Pod 
-
-```
-nano 03-pod.yaml
+nano 02-pod.yaml
 ```
 
 ```
 apiVersion: v1
 kind: Pod
 metadata:
-  name: nginx-nfs
+  name: private-reg
 spec:
   containers:
-    - image: nginx:1.23
-      name: nginx-nfs
-      command:
-        - "/bin/bash"
-        - "-c"
-        - set -euo pipefail; while true; do echo $(date) >> /mnt/nfs/outfile; sleep 1; done
-      volumeMounts:
-        - name: persistent-storage
-          mountPath: "/mnt/nfs"
-          readOnly: false
-  volumes:
-    - name: persistent-storage
-      persistentVolumeClaim:
-        claimName: pvc-nfs-dynamic
+  - name: private-reg-container
+    image: registry.do.t3isp.de/mariadb:11.4.5
+    envFrom:
+      - secretRef:
+          name: mariadb-secret
+  imagePullSecrets:
+  - name: regcred
 ```
 
 ```
 kubectl apply -f .
-kubectl get pods
-```
+kubectl get pods -o wide private-reg
+kubectl describe pods private-reg 
 
-### Step 5: Testing
+## Kubernetes Monitoring/Security
 
-```
-kubectl exec -it nginx-nfs -- bash 
-```
+### Überwachung, ob Images veraltet sind, direkt in Kubernetes
 
-```
-cd /mnt/nfs
-ls -la
-## outfile
-tail -f /mnt/nfs/outfile
-```
+
+   * Can also update images (i would always go towards gitlab ci/cd doing this)
+   * Kann z.B. über slack benachrichtigen 
+
+### Setup (Achtung ungetestet)
 
 ```
-CTRL+C
-exit
-```
+## Korrekte Struktur für aktuelle Keel Version
+helmProvider:
+  enabled: true
 
-### Step 6: Destroy 
+## Korrekte Notification-Konfiguration
+notification:
+  slack:
+    enabled: true
+    token: "xoxb-YOUR-TOKEN"
+    channel: "#updates"
 
-```
-kubectl delete -f 03-pod.yaml 
+## Korrekte Approval-Konfiguration
+approvals:
+  enabled: true
 
-### Verify in nfs - trainer !! 
-```
+## Korrekte Trigger-Konfiguration
+triggers:
+  poll:
+    enabled: true
+  pubsub:
+    enabled: false
 
-### Step 7: Recreate 
-
-```
-kubectl apply -f 03-pod.yaml
-```
-
-```
-kubectl exec -it nginx-nfs -- bash
-```
-
-```
-## is old data here ? 
-head /mnt/nfs/outfile 
-##
-tail -f /mnt/nfs/outfile
 ```
 
 ```
-CTRL + C
-exit
-```
-### Step 8: Cleanup 
+helm repo add keel https://charts.keel.sh
+helm repo update
 
-```
-kubectl delete -f .
-```
+## 2. Installation mit der values.yaml
+helm install keel keel/keel \
+  --namespace keel \
+  --create-namespace \
+  -f values.yaml
 
-
-### Reference:
-
- * https://rudimartinsen.com/2024/01/09/nfs-csi-driver-kubernetes/
-
-### Beispiel mariadb
-
-
-  * How to persistently use mariadb with a storage class / driver nfs.csi.
-
-### Step 1: Treiber installieren 
-
-  * https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/docs/install-csi-driver-v4.6.0.md
-
-```
-curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.6.0/deploy/install-driver.sh | bash -s v4.6.0 --
-```
-
-### Step 2: Storage Class 
-
-```
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: nfs-csi
-provisioner: nfs.csi.k8s.io
-parameters:
-  server: 10.135.0.18
-  share: /var/nfs
-reclaimPolicy: Delete
-volumeBindingMode: Immediate
-mountOptions:
-  - nfsvers=3
-```
-
-### Step 3: PVC, Configmap, Deployment 
-
-```
-mkdir -p manifests
-cd manifests
-mkdir mariadb-csi
-cd mariadb-csi
-```
-
-```
-nano 01-pvc.yaml
-```
-
-```
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-nfs-dynamic-mariadb
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 2Gi
-  storageClassName: nfs-csi
-```
-
-```
-kubectl apply -f .
-```
-
-```
-nano 02-configmap.yml
-```
-
-```
-### 02-configmap.yml
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: mariadb-configmap
-data:
-  # als Wertepaare
-  MARIADB_ROOT_PASSWORD: 11abc432
-```
-
-```
-nano 03-deployment.yml
-```
-
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mariadb-deployment
-spec:
-  selector:
-    matchLabels:
-      app: mariadb
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: mariadb
-    spec:
-      containers:
-      - name: mariadb-cont
-        image: mariadb:10.11
-        envFrom:
-        - configMapRef:
-            name: mariadb-configmap
-        volumeMounts:
-        - name: persistent-storage
-          mountPath: "/var/lib/mysql"
-          readOnly: false
-      volumes:
-      - name: persistent-storage
-        persistentVolumeClaim:
-          claimName: pvc-nfs-dynamic-mariadb
-```
-
-```
-kubectl apply -f .
-```
-
-```
-kubectl describe po mariadb-deployment-<euer-pod>
 ```
 
 ## Helm (IDE - Support) 
@@ -6817,6 +6061,682 @@ kubectl describe po mariadb-deployment-<euer-pod>
 ### Intellij - Helm Support Through Kubernetes Plugin
 
   * https://blog.jetbrains.com/idea/2018/10/intellij-idea-2018-3-helm-support/
+
+## Helm - Charts enwickeln
+
+### Unser erstes Helm Chart erstellen
+
+
+### Chart erstellen 
+
+```
+cd 
+mkdir my-charts
+cd my-charts
+```
+
+```
+helm create my-app
+``` 
+
+### Install helm - chart 
+
+```
+## Variante 1:
+helm -n my-app-<namenskuerzel> install my-app-release my-app --create-namespace 
+```
+
+```
+## Variante 2:
+cd my-app
+helm -n my-app-<namenskuerzel> install my-app-release . --create-namespace 
+```
+
+```
+kubectl -n my-app-<namenskuerzel> get all
+kubectl -n my-app-<namenskuerzel> get pods 
+```
+
+### Wie starte ich am besten - Übung
+
+
+### Exercise 
+
+```
+cd
+mkdir -p my-charts
+cd my-charts
+helm create simple-chart 
+```
+
+```
+## Alles Weg was wir nicht brauchen
+cd simple-chart
+rm values.yaml
+cd templates
+rm -f *.yaml
+rm -fR tests
+echo "Ausgabe nach Install" > NOTES.txt
+```
+
+```
+nano deploy.yaml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 8 # tells deployment to run 8 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.26
+        ports:
+        - containerPort: 80
+```
+
+```
+## aus dem templates ordner raus 
+cd ..
+## aus dem chart raus
+cd ..
+```
+
+```
+## Installieren 
+helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app simple-chart --create-namespace
+kubectl -n my-simple-app-<namenskuerzel> get all 
+```
+ 
+### Exercise Phase 2: Um Replicas erweitern 
+
+```
+cd simple-chart
+nano values.yaml
+```
+
+```
+deployment:
+  replicas: 5
+```
+
+```
+cd templates
+nano deploy.yaml
+```
+
+```
+## aus der Zeile:
+## replicas: 9
+## wird ->
+  replicas: {{ .Values.deployment.replicas }}
+```
+
+```
+ä Gehen aus dem Chart raus 
+cd ..
+cd ..
+helm template simple-chart
+helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app simple-chart --create-namespace
+kubectl -n my-simple-app-<namenskuerzel> get pods 
+```
+
+```
+nano simple-app-values.yaml
+```
+
+```
+deployment:
+  replicas: 2
+```
+
+```
+helm -n my-simple-app-<namenskuerzel> upgrade --install my-simple-app simple-chart -f simple-app-values.yaml
+kubectl -n my-simple-app-<namenskuerzel> get pods
+```
+
+## Helm und Kustomize kombinieren
+
+### Helm und Kustomize kombinieren
+
+
+### Übersicht
+
+Die Kombination von Helm und Kustomize bietet die Flexibilität von Kustomize mit der Paketierung und Versionierung von Helm. Dies ist besonders nützlich für komplexe Deployments, die environment-spezifische Anpassungen benötigen.
+
+### Helm Post-Rendering mit Kustomize
+
+#### Grundlegendes Konzept
+
+Helm kann nach dem Template-Rendering einen Post-Renderer aufrufen. Hier kann Kustomize die gerenderten Manifeste weiter anpassen.
+
+#### Workflow
+
+1. Helm rendert Templates basierend auf Values
+2. Kustomize modifiziert die gerenderten Manifeste
+3. Finale Manifeste werden deployed
+
+### Übung 
+
+#### Schritt 1: Arbeitsverzeichnis erstellen
+
+```bash
+## Erstelle Arbeitsverzeichnis
+cd
+mkdir helm-kustomize-demo
+cd helm-kustomize-demo
+```
+
+#### Schritt 2: Helm Chart erstellen
+
+```bash
+## Erstelle ein neues Helm Chart
+helm create my-chart
+```
+
+#### Schritt 3: Kustomize-Verzeichnis erstellen
+
+```bash
+## Erstelle Kustomize-Verzeichnis
+mkdir kustomize
+cd kustomize
+```
+
+#### Schritt 4: Post-Renderer Script erstellen
+
+```bash
+## Erstelle das Post-Renderer Script
+cat > kustomize-post-renderer.sh << 'EOF'
+##!/bin/bash
+## Wechsle ins kustomize Verzeichnis
+cd "$(dirname "$0")"
+## Speichere Helm Output als base.yaml
+cat <&0 > base.yaml
+## Führe kustomize build aus
+kubectl kustomize .
+EOF
+
+## Script ausführbar machen
+chmod +x kustomize-post-renderer.sh
+```
+
+#### Schritt 5: Patches-Verzeichnis erstellen
+
+```bash
+## Erstelle patches Verzeichnis
+mkdir -p patches
+```
+
+#### Schritt 6: Deployment Patch erstellen
+
+```bash
+## Erstelle deployment-patch.yaml
+cat > patches/deployment-patch.yaml << 'EOF'
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-my-chart
+spec:
+  template:
+    spec:
+      containers:
+      - name: my-chart
+        resources:
+          requests:
+            memory: "80Mi"
+            cpu: "300m"
+          limits:
+            memory: "80Mi"
+            cpu: "300m"
+EOF
+```
+
+#### Schritt 7: Kustomization.yaml erstellen
+
+```bash
+## Erstelle kustomization.yaml
+cat > kustomization.yaml << 'EOF'
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- base.yaml
+
+patches:
+- path: patches/deployment-patch.yaml
+
+images:
+- name: nginx
+  newTag: "1.21"
+EOF
+```
+
+#### Schritt 8: Zurück ins Hauptverzeichnis
+
+```bash
+## Gehe zurück ins Hauptverzeichnis
+cd ..
+```
+
+#### Schritt 9: Verzeichnisstruktur prüfen
+
+```bash
+## Prüfe die Verzeichnisstruktur
+tree .
+## Ergebnis sollte sein:
+## .
+## ├── kustomize/
+## │   ├── kustomization.yaml
+## │   ├── kustomize-post-renderer.sh
+## │   └── patches/
+## │       └── deployment-patch.yaml
+## └── my-chart/
+##     ├── Chart.yaml
+##     ├── charts/
+##     ├── templates/
+##     └── values.yaml
+```
+
+#### Schritt 10: Deployment testen
+
+```bash
+## Teste das Setup mit dry-run
+helm upgrade --install -n my-kapp-<namenskuerzel> my-app ./my-chart --post-renderer ./kustomize/kustomize-post-renderer.sh --dry-run --debug --create-namespace 
+```
+
+#### Schritt 11: Deployment ausführen
+
+```bash
+## Führe das Deployment aus
+helm upgrade --install -n my-kapp-<namenskuerzel> my-app ./my-chart --post-renderer ./kustomize/kustomize-post-renderer.sh --create-namespace
+
+helm -n my-kapp-<namenskuerzel> list 
+helm -n my-kapp-<namenskuerzel> get manifest my-app
+```
+
+#### Schritt 12: Deployment prüfen
+
+```bash
+## Prüfe das Deployment
+kubectl -n my-kapp-<namenskuerzel> get pods
+kubectl -n my-kapp-<namenskuerzel> describe deployment my-app-my-chart
+```
+
+### Environment-spezifische Anpassungen
+
+#### Ordnerstruktur
+
+```
+helm-kustomize/
+├── chart/
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   └── templates/
+├── environments/
+│   ├── dev/
+│   │   ├── kustomization.yaml
+│   │   └── patches/
+│   ├── staging/
+│   │   ├── kustomization.yaml
+│   │   └── patches/
+│   └── prod/
+│       ├── kustomization.yaml
+│       └── patches/
+└── scripts/
+    └── deploy.sh
+```
+
+#### Development Environment
+
+```yaml
+## environments/dev/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base.yaml
+
+patches:
+- path: patches/dev-resources.yaml
+
+replicas:
+- name: my-app
+  count: 1
+
+commonLabels:
+  environment: dev
+```
+
+#### Production Environment
+
+```yaml
+## environments/prod/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base.yaml
+
+patches:
+- path: patches/prod-resources.yaml
+- path: patches/prod-security.yaml
+
+replicas:
+- name: my-app
+  count: 3
+
+commonLabels:
+  environment: prod
+```
+
+
+### Best Practices
+
+
+#### 2. Testing
+
+```bash
+## Dry-run für Testing
+helm template my-app ./chart --values values-dev.yaml | \
+  kubectl kustomize environments/dev | \
+  kubectl apply --dry-run=client -f -
+```
+
+
+
+
+
+
+## LoadBalancer on Premise (metallb)
+
+### Metallb
+
+
+### General 
+
+  * Supports bgp and arp 
+  * Divided into controller, speaker 
+
+### Installation Ways  
+
+  * helm 
+  * manifests 
+
+### Step 1: install metallb
+
+```
+## Just to show some basics 
+## Page from metallb says that digitalocean is not really supported well 
+## So we will not install the speaker .
+
+helm repo add metallb https://metallb.github.io/metallb 
+```
+
+```
+## Eventually disabling speaker 
+## vi values.yml 
+
+```
+
+```
+helm install metallb metallb/metallb --namespace=metallb-system --create-namespace --version 0.14.8
+```
+
+### Step 2: addresspool und Propagation-type (config) 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir lb
+cd lb
+nano 01-addresspool.yml 
+```
+
+```
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: first-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  # we will use our external ip here 
+  - 134.209.231.154-134.209.231.154
+  # both notations are possible 
+  - 157.230.113.124/32
+```
+
+```
+kubectl apply -f .
+```
+
+```
+nano 02-advertisement.yml
+```
+
+```
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: example
+  namespace: metallb-system
+```
+
+```
+kubectl apply -f .
+```
+
+### Schritt 4: Test do i get an external ip 
+
+```
+nano 03-deploy.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-nginx
+spec:
+  selector:
+    matchLabels:
+      run: web-nginx
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        run: web-nginx
+    spec:
+      containers:
+      - name: cont-nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+
+```
+
+
+```
+nano 04-service.yml
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-nginx
+  labels:
+    svc: nginx
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    run: web-nginx
+```
+
+
+```
+kubectl apply -f .
+kubectl get pods
+kubectl get svc
+```
+
+```
+## auf dem client 
+curl http://<ip aus get svc>
+```
+
+```
+kubectl delete -f 03-deploy.yml 04-service.yml 
+```
+
+### Schritt 5: Referenz:
+
+  * https://metallb.io/installation/#installation-with-helm
+
+## Helm mit gitlab ci/cd
+
+### Helm mit gitlab ci/cd ausrollen
+
+
+### Step 1: Create gitlab - repo and pipeline 
+
+```
+1. Create new repo on gitlab 
+2. Click on pipeline Editor and creat .gitlab-ci.yml with Button 
+
+```
+
+### Step 2: Push your helm chart files to repo 
+
+
+   * Now looks like this
+
+![image](https://github.com/user-attachments/assets/5e88593b-5b31-4adf-a2bb-e5e9a5129be5)
+
+### Step 3: Add your KUBECONFIG as Variable (type: File) to Variables 
+
+  * https://gitlab.com/jmetzger/training-helm-chart-kubernetes-gitlab-ci-cd/-/settings/ci_cd#js-cicd-variables-settings
+
+![image](https://github.com/user-attachments/assets/b5168cf3-dd74-4d86-becf-e807985dd471)
+
+### Step 4: Create a pipeline for deployment 
+
+```
+stages:          # List of stages for jobs, and their order of execution
+  - deploy
+
+variables:
+  APP_NAME: my-first-app
+
+deploy:
+  stage: deploy
+  image: 
+    name: alpine/helm:3.2.1
+## Important to unset entrypoint 
+    entrypoint: [""]
+  script:
+    - ls -la
+    - cd; mkdir .kube; cd .kube; cat $KUBECONFIG_SECRET > config; ls -la;
+    - cd $CI_PROJECT_DIR; helm upgrade ${APP_NAME} ./charts/my-app --install --namespace ${APP_NAME} --create-namespace -f ./config/values.yaml
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
+      when: always
+
+```
+
+
+### Reference: Example Project (Public)
+
+  * https://gitlab.com/jmetzger/training-helm-chart-kubernetes-gitlab-ci-cd
+
+## Kubernetes Verläßlichkeit erreichen 
+
+### Keine 2 pods auf gleichem Node - PodAntinAffinity
+
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: my-app
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: my-app
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+```
+
+## Metrics-Server / Größe Cluster 
+
+### Metrics-Server mit helm installieren
+
+
+### Warum ? Was macht er ? 
+
+```
+Der Metrics-Server sammelt Informationen von den einzelnen Nodes und Pods
+Er bietet mit 
+
+kubectl top pods
+kubectl top nodes 
+
+ein einfaches Interface, um einen ersten Eindruck über die Auslastung zu bekommen. 
+```
+
+### Walktrough 
+
+```
+helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+helm -n kube-system upgrade --install metrics-server metrics-server/metrics-server --version 3.12.2
+
+
+
+## Es dauert jetzt einen Moment bis dieser aktiv ist auch nach der Installation 
+## Auf dem Client
+kubectl top nodes 
+kubectl top pods 
+
+```
+
+### Kubernetes 
+
+  * https://kubernetes-sigs.github.io/metrics-server/
+  * kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+### Speichernutzung und CPU berechnen für Anwendungen
+
+  * https://learnk8s.io/kubernetes-node-size
 
 ## Kubernetes -> High Availability Cluster (multi-data center)
 
@@ -7293,36 +7213,18 @@ wget -O - http://svc-nginx.jochen.svc
 wget -O - http://svc-nginx.jochen.svc.cluster.local
 ```
 
-### Example with apple-service 
-
-```
-If you don't see a command prompt, try pressing enter.
-/ # wget -O - http://apple-service.jochen
-Connecting to apple-service.jochen (10.245.39.214:80)
-writing to stdout
-apple-tln1
--                    100% |**************************************************************************************************************|    11  0:00:00 ETA
-written to stdout
-/ # wget -O - http://apple-service.jochen.svc.cluster.local
-Connecting to apple-service.jochen.svc.cluster.local (10.245.39.214:80)
-writing to stdout
-apple-tln1
--                    100% |**************************************************************************************************************|    11  0:00:00 ETA
-written to stdout
-/ # wget -O - http://apple-service
-Connecting to apple-service (10.245.39.214:80)
-writing to stdout
-apple-tln1
--                    100% |**************************************************************************************************************|    11  0:00:00 ETA
-written to stdout
-```
-
 ### How to find the FQDN (Full qualified domain name) 
 
 ```
 ## in busybox (clusterIP)
-nslookup 10.109.6.53
-name = svc-nginx.jochen.svc.cluster.local
+#### Schritt 1: Service-IP ausfindig machen
+wget -O - http://svc-nginx
+## z.B. 10.109.24.227 
+
+#### Schritt 2: nslookup mit dieser Service-IP
+nslookup 10.109.24.227
+## Ausgabe 
+## name = svc-nginx.jochen.svc.cluster.local
 ```
 
 ### Kubernetes Firewall / Cilium Calico
@@ -8658,16 +8560,24 @@ kubectl top pods nginx-data
 Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
 ```
 
+### Was wollen wir testen (auf der Verbindungsebene) ?
+
+<img width="900" height="343" alt="image" src="https://github.com/user-attachments/assets/937221ca-20ff-4b1f-926c-cee1f5923f60" />
+
+
 ### Behelf: Eigenen Pod starten mit busybox 
 
 ```
-kubectl run podtest --rm -it --image busybox -- /bin/sh
+## der einfachste Weg
+kubectl run podtest --rm -it --image busybox 
 ```
 
 ```
-## und es geht noch einfacher
-kubectl run podtest --rm -it --image busybox 
+## Alternative 
+kubectl run podtest --rm -it --image busybox -- /bin/sh
 ```
+
+
 
 ### Example test connection 
 
@@ -9924,7 +9834,7 @@ So there are other tools/distri around helping you with that.
 
 #### Disadvantages 
 
-  * Plugins sind oftmals etwas schwierig zu aktivieren
+  * Zusatzkomponenten (bspw. metallb - LoadBalancer)  sind oftmals etwas schwieriger instalieren ( inkl. microk8s enable )
 
 ### microk8s 
 
@@ -9933,8 +9843,8 @@ So there are other tools/distri around helping you with that.
   * Created by Canonical (Ubuntu)
   * Runs on Linux
   * Runs only as snap
-  * In the meantime it is also available for Windows/Mac
-  * HA-Cluster 
+  * (In the meantime it is also available for Windows/Mac)
+  * HA-Cluster (control plane) 
 
 #### Production-Ready ? 
 
@@ -9952,7 +9862,13 @@ Ref: https://ubuntu.com/blog/introduction-to-microk8s-part-1-2
 #### Advantages
 
   * Easy to setup HA-Cluster (multi-node control plane)
-  * Easy to manage 
+  * Easy to manage
+
+#### Disadvantages 
+
+  * Nicht so flexible wie kubeadm
+  * z.B. freie Wahl des CNI - Providers (z.B Calico)
+  * nicht so flexibel bei speziell config (z.B.andere IP-Ranges) 
 
 ### minikube 
 
@@ -10372,6 +10288,15 @@ docker push localhost:32000/myubuntu
 ### Das Tool kubectl (Devs/Ops) - Spickzettel
 
 
+### Hilfe
+
+```
+## Hilfe zu befehl
+kubectl help config
+## Hilfe nächste Ebene 
+kubectl config set-context --help
+```
+
 ### Allgemein 
 
 ```
@@ -10636,6 +10561,20 @@ kubectl get all
 kubectl describe pod/nginx-replica-set-lpkbs
 ```
 
+### Pod löschen, was passiert 
+
+```
+## kubectl delete po nginx-r<TAB>
+## einfach einen pod raussuchen und löschen 
+## z.B. 
+kubectl delete po nginx-replica-set-xg8jp
+```
+
+```
+## gucken, welches sind die neuesten ? 
+kubectl get pods
+``` 
+
 ### Walthrough Skalieren
 
 ```
@@ -10708,31 +10647,47 @@ kubectl get all
 nano nginx-deployment.yml 
 ```
 
+
+#### Version 1: (optical nicer)
+
 ```
-## Version 1:
 ## Ändern des images von nginx:1.22 in nginx:1.23
 ## danach 
 kubectl apply -f . && watch kubectl get pods 
 ```
 
+#### Version 2: 
 
 ```
-## Version 2: 
-
 ## Ändern des images von nginx:1.22 in nginx:1.23
 ## danach 
 kubectl apply -f .
 kubectl get all 
 kubectl get pods -w
-
-
 ```
 
 
 ### kubectl/manifest/service
 
 
+### Warum Services ? 
+
+  * Wenn in einem Deployment bei einem Wechsel des images neue Pods erstellen, erhalten diese neue IP-Adresse
+  * Nachteil: Man müsste diese dann in allen Applikation ständig ändern, die auf die Pods zugreifen.
+  * Lösung: Wir schalten einen Service davor !
+
+### Hintergrund IP-Wechsel 
+ 
+ <img width="930" height="134" alt="image" src="https://github.com/user-attachments/assets/26c16134-1f2a-4b42-8cca-355099d08604" />
+
+ * Image-Version wurde jetzt in Deployment geändert, Ergebnis:
+
+<img width="939" height="137" alt="image" src="https://github.com/user-attachments/assets/fb5a665b-98a7-445b-8ec7-27f12c2267e1" />
+
+
 ### Example I : Service with ClusterIP 
+
+#### Schritt 1: Vorbereitung 
 
 ```
 cd
@@ -10741,6 +10696,8 @@ cd manifests
 mkdir 04-service 
 cd 04-service 
 ```
+
+#### Schritt 2: Deployment erstellen 
 
 ```
 nano deploy.yml 
@@ -10795,10 +10752,31 @@ kubectl get all
 kubectl get svc svc-nginx
 ## Find endpoints / did svc find pods ?
 kubectl describe svc svc-nginx 
-
 ```
 
+#### Schritt 3: Deployment löschen 
+
+```
+kubectl delete -f deploy.yml
+## Keine endpunkte mehr 
+kubectl describe svc svc-nginx
+```
+
+ ### Schritt 4: Deployment wieder erstellen 
+
+```
+kubectl apply -f .
+## Endpunkte wieder da
+kubectl describe svc svc-nginx
+```
+
+
 ### Example II : Short version 
+
+```
+## Wo sind wir ?
+## cd; cd manifests/04-service 
+```
 
 ```
 nano service.yml
@@ -10806,9 +10784,20 @@ nano service.yml
 ## ClusterIP ersetzt durch NodePort 
 
 kubectl apply -f .
+## NodePOrt ab 30.000 ausfindig machen
 kubectl get svc
+```
+
+<img width="793" height="44" alt="image" src="https://github.com/user-attachments/assets/16bf90d4-7c3f-4c8f-9846-2ff5d0e63fcf" />
+
+```
 kubectl get nodes -o wide
-## im client 
+```
+
+<img width="926" height="157" alt="image" src="https://github.com/user-attachments/assets/eb396f36-cff1-4b6d-b136-e110fff1c807" />
+
+```
+## im client Externe NodeIP und NodePort verwenden 
 curl http://164.92.193.245:30280
 ```
 
@@ -13890,6 +13879,15 @@ Eigenschaft: <return> # springt eingerückt in die nächste Zeile um 2 spaces ei
 
 ### kubectl spickzettel
 
+
+### Hilfe
+
+```
+## Hilfe zu befehl
+kubectl help config
+## Hilfe nächste Ebene 
+kubectl config set-context --help
+```
 
 ### Allgemein 
 
