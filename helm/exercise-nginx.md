@@ -9,12 +9,17 @@ mkdir -p charts
 helm create beispiel-chart
 ``` 
 
-
-### Part 1.1 Install (oci-version)
+## Part 2: chart installieren 
 
 ```
-helm install my-nginx oci://registry-1.docker.io/cloudpirates/nginx --version 0.1.2
-kubectl get pods 
+helm upgrade --install my-nginx beispiel-chart
+```
+
+## Part 3: funktioniert es ?
+
+```
+kubectl get pods
+helm list
 ```
 
 ### Part 1.2. Explore 
