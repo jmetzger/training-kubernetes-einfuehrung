@@ -8,12 +8,10 @@
 
 ## Part 1: Install old version 
 
-### Part 1.1 Install 
+### Part 1.1 Install (oci-version)
 
 ```
-# https://artifacthub.io/packages/helm/bitnami/nginx/17.3.3
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm upgrade --install my-nginx bitnami/nginx --reset-values --version 17.3.3
+helm install my-nginx oci://registry-1.docker.io/cloudpirates/nginx --version 0.1.2
 kubectl get pods 
 ```
 
