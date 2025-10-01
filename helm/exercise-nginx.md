@@ -1,4 +1,10 @@
-# Exercise nginx 
+# Exercise nginx (von bitnami)
+
+## Vorbereitung: Artifacthub.io 
+
+  * Hier: auf [Artifact Hub-IO suchen](https://artifacthub.io)
+  * https://artifacthub.io/packages/helm/bitnami/nginx
+
 
 ## Part 1: Install old version 
 
