@@ -56,7 +56,7 @@ service:
 ```
 cd
 cd charts
-helm upgrade --install my-nginx beispiel-chart -f ../helm-values/beispiel-chart/values.yaml
+helm upgrade --install my-nginx beispiel-chart --reset-values -f ../helm-values/beispiel-chart/values.yaml
 kubectl get pods
 # neue Revision 
 helm list 
