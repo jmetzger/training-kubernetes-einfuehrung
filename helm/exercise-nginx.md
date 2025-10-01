@@ -59,10 +59,18 @@ cd charts
 helm upgrade --install my-nginx beispiel-chart --reset-values -f ../helm-values/beispiel-chart/values.yaml
 kubectl get pods
 # neue Revision 
-helm list 
+helm list
+# hier NodePort auslesen 
+kubectl get svc my-nginx-beispiel-chart
+kubectl get nodes -o wide  
 ```
 
-
+```
+# Testen
+curl http://<ip-aus-nodes>:<nodePort>
+# z.B.
+curl http://159.223.24.231:32465
+```
 
 ### Part 1.2. Explore 
 
