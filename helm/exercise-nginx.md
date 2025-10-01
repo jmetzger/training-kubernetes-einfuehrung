@@ -23,6 +23,31 @@ kubectl get pods
 helm list
 ```
 
+## Parte 4: Spezielle Konfiguration 
+
+### Part 4.1: Analyse 
+
+```
+# Können wir die replicas und den type server ändern
+# Entweder variante 1 ins Chart
+less beispiel-chart/values.yaml
+# mit hlem bordmitteln
+helm show values beispiel-chart | less
+```
+
+### Part 4.2. values.yaml 
+
+```
+cd
+mkdir helm-values
+cd helm-values
+mkdir beispiel-chart
+cd beispiel-chart
+nano values.yaml
+```
+
+
+
 ### Part 1.2. Explore 
 
 ```
