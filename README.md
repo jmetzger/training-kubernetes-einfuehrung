@@ -83,7 +83,9 @@
      * [ServiceLinks nicht in env in Pod einbinden](security/service-nicht-einhaengen-in-pod.md)
 
   1. Helm (Kubernetes Paketmanager)
-     * [Helm Spickzettel](/helm/spickzettel.md) 
+     * [Helm - Was kann Helm](helm/was-kann-helm.md)
+     * [Helm Spickzettel](/helm/spickzettel.md)
+     * [Helm - Was kann Helm](helm/was-kann-helm.md)
      * [Helm Grundlagen](/helm/grundlagen.md)
      * [Helm Warum ?](/helm/warum.md)
      * [Helm Example](/helm/example.md)
