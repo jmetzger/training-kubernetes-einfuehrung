@@ -98,5 +98,8 @@ helm show values beispiel-chart # latest version
 
 ```
 # Achtung keine Deinstallation von CRD's, keine Deinstallation von PVC (Persistent Volume Claims), RBAC
-helm uninstall my-nginx 
+helm uninstall my-nginx
+
+# Überprüfung, ob Deinstallation erfolgt ist:
+helm list 
 ```
