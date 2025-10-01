@@ -23,7 +23,7 @@ kubectl get pods
 helm list
 ```
 
-## Parte 4: Spezielle Konfiguration 
+## Part 4: Spezielle Konfiguration 
 
 ### Part 4.1: Analyse 
 
