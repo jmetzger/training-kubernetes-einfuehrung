@@ -31,7 +31,7 @@ spec:
       - name: nginx
         image: nginxinc/nginx-unprivileged:1.28
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         
 ```
 
