@@ -6,9 +6,11 @@
 helm repo add jetstack https://charts.jetstack.io
 helm install cert-manager jetstack/cert-manager \
 --namespace cert-manager --create-namespace \
---version v1.12.0 \
+--version v1.19.1 \
 --set installCRDs=true
 ```
+
+  * Ref: https://artifacthub.io/packages/helm/cert-manager/cert-manager
 
 ## Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
 
