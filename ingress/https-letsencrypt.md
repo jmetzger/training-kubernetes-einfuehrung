@@ -43,18 +43,12 @@ spec:
 
 ```
 kubectl apply -f .
+# Should be True 
+kubectl get clusterissuer 
 ```
 
 
-## Schritt 3: Herausfinden, ob Zertifikate erstellt werden 
-
-```
-kubectl describe certificate example-tls
-kubectl get cert
-```
-
-
-## Schritt 4: Ingress-Objekt mit TLS erstellen 
+## Schritt 3: Ingress-Objekt mit TLS erstellen 
 
 ```
 # tls-ingress.yaml
@@ -83,6 +77,16 @@ spec:
             port:
               number: 80
 ```
+
+## Schritt 4: Herausfinden, ob Zertifikate erstellt werden 
+
+```
+kubectl describe certificate example-tls
+kubectl get cert
+```
+
+
+
 
 ```
 Schritt 5: Testen
