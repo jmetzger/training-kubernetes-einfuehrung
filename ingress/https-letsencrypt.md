@@ -41,6 +41,11 @@ spec:
           class: nginx
 ```
 
+```
+kubectl apply -f .
+```
+
+
 ## Schritt 3: Herausfinden, ob Zertifikate erstellt werden 
 
 ```
