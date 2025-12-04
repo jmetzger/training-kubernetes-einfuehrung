@@ -78,6 +78,42 @@ spec:
               number: 80
 ```
 
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - <dein-name>.app.do.t3isp.de
+      secretName: example-tls
+
+  rules:
+  - host: "<dein-name>.app.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          pathType: Prefix
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+        - path: /banana
+          pathType: Exact
+          backend:
+            service:
+              name: banana-service
+              port:
+                number: 80
+```
+
 ## Schritt 4: Herausfinden, ob Zertifikate erstellt werden 
 
 ```
