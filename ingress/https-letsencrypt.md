@@ -15,6 +15,15 @@ helm install cert-manager jetstack/cert-manager \
 ## Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
 
 ```
+cd
+mkdir -p manifests/cert-manager
+cd manifests/cert-manager
+nano cluster-issuer.yaml
+```
+
+
+
+```
 # cluster-issuer.yaml
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
