@@ -51,31 +51,7 @@ kubectl get clusterissuer
 ## Schritt 3: Ingress-Objekt mit TLS erstellen 
 
 ```
-# tls-ingress.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: example-ingress
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  ingressClassName: nginx
-  tls:
-  - hosts:
-    - test.devopslearnwith.us
-    secretName: example-tls
-  rules:
-  - host: test.devopslearnwith.us
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: example-service
-            port:
-              number: 80
+nano example-ingress.yaml
 ```
 
 ```
@@ -114,20 +90,26 @@ spec:
                 number: 80
 ```
 
+```
+kubectl apply -f .
+```
+
+ * Interessent, der cert-manager erstellt kurz ein Ingress - Objekt
+
+<img width="1057" height="172" alt="image" src="https://github.com/user-attachments/assets/54dce6f5-9d53-4ce4-ac79-dcfe095f77b5" />
+
 ## Schritt 4: Herausfinden, ob Zertifikate erstellt werden 
 
 ```
 kubectl describe certificate example-tls
 kubectl get cert
+# Certificate Request 
+kubectl get cr
+# da ist das Zertfikat drin 
+kubectl get secret example-tls 
 ```
 
-
-
-
-```
-Schritt 5: Testen
-```
-
+## Schritt 5: Testen
 
 ## Ref: 
 
