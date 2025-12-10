@@ -40,6 +40,7 @@
 
 ### Schritt 2: Kubernetes ausrollen 
 
+    * Kubespray (verwendet auch ansible aber direkt auf ansible abgestimmt)
     * Ansible (leichter bestimmte zu Konfigurieren) 
     * kubeadm
 
