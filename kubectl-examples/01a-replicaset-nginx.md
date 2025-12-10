@@ -66,7 +66,7 @@ nano rs.yml
 ```
 
 ```
-# Ändern 
+# Ändern
 # replicas: 5
 # -> ändern in
 # replicas: 8
@@ -76,3 +76,10 @@ nano rs.yml
 kubectl apply -f .
 kubectl get pods
 ```
+
+
+## Aufräumen des replicasets 
+
+```
+kubectl delete -f .
+``` 
