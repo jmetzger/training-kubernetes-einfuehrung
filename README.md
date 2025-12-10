@@ -47,8 +47,15 @@
      * Services (Devs/Ops)
      * [kubectl/manifest/service](/kubectl-examples/03b-service.md)
      * DaemonSets (Devs/Ops)
-     * IngressController (Devs/Ops)
-     * [Hintergrund Ingress](/kubernetes/ingress.md) 
+     * [ConfigMap Example](/kubectl-examples/06-configmap.md)
+     * [ConfigMap Example MariaDB](/kubectl-examples/06a-configmap-mariadb.md)
+     * [Secrets Example MariaDB](/kubectl-examples/07-mariadb-secret.md)
+     * [Connect to external database](/databases/connect-to-external-db.md)
+
+  1. Kubernetes Ingress (Grundlagen)
+     * [Hintergrund Ingress](/kubernetes/ingress.md)
+
+  1. Kubernetes Ingress (Nginx - deprecated)   
      * [Ingress Controller auf Digitalocean (doks) mit helm installieren](/digitalocean/ingress-auf-digitalocean-mit-helm.md)
      * [Documentation for default ingress nginx](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
      * [Beispiel Ingress](/kubectl-examples/04-ingress-nginx.md)
@@ -56,10 +63,10 @@
      * [Beispiel Deployment mit Ingress und Hostnamen](kubectl-examples/04-ingress-nginx-with-hostnames-deployment.md)
      * [Achtung: Ingress mit Helm - annotations](/ingress-mit-helm-class-achtung.md)
      * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
-     * [ConfigMap Example](/kubectl-examples/06-configmap.md)
-     * [ConfigMap Example MariaDB](/kubectl-examples/06a-configmap-mariadb.md)
-     * [Secrets Example MariaDB](/kubectl-examples/07-mariadb-secret.md)
-     * [Connect to external database](/databases/connect-to-external-db.md)
+
+  1. Kubernetes Ingress (Traefik)
+     * [Install Traefik-IngressController](/ingress/traefik/install-with-helm.md)
+     * [Ingress mit traefik](kubectl-examples/04-ingress-traefik-with-hostnames-deployment.md)
 
   1. Kubernetes Praxis (Stateful Sets)
      * [Hintergrund statefulsets](/kubernetes/statefulsets.md)
