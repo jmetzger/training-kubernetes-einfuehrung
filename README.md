@@ -24,6 +24,9 @@
   1. Kubernetes - Überblick
      * [Liste wichtiger/sinnvoller Client-Tools](https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/tools/liste-client-tools.md)
 
+  1. Kubernetes Deployment - Internals
+     * [Strategy when creating and terminating pods in Deployment - RollingUpdate - maxSurge, maxUnavailability](/kubernetes/deployment/strategy/rollingUpdate-maxSurge-maxUnavailability.md)
+
   1. kubectl 
      * [kubectl einrichten mit namespace](/kubectl/kubectl-einrichten.md)
      * [kubectl cheatsheet kubernetes](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
