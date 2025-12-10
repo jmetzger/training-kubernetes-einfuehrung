@@ -101,7 +101,7 @@ kubectl describe svc svc-nginx
 ```
 
 
-## Example II : Short version 
+## Example II : Short version (NodePort)
 
 ```
 # Wo sind wir ?
