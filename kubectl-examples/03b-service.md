@@ -2,7 +2,7 @@
 
 ## Warum Services ? 
 
-  * Wenn in einem Deployment bei einem Wechsel des images neue Pods erstellen, erhalten diese neue IP-Adresse
+  * Wenn in einem Deployment bei einem Wechsel des images neue Pods erstellt werden, erhalten diese eine neue IP-Adresse
   * Nachteil: Man müsste diese dann in allen Applikation ständig ändern, die auf die Pods zugreifen.
   * Lösung: Wir schalten einen Service davor !
 
