@@ -20,10 +20,6 @@ So there are other tools/distri around helping you with that.
     (variety of shapes and forms (e.g. single-node, multi-node, HA, self-hosted))
   * Most manual way to create and manage a cluster 
 
-### Disadvantages 
-
-  * Zusatzkomponenten (bspw. metallb - LoadBalancer)  sind oftmals etwas schwieriger instalieren ( inkl. microk8s enable )
-
 ## microk8s 
 
 ### General
