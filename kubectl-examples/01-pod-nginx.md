@@ -38,3 +38,9 @@ kubectl describe pod nginx-static-web
 kubectl get pod/nginx-static-web -o yaml
 
 ```
+
+## Aufräumen 
+
+```
+kubectl delete -f .
+```
