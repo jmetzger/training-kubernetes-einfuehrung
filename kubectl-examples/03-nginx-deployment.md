@@ -55,7 +55,7 @@ nano nginx-deployment.yml
 ### Version 1: (optical nicer)
 
 ```
-# Ändern des images von nginx:1.22 in nginx:1.23
+# Ändern des images von nginxinc/nginx-unprivileged:1.29 -> auf 1.30
 # danach 
 kubectl apply -f . && watch kubectl get pods 
 ```
@@ -63,7 +63,7 @@ kubectl apply -f . && watch kubectl get pods
 ### Version 2: 
 
 ```
-# Ändern des images von nginx:1.22 in nginx:1.23
+# Ändern des images von nginxinc/nginx-unprivileged:1.29 -> auf 1.30
 # danach 
 kubectl apply -f .
 kubectl get all 
