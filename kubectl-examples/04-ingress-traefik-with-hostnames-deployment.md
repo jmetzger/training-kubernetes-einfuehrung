@@ -243,7 +243,7 @@ kubectl apply -f .
 ```
 
 
-## Fix 4.4. pathType must be specificied 
+### Fix 4.4. pathType must be specificied 
 
 ```
 # Was macht das ?
