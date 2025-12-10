@@ -7,5 +7,5 @@ helm upgrade -n ingress --install traefik traefik/traefik --version 37.4.0 --cre
 
 # Use special crds helm chart instead, because it does not deploy crds for gateway-api by default
 # We get an error on digitalocean doks
-helm -n ingress upgrade install traefik-crds traefik/traefik-crds --version 1.12.0 --reset-values 
+helm -n ingress upgrade --install traefik-crds traefik/traefik-crds --version 1.12.0 --reset-values 
 ```
