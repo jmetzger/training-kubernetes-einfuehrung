@@ -137,8 +137,6 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: example-ingress
-  annotations:
-    ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: traefik
   rules:
