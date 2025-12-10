@@ -39,6 +39,8 @@ spec:
 ```
 kubectl apply -f .
 kubectl get all
+kubectl get pods -l tier=frontend
+kubectl get pods --show-labels 
 # name anpassen
 kubectl describe pod/nginx-replica-set-lpkbs
 ```
