@@ -45,7 +45,7 @@
 
 **API Server Load Balancing**
 - Redundante kube-apiserver auf allen Control Plane Nodes
-- Virtual IP (VIP) oder Hardware Load Balancer vor API Servers
+- Virtual IP ((z.B kube-vip) und/oder Hardware Load Balancer vor API Servers
 - Tools: kube-vip, HAProxy, keepalived
 
 **Scheduler & Controller Manager**
