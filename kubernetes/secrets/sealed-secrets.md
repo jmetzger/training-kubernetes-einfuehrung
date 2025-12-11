@@ -27,7 +27,7 @@ helm upgrade --install sealed-secrets --namespace kube-system bitnami-labs/seale
 Übung ist hier zu finden:
 ```
 
-[Beispiel mit kubeseal arbeiten](kubectl-examples/08-sealed-secret.md)
+[Beispiel mit kubeseal arbeiten](/kubectl-examples/08-sealed-secret.md)
 
 
 ## Wie kann man sicherstellen, dass nach der automatischen Änderung des Secretes, der Pod bzw. Deployment neu gestartet wird ?
