@@ -68,7 +68,7 @@ spec:
   tls:
   - hosts:
     - <dein-name>.app.do.t3isp.de
-      secretName: example-tls
+    secretName: example-tls
 
   rules:
   - host: "<dein-name>.app.do.t3isp.de"
