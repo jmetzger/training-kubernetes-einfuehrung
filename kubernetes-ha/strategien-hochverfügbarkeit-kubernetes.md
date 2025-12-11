@@ -55,6 +55,11 @@
 
 ### HA-Strategie Workload
 
+```
+# In diesem Fall Kann-Option
+# Wenn eine Node wegbricht, wird ohnehin auf eine andere Node verteilt
+```
+
 **Pod-Replikation**
 ```yaml
 apiVersion: apps/v1
@@ -74,6 +79,9 @@ spec:
             app: web-app
 ```
 
+  * maxSkew = 1: Unterschied der einzelnen Pods auf Nodes darf maximal 1 sein, d.h. z.B. node1: 1, node2: 2,
+  * topologyKey: Verteilung über Nodes 
+
 **PodDisruptionBudgets (PDB)**
 ```yaml
 apiVersion: policy/v1
@@ -86,6 +94,7 @@ spec:
     matchLabels:
       app: web-app
 ```
+  * Es müssen ingesamt mindests noch 2 pods laufen 
 
 **Anti-Affinity Rules**
 - Pods auf unterschiedliche Worker Nodes verteilen
@@ -389,35 +398,6 @@ spec:
   - Kernel-Level Replication
   - Dual-Primary Mode möglich
 
-**Beispiel Ceph CRD:**
-```yaml
-apiVersion: ceph.rook.io/v1
-kind: CephCluster
-metadata:
-  name: rook-ceph
-spec:
-  mon:
-    count: 5
-    allowMultiplePerNode: false
-    volumeClaimTemplate:
-      spec:
-        storageClassName: local-storage
-  placement:
-    mon:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-          - matchExpressions:
-            - key: site
-              operator: In
-              values:
-              - site1
-              - site2
-      topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: site
-```
-
 ### Netzwerk-Design
 
 **Anforderungen:**
@@ -587,47 +567,6 @@ kubectl annotate service web-app io.cilium/shared-service="true"
 - Service Affinity (bevorzuge lokale Pods)
 - eBPF-basiert, sehr performant
 
-### Service Mesh für Multi-Cluster
-
-#### Istio Multi-Cluster
-
-**Modelle:**
-
-1. **Multi-Primary**: Jeder Cluster hat eigene Control Plane
-```bash
-istioctl install --set values.global.meshID=mesh1 \
-  --set values.global.multiCluster.clusterName=cluster1 \
-  --set values.global.network=network1
-```
-
-2. **Primary-Remote**: Shared Control Plane
-```bash
-# Primary
-istioctl install --set values.global.externalIstiod=true
-
-# Remote
-istioctl install --set profile=remote \
-  --set values.global.remotePilotAddress=<primary-istiod-ip>
-```
-
-**Cross-Cluster Traffic:**
-```yaml
-apiVersion: networking.istio.io/v1beta1
-kind: ServiceEntry
-metadata:
-  name: web-app-cluster2
-spec:
-  hosts:
-  - web-app.production.svc.cluster.local
-  location: MESH_INTERNAL
-  ports:
-  - number: 80
-    name: http
-  resolution: DNS
-  endpoints:
-  - address: web-app.production.svc.cluster2.global
-```
-
 ### Multi-Cluster GitOps
 
 #### ArgoCD Multi-Cluster
@@ -711,10 +650,8 @@ spec:
     repoName: repo1
 ```
 
-**MySQL:**
-- Galera Cluster für synchrone Multi-Master
-- MySQL Group Replication
-- InnoDB Cluster
+**MariaDB:**
+- (Galera Cluster für synchrone Multi-Master) - performance Probleme bei zu hoher RTT
 
 **NoSQL:**
 - MongoDB Replica Sets über Regions
@@ -819,8 +756,6 @@ metadata:
 | | KubeFed (deprecated) | Cluster Federation (Legacy) |
 | **Networking** | Submariner | Pod-to-Pod Communication |
 | | Cilium Cluster Mesh | eBPF Multi-Cluster |
-| **Service Mesh** | Istio Multi-Cluster | Service-to-Service Communication |
-| | Linkerd SMI | Lightweight Service Mesh |
 | **GitOps** | ArgoCD | Multi-Cluster Deployments |
 | | Flux | GitOps Engine |
 | **Load Balancing** | Cloudflare | GSLB, DDoS Protection |
@@ -899,19 +834,8 @@ spec:
 # Subscription zu EU Cluster
 ```
 
-4. **Service Mesh (Istio):**
-```bash
-# Multi-Primary Installation
-istioctl install --set values.global.meshID=mesh1 \
-  --set values.global.multiCluster.clusterName=eu-cluster \
-  --set values.global.network=eu-network
 
-istioctl install --set values.global.meshID=mesh1 \
-  --set values.global.multiCluster.clusterName=us-cluster \
-  --set values.global.network=us-network
-```
-
-5. **GSLB (Cloudflare):**
+4. **GSLB (Cloudflare):**
 ```bash
 # Cloudflare Load Balancer mit Geo-Steering
 curl -X POST "https://api.cloudflare.com/client/v4/zones/<zone>/load_balancers" \
@@ -1138,108 +1062,6 @@ spec:
 
 ---
 
-## Best Practices (Übergreifend)
-
-### 1. Observability
-```yaml
-# Monitoring Stack
-- Prometheus + Thanos (Multi-Cluster)
-- Grafana (Unified Dashboards)
-- Loki (Logging)
-- Jaeger/Tempo (Tracing)
-- Alertmanager (Alerting)
-```
-
-### 2. Chaos Engineering
-```bash
-# Chaos Mesh für HA-Testing
-kubectl apply -f chaos-mesh.yaml
-
-# Network Latency Simulation
-kubectl apply -f - <<EOF
-apiVersion: chaos-mesh.org/v1alpha1
-kind: NetworkChaos
-metadata:
-  name: network-delay
-spec:
-  action: delay
-  mode: all
-  selector:
-    namespaces:
-      - production
-  delay:
-    latency: "100ms"
-  duration: "5m"
-EOF
-```
-
-### 3. Disaster Recovery Drills
-- Regelmäßige Failover-Tests
-- Dokumentierte Runbooks
-- Automatisierte Recovery-Procedures
-
-### 4. Backup-Strategie
-```bash
-# Velero Scheduled Backups
-velero schedule create daily-backup \
-  --schedule="0 2 * * *" \
-  --ttl 720h \
-  --include-namespaces production,staging
-
-# Cross-Region Backup
-velero backup-location create aws-eu-west \
-  --provider aws \
-  --bucket velero-backups-eu \
-  --config region=eu-west-1
-```
-
-### 5. Security Hardening
-- Network Policies zwischen Namespaces
-- Pod Security Standards (restricted)
-- RBAC mit Least Privilege
-- Secret Management (Vault, Sealed Secrets)
-- Supply Chain Security (Sigstore, cosign)
-
-### 6. Cost Optimization
-- Cluster Autoscaling
-- Vertical Pod Autoscaling
-- Spot/Preemptible Instances (wo möglich)
-- Resource Quotas und Limits
-- Multi-Tenancy für shared infrastructure
-
----
-
-## Migrationspfade
-
-### Von Fall 1 zu Fall 2
-```
-1. Cloud-Provider Setup (AWS, GCP, Azure)
-2. Multi-AZ Control Plane migrieren
-3. Workloads mit Zone-Awareness deployen
-4. Storage zu Zone-Aware migrieren
-5. Monitoring für Zone-Health
-```
-
-### Von Fall 1 zu Fall 4
-```
-1. Zweiten Cluster aufsetzen
-2. GitOps-Pipeline (ArgoCD/Flux)
-3. Datenbank-Replikation konfigurieren
-4. Traffic-Splitting testen (10/90 → 50/50)
-5. GSLB aktivieren
-6. Full Active-Active
-```
-
-### Von Fall 2 zu Fall 4
-```
-1. Zusätzliche Region-Cluster
-2. Multi-Cluster Networking (Submariner/Cilium)
-3. Service Mesh über Cluster
-4. Cross-Region Daten-Replikation
-5. GSLB konfigurieren
-```
-
----
 
 ## Tooling Comparison
 
@@ -1257,79 +1079,6 @@ velero backup-location create aws-eu-west \
 | **Resource Usage** | Höher | Niedriger |
 
 **Empfehlung:** ArgoCD für Enterprise mit UI-Bedarf, Flux für GitOps-Puristen
-
-### Service Mesh: Istio vs Linkerd vs Cilium
-
-| Feature | Istio | Linkerd | Cilium Service Mesh |
-|---------|-------|---------|---------------------|
-| **Multi-Cluster** | ✅ Mature | ✅ | ✅ Cluster Mesh |
-| **Complexity** | Hoch | Niedrig | Mittel |
-| **Performance** | Mittel | Hoch | Sehr Hoch (eBPF) |
-| **mTLS** | ✅ | ✅ | ✅ |
-| **Traffic Mgmt** | ✅✅ | ✅ | ✅ |
-| **Observability** | ✅✅ | ✅ | ✅ |
-| **Resource Usage** | Hoch | Niedrig | Niedrig |
-
-**Empfehlung:** Linkerd für Einfachheit, Istio für Features, Cilium für Performance
-
-### Backup: Velero vs Kasten K10
-
-| Feature | Velero | Kasten K10 |
-|---------|--------|-----------|
-| **Cost** | ✅ Open Source | 💰 Commercial |
-| **Snapshot Support** | ✅ CSI | ✅ CSI + App-Consistent |
-| **App-Aware** | ⚠️ Hooks | ✅ Native |
-| **DR** | ✅ | ✅ |
-| **Policy Mgmt** | ⚠️ Basic | ✅ Advanced |
-| **UI** | ❌ | ✅ |
-| **Multi-Cluster** | ⚠️ Manual | ✅ Automated |
-
-**Empfehlung:** Velero für OSS/Budget, Kasten K10 für Enterprise
-
----
-
-## Checkliste: HA-Readiness
-
-### Infrastructure
-- [ ] Redundante Control Plane Nodes (min. 3)
-- [ ] Worker Nodes über Failure Domains verteilt
-- [ ] Storage mit Replikation
-- [ ] Redundante Netzwerk-Pfade
-- [ ] Load Balancer für API Server
-- [ ] Backup-Lösung konfiguriert
-- [ ] Monitoring und Alerting
-
-### Application
-- [ ] Deployments mit min. 3 Replicas
-- [ ] PodDisruptionBudgets definiert
-- [ ] Health Checks (Readiness/Liveness)
-- [ ] Resource Limits gesetzt
-- [ ] Anti-Affinity Rules konfiguriert
-- [ ] StatefulSets für stateful Apps
-- [ ] Graceful Shutdown implementiert
-
-### Data
-- [ ] Datenbank mit HA-Setup
-- [ ] Backup-Strategie (automatisiert)
-- [ ] Disaster Recovery getestet
-- [ ] RTO/RPO dokumentiert
-- [ ] Daten-Replikation (bei Multi-RZ)
-
-### Operations
-- [ ] Runbooks dokumentiert
-- [ ] Disaster Recovery-Drill durchgeführt
-- [ ] On-Call Rotation
-- [ ] Incident Response Plan
-- [ ] Change Management Process
-- [ ] Capacity Planning
-
-### Security
-- [ ] Network Policies aktiv
-- [ ] Pod Security Standards enforced
-- [ ] Secret Management (Vault/Sealed Secrets)
-- [ ] RBAC konfiguriert
-- [ ] Audit Logging aktiviert
-- [ ] Image Scanning in CI/CD
 
 ---
 
@@ -1385,27 +1134,9 @@ Start
 
 ### Offizielle Dokumentation
 - [Kubernetes Production Best Practices](https://kubernetes.io/docs/setup/best-practices/)
-- [etcd Operations Guide](https://etcd.io/docs/v3.5/op-guide/)
-- [CNCF Landscape](https://landscape.cncf.io/)
-
-### Bücher
-- "Kubernetes: Up and Running" (O'Reilly)
-- "Production Kubernetes" (O'Reilly)
-- "Kubernetes Patterns" (O'Reilly)
 
 ### Tools & Projekte
 - [Awesome Kubernetes](https://github.com/ramitsurana/awesome-kubernetes)
 - [Kubernetes Failure Stories](https://k8s.af/)
-- [Kubernetes SIGs](https://github.com/kubernetes-sigs)
-
-### Community
-- [CNCF Slack](https://slack.cncf.io/)
-- [Kubernetes Discourse](https://discuss.kubernetes.io/)
-- [Reddit r/kubernetes](https://reddit.com/r/kubernetes)
 
 ---
-
-**Autor:** Claude (Anthropic)  
-**Erstellt für:** Kubernetes HA Strategie-Workshop  
-**Letzte Aktualisierung:** Dezember 2024  
-**Feedback:** Weitere Szenarien oder Details gewünscht? Einfach nachfragen!
