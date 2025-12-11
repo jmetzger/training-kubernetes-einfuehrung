@@ -9,6 +9,9 @@
      * [Container vs. Virtuelle Maschine](container-vs-vm.md)
      * [Was ist ein Dockerfile](dockerfile.md) 
      * [Dockerfile - image kleinhalten](dockerfile-image-small.md)
+
+  1. Kubernetes Installation
+     * [Kubernetes Installation mit Proxmox und kubespray](installation/proxmox-kubespray.md)
     
   1. Kubernetes - Überblick
      * [Warum Kubernetes, was macht Kubernetes](warum-kubernetes.md)
