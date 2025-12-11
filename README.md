@@ -16,6 +16,9 @@
   1. Kubernetes Workloads
      * [Welche Wege gibt es Kubernetes Workloads auszurollen](kubernetes-workloads/best-practices-fuers-ausrollen.md)
     
+  1. Kubernetes Infrastructure (Performance)
+     * [Performance of etcd for setup](kubernetes/etcd/performance-testing.md)
+    
   1. Kubernetes - Überblick
      * [Warum Kubernetes, was macht Kubernetes](warum-kubernetes.md)
      * [Aufbau Allgemein](/kubernetes/architecture.md)
