@@ -1,6 +1,6 @@
 # Strategie: Hochverfügbarkeit in Kubernetes-Clustern
 
-**Kernprinzip:** Die Control Plane benötigt RTT < 10ms zwischen etcd-Nodes für stabilen Quorum-Betrieb. Workloads können über höhere Latenzen hinweg verteilt werden.
+**Kernprinzip:** Die Control Plane benötigt RTT < 10ms zwischen etcd-Nodes für stabilen Quorum-Betrieb. Workloads können über höhere Latenzen hinweg verteilt werden. (Fall 1 - Fall 3)
 
 ---
 ## Legende 
