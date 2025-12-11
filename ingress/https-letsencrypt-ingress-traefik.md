@@ -4,10 +4,11 @@
 
 ```
 helm repo add jetstack https://charts.jetstack.io
-helm install cert-manager jetstack/cert-manager \
+helm upgrade --install cert-manager jetstack/cert-manager \
 --namespace cert-manager --create-namespace \
 --version v1.19.1 \
 --set crds.enabled=true
+--reset-values
 ```
 
   * Ref: https://artifacthub.io/packages/helm/cert-manager/cert-manager
