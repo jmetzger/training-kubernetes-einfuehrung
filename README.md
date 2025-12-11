@@ -25,7 +25,7 @@
      * [Liste wichtiger/sinnvoller Client-Tools](https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/tools/liste-client-tools.md)
 
   1. Kubernetes - Hochverfügbarkeit
-    * [Strategien für Hochverfügbarkeit](kubernetes-ha/strategien-hochverfügbarkeit-kubernetes.md)
+     * [Strategien für Hochverfügbarkeit](kubernetes-ha/strategien-hochverfügbarkeit-kubernetes.md)
 
   1. Kubernetes Deployment - Internals
      * [Strategy when creating and terminating pods in Deployment - RollingUpdate - maxSurge, maxUnavailability](/kubernetes/deployment/strategy/rollingUpdate-maxSurge-maxUnavailability.md)
