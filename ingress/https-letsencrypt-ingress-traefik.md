@@ -33,6 +33,7 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
+    # Email-Adresse ändern - example.com ist nicht erlaubt 
     email: your-email@example.com
     privateKeySecretRef:
       name: letsencrypt-prod
