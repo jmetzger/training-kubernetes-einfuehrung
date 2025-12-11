@@ -531,6 +531,9 @@ spec:
 ### Multi-Cluster Networking
 
 #### Submariner
+
+  * Submariner ist ein Open-Source-Projekt, das sichere IP-Tunnels zwischen Kubernetes-Clustern erstellt und das Netzwerk im Wesentlichen "abflacht", sodass Pods und Services in verschiedenen Clustern direkt kommunizieren können
+
 - Open-Source Multi-Cluster Networking
 - Direct Pod-to-Pod Communication
 - Cross-Cluster Service Discovery
