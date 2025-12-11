@@ -110,12 +110,11 @@
 
   1. Helm (Kubernetes Paketmanager)
      * [Helm - Was kann Helm](helm/was-kann-helm.md)
-     * [Helm Spickzettel](/helm/spickzettel.md)
-     * [Helm - Was kann Helm](helm/was-kann-helm.md)
      * [Helm Grundlagen](/helm/grundlagen.md)
      * [Helm Warum ?](/helm/warum.md)
      * [Helm Example](/helm/example.md)
      * [Helm Exercise with nginx](/helm/exercise-nginx.md)
+     * [Helm Spickzettel](/helm/spickzettel.md)
 
   1. Helm - Fehleranalye
      * [Beispiel Cloudpirates - helm chart nginx](helm/cloudpirates-helm-chart-nginx-fehleranalyse.md)
