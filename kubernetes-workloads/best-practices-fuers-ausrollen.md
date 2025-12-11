@@ -1,4 +1,4 @@
-# Best practices für #orkloads ausrollen in Kubernetes 
+# Best practices für workloads ausrollen in Kubernetes 
 
   * gitlab ci/cd
   * github actions
