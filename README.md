@@ -13,6 +13,9 @@
   1. Kubernetes Installation
      * [Kubernetes Installation mit Proxmox und kubespray](installation/proxmox-kubespray.md)
     
+  1. Kubernetes Workloads
+     * [Welche Wege gibt es Kubernetes Workloads auszurollen](kubernetes-workloads/best-practices-fuers-ausrollen.md)
+    
   1. Kubernetes - Überblick
      * [Warum Kubernetes, was macht Kubernetes](warum-kubernetes.md)
      * [Aufbau Allgemein](/kubernetes/architecture.md)
