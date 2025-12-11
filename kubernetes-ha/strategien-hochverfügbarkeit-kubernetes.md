@@ -488,7 +488,7 @@ spec:
 **Komponenten:**
 - **GitOps**: ArgoCD oder Flux auf beiden Clustern
 - **Backup**: Velero für Disaster Recovery
-- **DNS**: External-DNS oder GSLB
+- **DNS**: External-DNS oder GSLB (Global Server Load Balancing. Eine DNS-basierte Load-Balancing-Lösung für geografisch verteilte Systeme/Cluster).
 
 **Vor-/Nachteile:**
 - ✅ Einfachste Multi-Cluster Lösung
