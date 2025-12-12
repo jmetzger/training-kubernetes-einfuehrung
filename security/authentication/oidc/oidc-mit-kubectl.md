@@ -14,7 +14,7 @@
 ```
 # Erstellen als
 # /etc/kubernetes/auth-config.yaml
-apiVersion: apiserver.config.k8s.io/v1beta1
+apiVersion: apiserver.config.k8s.io/v1
 kind: AuthenticationConfiguration
 jwt:
 - issuer:
@@ -88,7 +88,7 @@ export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 kubectl krew install oidc-login
 # Kubeconfig anpassen
 kubectl config set-credentials oidc-user \
-  --exec-api-version=client.authentication.k8s.io/v1beta1 \
+  --exec-api-version=client.authentication.k8s.io/v1 \
   --exec-command=kubectl \
   --exec-arg=oidc-login \
   --exec-arg=get-token \
@@ -103,7 +103,7 @@ users:
 - name: oidc-user
   user:
     exec:
-      apiVersion: client.authentication.k8s.io/v1beta1
+      apiVersion: client.authentication.k8s.io/v1
       command: kubectl
       args:
       - oidc-login
