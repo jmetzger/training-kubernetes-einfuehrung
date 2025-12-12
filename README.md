@@ -121,8 +121,9 @@
      * [Helm Exercise with nginx](/helm/exercise-nginx.md)
      * [Helm Spickzettel](/helm/spickzettel.md)
     
-  1. Helm Charts erstellen
+  1. Helm Charts erstellen und analysieren
      * [Eigenes Helm-Chart erstellen](helm/exercises/04a-create-chart-my-app-gruppenarbeit.md)
+     * [Chart zur Analyse runterladen und entpacken](helm/commands/pull.md)
 
   1. Helm - Fehleranalye
      * [Beispiel Cloudpirates - helm chart nginx](helm/cloudpirates-helm-chart-nginx-fehleranalyse.md)
