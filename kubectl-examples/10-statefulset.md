@@ -87,7 +87,7 @@ exit
 
 ```
 # web-0 / web-1 
-kubectl get pods
+kubectl get pods -o wide 
 kubectl get sts web
 kubectl delete sts web 
 kubectl apply -f .
