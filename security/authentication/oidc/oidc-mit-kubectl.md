@@ -9,7 +9,11 @@
 
 ### Auf dem Server-Host (Control Plane)
 
+
+
 ```
+# Erstellen als
+# /etc/kubernetes/auth-config.yaml
 apiVersion: apiserver.config.k8s.io/v1beta1
 kind: AuthenticationConfiguration
 jwt:
