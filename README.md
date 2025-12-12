@@ -117,6 +117,7 @@
      * [Helm Grundlagen](/helm/grundlagen.md)
      * [Helm Warum ?](/helm/warum.md)
      * [Helm Example](/helm/example.md)
+     * [Installation, Upgrade, Uninstall helm-Chart exercise - simple (mariadb-cloudpirates)](exercises/install/mariadb-cloudpirates.md)
      * [Helm Exercise with nginx](/helm/exercise-nginx.md)
      * [Helm Spickzettel](/helm/spickzettel.md)
 
