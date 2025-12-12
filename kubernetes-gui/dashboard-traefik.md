@@ -67,7 +67,29 @@ kubectl create ns kubernetes-dashboard
 kubectl create secret generic dashboard-basic-auth \
   --from-literal=users=$(htpasswd -nb admin DEIN-PASSWORT) \
   -n kubernetes-dashboard
+```
 
+### 3. middleware für traefik 
+
+
+```
+nano middleware.yaml
+```
+
+```
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dashboard-auth
+  namespace: kubernetes-dashboard
+spec:
+  basicAuth:
+    secret: dashboard-basic-auth
+```
+
+```
+kubectl apply -f .
+```
 
 
 ### 1. values.yaml
