@@ -120,6 +120,9 @@
      * [Installation, Upgrade, Uninstall helm-Chart exercise - simple (mariadb-cloudpirates)](exercises/install/mariadb-cloudpirates.md)
      * [Helm Exercise with nginx](/helm/exercise-nginx.md)
      * [Helm Spickzettel](/helm/spickzettel.md)
+    
+  1. Helm Charts erstellen
+     * [Eigenes Helm-Chart erstellen](helm/exercises/04a-create-chart-my-app-gruppenarbeit.md)
 
   1. Helm - Fehleranalye
      * [Beispiel Cloudpirates - helm chart nginx](helm/cloudpirates-helm-chart-nginx-fehleranalyse.md)
