@@ -35,6 +35,10 @@
 
   1. Kubernetes - Hochverfügbarkeit
      * [Strategien für Hochverfügbarkeit](kubernetes-ha/strategien-hochverfügbarkeit-kubernetes.md)
+    
+  1. Kubernetes - Authentication
+     * [oidc mit kubectl](security/authentication/oidc/oidc-mit-kubectl.md)
+     * [traefik authentication mit oidc](security/authentication/oidc/oidc-mit-traefik-fuer-auth.md)
 
   1. Kubernetes Deployment - Internals
      * [Strategy when creating and terminating pods in Deployment - RollingUpdate - maxSurge, maxUnavailability](/kubernetes/deployment/strategy/rollingUpdate-maxSurge-maxUnavailability.md)
