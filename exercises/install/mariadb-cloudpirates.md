@@ -17,7 +17,7 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 kubectl get pods
 ```
 
-### Schritt 2: Umschauen 
+## Schritt 2: Umschauen 
 
 ```
 kubectl get pods
@@ -28,7 +28,7 @@ helm list -A
 helm history my-mariadb 
 ```
 
-### Schritt 3: Umschauen get 
+## Schritt 3: Umschauen get 
 
 ```
 # Wo speichert er Information, die er später mit helm get abruft
