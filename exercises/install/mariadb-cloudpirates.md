@@ -55,9 +55,9 @@ helm get all my-mariadb | grep -i computed -A 200
 ```
 
 
-## Schritt 3: Exercise: Upgrade to new version 
+## Schritt 4: Exercise: Upgrade to new version 
 
-### Schritt 3.1 Default values (auf terminal) ausfindig machen 
+### Schritt 4.1 Default values (auf terminal) ausfindig machen 
 
 ```
 # Recherchiere wie die Werte gesetzt werden (artifacthub.io) oder verwende die folgenden Befehle:
@@ -65,7 +65,7 @@ helm show values oci://registry-1.docker.io/cloudpirates/mariadb
 helm show values oci://registry-1.docker.io/cloudpirates/mariadb | less
 ```
 
-### Schritt 3.2 Upgrade und resources ändern 
+### Schritt 4.2 Upgrade und resources ändern 
 
 
 ```
