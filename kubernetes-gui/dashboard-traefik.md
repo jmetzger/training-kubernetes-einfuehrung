@@ -113,6 +113,36 @@ app:
       cert-manager.io/cluster-issuer: letsencrypt-prod
       traefik.ingress.kubernetes.io/router.middlewares: kubernetes-dashboard-dashboard-auth@kubernetescrd
 
+# Neuere Chart-Versionen
+extras:
+  - |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: kubernetes-dashboard-settings
+    data:
+      settings: '{"skipLoginPage":true}'
+
+serviceAccount:
+  create: true
+  name: dashboard-readonly
+```
+
+```yaml
+# values.yaml
+app:
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - dashboard.do.t3isp.de
+    tls:
+      enabled: true
+      secretName: dashboard-tls
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      traefik.ingress.kubernetes.io/router.middlewares: kubernetes-dashboard-dashboard-auth@kubernetescrd
+
 api:
   containers:
     args:
@@ -125,8 +155,9 @@ serviceAccount:
 ```
 
 ```
-helm install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard \
-  -n kubernetes-dashboard -f values.yaml
+helm repo add k8s-dashboard https://kubernetes.github.io/dashboard
+helm upgrade --install kubernetes-dashboard k8s-dashboard/kubernetes-dashboard \
+  -n kubernetes-dashboard -f values.yaml --reset-values --version 7.14.0
 ```
 
 
