@@ -110,7 +110,7 @@ helm history my-mariadb
 helm get values my-mariadb  
 ```
 
-## Schritt 4.3 Weiteres der Chart - Version 
+## Schritt 4.3 Weiteres Update der Chart - Version (auf Version 0.9.0) 
 
 ```
 # Testen 
