@@ -106,6 +106,23 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 kubectl get pods
 ```
 
+## Schritt 4.3 Weiteres der Chart - Version 
+
+```
+# Testen 
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.9.0 --dry-run -f prod/values.yaml  
+```
+
+```
+# Real Upgrade
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.9.0 -f prod/values.yaml
+```
+
+```
+kubectl get pods
+```
+
+
 ## Tipp: values aus alter revision anzeigen 
 
 ```
