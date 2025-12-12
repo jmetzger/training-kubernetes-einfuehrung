@@ -2,6 +2,11 @@
 
 ## Komplette Lösung mit korrekter Domain https://dashboard.do.t3isp.de
 
+### Voraussetzung 
+
+  * traefik ist installiert
+  * htpasswd ist installiert (apt install apache2-utils)
+
 ### 1. RBAC 
 
 ```
@@ -50,6 +55,19 @@ subjects:
 ```
 kubectl apply -f .
 ```
+
+### 2. basic auth mit traefik 
+
+```
+kubectl create ns kubernetes-dashboard
+```
+
+```
+#  basic auth in bas64 erstellen
+kubectl create secret generic dashboard-basic-auth \
+  --from-literal=users=$(htpasswd -nb admin DEIN-PASSWORT) \
+  -n kubernetes-dashboard
+
 
 
 ### 1. values.yaml
