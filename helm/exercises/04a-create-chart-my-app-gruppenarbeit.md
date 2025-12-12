@@ -16,13 +16,13 @@ helm create my-app
 
 ```
 # Variante 1:
-helm -n my-app-<namenskuerzel> install my-app-release my-app --create-namespace 
+helm -n my-app-<namenskuerzel> install meine-app my-app --create-namespace 
 ```
 
 ```
 # Variante 2:
 cd my-app
-helm -n my-app-<namenskuerzel> install my-app-release . --create-namespace 
+helm -n my-app-<namenskuerzel> install meine-app . --create-namespace 
 ```
 
 ```
