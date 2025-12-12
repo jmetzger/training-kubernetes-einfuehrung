@@ -123,6 +123,35 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 ```
 
 ```
+# Schlägt fehle, weil mit dem apply bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
+```
+
+### Lösung 
+
+  * Deinstallieren (pvc bleibt erhalten auch beim Deinstallieren -> so macht das helm)
+  * Und wieder installieren in der neuen Version 
+
+```
+# Frage, ist das pvc noch ?
+kubectl get pvc
+# Ja ! 
+```
+
+<img width="891" height="82" alt="image" src="https://github.com/user-attachments/assets/849b5859-a5f2-40df-8bc6-018eaedbd146" />
+
+```
+helm uninstall my-mariadb
+kubectl get pvc 
+# auch nach der Deinstallation ist der pvc noch da
+# Super !! 
+```
+
+```
+# Real Upgrade
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.9.0 -f prod/values.yaml
+```
+
+```
 kubectl get pods
 ```
 
