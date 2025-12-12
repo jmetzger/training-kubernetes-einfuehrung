@@ -95,6 +95,7 @@ kubectl run --rm -it podtest --image=busybox
 
 ping web-0.nginx 
 
+kubectl describe svc nginx 
 ```
 
 ## Referenz 
