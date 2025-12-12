@@ -155,6 +155,9 @@
     
   1. Installation mit kubeadm
      * [Schritt für Schritt mit kubeadm](kubeadm/installation-cni-calico.md)
+
+  1. Tipps & Tricks
+     * [Pods bleiben im terminate-mode stehen](/tipps-tricks/pod-bleibt-in-terminate.md)
      
 
 ## Backlog 
