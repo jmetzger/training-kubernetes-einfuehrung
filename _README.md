@@ -9,6 +9,15 @@
      * [Container vs. Virtuelle Maschine](#container-vs-virtuelle-maschine)
      * [Was ist ein Dockerfile](#was-ist-ein-dockerfile)
      * [Dockerfile - image kleinhalten](#dockerfile---image-kleinhalten)
+
+  1. Kubernetes Installation
+     * [Kubernetes Installation mit Proxmox und kubespray](#kubernetes-installation-mit-proxmox-und-kubespray)
+    
+  1. Kubernetes Workloads
+     * [Welche Wege gibt es Kubernetes Workloads auszurollen](#welche-wege-gibt-es-kubernetes-workloads-auszurollen)
+    
+  1. Kubernetes Infrastructure (Performance)
+     * [Performance of etcd for setup](#performance-of-etcd-for-setup)
     
   1. Kubernetes - Überblick
      * [Warum Kubernetes, was macht Kubernetes](#warum-kubernetes-was-macht-kubernetes)
@@ -23,6 +32,16 @@
 
   1. Kubernetes - Überblick
      * [Liste wichtiger/sinnvoller Client-Tools](https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/tools/liste-client-tools.md)
+
+  1. Kubernetes - Hochverfügbarkeit
+     * [Strategien für Hochverfügbarkeit](#strategien-für-hochverfügbarkeit)
+    
+  1. Kubernetes - Authentication
+     * [oidc mit kubectl](#oidc-mit-kubectl)
+     * [traefik authentication mit oidc](#traefik-authentication-mit-oidc)
+
+  1. Kubernetes Deployment - Internals
+     * [Strategy when creating and terminating pods in Deployment - RollingUpdate - maxSurge, maxUnavailability](#strategy-when-creating-and-terminating-pods-in-deployment---rollingupdate---maxsurge-maxunavailability)
 
   1. kubectl 
      * [kubectl einrichten mit namespace](#kubectl-einrichten-mit-namespace)
@@ -47,8 +66,15 @@
      * Services (Devs/Ops)
      * [kubectl/manifest/service](#kubectlmanifestservice)
      * DaemonSets (Devs/Ops)
-     * IngressController (Devs/Ops)
+     * [ConfigMap Example](#configmap-example)
+     * [ConfigMap Example MariaDB](#configmap-example-mariadb)
+     * [Secrets Example MariaDB](#secrets-example-mariadb)
+     * [Connect to external database](#connect-to-external-database)
+
+  1. Kubernetes Ingress (Grundlagen)
      * [Hintergrund Ingress](#hintergrund-ingress)
+
+  1. Kubernetes Ingress (Nginx - deprecated)   
      * [Ingress Controller auf Digitalocean (doks) mit helm installieren](#ingress-controller-auf-digitalocean-doks-mit-helm-installieren)
      * [Documentation for default ingress nginx](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
      * [Beispiel Ingress](#beispiel-ingress)
@@ -56,10 +82,11 @@
      * [Beispiel Deployment mit Ingress und Hostnamen](#beispiel-deployment-mit-ingress-und-hostnamen)
      * [Achtung: Ingress mit Helm - annotations](#achtung-ingress-mit-helm---annotations)
      * [Permanente Weiterleitung mit Ingress](#permanente-weiterleitung-mit-ingress)
-     * [ConfigMap Example](#configmap-example)
-     * [ConfigMap Example MariaDB](#configmap-example-mariadb)
-     * [Secrets Example MariaDB](#secrets-example-mariadb)
-     * [Connect to external database](#connect-to-external-database)
+
+  1. Kubernetes Ingress (Traefik)
+     * [Install Traefik-IngressController](#install-traefik-ingresscontroller)
+     * [Ingress mit traefik](#ingress-mit-traefik)
+     * [ingress mit traefik, letsencrypt und cert-manager](#ingress-mit-traefik-letsencrypt-und-cert-manager)
 
   1. Kubernetes Praxis (Stateful Sets)
      * [Hintergrund statefulsets](#hintergrund-statefulsets)
@@ -87,12 +114,16 @@
 
   1. Helm (Kubernetes Paketmanager)
      * [Helm - Was kann Helm](#helm---was-kann-helm)
-     * [Helm Spickzettel](#helm-spickzettel)
-     * [Helm - Was kann Helm](#helm---was-kann-helm)
      * [Helm Grundlagen](#helm-grundlagen)
      * [Helm Warum ?](#helm-warum-)
      * [Helm Example](#helm-example)
+     * [Installation, Upgrade, Uninstall helm-Chart exercise - simple (mariadb-cloudpirates)](#installation-upgrade-uninstall-helm-chart-exercise---simple-mariadb-cloudpirates)
      * [Helm Exercise with nginx](#helm-exercise-with-nginx)
+     * [Helm Spickzettel](#helm-spickzettel)
+    
+  1. Helm Charts erstellen und analysieren
+     * [Eigenes Helm-Chart erstellen](#eigenes-helm-chart-erstellen)
+     * [Chart zur Analyse runterladen und entpacken](#chart-zur-analyse-runterladen-und-entpacken)
 
   1. Helm - Fehleranalye
      * [Beispiel Cloudpirates - helm chart nginx](#beispiel-cloudpirates---helm-chart-nginx)
@@ -133,6 +164,9 @@
     
   1. Installation mit kubeadm
      * [Schritt für Schritt mit kubeadm](#schritt-für-schritt-mit-kubeadm)
+
+  1. Tipps & Tricks
+     * [Pods bleiben im terminate-mode stehen](#pods-bleiben-im-terminate-mode-stehen)
      
 
 ## Backlog 
@@ -450,7 +484,7 @@
 
 
   * Container Image benötigt, um zur Laufzeit Container-Instanzen zu erzeugen 
-  * Bei Docker werden Docker Images zu Docker Containern, wenn Sie auf einer Docker Engine als Prozess ausgeführt
+  * Bei Docker werden Docker Images zu Docker Containern, wenn Sie auf einer Docker Engine als Prozess ausgeführt werden
   * Man kann sich ein Docker Image als Kopiervorlage vorstellen.
     * Diese wird genutzt, um damit einen Docker Container als Kopie zu erstellen   
 
@@ -510,6 +544,105 @@ RUN apt-get update && \
 
  * https://codeburst.io/docker-from-scratch-2a84552470c8
 
+
+## Kubernetes Installation
+
+### Kubernetes Installation mit Proxmox und kubespray
+
+
+### Schritt 1: virtuellen Maschine deployen 
+
+  * 4GB (control nodes eher 8GB) - minimaler Arbeitsspeicher
+  * Debian als Betriebssystem
+  * minimale Installation
+  * ssh-server installiert (openssh-server)
+  * sudo benutzer ohne Passwort für privilege Escalation (z.B. admin darf als root arbeiten)
+
+### Info 1.1 Netzwerk 
+
+   * Alle virtuellen Maschinen im gleichen Netzwerk (kein VLAN)
+   * Kubernetes mit eigenem VLAN
+   * Alternativ neuerdings: mit SDN (Performance beobachten !)
+
+### Schritt 2: maschine für ansible deployen/nutzen 
+
+   * private/public key erstellen und den public auf die maschinen aus Schritt 1 verteilen
+   * ansible und git installieren
+   * kubespray clonen oder docker image verwenden (dann braucht man kein ansible installieren)
+   * apt update -y; apt install docker.io -y
+   * Inventory rauskopieren und anpassen
+
+```
+[all]
+## Master/Control Plane Node
+kube-master ansible_host=192.168.1.10
+## Worker Nodes
+kube-worker1 ansible_host=192.168.1.11
+kube-worker2 ansible_host=192.168.1.12
+
+[kube_control_plane]
+kube-master
+
+[etcd]
+kube-master
+
+[kube_node]
+kube-worker1
+kube-worker2
+```
+
+```
+## evtl config anpassen vornehmen in den group vars
+## z.B. 
+https://github.com/kubernetes-sigs/kubespray/blob/master/inventory/sample/group_vars/k8s_cluster/k8s-cluster.yml
+```
+
+```
+ansible-playbook -i inventory/mycluster/ cluster.yml -b -v \
+  --private-key=~/.ssh/private_key
+```
+
+```
+## zum hostsystem verbinden und die kubeconfig
+## in der Regel
+cd /home/<user-mit-dem-ich-installiert-habe>/.kube
+cat config
+```
+
+
+
+## Kubernetes Workloads
+
+### Welche Wege gibt es Kubernetes Workloads auszurollen
+
+
+  * gitlab ci/cd
+  * github actions
+  * bitbucket + jenkings
+  * ArgoCD
+  * Flux
+  * helm/helmfile
+
+### Grafik 
+
+<img width="1297" height="820" alt="image" src="https://github.com/user-attachments/assets/0593d586-3888-40a4-81a7-5dce1d8af63b" />
+
+## Kubernetes Infrastructure (Performance)
+
+### Performance of etcd for setup
+
+
+```
+etcdctl check perf --load="s"
+(s steht für small: 
+
+https://andreaskaris.github.io/blog/openshift/etcd_perf/
+The performance check's workload model. Accepted workloads: s(small), m(medium), l(large), xl(xLarge)
+
+
+
+
+```
 
 ## Kubernetes - Überblick
 
@@ -694,10 +827,6 @@ So there are other tools/distri around helping you with that.
     (variety of shapes and forms (e.g. single-node, multi-node, HA, self-hosted))
   * Most manual way to create and manage a cluster 
 
-#### Disadvantages 
-
-  * Zusatzkomponenten (bspw. metallb - LoadBalancer)  sind oftmals etwas schwieriger instalieren ( inkl. microk8s enable )
-
 ### microk8s 
 
 #### General
@@ -813,6 +942,7 @@ it is not suitable for production.
 
 #### Schritt 2: Kubernetes ausrollen 
 
+    * Kubespray (verwendet auch ansible aber direkt auf ansible abgestimmt)
     * Ansible (leichter bestimmte zu Konfigurieren) 
     * kubeadm
 
@@ -1042,6 +1172,1531 @@ runcmd:
 ### Liste wichtiger/sinnvoller Client-Tools
 
   * https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/tools/liste-client-tools.md
+
+## Kubernetes - Hochverfügbarkeit
+
+### Strategien für Hochverfügbarkeit
+
+
+**Kernprinzip:** Control Plane benötigt RTT < 10ms zwischen etcd-Nodes für stabilen Quorum-Betrieb. Workloads können über höhere Latenzen hinweg verteilt werden. (Fall 1 - Fall 3)
+
+---
+### Legende 
+
+#### RTO 
+
+  * Recovery Time Objective
+  * Die maximale akzeptable Zeit, bis ein System nach einem Ausfall wieder verfügbar sein muss.
+
+#### RPO 
+
+  * Recovery Point Objective (häufig zusammen genannt)
+  * Der maximale akzeptable Datenverlust, gemessen in Zeit.
+
+
+### FALL 1: Single-Cluster in einem Rechenzentrum
+
+#### Ausgangssituation
+- 3 Control Plane Nodes (stacked etcd)
+- 1+n Worker Nodes
+- Alle Nodes im selben RZ
+
+#### Sinnvoll wenn:
+- RTO: 1-5 Minuten (Wie lange bis wieder verfügbar)
+- RPO: Nahe Null (bei korrekter Storage-Konfiguration)
+- Budget: Gering bis mittel
+- Keine regulatorischen Anforderungen für Geo-Redundanz
+- Primäres Ziel: Schutz vor Hardware-/Software-Ausfällen
+
+#### HA-Strategie Control Plane
+
+**etcd-Cluster (3 Nodes)**
+```yaml
+## Unbedingt odd number: 3 oder 5 nodes
+## 3 Nodes tolerieren 1 Ausfall
+## 5 Nodes tolerieren 2 Ausfälle
+```
+- Separate Hosts für etcd (empfohlen) oder stacked etcd
+- Separate Disks mit niedriger Latenz (NVMe SSD)
+- Monitoring: etcd-Metriken (Leader Elections, DB Size)
+- Backup-Strategie: Regelmäßige etcd-Snapshots
+
+**API Server Load Balancing**
+- Redundante kube-apiserver auf allen Control Plane Nodes
+- Virtual IP ((z.B kube-vip) und/oder Hardware Load Balancer vor API Servers
+- Tools: kube-vip, HAProxy, keepalived
+
+**Scheduler & Controller Manager**
+- Laufen auf allen Control Plane Nodes
+- Leader Election über Leases in kube-system
+- Automatisches Failover bei Node-Ausfall
+
+#### HA-Strategie Workload
+
+```
+## In diesem Fall Kann-Option
+## Wenn eine Node wegbricht, wird ohnehin auf eine andere Node verteilt
+```
+
+**Pod-Replikation**
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 3  # Minimum für HA
+  template:
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: web-app
+```
+
+  * maxSkew = 1: Unterschied der einzelnen Pods auf Nodes darf maximal 1 sein, d.h. z.B. node1: 1, node2: 2,
+  * topologyKey: Verteilung über Nodes 
+
+**PodDisruptionBudgets (PDB)**
+```yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: web-app-pdb
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: web-app
+```
+  * Es müssen ingesamt mindests noch 2 pods laufen 
+
+**Anti-Affinity Rules**
+- Pods auf unterschiedliche Worker Nodes verteilen
+- `requiredDuringSchedulingIgnoredDuringExecution` für strikte Trennung
+
+#### Storage HA
+
+**Lokale Storage-Lösungen:**
+- Rook-Ceph: Distributed Storage mit Replikation
+- Longhorn: Leichtgewichtige Alternative (schlechte Performance)
+- OpenEBS: Verschiedene Storage Engines (nur readwriteonce)
+
+**Externe Storage:**
+- NFS mit HA (z.B. über DRBD)
+- iSCSI mit Multipathing (nur readwriteonce)
+- Cloud-Provider CSI-Driver (bei Managed Kubernetes)
+
+**Backup:**
+- Velero für Cluster-Backups
+- Regelmäßige Application-Level Backups
+- Externe Backup-Location (S3-kompatibel)
+
+#### Netzwerk HA
+
+**CNI-Redundanz:**
+- Calico, Cilium oder Flannel mit HA-Konfiguration
+- Redundante Netzwerk-Interfaces auf Nodes
+
+**Load Balancer:**
+- MetalLB für Bare-Metal (Layer 2 oder BGP-Mode)
+- Cloud-Provider Load Balancer (bei Managed Services)
+
+**Ingress HA:**
+```yaml
+## Nginx Ingress mit mindestens 2 Replicas
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --set controller.replicaCount=3 \
+  --set controller.service.externalTrafficPolicy=Local
+```
+
+#### Single Points of Failure (SPOFs)
+
+| Komponente | Risiko | Mitigation |
+|------------|--------|-----------|
+| Load Balancer vor API Server | Hoch | kube-vip mit VRRP oder redundante Hardware-LB |
+| Storage Backend | Hoch | Distributed Storage (Ceph, Longhorn) |
+| Gesamtes RZ | Hoch | Nur durch Multi-RZ-Setup adressierbar |
+
+#### Tools & Komponenten
+
+- **kube-vip**: VIP für API Server (Layer 2 oder BGP)
+- **HAProxy/keepalived**: Alternative zu kube-vip
+- **MetalLB**: Load Balancer für Bare-Metal
+- **Velero**: Backup und Restore
+- **Prometheus + Alertmanager**: Monitoring
+- **etcdctl**: etcd-Management und Backups
+
+#### Vor-/Nachteile
+
+**Vorteile:**
+- Einfachste HA-Lösung
+- Niedrige Latenz innerhalb Cluster
+- Geringste Komplexität
+- Moderate Kosten
+
+**Nachteile:**
+- Kein Schutz vor RZ-Ausfall
+- Limitierte geografische Redundanz
+
+#### Kostenabschätzung
+- **Relativ:** Basis (1x)
+- **Absolute Kosten:** 3 Control Plane + 3+ Worker Nodes + Storage
+
+#### RTO/RPO
+- **RTO:** 1-5 Minuten (bei automatischem Pod-Failover)
+- **RPO:** < 1 Minute (bei korrekter Storage-Replikation)
+
+#### Quellen
+- [Kubernetes HA Topologies](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/ha-topology/)
+- [etcd Administration Guide](https://etcd.io/docs/v3.5/op-guide/)
+- [kube-vip Documentation](https://kube-vip.io/)
+
+---
+
+### FALL 2: Multi-Zone Cluster (RTT < 10ms)
+
+#### Ausgangssituation
+- 3-5 Control Plane Nodes über Availability Zones verteilt
+- Worker Nodes in allen Zones
+- RTT zwischen Zones: < 10ms (typisch < 2ms innerhalb Region)
+- Cloud-Provider oder Metro-RZ mit dedizierten Zonen
+
+#### Sinnvoll wenn:
+- RTO: < 1 Minute
+- RPO: Nahe Null
+- Budget: Mittel
+- Cloud-Native Deployment (AWS, GCP, Azure)
+- Schutz gegen Zone-Ausfall erforderlich
+- Keine strengen Latenzanforderungen zwischen Zones
+
+#### HA-Strategie Control Plane
+
+**etcd über Zones verteilt**
+- **Kritisch:** RTT muss < 10ms bleiben für etcd-Quorum
+- Mindestens 3 Zones mit jeweils 1 Control Plane Node
+- Bei 5 Nodes: 2-2-1 oder 2-1-2 Distribution
+
+**Latenz-Monitoring:**
+```bash
+## etcd Performance-Check
+etcdctl check perf --load="s"
+## Warn bei > 10ms Backend Commit Duration
+```
+
+#### HA-Strategie Workload
+
+**Topology Spread Constraints**
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  replicas: 6
+  template:
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: web-app
+      - maxSkew: 2
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+```
+
+**Zone-Aware PodDisruptionBudgets**
+```yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+spec:
+  minAvailable: 4  # Bei 6 Replicas über 3 Zones
+  selector:
+    matchLabels:
+      app: web-app
+  unhealthyPodEvictionPolicy: AlwaysAllow
+```
+
+#### Storage HA
+
+**Zone-Aware Storage Classes**
+```yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: zone-redundant
+provisioner: kubernetes.io/aws-ebs  # Beispiel AWS
+parameters:
+  type: gp3
+  iops: "3000"
+volumeBindingMode: WaitForFirstConsumer
+allowedTopologies:
+- matchLabelExpressions:
+  - key: topology.kubernetes.io/zone
+    values:
+    - eu-central-1a
+    - eu-central-1b
+    - eu-central-1c
+```
+
+**Replizierte Storage-Lösungen:**
+- Rook-Ceph mit Zone-Awareness
+- Portworx mit Zone-Replication
+- Cloud-Provider replizierte Volumes
+
+#### Cloud-Provider Integration
+
+**AWS:**
+- EKS mit Multi-AZ Control Plane (Managed)
+- EBS Multi-Attach für Shared Storage
+- ELB/ALB automatisch über Zones verteilt
+
+**GCP:**
+- GKE Regional Clusters (Multi-Zonal Control Plane)
+- Regional Persistent Disks
+- Cloud Load Balancer über Zones
+
+**Azure:**
+- AKS mit Availability Zones
+- Zone-Redundant Storage (ZRS)
+- Azure Load Balancer Standard (Zone-Redundant)
+
+#### Tools & Komponenten
+
+- **Cloud-Provider CCM**: Automatische Zone-Awareness
+- **CSI-Driver**: Zone-Aware Storage Provisioning
+- **Cluster Autoscaler**: Zone-Aware Scaling
+- **Velero**: Multi-Zone Backups
+
+#### Vor-/Nachteile
+
+**Vorteile:**
+- Schutz gegen Zone-Ausfall
+- Automatisches Failover
+- Native Cloud-Integration
+- Transparenz für Workloads
+
+**Nachteile:**
+- Höhere Cloud-Kosten (Cross-Zone Traffic)
+- Potenzielle Latenz zwischen Zones
+- Abhängigkeit von Cloud-Provider
+
+#### Kostenabschätzung
+- **Relativ:** 1.5-2x (wegen Cross-Zone Traffic)
+- **Zusatzkosten:** Data Transfer zwischen Zones (~0.01-0.02 €/GB)
+
+#### RTO/RPO
+- **RTO:** < 1 Minute (automatisches Failover)
+- **RPO:** 0 (synchrone Replikation)
+
+#### Quellen
+- [Kubernetes Zone-Aware Scheduling](https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/)
+- [AWS EKS Best Practices](https://aws.github.io/aws-eks-best-practices/)
+- [GCP GKE Multi-Zonal Clusters](https://cloud.google.com/kubernetes-engine/docs/concepts/types-of-clusters)
+
+---
+
+### FALL 3: Stretched Cluster über RZ (RTT < 10ms)
+
+#### Ausgangssituation
+- 2-3 physisch getrennte Rechenzentren
+- RTT zwischen RZ: < 10ms (Metro-Cluster Szenario)
+- Dedizierte Glasfaser-Verbindung zwischen RZ
+- Geografische Distanz: typisch < 50-100 km
+
+#### Sinnvoll wenn:
+- RTO: < 1 Minute
+- RPO: Nahe Null
+- Budget: Hoch
+- Regulatorische Anforderungen für Geo-Redundanz
+- Synchrone Daten-Replikation erforderlich
+- Sehr niedrige Latenz zwischen RZ verfügbar
+
+#### HA-Strategie Control Plane
+
+**Stretched etcd-Cluster mit Witness**
+```
+RZ1: 2 etcd Nodes
+RZ2: 2 etcd Nodes
+RZ3 (optional): 1 Witness Node
+
+Total: 5 Nodes für 2-Node Ausfall-Toleranz
+```
+
+**Kritische Anforderungen:**
+- RTT zwischen allen etcd-Nodes: < 10ms
+- Stabile, dedizierte Netzwerk-Verbindung
+- Monitoring für Network Partitions
+
+**Split-Brain Prevention:**
+- Odd number of etcd nodes
+- Optional: Witness-Node in drittem Standort
+- Fencing-Mechanismen auf Storage-Level
+
+#### HA-Strategie Workload
+
+**Site-Aware Scheduling**
+```yaml
+apiVersion: v1
+kind: Node
+metadata:
+  labels:
+    topology.kubernetes.io/region: eu-central
+    topology.kubernetes.io/zone: fra1  # RZ1
+    site: primary
+---
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  replicas: 6
+  template:
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: site
+        whenUnsatisfiable: DoNotSchedule
+```
+
+#### Storage-Replikation zwischen RZ
+
+**Synchrone Replikation:**
+- **Rook-Ceph** mit stretched cluster mode
+  - Min. 5 OSD Nodes (2-2-1 über Sites)
+  - Replicated Pools mit site-awareness
+  
+- **Portworx** mit DR-License
+  - Synchronous Replication zwischen Sites
+  - Automatic Failover
+
+- **DRBD** für Block-Storage
+  - Kernel-Level Replication
+  - Dual-Primary Mode möglich
+
+#### Netzwerk-Design
+
+**Anforderungen:**
+- Dedizierte Layer 2/3 Verbindung zwischen RZ
+- BGP-Routing für Pod-Network
+- Redundante Uplinks (LACP)
+
+**CNI-Empfehlungen:**
+- **Calico** mit BGP zwischen Sites
+- **Cilium** mit Cluster Mesh (single cluster mode)
+
+#### Risiken & Mitigationen
+
+| Risiko | Impact | Mitigation |
+|--------|--------|-----------|
+| Network Partition | Kritisch | Witness Node, Fencing |
+| Latenz-Spikes | Hoch | SLA für Interconnect, Monitoring |
+| Split-Brain Storage | Kritisch | Quorum-basierte Systeme |
+| Asynchroner etcd | Kritisch | Automatisches Health-Check, Rollback |
+
+#### Tools & Komponenten
+
+- **Rook-Ceph**: Distributed Storage
+- **Portworx**: Enterprise Storage mit DR
+- **DRBD**: Block-Level Replication
+- **Cilium/Calico**: Advanced Networking
+- **Disaster Recovery Tools**: Velero mit Multi-Site Backups
+
+#### Vor-/Nachteile
+
+**Vorteile:**
+- Transparente RZ-Redundanz
+- Ein logischer Cluster
+- Niedrige RTT für Workloads
+- Automatisches Failover
+
+**Nachteile:**
+- Sehr hohe Komplexität
+- Abhängigkeit von stabiler, niedriger Latenz
+- Risiko für Split-Brain
+- Hohe Kosten für Interconnect
+- Schwierige Fehlerdiagnose
+
+#### Kostenabschätzung
+- **Relativ:** 3-4x (Infrastructure, Interconnect, Storage-Lizenz)
+- **Zusatzkosten:** Dedizierte Glasfaser, HA-Storage-Lizenzen
+
+#### RTO/RPO
+- **RTO:** < 1 Minute (bei korrekter Konfiguration)
+- **RPO:** 0 (synchrone Replikation)
+
+#### Warnung
+⚠️ **Stretched Clusters sind komplex und fehleranfällig.** Nur bei zwingenden Business-Anforderungen und entsprechender Expertise empfohlen. Multi-Cluster-Setups (Fall 4) sind oft die bessere Wahl.
+
+#### Quellen
+- [etcd Latency Requirements](https://etcd.io/docs/v3.5/op-guide/hardware/)
+- [Ceph Stretched Cluster Mode](https://docs.ceph.com/en/latest/rados/operations/stretch-mode/)
+- [Portworx Disaster Recovery](https://docs.portworx.com/portworx-enterprise/operations/operate-kubernetes/disaster-recovery)
+
+---
+
+### FALL 4: Multi-Cluster (RTT > 10ms oder unabhängige RZ)
+
+#### Ausgangssituation
+- Separate Kubernetes-Cluster pro RZ/Region
+- RTT zwischen RZ: > 10ms (typisch 30-200ms)
+- Geografisch verteilte Standorte
+- Jeder Cluster ist unabhängig lauffähig
+
+#### Sinnvoll wenn:
+- RTO: 1-10 Minuten (manuell) oder < 1 Minute (automatisch)
+- RPO: Sekunden bis Minuten (je nach Replikation)
+- Budget: Mittel bis hoch
+- Geo-Redundanz über weite Distanzen
+- Disaster Recovery Anforderung
+- Latenz-Optimierung für User (Edge-Deployment)
+- Regulatorische Anforderungen (Data Residency)
+
+#### Multi-Cluster Architektur-Patterns
+
+##### 4.1 Active-Passive (Cold Standby)
+
+**Setup:**
+- Primary Cluster: Alle Workloads aktiv
+- Secondary Cluster: Bereit, aber idle
+- DNS-Failover zu Secondary bei Primary-Ausfall
+
+**Komponenten:**
+- **GitOps**: ArgoCD oder Flux auf beiden Clustern
+- **Backup**: Velero für Disaster Recovery
+- **DNS**: External-DNS oder GSLB (Global Server Load Balancing. Eine DNS-basierte Load-Balancing-Lösung für geografisch verteilte Systeme/Cluster).
+
+**Vor-/Nachteile:**
+- ✅ Einfachste Multi-Cluster Lösung
+- ✅ Niedrige Laufkosten
+- ❌ RTO: 5-15 Minuten (manuelle Aktivierung)
+- ❌ Secondary-Cluster ungenutzt
+
+##### 4.2 Active-Active (Hot Standby)
+
+**Setup:**
+- Traffic auf beide Cluster verteilt (z.B. 50/50 oder Geo-basiert)
+- Automatisches Failover bei Cluster-Ausfall
+
+**Komponenten:**
+- **Global Load Balancer**: AWS Route53, Cloudflare, F5 GTM
+- **Service Mesh**: Istio Multi-Cluster oder Linkerd
+- **Data Replication**: Anwendungsspezifisch oder DB-Level
+
+**Traffic Distribution:**
+```yaml
+## Beispiel: External-DNS mit GeoDNS
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: app.example.com
+    external-dns.alpha.kubernetes.io/aws-geolocation-routing-policy: "eu-central-1"
+spec:
+  type: LoadBalancer
+```
+
+**Vor-/Nachteile:**
+- ✅ RTO: < 1 Minute (automatisch)
+- ✅ Optimale Resource-Nutzung
+- ✅ Geo-Latenz-Optimierung
+- ❌ Hohe Komplexität
+- ❌ Daten-Konsistenz-Herausforderungen
+
+#### Multi-Cluster Networking
+
+##### Submariner
+
+  * Submariner ist ein Open-Source-Projekt, das sichere IP-Tunnels zwischen Kubernetes-Clustern erstellt und das Netzwerk im Wesentlichen "abflacht", sodass Pods und Services in verschiedenen Clustern direkt kommunizieren können
+
+- Open-Source Multi-Cluster Networking
+- Direct Pod-to-Pod Communication
+- Cross-Cluster Service Discovery
+
+```bash
+## Installation
+subctl deploy-broker --kubeconfig cluster1-config
+subctl join --kubeconfig cluster1-config broker-info.subm
+subctl join --kubeconfig cluster2-config broker-info.subm
+
+## Service Export
+subctl export service web-app -n production
+```
+
+**Eigenschaften:**
+- IPsec/WireGuard Tunnel zwischen Clustern
+- Automatisches Route-Advertisement
+- Unterstützt unterschiedliche CNIs
+
+##### Cilium Cluster Mesh
+
+**Setup:**
+```bash
+## Cluster 1
+cilium clustermesh enable
+cilium clustermesh connect --destination-context cluster2
+
+## Shared Service
+kubectl annotate service web-app io.cilium/shared-service="true"
+```
+
+**Eigenschaften:**
+- Native Pod-to-Pod Communication ohne Tunnel
+- Service Affinity (bevorzuge lokale Pods)
+- eBPF-basiert, sehr performant
+
+#### Multi-Cluster GitOps
+
+##### ArgoCD Multi-Cluster
+
+**Setup:**
+```bash
+## Cluster registrieren
+argocd cluster add cluster1-context
+argocd cluster add cluster2-context
+
+## ApplicationSet für beide Cluster
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: web-app
+spec:
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          env: production
+  template:
+    spec:
+      source:
+        repoURL: https://github.com/org/repo
+        path: apps/web-app
+      destination:
+        name: '{{name}}'
+        namespace: production
+```
+
+**Strategien:**
+- **Pull-Model**: Jeder Cluster hat eigenes ArgoCD
+- **Push-Model**: Zentrales ArgoCD verwaltet alle Cluster
+
+##### Flux Multi-Cluster
+
+```yaml
+## Flux Configuration per Cluster
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: apps
+spec:
+  interval: 5m
+  path: ./clusters/cluster1
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: fleet-infra
+```
+
+#### Daten-Replikation Strategien
+
+##### Anwendungsebene
+- Application-Managed Replication (z.B. Kafka Multi-DC)
+- Event Sourcing mit Cross-Cluster Event Streams
+- CQRS mit regionalen Read-Replicas
+
+##### Datenbank-Replikation
+
+**PostgreSQL:**
+```yaml
+## CrunchyData Postgres Operator mit Standby
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
+spec:
+  instances:
+  - name: instance1
+    replicas: 3
+    dataVolumeClaimSpec:
+      accessModes:
+      - ReadWriteOnce
+  patroni:
+    dynamicConfiguration:
+      postgresql:
+        parameters:
+          wal_level: logical
+  standby:
+    enabled: true
+    repoName: repo1
+```
+
+**MariaDB:**
+- (Galera Cluster für synchrone Multi-Master) - performance Probleme bei zu hoher RTT
+
+**NoSQL:**
+- MongoDB Replica Sets über Regions
+- Cassandra Multi-DC Replication
+- Redis Sentinel mit Cross-DC Replication
+
+#### Global Load Balancing (GSLB)
+
+##### Cloudflare Load Balancer
+```json
+{
+  "name": "app.example.com",
+  "default_pools": ["eu-central-pool", "us-east-pool"],
+  "region_pools": {
+    "WEUR": ["eu-central-pool"],
+    "EEU": ["eu-central-pool"],
+    "NAM": ["us-east-pool"]
+  },
+  "steering_policy": "geo"
+}
+```
+
+##### AWS Route53
+```yaml
+## Terraform Beispiel
+resource "aws_route53_record" "app" {
+  zone_id = var.zone_id
+  name    = "app.example.com"
+  type    = "A"
+  
+  geolocation_routing_policy {
+    continent = "EU"
+  }
+  
+  alias {
+    name                   = aws_lb.eu_cluster.dns_name
+    zone_id                = aws_lb.eu_cluster.zone_id
+    evaluate_target_health = true
+  }
+}
+```
+
+#### Multi-Cluster Monitoring
+
+**Prometheus Federation**
+```yaml
+## Zentrale Prometheus-Instanz
+scrape_configs:
+- job_name: 'federate-cluster1'
+  honor_labels: true
+  metrics_path: '/federate'
+  params:
+    'match[]':
+    - '{job="kubernetes-pods"}'
+  static_configs:
+  - targets:
+    - 'prometheus-cluster1.monitoring:9090'
+    labels:
+      cluster: cluster1
+```
+
+**Thanos für Multi-Cluster**
+- Zentrale Object Storage für Metriken
+- Global Query Layer
+- Cross-Cluster Alerting
+
+**Grafana Multi-Cluster Dashboards**
+- Cluster-Selector per Variable
+- Aggregierte Ansichten über Cluster
+- Geo-Maps für Traffic-Distribution
+
+#### Failover-Strategien
+
+##### DNS-basiert
+```yaml
+## External-DNS mit Healthcheck
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: app.example.com
+    external-dns.alpha.kubernetes.io/set-identifier: cluster1
+    external-dns.alpha.kubernetes.io/aws-weight: "100"
+    external-dns.alpha.kubernetes.io/aws-health-check-id: <id>
+```
+
+**Eigenschaften:**
+- RTO: TTL-abhängig (typisch 60-300s)
+- Einfach zu implementieren
+- Keine zusätzliche Infrastruktur
+
+##### Application-Level Failover
+- Circuit Breaker in Service Mesh
+- Retry-Logic mit Fallback-Cluster
+- Client-Side Load Balancing
+
+#### Tools & Komponenten Übersicht
+
+| Kategorie | Tool | Zweck |
+|-----------|------|-------|
+| **Cluster Management** | Rancher | Multi-Cluster UI, Management |
+| | KubeFed (deprecated) | Cluster Federation (Legacy) |
+| **Networking** | Submariner | Pod-to-Pod Communication |
+| | Cilium Cluster Mesh | eBPF Multi-Cluster |
+| **GitOps** | ArgoCD | Multi-Cluster Deployments |
+| | Flux | GitOps Engine |
+| **Load Balancing** | Cloudflare | GSLB, DDoS Protection |
+| | F5 GTM | Enterprise GSLB |
+| | AWS Route53 | Geo-Routing, Healthchecks |
+| **Monitoring** | Thanos | Multi-Cluster Prometheus |
+| | Grafana | Unified Dashboards |
+| **Disaster Recovery** | Velero | Backup/Restore |
+| | Kasten K10 | Enterprise Backup |
+
+#### Implementierungs-Beispiel: 2-Cluster Active-Active
+
+**Architektur:**
+```
+Internet
+    |
+[Cloudflare GSLB]
+    |
+    ├── EU Cluster (Frankfurt)
+    │   ├── Ingress (Nginx)
+    │   ├── Application Pods (3x)
+    │   └── PostgreSQL (Primary)
+    │
+    └── US Cluster (Virginia)
+        ├── Ingress (Nginx)
+        ├── Application Pods (3x)
+        └── PostgreSQL (Read Replica)
+```
+
+**Deployment:**
+1. **Basis-Setup:**
+```bash
+## Beide Cluster mit ArgoCD verbinden
+argocd cluster add eu-cluster
+argocd cluster add us-cluster
+```
+
+2. **ApplicationSet:**
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: web-app
+spec:
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          env: production
+  template:
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/org/apps
+        path: web-app/overlays/{{values.cluster}}
+        targetRevision: main
+      destination:
+        name: '{{name}}'
+        namespace: production
+```
+
+3. **Datenbank-Replikation (PostgreSQL):**
+```yaml
+## Primary Cluster (EU)
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
+metadata:
+  name: web-db
+spec:
+  postgresVersion: 15
+  instances:
+  - name: instance1
+    replicas: 2
+
+## Replica Cluster (US) - Logical Replication
+## Subscription zu EU Cluster
+```
+
+
+4. **GSLB (Cloudflare):**
+```bash
+## Cloudflare Load Balancer mit Geo-Steering
+curl -X POST "https://api.cloudflare.com/client/v4/zones/<zone>/load_balancers" \
+  -H "Authorization: Bearer <token>" \
+  -d '{
+    "name": "app.example.com",
+    "default_pools": ["eu-pool", "us-pool"],
+    "region_pools": {
+      "WEUR": ["eu-pool"],
+      "NAM": ["us-pool"]
+    },
+    "steering_policy": "geo"
+  }'
+```
+
+#### Vor-/Nachteile
+
+**Vorteile:**
+- Echte Geo-Redundanz (RZ-unabhängig)
+- Keine etcd-Latenz-Limitierung
+- Unabhängige Cluster-Updates
+- Flexible Failover-Strategien
+- Data Residency Compliance möglich
+
+**Nachteile:**
+- Höchste Komplexität
+- Daten-Konsistenz Herausforderungen
+- Höhere Betriebskosten
+- Mehr Tooling erforderlich
+- Manueller Aufwand für Synchronisation
+
+#### Kostenabschätzung
+- **Relativ:** 2-3x pro Cluster (Minimum 2 Cluster)
+- **Zusatzkosten:** GSLB, Service Mesh, GitOps-Tooling
+
+#### RTO/RPO
+
+| Strategie | RTO | RPO |
+|-----------|-----|-----|
+| Active-Passive (manuell) | 5-15 min | 1-5 min |
+| Active-Passive (auto) | 1-5 min | 1-5 min |
+| Active-Active | < 1 min | Sekunden-Minuten |
+
+#### Quellen
+- [Kubernetes Multi-Cluster Networking](https://kubernetes.io/blog/2021/12/22/kubernetes-1-23-dual-stack-ipv6/)
+- [Submariner Documentation](https://submariner.io/)
+- [Istio Multi-Cluster](https://istio.io/latest/docs/setup/install/multicluster/)
+- [ArgoCD ApplicationSet](https://argo-cd.readthedocs.io/en/stable/user-guide/application-set/)
+- [Flux Multi-Cluster](https://fluxcd.io/flux/use-cases/multi-cluster/)
+
+---
+
+### FALL 5: Hybrid/Edge Scenarios
+
+#### Ausgangssituation
+- Kombination aus Cloud und On-Premise
+- Edge-Locations mit eingeschränkter Connectivity
+- IoT/Industrial Use Cases
+- Retail Stores, Remote Sites
+
+#### Sinnvoll wenn:
+- Data Sovereignty erforderlich (On-Premise)
+- Latenz-kritische Workloads am Edge
+- Offline-Fähigkeit erforderlich
+- Schrittweise Cloud-Migration
+- Budget: Variabel
+
+#### Lightweight Kubernetes Distributionen
+
+##### K3s
+```bash
+## Master Installation
+curl -sfL https://get.k3s.io | sh -
+
+## Agent (Edge) Installation
+curl -sfL https://get.k3s.io | K3S_URL=https://master:6443 \
+  K3S_TOKEN=<token> sh -
+```
+
+**Eigenschaften:**
+- Minimaler Footprint (<512 MB RAM)
+- SQLite statt etcd (für single-master)
+- Integrierter Load Balancer (ServiceLB)
+- Ideal für Edge-Deployments
+
+##### MicroK8s
+```bash
+## Installation
+snap install microk8s --classic
+
+## HA-Cluster
+microk8s add-node
+microk8s join <master-ip>:<port>/<token>
+```
+
+**Eigenschaften:**
+- Snap-basiert, Auto-Updates
+- Add-Ons für DNS, Storage, Ingress
+- Gut für Desktop/Dev-Environments
+
+##### KubeEdge
+```bash
+## Cloud-Seite
+keadm init --advertise-address=<cloud-ip>
+
+## Edge-Seite
+keadm join --cloudcore-ipport=<cloud-ip>:10000 \
+  --token=<token>
+```
+
+**Eigenschaften:**
+- Speziell für IoT/Edge
+- Offline-Autonomie
+- Lightweight Edge-Runtime
+- Cloud-Edge Message Bus
+
+#### Hybrid-Cluster Management
+
+##### Rancher
+- Zentrale UI für alle Cluster (Cloud + On-Prem)
+- Multi-Cluster App Catalog
+- RBAC und Policy Management
+- Monitoring über Cluster hinweg
+
+##### VMware Tanzu
+- Enterprise Kubernetes für Hybrid Cloud
+- Integration mit vSphere
+- Consistent Operations überall
+
+#### Connectivity-Patterns
+
+**VPN-Mesh:**
+```
+Cloud Cluster
+    |
+[WireGuard VPN]
+    |
+    ├── Branch Office 1 (K3s)
+    ├── Branch Office 2 (K3s)
+    └── Edge Device (KubeEdge)
+```
+
+**Hub-and-Spoke:**
+- Zentraler Hub-Cluster (Cloud)
+- Spoke-Cluster (Edge/Branch)
+- Submariner für Pod-Connectivity
+
+#### Edge-Specific Patterns
+
+**Edge-Autonomy:**
+```yaml
+## Application läuft lokal, synchronisiert bei Connectivity
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-app
+  annotations:
+    edge.kubernetes.io/offline-capable: "true"
+spec:
+  replicas: 1
+  template:
+    spec:
+      nodeSelector:
+        edge-location: retail-store-42
+```
+
+**Data Sync:**
+- Lokale Datenerfassung am Edge
+- Batch-Upload bei Connectivity
+- Conflict Resolution bei Sync
+
+#### Tools & Komponenten
+
+- **K3s**: Lightweight Kubernetes
+- **MicroK8s**: Snap-based Kubernetes
+- **KubeEdge**: Cloud-Edge Framework
+- **Rancher**: Multi-Cluster Management
+- **Submariner**: Hybrid Networking
+- **Flux/ArgoCD**: GitOps auch für Edge
+
+#### Vor-/Nachteile
+
+**Vorteile:**
+- Flexible Deployment-Optionen
+- On-Premise Data Residency
+- Niedrige Latenz am Edge
+- Offline-Fähigkeit
+
+**Nachteile:**
+- Management-Komplexität
+- Heterogene Infrastruktur
+- Connectivity-Abhängigkeit
+- Update-Management schwierig
+
+#### Kostenabschätzung
+- **Cloud:** 1-2x Standard-Cluster
+- **Edge:** Hardware + K3s (minimal)
+- **Gesamt:** Stark use-case abhängig
+
+#### RTO/RPO
+- **Cloud-Edge:** Abhängig von Connectivity
+- **Edge-Autonomie:** RTO < 1min (lokal), RPO variabel
+
+#### Quellen
+- [K3s Documentation](https://docs.k3s.io/)
+- [MicroK8s Documentation](https://microk8s.io/docs)
+- [KubeEdge Documentation](https://kubeedge.io/)
+- [Rancher Documentation](https://ranchermanager.docs.rancher.com/)
+
+---
+
+### Entscheidungsmatrix
+
+| Kriterium | Fall 1 | Fall 2 | Fall 3 | Fall 4 | Fall 5 |
+|-----------|--------|--------|--------|--------|--------|
+| **RZ-Anzahl** | 1 | 1 (Multi-Zone) | 2-3 | 2+ | Hybrid |
+| **RTT Control Plane** | < 1ms | < 10ms | < 10ms | > 10ms | Variabel |
+| **RTO** | 1-5 min | < 1 min | < 1 min | 1-10 min | Variabel |
+| **RPO** | < 1 min | 0 | 0 | Sek-Min | Variabel |
+| **Komplexität** | Niedrig | Mittel | Sehr Hoch | Hoch | Hoch |
+| **Kosten (relativ)** | 1x | 1.5-2x | 3-4x | 2-3x/Cluster | Variabel |
+| **Geo-Redundanz** | ❌ | ✅ (Zones) | ✅ (RZ) | ✅✅ | ✅ |
+| **Empfehlung** | Standard | Cloud-Native | ⚠️ Nur bei Zwang | ✅ Empfohlen | Use-Case |
+
+---
+
+
+### Tooling Comparison
+
+#### GitOps: ArgoCD vs Flux
+
+| Feature | ArgoCD | Flux |
+|---------|--------|------|
+| **UI** | ✅ Web UI | ❌ CLI only (FluxCD UI 3rd party) |
+| **Multi-Cluster** | ✅ Native | ✅ Multi-tenancy |
+| **RBAC** | ✅ Integriert | ⚠️ Kubernetes RBAC |
+| **Sync Waves** | ✅ Hooks | ✅ Dependencies |
+| **Helm** | ✅ Native | ✅ HelmRelease CRD |
+| **Kustomize** | ✅ | ✅ |
+| **Image Updates** | ⚠️ Image Updater | ✅ Image Automation |
+| **Resource Usage** | Höher | Niedriger |
+
+**Empfehlung:** ArgoCD für Enterprise mit UI-Bedarf, Flux für GitOps-Puristen
+
+---
+
+### Zusammenfassung & Empfehlungen
+
+#### Quick Decision Tree
+
+```
+Start
+  |
+  ├─ Ein RZ ausreichend?
+  │   └─ JA → Fall 1 (Single-Cluster)
+  │
+  ├─ Cloud-Provider mit Zones?
+  │   └─ JA → Fall 2 (Multi-Zone)
+  │
+  ├─ RTT < 10ms zwischen RZ?
+  │   ├─ JA → ⚠️ Fall 3 (Stretched) - nur bei Zwang!
+  │   └─ NEIN → Fall 4 (Multi-Cluster) ✅
+  │
+  └─ Edge/Hybrid?
+      └─ JA → Fall 5 (Hybrid/Edge)
+```
+
+#### Pragmatische Empfehlungen
+
+1. **Start Simple**: Fall 1 (Single-Cluster) ist für 80% ausreichend
+2. **Cloud-Native**: Fall 2 (Multi-Zone) bei Cloud-Deployment
+3. **Avoid Stretched Clusters**: Fall 3 nur bei regulatorischen Zwängen
+4. **Go Multi-Cluster**: Fall 4 für echte Geo-Redundanz
+5. **Edge wenn nötig**: Fall 5 nur für spezifische Use Cases
+
+#### Typische Fehler vermeiden
+
+❌ **Stretched Cluster bei hoher Latenz** → Split-Brain Risiko  
+✅ **Multi-Cluster stattdessen**
+
+❌ **Keine PodDisruptionBudgets** → Outage bei Node-Drain  
+✅ **PDBs für alle kritischen Apps**
+
+❌ **Single Replica für kritische Services** → No HA  
+✅ **Min. 3 Replicas + Anti-Affinity**
+
+❌ **Keine Backup-Tests** → DR funktioniert nicht  
+✅ **Regelmäßige Restore-Drills**
+
+❌ **etcd ohne Monitoring** → Unerkannte Performance-Issues  
+✅ **etcd-Metriken + Alerts**
+
+---
+
+### Weiterführende Ressourcen
+
+#### Offizielle Dokumentation
+- [Kubernetes Production Best Practices](https://kubernetes.io/docs/setup/best-practices/)
+
+#### Tools & Projekte
+- [Awesome Kubernetes](https://github.com/ramitsurana/awesome-kubernetes)
+- [Kubernetes Failure Stories](https://k8s.af/)
+
+---
+
+## Kubernetes - Authentication
+
+### oidc mit kubectl
+
+
+### Voraussetzung (allgemein) 
+
+  * IDP-Provider muss vorhanden sein
+
+
+### Einrichtung auf dem Kubernetes Server (so -> seit 1.30 (GA 1.32)) 
+
+#### Auf dem Server-Host (Control Plane)
+
+
+
+```
+## Erstellen als
+## /etc/kubernetes/auth-config.yaml
+apiVersion: apiserver.config.k8s.io/v1
+kind: AuthenticationConfiguration
+jwt:
+- issuer:
+    url: https://provider1.example.com
+    audiences:
+    - kubernetes
+  claimMappings:
+    username:
+      claim: email
+    groups:
+      claim: groups
+  
+- issuer:
+    url: https://provider2.example.com
+    audiences:
+    - k8s-prod
+  claimMappings:
+    username:
+      claim: sub
+    groups:
+      claim: roles
+```
+```
+## API - Flag setzen
+## Diese Datei liegt bereits vor und muss angepasst werden
+## Static Pod 
+## /etc/kubernetes/manifests/kube-apiserver.yaml
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --authentication-config=/etc/kubernetes/auth-config.yaml
+    volumeMounts:
+    - name: auth-config
+      mountPath: /etc/kubernetes/auth-config.yaml
+      readOnly: true
+  volumes:
+  - name: auth-config
+    hostPath:
+      path: /etc/kubernetes/auth-config.yaml
+```
+
+  * Es handelt sich im einen static - pod, wenn die Datei geändert wurde wird der Pod automatisch neu erstellt 
+
+
+
+### Voraussetzung (Client-Seite)
+
+  * krew (Plugin Manager für kubectl muss installiert sein)
+
+```
+## Linux/macOS
+(
+  set -x; cd "$(mktemp -d)" &&
+  OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+  ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
+  KREW="krew-${OS}_${ARCH}" &&
+  curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+  tar zxvf "${KREW}.tar.gz" &&
+  ./"${KREW}" install krew
+)
+
+## PATH erweitern
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+```
+
+### Aufsetzen auf dem Client 
+
+```
+## OIDC-Plugin installieren (falls noch nicht vorhanden)
+kubectl krew install oidc-login
+## Kubeconfig anpassen
+kubectl config set-credentials oidc-user \
+  --exec-api-version=client.authentication.k8s.io/v1 \
+  --exec-command=kubectl \
+  --exec-arg=oidc-login \
+  --exec-arg=get-token \
+  --exec-arg=--oidc-issuer-url=https://dein-idp.example.com \
+  --exec-arg=--oidc-client-id=kubernetes \
+  --exec-arg=--oidc-client-secret=SECRET
+```
+
+```
+## Das führt zu folgender kubeconfig
+users:
+- name: oidc-user
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1
+      command: kubectl
+      args:
+      - oidc-login
+      - get-token
+      - --oidc-issuer-url=https://keycloak.example.com/realms/myrealm
+      - --oidc-client-id=kubernetes
+      - --oidc-client-secret=SECRET  # optional
+```
+
+```
+## neuen context erstellen
+## Cluster-Eintrag muss vorhanden sein
+kubectl config set-context oidc-context \
+  --cluster=dein-cluster \
+  --user=oidc-user
+
+## Context verwenden 
+kubectl config use-context oidc-context
+```
+
+```
+## jetzt kannst du ganz normal Befehle verwenden
+## z. B.
+kubectl get pods
+```
+
+### Wie funktioniert das ganze ? 
+
+```
+kubectl get pods
+```
+
+#### 2. kubectl prüft Kubeconfig
+- Findet OIDC-Config (exec-Plugin: `kubectl oidc-login`)
+- **Kein Token vorhanden** → startet Auth-Flow
+
+#### 3. Browser-Login
+- Plugin öffnet Browser automatisch
+- Du loggst dich bei deinem OIDC-Provider ein (z.B. Keycloak, Google)
+- Provider gibt **ID-Token** (JWT) zurück
+- Token wird **lokal gecacht** (~/.kube/cache/oidc-login/)
+
+#### 4. kubectl → API-Server
+```
+Authorization: Bearer eyJhbGc...  (JWT-Token)
+```
+
+### Wie ist ein jwt aufgebaut ?
+
+```
+3 Teile
+1. Header
+2. Payload
+3. Signature
+```
+
+### Wie sieht der Payload aus ? 
+
+```
+{
+  "iss": "https://provider1.example.com",
+  "aud": "kubernetes",
+  "email": "jochen@example.com",
+  "groups": ["admins", "developers"]
+}
+```
+
+### traefik authentication mit oidc
+
+
+
+### 1. OAuth2-Proxy Deployment (wird für die Authentifizierung verwendet)
+
+  * In go geschrieben
+  * Besser: Mit helm - Chart ausrollen 
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth2-proxy
+  namespace: traefik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oauth2-proxy
+  template:
+    metadata:
+      labels:
+        app: oauth2-proxy
+    spec:
+      containers:
+      - name: oauth2-proxy
+        image: quay.io/oauth2-proxy/oauth2-proxy:latest
+        args:
+        - --provider=oidc
+        - --oidc-issuer-url=https://keycloak.example.com/realms/myrealm
+        - --client-id=traefik
+        - --client-secret=your-secret-here
+        - --cookie-secret=random-32-byte-string
+        - --email-domain=*
+        - --upstream=static://200
+        - --http-address=0.0.0.0:4180
+        - --redirect-url=https://auth.example.com/oauth2/callback
+        ports:
+        - containerPort: 4180
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oauth2-proxy
+  namespace: traefik
+spec:
+  selector:
+    app: oauth2-proxy
+  ports:
+  - port: 4180
+    targetPort: 4180
+```
+
+### 2. Traefik Middleware
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: oidc-auth
+  namespace: default
+spec:
+  forwardAuth:
+    address: http://oauth2-proxy.traefik.svc.cluster.local:4180
+    authResponseHeaders:
+    - X-Auth-Request-User
+    - X-Auth-Request-Email
+    - X-Auth-Request-Access-Token
+```
+
+### 3. IngressRoute für OAuth2-Proxy selbst
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: oauth2-proxy
+  namespace: default
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`auth.example.com`)
+    kind: Rule
+    services:
+    - name: oauth2-proxy
+      port: 4180
+  tls:
+    certResolver: letsencrypt
+```
+
+### 4. Geschützte App mit Middleware
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: protected-app
+  namespace: default
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: Host(`app.example.com`)
+    kind: Rule
+    middlewares:
+    - name: oidc-auth
+      namespace: default
+    services:
+    - name: my-app
+      port: 80
+  tls:
+    certResolver: letsencrypt
+```
+
+### Keycloak Client Setup
+
+In Keycloak (oder anderem OIDC Provider):
+- **Client ID**: `traefik`
+- **Valid Redirect URIs**: `https://auth.example.com/oauth2/callback`
+- **Access Type**: confidential
+- **Standard Flow**: enabled
+
+**Cookie-Secret generieren:**
+```bash
+python -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(32)).decode())'
+```
+
+### Alternativ: Statt eigenen Pod als auth2-middleware möglich direkt in Traefik 
+
+  * über die plugins beim Installieren des Helm-Charts
+  * https://artifacthub.io/packages/helm/traefik/traefik
+  * Plugin-Catalog: https://artifacthub.io/packages/helm/traefik/traefik
+  * Man kann z.B. verwenden:
+    * https://plugins.traefik.io/plugins/6613338ea28c508f411a44d5/traefik-oidc
+
+```
+experimental.plugins
+```
+
+## Kubernetes Deployment - Internals
+
+### Strategy when creating and terminating pods in Deployment - RollingUpdate - maxSurge, maxUnavailability
+
+
+### Ausgangsituation 
+
+  * replicas auf 8 eingestellt im Deployment
+  * änderung auf image, dass es nicht gibt
+
+### Welche Werte spielen hier eine Rolle 
+
+  * deployment.spec.strategy.rollingUpdate.maxUnvailability
+  * deployment.spec.strategy.rollingUpdate.maxSurge
+
+### Wie sind die Standardwerte 
+
+  * maxSurge: 25%
+  * maxUnavailability: 25% 
+
+<img width="313" height="104" alt="image" src="https://github.com/user-attachments/assets/68499544-9693-41ab-9a12-a3d52681d47a" />
+
+### Ablauf. RollingUpdate 
+
+#### Runde 1: Rolling Update legt los 
+
+  * Ausgangszustand: 8 pods laufen 
+  * Herausfinden, wieviel Pods im alten Replicaset sofort terminiert werden (maxUnavailability)
+    * Beispiel: 8 Replicas (25% Unavailility) = 2 Pods -> dürfen sofort terminiert werdeb
+  * Herausfinden, weviele Pods im neuen Replicaset dazu gestartet werden dürfenvon 
+    * Insgesamt dürfen replicas: 8 + 25% gestartet werden, d.h. gesamt 10
+     * Aktuell laufen 8, also noch 2
+   
+#### Ende von Runde 1:
+
+  * 6 Pods im alten Replicaset
+  * 2 Pods im neuen Replicaset
+
+#### Runde 1: Nächste Rune 
+
+  * Ausgangszustand: 6 Pods laufen (von 8 replicas)
+  * Wieviel dürfen gestoppt werden im alten Replicaset (replicas 8, davon 25% -> 2)
+    * Also insgesamt müssen im 6 laufen
+    * Es können keinen weiteren terminiert werden
+  * Wieviel dürfen im neuen Replicaset jetzt noch gestartet werden
+    * Insgesamt dürfen replicas: 8 + 25% gestartet werden, d.h. gesamt 10
+    * Insgesamt laufen im alten Replicaset 6 und im neuen Replicaset 2, also dürfen noch 2 gestartet werden
+   
+### Referenz:
+
+  * https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/deployment-v1/
+
+```
+strategy.rollingUpdate.maxUnavailability:
+- scaled down to .... pods immediately when the rolling update
+```
+
+
 
 ## kubectl 
 
@@ -1369,6 +3024,12 @@ kubectl get pod/nginx-static-web -o yaml
 
 ```
 
+### Aufräumen 
+
+```
+kubectl delete -f .
+```
+
 ### kubectl/manifest/replicaset
 
 
@@ -1411,6 +3072,8 @@ spec:
 ```
 kubectl apply -f .
 kubectl get all
+kubectl get pods -l tier=frontend
+kubectl get pods --show-labels 
 ## name anpassen
 kubectl describe pod/nginx-replica-set-lpkbs
 ```
@@ -1436,7 +3099,7 @@ nano rs.yml
 ```
 
 ```
-## Ändern 
+## Ändern
 ## replicas: 5
 ## -> ändern in
 ## replicas: 8
@@ -1446,6 +3109,13 @@ nano rs.yml
 kubectl apply -f .
 kubectl get pods
 ```
+
+
+### Aufräumen des replicasets 
+
+```
+kubectl delete -f .
+``` 
 
 ### kubectl/manifest/deployments
 
@@ -1479,9 +3149,9 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.22
+        image: nginxinc/nginx-unprivileged:1.28
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         
 ```
 
@@ -1505,7 +3175,7 @@ nano nginx-deployment.yml
 #### Version 1: (optical nicer)
 
 ```
-## Ändern des images von nginx:1.22 in nginx:1.23
+## Ändern des images von nginxinc/nginx-unprivileged:1.28 -> auf 1.29
 ## danach 
 kubectl apply -f . && watch kubectl get pods 
 ```
@@ -1513,7 +3183,7 @@ kubectl apply -f . && watch kubectl get pods
 #### Version 2: 
 
 ```
-## Ändern des images von nginx:1.22 in nginx:1.23
+## Ändern des images von nginxinc/nginx-unprivileged:1.28 -> auf 1.29
 ## danach 
 kubectl apply -f .
 kubectl get all 
@@ -1569,7 +3239,7 @@ kubectl run podtest --rm -ti --image busybox -- /bin/sh
 
 ### Warum Services ? 
 
-  * Wenn in einem Deployment bei einem Wechsel des images neue Pods erstellen, erhalten diese neue IP-Adresse
+  * Wenn in einem Deployment bei einem Wechsel des images neue Pods erstellt werden, erhalten diese eine neue IP-Adresse
   * Nachteil: Man müsste diese dann in allen Applikation ständig ändern, die auf die Pods zugreifen.
   * Lösung: Wir schalten einen Service davor !
 
@@ -1668,7 +3338,7 @@ kubectl describe svc svc-nginx
 ```
 
 
-### Example II : Short version 
+### Example II : Short version (NodePort)
 
 ```
 ## Wo sind wir ?
@@ -1780,6 +3450,483 @@ spec:
 
   * https://kubernetes.io/docs/concepts/services-networking/connect-applications-service/
 
+### ConfigMap Example
+
+
+### Schritt 1: configmap vorbereiten 
+```
+cd 
+mkdir -p manifests 
+cd manifests
+mkdir configmaptests 
+cd configmaptests
+nano 01-configmap.yml
+```
+
+```
+### 01-configmap.yml
+kind: ConfigMap 
+apiVersion: v1 
+metadata:
+  name: example-configmap 
+data:
+  # als Wertepaare
+  database: mongodb
+  database_uri: mongodb://localhost:27017
+  testdata: |
+     run=true
+     file=/hello/you 
+```
+
+```
+kubectl apply -f 01-configmap.yml 
+kubectl get cm
+kubectl get cm example-configmap -o yaml
+```
+
+### Schritt 2: Beispiel als Datei 
+
+
+```
+nano 02-pod.yml
+```
+
+```
+kind: Pod 
+apiVersion: v1 
+metadata:
+  name: pod-mit-configmap 
+
+spec:
+  # Add the ConfigMap as a volume to the Pod
+  volumes:
+    # `name` here must match the name
+    # specified in the volume mount
+    - name: example-configmap-volume
+      # Populate the volume with config map data
+      configMap:
+        # `name` here must match the name 
+        # specified in the ConfigMap's YAML 
+        name: example-configmap
+
+  containers:
+    - name: container-configmap
+      image: nginx:latest
+      # Mount the volume that contains the configuration data 
+      # into your container filesystem
+      volumeMounts:
+        # `name` here must match the name
+        # from the volumes section of this pod
+        - name: example-configmap-volume
+          mountPath: /etc/config
+
+```
+
+```
+kubectl apply -f 02-pod.yml 
+```
+
+```
+##Jetzt schauen wir uns den Container/Pod mal an
+kubectl exec pod-mit-configmap -- ls -la /etc/config
+kubectl exec -it pod-mit-configmap --  bash
+## ls -la /etc/config 
+```
+
+### Schritt 3: Beispiel. ConfigMap als env-variablen 
+
+```
+nano 03-pod-mit-env.yml
+```
+
+```
+## 03-pod-mit-env.yml 
+kind: Pod 
+apiVersion: v1 
+metadata:
+  name: pod-env-var 
+spec:
+  containers:
+    - name: env-var-configmap
+      image: nginx:latest 
+      envFrom:
+        - configMapRef:
+            name: example-configmap
+
+```
+
+```
+kubectl apply -f 03-pod-mit-env.yml
+```
+
+```
+## und wir schauen uns das an 
+##Jetzt schauen wir uns den Container/Pod mal an
+kubectl exec pod-env-var -- env
+kubectl exec -it pod-env-var --  bash
+## env
+
+```
+
+
+### Reference: 
+
+ * https://matthewpalmer.net/kubernetes-app-developer/articles/ultimate-configmap-guide-kubernetes.html
+
+### ConfigMap Example MariaDB
+
+
+### Schritt 1: configmap 
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir cftest 
+cd cftest 
+nano 01-configmap.yml 
+```
+
+```
+### 01-configmap.yml
+kind: ConfigMap 
+apiVersion: v1 
+metadata:
+  name: mariadb-configmap 
+data:
+  # als Wertepaare
+  MARIADB_ROOT_PASSWORD: 11abc432
+  TEST_CASE: "47"
+```
+
+```
+kubectl apply -f .
+kubectl describe cm  mariadb-configmap
+kubectl get cm
+kubectl get cm mariadb-configmap -o yaml
+```
+
+
+### Schritt 2: Deployment 
+```
+nano 02-deploy.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb-cont
+        image: mariadb:10.11
+        envFrom:
+        - configMapRef:
+            name: mariadb-configmap
+
+```
+
+```
+kubectl apply -f .
+kubectl get pods 
+kubectl exec -it deploy/mariadb-deployment -- bash 
+```
+
+```
+env
+env | grep ROOT
+env | grep TEST
+exit
+```
+
+### Schritt 3: Service for mariadb 
+
+```
+nano 03-service.yml 
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3306
+    protocol: TCP
+  selector:
+    app: mariadb
+```
+
+```
+kubectl apply -f 03-service.yml 
+```
+
+### Schritt 4: client aufsetzen 
+
+```
+nano 04-client.yml 
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-client
+spec:
+  selector:
+    matchLabels:
+      app: ubuntu
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      labels:
+        app: ubuntu
+    spec:
+      containers:
+      - name: service
+        image: ubuntu
+        command: [ "/bin/sh" , "-c", "tail -f /dev/null" ]
+        envFrom:
+        - configMapRef:
+            name: mariadb-configmap
+```
+
+```
+kubectl apply -f 04-client.yml 
+```
+
+
+
+```
+## im client 
+kubectl exec -it deploy/mariadb-client -- bash 
+apt update; apt install -y mariadb-client iputils-ping
+```
+
+### Schritt 5: mysql-zugang von aussen erstellen 
+
+```
+kubectl exec -it deploy/mariadb-deployment -- bash
+```
+
+```
+mysql -uroot -p$MARIADB_ROOT_PASSWORD
+```
+
+```
+## innerhalb von mysql 
+create user ext@'%' identified by '11abc432';
+grant all on *.* to ext@'%';
+
+```
+
+### Schritt 6: mysql von client aus testen 
+
+```
+kubectl exec -it deploy/mariadb-client -- bash
+```
+
+```
+mysql -uext -p$MARIADB_ROOT_PASSWORD -h mariadb
+```
+
+```
+show databases;
+```
+
+### Important Sidenode 
+
+  * If configmap changes, deployment does not know
+  * So kubectl apply -f deploy.yml will not have any effect
+  * to fix, use stakater/reloader: https://github.com/stakater/Reloader
+
+
+### Secrets Example MariaDB
+
+
+### Schritt 1: secret  
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir secrettest
+cd secrettest 
+```
+
+```
+kubectl create secret generic mariadb-secret --from-literal=MARIADB_ROOT_PASSWORD=11abc432 --dry-run=client -o yaml > 01-secrets.yml
+```
+
+```
+kubectl apply -f .
+kubectl get secrets 
+kubectl get secrets  mariadb-secret  -o yaml
+```
+
+
+### Schritt 2: Deployment 
+```
+nano 02-deploy.yml
+```
+
+```
+##deploy.yml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb-cont
+        image: mariadb:latest
+        envFrom:
+        - secretRef:
+            name: mariadb-secret
+
+```
+
+```
+kubectl apply -f .
+```
+
+### Testing 
+
+```
+## Führt den Befehl env in einem Pod des Deployments aus  
+kubectl exec deployment/mariadb-deployment -- env
+## eigentlich macht er das:
+## kubectl exec mariadb-deployment-c6df6f959-q6swp -- env
+```
+
+
+### Important Sidenode 
+
+  * If configmap changes, deployment does not know
+  * So kubectl apply -f deploy.yml will not have any effect
+  * to fix, use stakater/reloader: https://github.com/stakater/Relo
+
+### Connect to external database
+
+
+### Prerequisites 
+
+  * MariaDB - Server is running on digitalocean in same network as doks (kubernetes) - cluster (10.135.0.x) 
+  * DNS-Entry for mariadb-server.t3isp.de -> pointing to private ip: 10.135.0.9
+
+### Variante 1:
+
+#### Schritt 1: Service erstellen 
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir 05-external-db 
+cd 05-external-db 
+nano 01-external-db.yml
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbexternal
+spec:
+  type: ExternalName
+  externalName: mariadb-server.t3isp.de
+```
+
+```
+kubectl apply -f 01-external-db.yml 
+```
+
+#### Schritt 2: configmap anlegen oder ergänzen 
+
+```
+## Ergänzen 
+## unter data zwei weitere Zeile 
+### 01-configmap.yml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: mariadb-configmap
+data:
+  # als Wertepaare
+  MARIADB_ROOT_PASSWORD: 11abc432
+  DB_USER: ext
+  DB_PASS: 11dortmund22
+```
+
+```
+kubectl apply -f 01-configmap.yml  
+```
+
+```
+## client deployment gelöscht 
+kubectl delete -f 04-client.yml
+kubectl apply -f 04-client.yml 
+kubectl exec -it deploy/mariadb-client -- bash 
+```
+
+```
+## Im client 
+apt update; apt install -y mariadb-client iputils-ping 
+```
+
+
+#### Schritt 3: Service testen 
+
+```
+kubectl exec -it deploy/mariadb-client -- bash
+```
+
+```
+## im container verbinden mit mysql 
+mysql -u$DB_USER -p$DB_PASS -h dbexternal
+```
+
+```
+## im verbundenen MySQL-Client 
+show databases;
+```
+
+
+### Variante 2:
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir 05-external-db 
+cd 05-external-db 
+nano 02-external-endpoint.yml
+```
+
+
+## Kubernetes Ingress (Grundlagen)
+
 ### Hintergrund Ingress
 
 
@@ -1788,6 +3935,8 @@ spec:
 ### Ref. / Dokumentation 
 
   * https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+
+## Kubernetes Ingress (Nginx - deprecated)   
 
 ### Ingress Controller auf Digitalocean (doks) mit helm installieren
 
@@ -2694,480 +4843,433 @@ This annotation allows to return a permanent redirect instead of sending data to
   * https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md#permanent-redirect
   * 
 
-### ConfigMap Example
+## Kubernetes Ingress (Traefik)
+
+### Install Traefik-IngressController
 
 
-### Schritt 1: configmap vorbereiten 
 ```
-cd 
+helm repo add traefik https://traefik.github.io/charts
+
+helm upgrade -n ingress --install traefik traefik/traefik --version 37.4.0 --create-namespace --skip-crds --reset-values
+
+## Use special crds helm chart instead, because it does not deploy crds for gateway-api by default
+## We get an error on digitalocean doks
+helm -n ingress upgrade --install traefik-crds traefik/traefik-crds --version 1.12.0 --reset-values 
+```
+
+### Ingress mit traefik
+
+
+### Step 1: Walkthrough 
+
+```
+cd
 mkdir -p manifests 
 cd manifests
-mkdir configmaptests 
-cd configmaptests
-nano 01-configmap.yml
+mkdir abi 
+cd abi
 ```
 
 ```
-### 01-configmap.yml
-kind: ConfigMap 
-apiVersion: v1 
-metadata:
-  name: example-configmap 
-data:
-  # als Wertepaare
-  database: mongodb
-  database_uri: mongodb://localhost:27017
-  testdata: |
-     run=true
-     file=/hello/you 
-```
-
-```
-kubectl apply -f 01-configmap.yml 
-kubectl get cm
-kubectl get cm example-configmap -o yaml
-```
-
-### Schritt 2: Beispiel als Datei 
-
-
-```
-nano 02-pod.yml
-```
-
-```
-kind: Pod 
-apiVersion: v1 
-metadata:
-  name: pod-mit-configmap 
-
-spec:
-  # Add the ConfigMap as a volume to the Pod
-  volumes:
-    # `name` here must match the name
-    # specified in the volume mount
-    - name: example-configmap-volume
-      # Populate the volume with config map data
-      configMap:
-        # `name` here must match the name 
-        # specified in the ConfigMap's YAML 
-        name: example-configmap
-
-  containers:
-    - name: container-configmap
-      image: nginx:latest
-      # Mount the volume that contains the configuration data 
-      # into your container filesystem
-      volumeMounts:
-        # `name` here must match the name
-        # from the volumes section of this pod
-        - name: example-configmap-volume
-          mountPath: /etc/config
-
-```
-
-```
-kubectl apply -f 02-pod.yml 
-```
-
-```
-##Jetzt schauen wir uns den Container/Pod mal an
-kubectl exec pod-mit-configmap -- ls -la /etc/config
-kubectl exec -it pod-mit-configmap --  bash
-## ls -la /etc/config 
-```
-
-### Schritt 3: Beispiel. ConfigMap als env-variablen 
-
-```
-nano 03-pod-mit-env.yml
-```
-
-```
-## 03-pod-mit-env.yml 
-kind: Pod 
-apiVersion: v1 
-metadata:
-  name: pod-env-var 
-spec:
-  containers:
-    - name: env-var-configmap
-      image: nginx:latest 
-      envFrom:
-        - configMapRef:
-            name: example-configmap
-
-```
-
-```
-kubectl apply -f 03-pod-mit-env.yml
-```
-
-```
-## und wir schauen uns das an 
-##Jetzt schauen wir uns den Container/Pod mal an
-kubectl exec pod-env-var -- env
-kubectl exec -it pod-env-var --  bash
-## env
-
-```
-
-
-### Reference: 
-
- * https://matthewpalmer.net/kubernetes-app-developer/articles/ultimate-configmap-guide-kubernetes.html
-
-### ConfigMap Example MariaDB
-
-
-### Schritt 1: configmap 
-
-```
-cd 
-mkdir -p manifests
-cd manifests
-mkdir cftest 
-cd cftest 
-nano 01-configmap.yml 
-```
-
-```
-### 01-configmap.yml
-kind: ConfigMap 
-apiVersion: v1 
-metadata:
-  name: mariadb-configmap 
-data:
-  # als Wertepaare
-  MARIADB_ROOT_PASSWORD: 11abc432
-  TEST_CASE: "47"
-```
-
-```
-kubectl apply -f .
-kubectl describe cm  mariadb-configmap
-kubectl get cm
-kubectl get cm mariadb-configmap -o yaml
-```
-
-
-### Schritt 2: Deployment 
-```
-nano 02-deploy.yml
+nano apple-deploy.yml 
 ```
 
 ```
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mariadb-deployment
+  name: apple-app
+  labels:
+    app: apple
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: mariadb
-  replicas: 1 
+      app: apple
   template:
     metadata:
       labels:
-        app: mariadb
+        app: apple
     spec:
       containers:
-      - name: mariadb-cont
-        image: mariadb:10.11
-        envFrom:
-        - configMapRef:
-            name: mariadb-configmap
-
+        - name: apple-app
+          image: hashicorp/http-echo
+          args:
+            - "-text=apple-<euer-name>"
 ```
 
 ```
-kubectl apply -f .
-kubectl get pods 
-kubectl exec -it deploy/mariadb-deployment -- bash 
+nano apple-svc.yaml
 ```
 
-```
-env
-env | grep ROOT
-env | grep TEST
-exit
-```
-
-### Schritt 3: Service for mariadb 
 
 ```
-nano 03-service.yml 
-```
-
-```
-apiVersion: v1
 kind: Service
+apiVersion: v1
 metadata:
-  name: mariadb
+  name: apple-service
 spec:
   type: ClusterIP
+  selector:
+    app: apple
   ports:
-  - port: 3306
-    protocol: TCP
-  selector:
-    app: mariadb
-```
-
-```
-kubectl apply -f 03-service.yml 
-```
-
-### Schritt 4: client aufsetzen 
-
-```
-nano 04-client.yml 
-```
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mariadb-client
-spec:
-  selector:
-    matchLabels:
-      app: ubuntu
-  replicas: 1 # tells deployment to run 2 pods matching the template
-  template: # create pods using pod definition in this template
-    metadata:
-      labels:
-        app: ubuntu
-    spec:
-      containers:
-      - name: service
-        image: ubuntu
-        command: [ "/bin/sh" , "-c", "tail -f /dev/null" ]
-        envFrom:
-        - configMapRef:
-            name: mariadb-configmap
-```
-
-```
-kubectl apply -f 04-client.yml 
-```
-
-
-
-```
-## im client 
-kubectl exec -it deploy/mariadb-client -- bash 
-apt update; apt install -y mariadb-client iputils-ping
-```
-
-### Schritt 5: mysql-zugang von aussen erstellen 
-
-```
-kubectl exec -it deploy/mariadb-deployment -- bash
-```
-
-```
-mysql -uroot -p$MARIADB_ROOT_PASSWORD
-```
-
-```
-## innerhalb von mysql 
-create user ext@'%' identified by '11abc432';
-grant all on *.* to ext@'%';
-
-```
-
-### Schritt 6: mysql von client aus testen 
-
-```
-kubectl exec -it deploy/mariadb-client -- bash
-```
-
-```
-mysql -uext -p$MARIADB_ROOT_PASSWORD -h mariadb
-```
-
-```
-show databases;
-```
-
-### Important Sidenode 
-
-  * If configmap changes, deployment does not know
-  * So kubectl apply -f deploy.yml will not have any effect
-  * to fix, use stakater/reloader: https://github.com/stakater/Reloader
-
-
-### Secrets Example MariaDB
-
-
-### Schritt 1: secret  
-
-```
-cd 
-mkdir -p manifests
-cd manifests
-mkdir secrettest
-cd secrettest 
-```
-
-```
-kubectl create secret generic mariadb-secret --from-literal=MARIADB_ROOT_PASSWORD=11abc432 --dry-run=client -o yaml > 01-secrets.yml
+    - protocol: TCP
+      port: 80
+      targetPort: 5678 # Default port for image
 ```
 
 ```
 kubectl apply -f .
-kubectl get secrets 
-kubectl get secrets  mariadb-secret  -o yaml
-```
-
-
-### Schritt 2: Deployment 
-```
-nano 02-deploy.yml
 ```
 
 ```
-##deploy.yml 
+nano banana-deploy.yml
+```
+
+```
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mariadb-deployment
+  name: banana-app
+  labels:
+    app: banana
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: mariadb
-  replicas: 1 
+      app: banana
   template:
     metadata:
       labels:
-        app: mariadb
+        app: banana
     spec:
       containers:
-      - name: mariadb-cont
-        image: mariadb:latest
-        envFrom:
-        - secretRef:
-            name: mariadb-secret
+        - name: apple-app
+          image: hashicorp/http-echo
+          args:
+            - "-text=banana-<euer-name>"
+```
 
+```
+nano banana-svc.yaml
+```
+
+```
+kind: Service
+apiVersion: v1
+metadata:
+  name: banana-service
+spec:
+  type: ClusterIP
+  selector:
+    app: banana
+  ports:
+    - port: 80
+      targetPort: 5678 # Default port for image
 ```
 
 ```
 kubectl apply -f .
 ```
 
-### Testing 
+### Step 2: Testing connection by podIP and Service 
 
 ```
-## Führt den Befehl env in einem Pod des Deployments aus  
-kubectl exec deployment/mariadb-deployment -- env
-## eigentlich macht er das:
-## kubectl exec mariadb-deployment-c6df6f959-q6swp -- env
-```
-
-
-### Important Sidenode 
-
-  * If configmap changes, deployment does not know
-  * So kubectl apply -f deploy.yml will not have any effect
-  * to fix, use stakater/reloader: https://github.com/stakater/Relo
-
-### Connect to external database
-
-
-### Prerequisites 
-
-  * MariaDB - Server is running on digitalocean in same network as doks (kubernetes) - cluster (10.135.0.x) 
-  * DNS-Entry for mariadb-server.t3isp.de -> pointing to private ip: 10.135.0.9
-
-### Variante 1:
-
-#### Schritt 1: Service erstellen 
-
-```
-cd 
-mkdir -p manifests
-cd manifests
-mkdir 05-external-db 
-cd 05-external-db 
-nano 01-external-db.yml
+kubectl get svc
+kubectl get pods -o wide
+kubectl run podtest --rm -it --image busybox
 ```
 
 ```
-apiVersion: v1
-kind: Service
+/ # wget -O - http://<pod-ip>:5678 
+/ # wget -O - http://<cluster-ip>
+```
+
+### Step 3: Walkthrough 
+
+```
+nano ingress.yml
+```
+
+```
+## Ingress
+apiVersion: extensions/v1beta1
+kind: Ingress
 metadata:
-  name: dbexternal
+  name: example-ingress
 spec:
-  type: ExternalName
-  externalName: mariadb-server.t3isp.de
+  ingressClassName: traefik
+  rules:
+  - host: "<euername>.app.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          backend:
+            serviceName: apple-service
+            servicePort: 80
+        - path: /banana
+          backend:
+            serviceName: banana-service
+            servicePort: 80
 ```
 
 ```
-kubectl apply -f 01-external-db.yml 
+## ingress 
+kubectl apply -f ingress.yml
 ```
 
-#### Schritt 2: configmap anlegen oder ergänzen 
+### Reference 
+
+  * https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+
+### Step 4: Find the problem 
+
+#### Fix 4.1: Fehler: no matches kind "Ingress" in version "extensions/v1beta1"
 
 ```
-## Ergänzen 
-## unter data zwei weitere Zeile 
-### 01-configmap.yml
-kind: ConfigMap
-apiVersion: v1
+## Gibt es diese Landkarte überhaupt
+kubectl api-versions
+## auf welcher Landkarte/Gruppe befindet sich Ingress jetzt 
+kubectl explain ingress | head
+## -> jetzt auf networking.k8s.io/v1 
+
+```
+
+```
+nano ingress.yml
+```
+
+```
+## auf apiVersion: extensions/v1beta1
+## wird -> networking.k8s.io/v1
+```
+
+```
+kubectl apply -f .
+```
+
+#### Fix 4.2: Bad Request unkown field ServiceName / ServicePort 
+
+
+```
+## was geht für die Property backend 
+kubectl explain ingress.spec.rules.http.paths.backend
+## und was geht für service
+kubectl explain ingress.spec.rules.http.paths.backend.service
+```
+
+```
+nano ingress.yml
+```
+
+```
+## Wir ersetzen 
+## serviceName: apple-service 
+## durch:
+## service: 
+##   name: apple-service 
+
+## das gleiche für banana 
+```
+
+```
+kubectl apply -f . 
+```
+
+
+#### Fix 4.3. BadRequest unknown field servicePort
+
+```
+## was geht für die Property backend 
+kubectl explain ingress.spec.rules.http.paths.backend
+## und was geht für service
+kubectl explain ingress.spec.rules.http.paths.backend.service.port
+## number 
+kubectl explain ingress.spec.rules.http.paths.backend.service.port
+```
+
+```
+## neue Variante sieht so aus
+backend:
+  service:
+    name: apple-service
+    port:
+      number: 80
+## das gleich für banana-service
+```
+
+```
+kubectl apply -f .
+```
+
+
+#### Fix 4.4. pathType must be specificied 
+
+```
+## Was macht das ?
+kubectl explain ingress.spec.rules.http.paths.pathType
+```
+
+```
+      paths:
+        - path: /apple
+          pathType: Prefix
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+        - path: /banana
+          pathType: Exact 
+          backend:
+            service:
+              name: banana-service
+              port:
+                number: 80                
+```
+
+```
+kubectl apply -f .
+kubectl get ingress example-ingress
+```
+
+
+### Step 5: Testing 
+
+```
+## mit describe herausfinden, ob er die services gefundet 
+kubectl describe ingress example-ingress
+```
+
+```
+## Im Browser auf:
+## hier euer Name 
+http://jochen.app.do.t3isp.de/apple
+http://jochen.app.do.t3isp.de/apple/
+http://jochen.app.do.t3isp.de/apple/foo 
+http://jochen.app.do.t3isp.de/banana
+## geht nicht 
+http://jochen.app.do.t3isp.de/banana/nix
+```
+
+### ingress mit traefik, letsencrypt und cert-manager
+
+
+### Schritt 1: cert-manager installieren 
+
+```
+helm repo add jetstack https://charts.jetstack.io
+helm upgrade --install cert-manager jetstack/cert-manager \
+--namespace cert-manager --create-namespace \
+--version v1.19.2 \
+--set crds.enabled=true \
+--reset-values
+```
+
+  * Ref: https://artifacthub.io/packages/helm/cert-manager/cert-manager
+
+### Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
+
+```
+cd
+mkdir -p manifests/cert-manager
+cd manifests/cert-manager
+nano cluster-issuer.yaml
+```
+
+
+
+```
+## cluster-issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
 metadata:
-  name: mariadb-configmap
-data:
-  # als Wertepaare
-  MARIADB_ROOT_PASSWORD: 11abc432
-  DB_USER: ext
-  DB_PASS: 11dortmund22
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # Email-Adresse ändern - example.com ist nicht erlaubt 
+    email: your-email@example.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: traefik
 ```
 
 ```
-kubectl apply -f 01-configmap.yml  
-```
-
-```
-## client deployment gelöscht 
-kubectl delete -f 04-client.yml
-kubectl apply -f 04-client.yml 
-kubectl exec -it deploy/mariadb-client -- bash 
-```
-
-```
-## Im client 
-apt update; apt install -y mariadb-client iputils-ping 
+kubectl apply -f .
+## Should be True 
+kubectl get clusterissuer 
 ```
 
 
-#### Schritt 3: Service testen 
+### Schritt 3: Ingress-Objekt mit TLS erstellen 
 
 ```
-kubectl exec -it deploy/mariadb-client -- bash
-```
-
-```
-## im container verbinden mit mysql 
-mysql -u$DB_USER -p$DB_PASS -h dbexternal
+nano example-ingress.yaml
 ```
 
 ```
-## im verbundenen MySQL-Client 
-show databases;
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - <dein-name>.app.do.t3isp.de
+    secretName: example-tls
+
+  rules:
+  - host: "<dein-name>.app.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          pathType: Prefix
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+        - path: /banana
+          pathType: Exact
+          backend:
+            service:
+              name: banana-service
+              port:
+                number: 80
 ```
 
-
-### Variante 2:
-
 ```
-cd 
-mkdir -p manifests
-cd manifests
-mkdir 05-external-db 
-cd 05-external-db 
-nano 02-external-endpoint.yml
+kubectl apply -f .
 ```
 
+ * Interessent, der cert-manager erstellt kurz ein Ingress - Objekt
+
+<img width="1057" height="172" alt="image" src="https://github.com/user-attachments/assets/54dce6f5-9d53-4ce4-ac79-dcfe095f77b5" />
+
+### Schritt 4: Herausfinden, ob Zertifikate erstellt werden 
+
+```
+kubectl describe certificate example-tls
+kubectl get cert
+## Certificate Request 
+kubectl get cr
+## da ist das Zertfikat drin 
+kubectl get secret example-tls 
+```
+
+### Schritt 5: Testen
+
+### Ref: 
+
+  * https://hbayraktar.medium.com/installing-cert-manager-and-nginx-ingress-with-lets-encrypt-on-kubernetes-fe0dff4b1924
 
 ## Kubernetes Praxis (Stateful Sets)
 
@@ -3335,7 +5437,7 @@ exit
 
 ```
 ## web-0 / web-1 
-kubectl get pods
+kubectl get pods -o wide 
 kubectl get sts web
 kubectl delete sts web 
 kubectl apply -f .
@@ -3343,6 +5445,7 @@ kubectl run --rm -it podtest --image=busybox
 
 ping web-0.nginx 
 
+kubectl describe svc nginx 
 ```
 
 ### Referenz 
@@ -3383,11 +5486,8 @@ ping web-0.nginx
 ### Schritt 1: Walkthrough - Client Installation (als root)
 
 ```
-## Binary für Linux runterladen, entpacken und installieren 
-## Achtung: Immer die neueste Version von den Releases nehmen, siehe unten:
-## Install as root 
-curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.29.0/kubeseal-0.29.0-linux-amd64.tar.gz"
-tar -xvzf kubeseal-0.29.0-linux-amd64.tar.gz kubeseal
+curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.33.1/kubeseal-0.33.1-linux-amd64.tar.gz"
+tar -xvzf kubeseal-0.33.1-linux-amd64.tar.gz kubeseal
 sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 ```
 
@@ -3395,65 +5495,17 @@ sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 
 ```
 helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
-helm install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.17.2
-
+helm upgrade --install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.17.9 --reset-values 
 ```
 
 ### Schritt 3: Walkthrough - Verwendung (als normaler/unpriviligierter Nutzer)
 
 ```
-kubeseal --fetch-cert 
-
-## Secret - config erstellen mit dry-run, wird nicht auf Server angewendet (nicht an Kube-Api-Server geschickt) 
-kubectl -n default create secret generic basic-auth --from-literal=user=admin --from-literal=password=change-me --dry-run=client -o yaml > basic-auth.yaml
-cat basic-auth.yaml 
-
-## öffentlichen Schlüssel zum Signieren holen 
-kubeseal --fetch-cert > pub-sealed-secrets.pem
-cat pub-sealed-secrets.pem 
-
-kubeseal --format=yaml --cert=pub-sealed-secrets.pem < basic-auth.yaml > basic-auth-sealed.yaml
-cat basic-auth-sealed.yaml 
-
-## Ausgangsfile von dry-run löschen 
-rm basic-auth.yaml
-
-## Ist das secret basic-auth vorher da ? 
-kubectl get secrets basic-auth 
-
-kubectl apply -f basic-auth-sealed.yaml
-
-## Kurz danach erstellt der Controller aus dem sealed secret das secret 
-kubectl get secret 
-kubectl get secret -o yaml
-
+Übung ist hier zu finden:
 ```
 
-```
-## Ich kann dieses jetzt ganz normal in meinem pod verwenden.
-## Step 3: setup another pod to use it in addition 
-## vi 02-secret-app.yml 
-apiVersion: v1    
-kind: Pod    
-metadata:    
-  name: secret-app    
-spec:    
-  containers:    
-    - name: env-ref-demo    
-      image: nginx    
-      envFrom:                                                                                                                              
-      - secretRef:
-          name: basic-auth
+[Beispiel mit kubeseal arbeiten](#exercise-sealed-secret-mariadb)
 
-
-```
-
-### Hinweis: Ubuntu snaps 
-
-```
-Installation über snap funktioniert nur, wenn ich auf meinem Client
-ausschliesslich als root arbeite 
-```
 
 ### Wie kann man sicherstellen, dass nach der automatischen Änderung des Secretes, der Pod bzw. Deployment neu gestartet wird ?
 
@@ -3599,66 +5651,6 @@ spec:
 ```
 
 ## Helm (Kubernetes Paketmanager)
-
-### Helm - Was kann Helm
-
-
-- **Installieren** und **Deinstallieren** von Anwendungen in Kubernetes (`helm install / helm uninstall`)
-- **Upgraden** von bestehenden Installationen (`helm upgrade`)
-- **Rollbacks** durchführen, falls etwas schiefläuft (`helm rollback`)
-- **Anpassen** von Anwendungen durch Konfigurationswerte (`values.yaml`)
-- **Veröffentlichen** eigener Charts (z. B. in einem Helm-Repository)
-
-### Helm Spickzettel
-
-
-### Hilfe 
-
-```
-helm help
-helm help <command>
-helm help upgrade
-```
-
-
-### Alle helm-releases anzeigen 
-
-```
-## im eigenen Namespace 
-helm list
-## in allen Namespaces
-helm list -A
-## für einen speziellen
-helm -n kube-system list 
-```
-
-### Helm - Chart installieren 
-
-```
-## Empfehlung mit namespace
-## Repo hinzufügen für Client 
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install my-nginx bitnami/nginx --version 19.0.1 --create-namespace --namespace=app-<namenskuerzel>
-```
-
-### Helm - Suche  
-
-```
-## welche Repos sind konfiguriert
-helm repo list
-helm search repo bitnami
-helm search hub
-```
-
-### Helm - template 
-
-```
-## Rendern des Templates
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm template my-nginx bitnami/nginx
-helm template bitnami/nginx
-```  
-
 
 ### Helm - Was kann Helm
 
@@ -3900,6 +5892,188 @@ helm install my-wordpress -f values.yml bitnami/wordpress
   * https://github.com/bitnami/charts/tree/master/bitnami/mysql/#installing-the-chart
   * https://helm.sh/docs/intro/quickstart/
 
+### Installation, Upgrade, Uninstall helm-Chart exercise - simple (mariadb-cloudpirates)
+
+
+### Schritt 1: install mariadb von cloudpirates  
+
+```
+## Mini-Step 1: Testen 
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.1 --dry-run
+```
+
+```
+## Mini-Step 2: Installieren 
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.1 
+```
+
+```
+## Geht das denn auch ?
+kubectl get pods
+```
+
+### Schritt 2: Umschauen 
+
+```
+kubectl get pods
+helm status my-mariadb 
+helm list
+## alle helm charts anzeigen, die im gesamten Cluster installierst wurden 
+helm list -A
+helm history my-mariadb 
+```
+
+### Schritt 3: Umschauen get 
+
+```
+## Wo speichert er Information, die er später mit helm get abruft
+kubectl get secrets
+```
+
+
+```
+helm get values my-mariadb
+helm get manifest my-mariadb
+## Zeige alle Kinds an 
+helm get manifest my-mariadb | grep -i -A 4 kind  
+## Can I see all values use -> YES
+## Look for COMPUTED VALUES in get all ->
+helm get all my-mariadb 
+```
+
+```
+## Hack COMPUTED VALUES anzeigen lassen
+## Welche Werte (values) hat er zur Installation verwendet
+helm get all my-mariadb | grep -i computed -A 200
+
+```
+
+
+### Schritt 4: Exercise: Upgrade to new version 
+
+#### Schritt 4.1 Default values (auf terminal) ausfindig machen 
+
+```
+## Recherchiere wie die Werte gesetzt werden (artifacthub.io) oder verwende die folgenden Befehle:
+helm show values oci://registry-1.docker.io/cloudpirates/mariadb
+helm show values oci://registry-1.docker.io/cloudpirates/mariadb | less
+```
+
+#### Schritt 4.2 Upgrade und resources ändern 
+
+
+```
+cd 
+mkdir -p mariadb-values 
+cd mariadb-values
+mkdir prod
+cd prod
+```
+
+```
+nano values.yaml
+```
+
+```
+resources:
+  limits:
+     memory: 300Mi
+  requests:
+     memory: 300Mi
+     cpu: 100m
+```
+
+```
+cd ..
+```
+
+```
+## Testen 
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.3 --dry-run -f prod/values.yaml  
+```
+
+```
+## Real Upgrade
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.3 -f prod/values.yaml
+```
+
+```
+kubectl get pods
+kubectl describe pods my-mariadb-0
+helm list
+helm history my-mariadb
+helm get values my-mariadb  
+```
+
+### Schritt 4.3 Weiteres Update der Chart - Version (auf Version 0.9.0) 
+
+```
+## Testen 
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.9.0 --dry-run -f prod/values.yaml  
+```
+
+```
+## Real Upgrade
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.9.0 -f prod/values.yaml
+```
+
+```
+## Schlägt fehle, weil mit dem apply bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
+```
+
+#### Lösung 
+
+  * Deinstallieren (pvc bleibt erhalten auch beim Deinstallieren -> so macht das helm)
+  * Und wieder installieren in der neuen Version 
+
+```
+## Frage, ist das pvc noch ?
+kubectl get pvc
+## Ja ! 
+```
+
+<img width="891" height="82" alt="image" src="https://github.com/user-attachments/assets/849b5859-a5f2-40df-8bc6-018eaedbd146" />
+
+```
+helm uninstall my-mariadb
+kubectl get pvc 
+## auch nach der Deinstallation ist der pvc noch da
+## Super !! 
+```
+
+```
+## Real Upgrade
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.9.0 -f prod/values.yaml
+```
+
+```
+kubectl get pods
+```
+
+
+### Tipp: values aus alter revision anzeigen 
+
+```
+## Beispiel: 
+helm get values  my-mariadb --revision 1
+```
+
+#### Uninstall 
+
+```
+helm uninstall my-mariadb 
+## namespace wird nicht gelöscht
+## händisch löschen
+kubectl delete ns app-<namenskuerzel>
+## crd's werden auch nicht gelöscht 
+```
+
+### Problem: OutOfMemory (OOM-Killer) if container passes limit in memory 
+
+  * if memory of container is bigger than limit an OOM-Killer will be triggered
+  * How to fix. Use memory limit in the application too !
+    * https://techcommunity.microsoft.com/blog/appsonazureblog/unleashing-javascript-applications-a-guide-to-boosting-memory-limits-in-node-js/4080857
+
 ### Helm Exercise with nginx
 
 
@@ -4005,6 +6179,117 @@ helm uninstall my-nginx
 
 ## Überprüfung, ob Deinstallation erfolgt ist:
 helm list 
+```
+
+### Helm Spickzettel
+
+
+### Hilfe 
+
+```
+helm help
+helm help <command>
+helm help upgrade
+```
+
+
+### Alle helm-releases anzeigen 
+
+```
+## im eigenen Namespace 
+helm list
+## in allen Namespaces
+helm list -A
+## für einen speziellen
+helm -n kube-system list 
+```
+
+### Helm - Chart installieren 
+
+```
+## Empfehlung mit namespace
+## Repo hinzufügen für Client 
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install my-nginx bitnami/nginx --version 19.0.1 --create-namespace --namespace=app-<namenskuerzel>
+```
+
+### Helm - Suche  
+
+```
+## welche Repos sind konfiguriert
+helm repo list
+helm search repo bitnami
+helm search hub
+```
+
+### Helm - template 
+
+```
+## Rendern des Templates
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm template my-nginx bitnami/nginx
+helm template bitnami/nginx
+```  
+
+
+## Helm Charts erstellen und analysieren
+
+### Eigenes Helm-Chart erstellen
+
+
+### Chart erstellen 
+
+```
+cd 
+mkdir my-charts
+cd my-charts
+```
+
+```
+helm create my-app
+``` 
+
+### Install helm - chart 
+
+```
+## Variante 1:
+helm -n my-app-<namenskuerzel> install meine-app my-app --create-namespace 
+```
+
+```
+## Variante 2:
+cd my-app
+helm -n my-app-<namenskuerzel> install meine-app . --create-namespace 
+```
+
+```
+kubectl -n my-app-<namenskuerzel> get all
+kubectl -n my-app-<namenskuerzel> get pods 
+```
+
+### Chart zur Analyse runterladen und entpacken
+
+
+```
+cd 
+mkdir -p charts-download
+cd charts-download
+```
+
+
+```
+helm pull oci://registry-1.docker.io/cloudpirates/mariadb
+
+## Lädt die letzte version herunter
+helm pull oci://registry-1.docker.io/cloudpirates/mariadb
+
+## Lädt bestimmte chart-version runter 
+## helm pull oci://registry-1.docker.io/cloudpirates/mariadb --version 0.9.0
+## evtl. entpacken wenn gewünscht
+## tar xvf mariadb-12.1.6.tgz
+
+## Schnelle Variante
+helm pull oci://registry-1.docker.io/cloudpirates/mariadb --version 0.9.0 --untar
 ```
 
 ## Helm - Fehleranalye
@@ -4218,7 +6503,7 @@ The main difference relies on the moment when you want to configure storage. For
 
 ```
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
-helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version v4.11.0
+helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version v4.12.1 --reset-values 
 ```
 
 ### Step 2: Storage Class 
@@ -5407,6 +7692,111 @@ worker3        Ready    <none>          9m9s   v1.28.6
 
   * https://spacelift.io/blog/ansible-kubernetes
 
+## Tipps & Tricks
+
+### Pods bleiben im terminate-mode stehen
+
+
+Ein Pod hängt in Terminierung meist aus folgenden Gründen:
+
+### Häufigste Ursachen:
+
+**1. Graceful Shutdown Timeout**
+- Container reagiert nicht auf SIGTERM
+- Nach `terminationGracePeriodSeconds` (default 30s) wird SIGKILL gesendet
+- Check: `kubectl describe pod <pod>` → Events
+
+**2. Finalizers blockieren**
+```bash
+kubectl get pod <pod> -o yaml | grep finalizers -A 5
+```
+Manuelle Entfernung (Notfall):
+```bash
+kubectl patch pod <pod> -p '{"metadata":{"finalizers":null}}'
+```
+
+**3. PreStop Hook hängt**
+- Zählt zur Grace Period
+- Hook-Fehler blockiert Terminierung
+
+**4. Volume Unmount Problem**
+- Node kann Volume nicht freigeben
+- Oft bei NFS/CSI-Storage
+
+**5. Node NotReady**
+- Kubelet antwortet nicht
+- Pod bleibt in Terminating bis Node zurück oder nach ~5min force-deleted
+
+### Quick Fix:
+```bash
+## Force delete (wenn nichts anderes hilft)
+kubectl delete pod <pod> --grace-period=0 --force
+```
+
+**Debug-Befehle:**
+```bash
+kubectl get pod <pod> -o yaml
+kubectl describe pod <pod>
+kubectl logs <pod> --previous
+```
+
+### Was sind finalizer 
+
+  * Finalizers sind Strings im metadata.finalizers-Array eines Pods, die verhindern, dass Kubernetes das Objekt vollständig löscht, bis alle Finalizer entfernt wurden.
+
+```
+Bei kubectl delete pod setzt Kubernetes nur metadata.deletionTimestamp
+Pod geht in Status Terminating
+Controller/Operator mit zuständigem Finalizer führt Cleanup aus
+Controller entfernt seinen Finalizer aus dem Array
+Erst wenn Array leer → vollständige Löschung
+```
+
+### Probleme mit Volumes 
+
+**VolumeAttachment-Objekt** (separates K8s-Objekt):
+```yaml
+apiVersion: storage.k8s.io/v1
+kind: VolumeAttachment
+metadata:
+  finalizers:
+  - external-attacher/csi-driver-name  # <-- Hier ist der Finalizer
+spec:
+  attacher: csi-driver
+  nodeName: worker-1
+  source:
+    persistentVolumeName: pvc-xyz
+```
+
+**Pod-Objekt** hat normalerweise **keine Volume-Finalizer**:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  finalizers: []  # Meist leer oder mit anderen Finalizern
+```
+
+### Warum Pods trotzdem bei Volumes hängen:
+
+1. **Kubelet wartet** auf erfolgreiches Volume-Unmount (nicht Finalizer-basiert)
+2. **VolumeAttachment-Finalizer** verhindert Detach vom Node
+3. **Node nicht erreichbar** → Kubelet kann nicht unmounten
+4. **CSI-Driver-Probleme** → external-attacher kann Finalizer nicht clearen
+
+### Typisches Problem-Szenario:
+
+```bash
+## Pod bleibt Terminating
+kubectl get pod -o yaml
+## deletionTimestamp gesetzt, aber keine Volume-Finalizer
+
+## VolumeAttachment existiert noch
+kubectl get volumeattachment
+## Hat Finalizer vom CSI-Driver
+```
+
+**Force-Delete** hilft hier nicht beim Volume-Problem, sondern man muss das VolumeAttachment-Objekt oder den Node-Status addressieren.
+
 ## Podman
 
 ### Podman vs. Docker
@@ -5761,11 +8151,22 @@ upstream myapp-service {
 helm repo add jetstack https://charts.jetstack.io
 helm install cert-manager jetstack/cert-manager \
 --namespace cert-manager --create-namespace \
---version v1.12.0 \
+--version v1.19.1 \
 --set installCRDs=true
 ```
 
+  * Ref: https://artifacthub.io/packages/helm/cert-manager/cert-manager
+
 ### Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
+
+```
+cd
+mkdir -p manifests/cert-manager
+cd manifests/cert-manager
+nano cluster-issuer.yaml
+```
+
+
 
 ```
 ## cluster-issuer.yaml
@@ -5785,15 +8186,14 @@ spec:
           class: nginx
 ```
 
-### Schritt 3: Herausfinden, ob Zertifikate erstellt werden 
-
 ```
-kubectl describe certificate example-tls
-kubectl get cert
+kubectl apply -f .
+## Should be True 
+kubectl get clusterissuer 
 ```
 
 
-### Schritt 4: Ingress-Objekt mit TLS erstellen 
+### Schritt 3: Ingress-Objekt mit TLS erstellen 
 
 ```
 ## tls-ingress.yaml
@@ -5822,6 +8222,16 @@ spec:
             port:
               number: 80
 ```
+
+### Schritt 4: Herausfinden, ob Zertifikate erstellt werden 
+
+```
+kubectl describe certificate example-tls
+kubectl get cert
+```
+
+
+
 
 ```
 Schritt 5: Testen
@@ -6083,13 +8493,13 @@ helm create my-app
 
 ```
 ## Variante 1:
-helm -n my-app-<namenskuerzel> install my-app-release my-app --create-namespace 
+helm -n my-app-<namenskuerzel> install meine-app my-app --create-namespace 
 ```
 
 ```
 ## Variante 2:
 cd my-app
-helm -n my-app-<namenskuerzel> install my-app-release . --create-namespace 
+helm -n my-app-<namenskuerzel> install meine-app . --create-namespace 
 ```
 
 ```
@@ -6718,10 +9128,12 @@ ein einfaches Interface, um einen ersten Eindruck über die Auslastung zu bekomm
 
 ```
 helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
-helm -n kube-system upgrade --install metrics-server metrics-server/metrics-server --version 3.12.2
+helm -n kube-system upgrade --install metrics-server metrics-server/metrics-server --version 3.13.0
+```
 
 
 
+```
 ## Es dauert jetzt einen Moment bis dieser aktiv ist auch nach der Installation 
 ## Auf dem Client
 kubectl top nodes 
@@ -9832,10 +12244,6 @@ So there are other tools/distri around helping you with that.
     (variety of shapes and forms (e.g. single-node, multi-node, HA, self-hosted))
   * Most manual way to create and manage a cluster 
 
-#### Disadvantages 
-
-  * Zusatzkomponenten (bspw. metallb - LoadBalancer)  sind oftmals etwas schwieriger instalieren ( inkl. microk8s enable )
-
 ### microk8s 
 
 #### General
@@ -10515,6 +12923,12 @@ kubectl get pod/nginx-static-web -o yaml
 
 ```
 
+### Aufräumen 
+
+```
+kubectl delete -f .
+```
+
 ### kubectl/manifest/replicaset
 
 
@@ -10557,6 +12971,8 @@ spec:
 ```
 kubectl apply -f .
 kubectl get all
+kubectl get pods -l tier=frontend
+kubectl get pods --show-labels 
 ## name anpassen
 kubectl describe pod/nginx-replica-set-lpkbs
 ```
@@ -10582,7 +12998,7 @@ nano rs.yml
 ```
 
 ```
-## Ändern 
+## Ändern
 ## replicas: 5
 ## -> ändern in
 ## replicas: 8
@@ -10592,6 +13008,13 @@ nano rs.yml
 kubectl apply -f .
 kubectl get pods
 ```
+
+
+### Aufräumen des replicasets 
+
+```
+kubectl delete -f .
+``` 
 
 ### kubectl/manifest/deployments
 
@@ -10625,9 +13048,9 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.22
+        image: nginxinc/nginx-unprivileged:1.28
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         
 ```
 
@@ -10651,7 +13074,7 @@ nano nginx-deployment.yml
 #### Version 1: (optical nicer)
 
 ```
-## Ändern des images von nginx:1.22 in nginx:1.23
+## Ändern des images von nginxinc/nginx-unprivileged:1.28 -> auf 1.29
 ## danach 
 kubectl apply -f . && watch kubectl get pods 
 ```
@@ -10659,7 +13082,7 @@ kubectl apply -f . && watch kubectl get pods
 #### Version 2: 
 
 ```
-## Ändern des images von nginx:1.22 in nginx:1.23
+## Ändern des images von nginxinc/nginx-unprivileged:1.28 -> auf 1.29
 ## danach 
 kubectl apply -f .
 kubectl get all 
@@ -10672,7 +13095,7 @@ kubectl get pods -w
 
 ### Warum Services ? 
 
-  * Wenn in einem Deployment bei einem Wechsel des images neue Pods erstellen, erhalten diese neue IP-Adresse
+  * Wenn in einem Deployment bei einem Wechsel des images neue Pods erstellt werden, erhalten diese eine neue IP-Adresse
   * Nachteil: Man müsste diese dann in allen Applikation ständig ändern, die auf die Pods zugreifen.
   * Lösung: Wir schalten einen Service davor !
 
@@ -10771,7 +13194,7 @@ kubectl describe svc svc-nginx
 ```
 
 
-### Example II : Short version 
+### Example II : Short version (NodePort)
 
 ```
 ## Wo sind wir ?
@@ -13369,10 +15792,12 @@ ein einfaches Interface, um einen ersten Eindruck über die Auslastung zu bekomm
 
 ```
 helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
-helm -n kube-system upgrade --install metrics-server metrics-server/metrics-server --version 3.12.2
+helm -n kube-system upgrade --install metrics-server metrics-server/metrics-server --version 3.13.0
+```
 
 
 
+```
 ## Es dauert jetzt einen Moment bis dieser aktiv ist auch nach der Installation 
 ## Auf dem Client
 kubectl top nodes 
