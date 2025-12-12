@@ -1,4 +1,4 @@
-# Start pod with2out capabilities 
+# Start pod without capabilities 
 
 ## Walkthrough 
 
