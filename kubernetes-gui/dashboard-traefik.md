@@ -105,7 +105,7 @@ app:
     enabled: true
     ingressClassName: traefik
     hosts:
-      - dashboard.do.t3isp.de
+      - dashboard.app.do.t3isp.de
     tls:
       enabled: true
       secretName: dashboard-tls
@@ -113,15 +113,6 @@ app:
       cert-manager.io/cluster-issuer: letsencrypt-prod
       traefik.ingress.kubernetes.io/router.middlewares: kubernetes-dashboard-dashboard-auth@kubernetescrd
 
-# Neuere Chart-Versionen
-extras:
-  - |
-    apiVersion: v1
-    kind: ConfigMap
-    metadata:
-      name: kubernetes-dashboard-settings
-    data:
-      settings: '{"skipLoginPage":true}'
 
 serviceAccount:
   create: true
