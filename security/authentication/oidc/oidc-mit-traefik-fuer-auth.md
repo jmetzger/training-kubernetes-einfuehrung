@@ -125,3 +125,15 @@ In Keycloak (oder anderem OIDC Provider):
 ```bash
 python -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(32)).decode())'
 ```
+
+## Alternativ: Statt eigenen Pod als auth2-middleware möglich direkt in Traefik 
+
+  * über die plugins beim Installieren des Helm-Charts
+  * https://artifacthub.io/packages/helm/traefik/traefik
+  * Plugin-Catalog: https://artifacthub.io/packages/helm/traefik/traefik
+  * Man kann z.B. verwenden:
+    * https://plugins.traefik.io/plugins/6613338ea28c508f411a44d5/traefik-oidc
+
+```
+experimental.plugins
+```
