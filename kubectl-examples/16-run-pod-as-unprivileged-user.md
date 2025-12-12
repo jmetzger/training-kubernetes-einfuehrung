@@ -53,7 +53,7 @@ kubectl logs nginx-unprivileged
 ```
 # in pod.yaml
 # Zeile image: nginx:1.25
-# in -> image: bitnami/nginx:1.25
+# in -> image: nginxinc/nginx-unprivileged:1.25
 # ändern
 ```
 
