@@ -39,7 +39,6 @@ kubectl get secrets
 ```
 helm get values my-mariadb
 helm get manifest my-mariadb
-helm get manifest my-mariadb | grep "300Mi" -A4 -B4
 # Zeige alle Kinds an 
 helm get manifest my-mariadb | grep -i -A 4 kind  
 # Can I see all values use -> YES
