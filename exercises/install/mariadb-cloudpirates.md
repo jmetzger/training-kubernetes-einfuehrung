@@ -104,6 +104,10 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 
 ```
 kubectl get pods
+kubectl describe pods my-mariadb-0
+helm list
+helm history my-mariadb
+helm get values my-mariadb  
 ```
 
 ## Schritt 4.3 Weiteres der Chart - Version 
