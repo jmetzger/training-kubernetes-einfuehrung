@@ -17,10 +17,45 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 kubectl get pods
 ```
 
+### Schritt 2: Umschauen 
 
-## Schritt 2: Exercise: Upgrade to new version 
+```
+kubectl get pods
+helm status my-mariadb 
+helm list
+# alle helm charts anzeigen, die im gesamten Cluster installierst wurden 
+helm list -A
+helm history my-mariadb 
+```
 
-### Schritt 2.1 Default values (auf terminal) ausfindig machen 
+### Schritt 3: Umschauen get 
+
+```
+# Wo speichert er Information, die er später mit helm get abruft
+kubectl get secrets
+```
+
+
+```
+helm get values my-mariadb
+helm get manifest my-mariadb
+helm get manifest my-mariadb | grep "300Mi" -A4 -B4 
+# Can I see all values use -> YES
+# Look for COMPUTED VALUES in get all ->
+helm get all my-mariadb 
+```
+
+```
+# Hack COMPUTED VALUES anzeigen lassen
+# Welche Werte (values) hat er zur Installation verwendet
+helm get all my-mariadb | grep -i computed -A 200
+
+```
+
+
+## Schritt 3: Exercise: Upgrade to new version 
+
+### Schritt 3.1 Default values (auf terminal) ausfindig machen 
 
 ```
 # Recherchiere wie die Werte gesetzt werden (artifacthub.io) oder verwende die folgenden Befehle:
@@ -28,7 +63,7 @@ helm show values oci://registry-1.docker.io/cloudpirates/mariadb
 helm show values oci://registry-1.docker.io/cloudpirates/mariadb | less
 ```
 
-### Schritt 2.2 Upgrade und resources ändern 
+### Schritt 3.2 Upgrade und resources ändern 
 
 
 ```
@@ -68,41 +103,6 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 
 ```
 kubectl get pods
-```
-
-### Umschauen 
-
-```
-kubectl get pods
-helm status my-mariadb 
-helm list
-# alle helm charts anzeigen, die im gesamten Cluster installierst wurden 
-helm list -A
-helm history my-mariadb 
-```
-
-### Umschauen get 
-
-```
-# Wo speichert er Information, die er später mit helm get abruft
-kubectl get secrets
-```
-
-
-```
-helm get values my-mariadb
-helm get manifest my-mariadb
-helm get manifest my-mariadb | grep "300Mi" -A4 -B4 
-# Can I see all values use -> YES
-# Look for COMPUTED VALUES in get all ->
-helm get all my-mariadb 
-```
-
-```
-# Hack COMPUTED VALUES anzeigen lassen
-# Welche Werte (values) hat er zur Installation verwendet
-helm get all my-mariadb | grep -i computed -A 200
-
 ```
 
 ## Tipp: values aus alter revision anzeigen 
