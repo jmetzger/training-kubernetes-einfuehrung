@@ -22,6 +22,10 @@ So there are other tools/distri around helping you with that.
 
 ## microk8s 
 
+### Prerequisites:
+
+  * at least 4 GB of ram per maschine 
+
 ### General
 
   * Created by Canonical (Ubuntu)
