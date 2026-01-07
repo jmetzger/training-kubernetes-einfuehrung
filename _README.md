@@ -111,6 +111,8 @@
 
   1. Security
      * [ServiceLinks nicht in env in Pod einbinden](#servicelinks-nicht-in-env-in-pod-einbinden)
+     * [Pod with unprivilged user](#pod-with-unprivilged-user)
+     * [Pod ohne capabilities starten. Funktioniert !](#pod-ohne-capabilities-starten-funktioniert-!)
 
   1. Helm (Kubernetes Paketmanager)
      * [Helm - Was kann Helm](#helm---was-kann-helm)
@@ -828,6 +830,10 @@ So there are other tools/distri around helping you with that.
   * Most manual way to create and manage a cluster 
 
 ### microk8s 
+
+#### Prerequisites:
+
+  * at least 4 GB of ram per maschine 
 
 #### General
 
@@ -3825,7 +3831,7 @@ kubectl exec deployment/mariadb-deployment -- env
 
   * If configmap changes, deployment does not know
   * So kubectl apply -f deploy.yml will not have any effect
-  * to fix, use stakater/reloader: https://github.com/stakater/Relo
+  * to fix, use stakater/reloader: [Stakater reloader](https://github.com/stakater/Reloader)
 
 ### Connect to external database
 
@@ -4851,7 +4857,7 @@ This annotation allows to return a permanent redirect instead of sending data to
 ```
 helm repo add traefik https://traefik.github.io/charts
 
-helm upgrade -n ingress --install traefik traefik/traefik --version 37.4.0 --create-namespace --skip-crds --reset-values
+helm upgrade -n ingress --install traefik traefik/traefik --version 38.0.1 --create-namespace --skip-crds --reset-values
 
 ## Use special crds helm chart instead, because it does not deploy crds for gateway-api by default
 ## We get an error on digitalocean doks
@@ -5486,8 +5492,8 @@ kubectl describe svc nginx
 ### Schritt 1: Walkthrough - Client Installation (als root)
 
 ```
-curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.33.1/kubeseal-0.33.1-linux-amd64.tar.gz"
-tar -xvzf kubeseal-0.33.1-linux-amd64.tar.gz kubeseal
+curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.34.0/kubeseal-0.34.0-linux-amd64.tar.gz"
+tar -xvzf kubeseal-0.34.0-linux-amd64.tar.gz kubeseal
 sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 ```
 
@@ -5495,7 +5501,7 @@ sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 
 ```
 helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
-helm upgrade --install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.17.9 --reset-values 
+helm upgrade --install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.18.0 --reset-values 
 ```
 
 ### Schritt 3: Walkthrough - Verwendung (als normaler/unpriviligierter Nutzer)
@@ -5648,6 +5654,103 @@ spec:
         envFrom:
         - configMapRef:
             name: mariadb-configmap
+```
+
+### Pod with unprivilged user
+
+
+### Schritt 1:
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir -p unpriv
+cd unpriv
+```
+
+```
+nano pod.yaml
+```
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-unprivileged
+spec:
+  securityContext:
+    runAsUser: 1000  # Container läuft mit UID 1000 statt root
+  containers:
+    - name: nginx
+      image: nginx:1.25
+      ports:
+        - containerPort: 80
+```
+
+```
+kubectl apply -f .
+kubectl get pods
+```
+
+
+### Schritt 2: Debuggen 
+
+```
+## CrashLoopBackoff 
+kubectl get pods nginx-unprivileged 
+kubectl describe pods nginx-unprivileged
+```
+
+```
+## permission denied identifiziert 
+kubectl logs nginx-unprivileged
+```
+
+### Schritt 3: Lösung anderes image nehmen 
+
+```
+## in pod.yaml
+## Zeile image: nginx:1.25
+## in -> image: nginxinc/nginx-unprivileged:1.25
+## ändern
+```
+
+```
+kubectl apply -f .
+kubectl get pods
+```
+
+### Pod ohne capabilities starten. Funktioniert !
+
+
+### Walkthrough 
+
+```
+cd
+mkdir -p manifests/nocap
+cd manifests/nocap
+nano nocap-pod.yaml
+```
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nocap-nginx 
+spec:
+  containers:
+    - name: web
+      image: nginxinc/nginx-unprivileged:1.25 
+      securityContext:
+        capabilities:
+          drop:
+          - all
+```
+
+```
+kubectl apply -f . 
+kubectl get pods
 ```
 
 ## Helm (Kubernetes Paketmanager)
@@ -5899,12 +6002,12 @@ helm install my-wordpress -f values.yml bitnami/wordpress
 
 ```
 ## Mini-Step 1: Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.1 --dry-run
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run=client
 ```
 
 ```
 ## Mini-Step 2: Installieren 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.1 
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1
 ```
 
 ```
@@ -5989,12 +6092,12 @@ cd ..
 
 ```
 ## Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.3 --dry-run -f prod/values.yaml  
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 --dry-run -f prod/values.yaml  
 ```
 
 ```
 ## Real Upgrade
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.3 -f prod/values.yaml
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 -f prod/values.yaml
 ```
 
 ```
@@ -6009,12 +6112,12 @@ helm get values my-mariadb
 
 ```
 ## Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.9.0 --dry-run -f prod/values.yaml  
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 --dry-run -f prod/values.yaml  
 ```
 
 ```
 ## Real Upgrade
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.9.0 -f prod/values.yaml
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 -f prod/values.yaml
 ```
 
 ```
@@ -6043,7 +6146,7 @@ kubectl get pvc
 
 ```
 ## Real Upgrade
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.9.0 -f prod/values.yaml
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 -f prod/values.yaml
 ```
 
 ```
@@ -6427,7 +6530,7 @@ kubectl logs nginx-unprivileged
 ```
 ## in pod.yaml
 ## Zeile image: nginx:1.25
-## in -> image: bitnami/nginx:1.25
+## in -> image: nginxinc/nginx-unprivileged:1.25
 ## ändern
 ```
 
@@ -6524,7 +6627,7 @@ metadata:
   name: nfs-csi
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 10.135.0.70
+  server: 10.135.0.68
   share: /var/nfs
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -12245,6 +12348,10 @@ So there are other tools/distri around helping you with that.
   * Most manual way to create and manage a cluster 
 
 ### microk8s 
+
+#### Prerequisites:
+
+  * at least 4 GB of ram per maschine 
 
 #### General
 
