@@ -3,7 +3,7 @@
 ```
 helm repo add traefik https://traefik.github.io/charts
 
-helm upgrade -n ingress --install traefik traefik/traefik --version 37.4.0 --create-namespace --skip-crds --reset-values
+helm upgrade -n ingress --install traefik traefik/traefik --version 38.0.1 --create-namespace --skip-crds --reset-values
 
 # Use special crds helm chart instead, because it does not deploy crds for gateway-api by default
 # We get an error on digitalocean doks
