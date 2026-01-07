@@ -69,4 +69,4 @@ kubectl exec deployment/mariadb-deployment -- env
 
   * If configmap changes, deployment does not know
   * So kubectl apply -f deploy.yml will not have any effect
-  * to fix, use stakater/reloader: https://github.com/stakater/Relo
+  * to fix, use stakater/reloader: [Stakater reloader](https://github.com/stakater/Reloader)
