@@ -4,7 +4,7 @@
 
 ```
 # Mini-Step 1: Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run=client
 ```
 
 ```
