@@ -128,7 +128,7 @@ kubectl get nodes -o wide
 
 ```
 # im client Externe NodeIP und NodePort verwenden 
-curl http://164.92.193.245:30708
+curl http://164.92.193.245:32708
 ```
 
 ## Example II : Service with NodePort (long version)
