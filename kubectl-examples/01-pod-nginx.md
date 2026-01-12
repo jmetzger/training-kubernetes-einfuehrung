@@ -36,6 +36,8 @@ kubectl get pod/nginx-static-web -o wide
 kubectl describe pod nginx-static-web 
 # show config 
 kubectl get pod/nginx-static-web -o yaml
+# seitenweise anzeigen 
+kubectl get pod/nginx-static-web -o yaml | less 
 
 ```
 
