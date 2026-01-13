@@ -138,7 +138,7 @@ kind: Ingress
 metadata:
   name: example-ingress
 spec:
-  ingressClassName: traefik
+  ingressClassName: haproxy
   rules:
   - host: "<euername>.app.do.t3isp.de"
     http:
