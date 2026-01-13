@@ -89,7 +89,7 @@
      * [ingress mit traefik, letsencrypt und cert-manager](/ingress/https-letsencrypt-ingress-traefik.md)
 
   1. Kubernetes Ingress (HA Proxy)
-     * [Install HA Proxy-IngressController](/ingress/haproxy/install-with-helm.md)
+     * [Install HA Proxy-IngressController](/ingress/ha-proxy/install-with-helm.md)
      * [Ingress mit traefik](kubectl-examples/04-ingress-haproxy-with-hostnames-deployment.md)
   
   1. Kubernetes Praxis (Stateful Sets)
