@@ -1,4 +1,4 @@
-# Ingress Nginx mit Hostnamen/Domains
+# Ingress haproxy mit Hostnamen/Domains
 
 ## Step 1: Walkthrough 
 
