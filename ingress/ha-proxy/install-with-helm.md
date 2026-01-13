@@ -11,8 +11,9 @@ nano values.yaml
 ```
 
 ```
-service:
-   type: LoadBalancer
+controller:
+  service:
+     type: LoadBalancer
 ```
 
 ```
