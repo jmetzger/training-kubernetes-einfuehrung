@@ -88,6 +88,10 @@
      * [Ingress mit traefik](kubectl-examples/04-ingress-traefik-with-hostnames-deployment.md)
      * [ingress mit traefik, letsencrypt und cert-manager](/ingress/https-letsencrypt-ingress-traefik.md)
 
+  1. Kubernetes Ingress (HA Proxy)
+     * [Install HA Proxy-IngressController](/ingress/haproxy/install-with-helm.md)
+     * [Ingress mit traefik](kubectl-examples/04-ingress-haproxy-with-hostnames-deployment.md)
+  
   1. Kubernetes Praxis (Stateful Sets)
      * [Hintergrund statefulsets](/kubernetes/statefulsets.md)
      * [Example stateful set](/kubectl-examples/10-statefulset.md)
