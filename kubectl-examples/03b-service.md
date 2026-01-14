@@ -114,7 +114,7 @@ nano service.yml
 # ClusterIP ersetzt durch NodePort 
 
 kubectl apply -f .
-# NodePOrt ab 30.000 ausfindig machen
+# NodePort ab 30.000 ausfindig machen
 kubectl get svc
 ```
 
