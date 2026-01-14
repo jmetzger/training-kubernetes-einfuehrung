@@ -140,7 +140,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "<euername>.app.do.t3isp.de"
+  - host: "<euername>.appv1.do.t3isp.de"
     http:
       paths:
         - path: /apple
