@@ -1,4 +1,4 @@
-# Ingress Nginx mit Hostnamen/Domains
+# Ingress Traefik mit Hostnamen/Domains
 
 ## Step 1: Walkthrough 
 
