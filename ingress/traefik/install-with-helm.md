@@ -10,5 +10,5 @@ kubectl -n ingress get svc
 
 # Use special crds helm chart instead, because it does not deploy crds for gateway-api by default
 # We get an error on digitalocean doks
-helm -n ingress upgrade --install traefik-crds traefik/traefik-crds --version 1.12.0 --reset-values 
+helm -n ingress upgrade --install traefik-crds traefik/traefik-crds --version 1.13.1 --reset-values 
 ```
