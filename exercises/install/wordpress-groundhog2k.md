@@ -70,6 +70,11 @@ kubectl get pvc
 kubectl get ingress
 ```
 
+```
+# Im Browser
+http://wordpress-<euernamenskuerzel>.appv1.do.t3isp.de
+```
+
 ## Schritt 2: Umschauen 
 
 ```
