@@ -137,9 +137,9 @@ resources:
 # Ingress aktivieren
 ingress:
   enabled: true
-  className: nginx
+  className: traefik
   hosts:
-    - host: wordpress.training.local
+    - host: wordpress-<dein-namenskuerzel>.appv1.do.t3isp.de
       paths:
         - path: /
           pathType: Prefix
