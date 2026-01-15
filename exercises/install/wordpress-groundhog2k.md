@@ -23,9 +23,9 @@ nano values.yaml
 # Ingress aktivieren
 ingress:
   enabled: true
-  className: nginx
+  className: traefik
   hosts:
-    - host: wordpress.training.local
+    - host: wordpress-<euernamenskuerzel>.appv1.do.t3isp.de
       paths:
         - path: /
           pathType: Prefix
