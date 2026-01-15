@@ -124,8 +124,8 @@
      * [Helm Warum ?](/helm/warum.md)
      * [Helm Example](/helm/example.md)
      * [Installation, Upgrade, Uninstall helm-Chart exercise - simple (mariadb-cloudpirates)](exercises/install/mariadb-cloudpirates.md)
+     * [Installation, Upgrade, Uninstall helm-Chart exercise (wordpress-groundhog2k)](exercises/install/wordpress-groundhog2k.md)
      * [Helm Exercise with nginx](/helm/exercise-nginx.md)
-     * [Helm Exercise with wordpress (groundhog2k)](/helm/exercise-wordpress-groundhog2k.md)
      * [Helm Spickzettel](/helm/spickzettel.md)
     
   1. Helm Charts erstellen und analysieren
