@@ -9,24 +9,73 @@ helm repo update
 ```
 
 ```
+# Verzeichnisstruktur anlegen
+cd 
+mkdir -p wordpress-values/prod
+cd wordpress-values/prod
+```
+
+```
+nano values.yaml
+```
+
+```yaml
+# Ingress aktivieren
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: wordpress.training.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+# WordPress Storage (persistent)
+storage:
+  requestedSize: 10Gi
+  accessModes:
+    - ReadWriteOnce
+
+# MariaDB Subchart
+mariadb:
+  enabled: true
+  settings:
+    rootPassword: geheim123
+  userDatabase:
+    name: wordpress
+    user: wpuser
+    password: wppass123
+  storage:
+    requestedSize: 8Gi
+```
+
+```
+cd ..
+```
+
+```
 # Mini-Step 1: Testen 
-helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.3 --dry-run=client
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.3 --dry-run=client -f prod/values.yaml
 ```
 
 ```
 # Mini-Step 2: Installieren 
-helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.3
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.3 -f prod/values.yaml
 ```
 
 ```
 # Geht das denn auch ?
 kubectl get pods
+kubectl get pvc
+kubectl get ingress
 ```
 
 ## Schritt 2: Umschauen 
 
 ```
 kubectl get pods
+kubectl get pvc
+kubectl get ingress
 helm status my-wordpress 
 helm list
 # alle helm charts anzeigen, die im gesamten Cluster installierst wurden 
@@ -70,18 +119,14 @@ helm show values groundhog2k/wordpress | less
 ### Schritt 4.2 Upgrade und resources ändern 
 
 ```
-cd 
-mkdir -p wordpress-values 
-cd wordpress-values
-mkdir prod
-cd prod
-```
-
-```
+cd ~/wordpress-values/prod
 nano values.yaml
 ```
 
+Ergänze die resources:
+
 ```yaml
+# Resources für WordPress
 resources:
   limits:
     memory: 512Mi
@@ -89,7 +134,23 @@ resources:
     memory: 256Mi
     cpu: 100m
 
-# MariaDB Subchart Konfiguration
+# Ingress aktivieren
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: wordpress.training.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+# WordPress Storage (persistent)
+storage:
+  requestedSize: 10Gi
+  accessModes:
+    - ReadWriteOnce
+
+# MariaDB Subchart
 mariadb:
   enabled: true
   settings:
