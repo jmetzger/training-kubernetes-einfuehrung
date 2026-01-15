@@ -88,6 +88,10 @@
      * [Ingress mit traefik](#ingress-mit-traefik)
      * [ingress mit traefik, letsencrypt und cert-manager](#ingress-mit-traefik-letsencrypt-und-cert-manager)
 
+  1. Kubernetes Ingress (HA Proxy)
+     * [Install HA Proxy-IngressController](#install-ha-proxy-ingresscontroller)
+     * [Ingress mit ha proxy](#ingress-mit-ha-proxy)
+  
   1. Kubernetes Praxis (Stateful Sets)
      * [Hintergrund statefulsets](#hintergrund-statefulsets)
      * [Example stateful set](#example-stateful-set)
@@ -120,6 +124,7 @@
      * [Helm Warum ?](#helm-warum-)
      * [Helm Example](#helm-example)
      * [Installation, Upgrade, Uninstall helm-Chart exercise - simple (mariadb-cloudpirates)](#installation-upgrade-uninstall-helm-chart-exercise---simple-mariadb-cloudpirates)
+     * [Installation, Upgrade, Uninstall helm-Chart exercise (wordpress-groundhog2k)](#installation-upgrade-uninstall-helm-chart-exercise-wordpress-groundhog2k)
      * [Helm Exercise with nginx](#helm-exercise-with-nginx)
      * [Helm Spickzettel](#helm-spickzettel)
     
@@ -670,7 +675,7 @@ The performance check's workload model. Accepted workloads: s(small), m(medium),
 ### Wozu dient Kubernetes 
 
   * Orchestrierung von Containern
-  * am gebräuchlisten aktuell Docker -Images 
+  * am gebräuchlichsten aktuell Docker -Images 
 
 ### Aufbau Allgemein
 
@@ -3027,6 +3032,8 @@ kubectl get pod/nginx-static-web -o wide
 kubectl describe pod nginx-static-web 
 ## show config 
 kubectl get pod/nginx-static-web -o yaml
+## seitenweise anzeigen 
+kubectl get pod/nginx-static-web -o yaml | less 
 
 ```
 
@@ -3357,7 +3364,7 @@ nano service.yml
 ## ClusterIP ersetzt durch NodePort 
 
 kubectl apply -f .
-## NodePOrt ab 30.000 ausfindig machen
+## NodePort ab 30.000 ausfindig machen
 kubectl get svc
 ```
 
@@ -3371,7 +3378,7 @@ kubectl get nodes -o wide
 
 ```
 ## im client Externe NodeIP und NodePort verwenden 
-curl http://164.92.193.245:30280
+curl http://164.92.193.245:32708
 ```
 
 ### Example II : Service with NodePort (long version)
@@ -4857,11 +4864,14 @@ This annotation allows to return a permanent redirect instead of sending data to
 ```
 helm repo add traefik https://traefik.github.io/charts
 
-helm upgrade -n ingress --install traefik traefik/traefik --version 38.0.1 --create-namespace --skip-crds --reset-values
+helm upgrade -n ingress --install traefik traefik/traefik --version 38.0.2 --create-namespace --skip-crds --reset-values
+
+kubectl -n ingress get pods
+kubectl -n ingress get svc  
 
 ## Use special crds helm chart instead, because it does not deploy crds for gateway-api by default
 ## We get an error on digitalocean doks
-helm -n ingress upgrade --install traefik-crds traefik/traefik-crds --version 1.12.0 --reset-values 
+helm -n ingress upgrade --install traefik-crds traefik/traefik-crds --version 1.13.1 --reset-values 
 ```
 
 ### Ingress mit traefik
@@ -5006,6 +5016,450 @@ metadata:
   name: example-ingress
 spec:
   ingressClassName: traefik
+  rules:
+  - host: "<euername>.appv1.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          backend:
+            serviceName: apple-service
+            servicePort: 80
+        - path: /banana
+          backend:
+            serviceName: banana-service
+            servicePort: 80
+```
+
+```
+## ingress 
+kubectl apply -f ingress.yml
+```
+
+### Reference 
+
+  * https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+
+### Step 4: Find the problem 
+
+#### Fix 4.1: Fehler: no matches kind "Ingress" in version "extensions/v1beta1"
+
+```
+## Gibt es diese Landkarte überhaupt
+kubectl api-versions
+## auf welcher Landkarte/Gruppe befindet sich Ingress jetzt 
+kubectl explain ingress | head
+## -> jetzt auf networking.k8s.io/v1 
+
+```
+
+```
+nano ingress.yml
+```
+
+```
+## auf apiVersion: extensions/v1beta1
+## wird -> networking.k8s.io/v1
+```
+
+```
+kubectl apply -f .
+```
+
+#### Fix 4.2: Bad Request unkown field ServiceName / ServicePort 
+
+
+```
+## was geht für die Property backend 
+kubectl explain ingress.spec.rules.http.paths.backend
+## und was geht für service
+kubectl explain ingress.spec.rules.http.paths.backend.service
+```
+
+```
+nano ingress.yml
+```
+
+```
+## Wir ersetzen 
+## serviceName: apple-service 
+## durch:
+## service: 
+##   name: apple-service 
+
+## das gleiche für banana 
+```
+
+```
+kubectl apply -f . 
+```
+
+
+#### Fix 4.3. BadRequest unknown field servicePort
+
+```
+## was geht für die Property backend 
+kubectl explain ingress.spec.rules.http.paths.backend
+## und was geht für service
+kubectl explain ingress.spec.rules.http.paths.backend.service.port
+## number 
+kubectl explain ingress.spec.rules.http.paths.backend.service.port
+```
+
+```
+## neue Variante sieht so aus
+backend:
+  service:
+    name: apple-service
+    port:
+      number: 80
+## das gleich für banana-service
+```
+
+```
+kubectl apply -f .
+```
+
+
+#### Fix 4.4. pathType must be specificied 
+
+```
+## Was macht das ?
+kubectl explain ingress.spec.rules.http.paths.pathType
+```
+
+```
+      paths:
+        - path: /apple
+          pathType: Prefix
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+        - path: /banana
+          pathType: Exact 
+          backend:
+            service:
+              name: banana-service
+              port:
+                number: 80                
+```
+
+```
+kubectl apply -f .
+kubectl get ingress example-ingress
+```
+
+
+### Step 5: Testing 
+
+```
+## mit describe herausfinden, ob er die services gefundet 
+kubectl describe ingress example-ingress
+```
+
+```
+## Im Browser auf:
+## hier euer Name 
+http://jochen.appv1.do.t3isp.de/apple
+http://jochen.appv1.do.t3isp.de/apple/
+http://jochen.appv1.do.t3isp.de/apple/foo 
+http://jochen.appv1.do.t3isp.de/banana
+## geht nicht 
+http://jochen.appv1.do.t3isp.de/banana/nix
+```
+
+### ingress mit traefik, letsencrypt und cert-manager
+
+
+### Schritt 1: cert-manager installieren 
+
+```
+helm repo add jetstack https://charts.jetstack.io
+helm upgrade --install cert-manager jetstack/cert-manager \
+--namespace cert-manager --create-namespace \
+--version v1.19.2 \
+--set crds.enabled=true \
+--reset-values
+```
+
+  * Ref: https://artifacthub.io/packages/helm/cert-manager/cert-manager
+
+### Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
+
+```
+cd
+mkdir -p manifests/cert-manager
+cd manifests/cert-manager
+nano cluster-issuer.yaml
+```
+
+
+
+```
+## cluster-issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # Email-Adresse ändern - example.com ist nicht erlaubt 
+    email: your-email@example.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: traefik
+```
+
+```
+kubectl apply -f .
+## Should be True 
+kubectl get clusterissuer 
+```
+
+
+### Schritt 3: Ingress-Objekt mit TLS erstellen 
+
+```
+nano example-ingress.yaml
+```
+
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - <dein-name>.app.do.t3isp.de
+    secretName: example-tls
+
+  rules:
+  - host: "<dein-name>.app.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          pathType: Prefix
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+        - path: /banana
+          pathType: Exact
+          backend:
+            service:
+              name: banana-service
+              port:
+                number: 80
+```
+
+```
+kubectl apply -f .
+```
+
+ * Interessent, der cert-manager erstellt kurz ein Ingress - Objekt
+
+<img width="1057" height="172" alt="image" src="https://github.com/user-attachments/assets/54dce6f5-9d53-4ce4-ac79-dcfe095f77b5" />
+
+### Schritt 4: Herausfinden, ob Zertifikate erstellt werden 
+
+```
+kubectl describe certificate example-tls
+kubectl get cert
+## Certificate Request 
+kubectl get cr
+## da ist das Zertfikat drin 
+kubectl get secret example-tls 
+```
+
+### Schritt 5: Testen
+
+### Ref: 
+
+  * https://hbayraktar.medium.com/installing-cert-manager-and-nginx-ingress-with-lets-encrypt-on-kubernetes-fe0dff4b1924
+
+## Kubernetes Ingress (HA Proxy)
+
+### Install HA Proxy-IngressController
+
+
+```
+cd 
+mkdir -p helm-values/ingress-haproxy
+cd helm-values/ingress-haproxy
+```
+
+```
+nano values.yaml
+```
+
+```
+controller:
+  service:
+     type: LoadBalancer
+```
+
+```
+helm repo add haproxytech https://haproxytech.github.io/helm-charts
+helm upgrade -n ingress-haproxy --install ingress-haproxy haproxytech/kubernetes-ingress --version 1.47.4 --reset-values -f values.yaml  
+```
+
+
+### Ref:
+
+  * https://artifacthub.io/packages/helm/haproxytech/kubernetes-ingress
+
+### Ingress mit ha proxy
+
+
+### Step 1: Walkthrough 
+
+```
+cd
+mkdir -p manifests 
+cd manifests
+mkdir abi 
+cd abi
+```
+
+```
+nano apple-deploy.yml 
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apple-app
+  labels:
+    app: apple
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apple
+  template:
+    metadata:
+      labels:
+        app: apple
+    spec:
+      containers:
+        - name: apple-app
+          image: hashicorp/http-echo
+          args:
+            - "-text=apple-<euer-name>"
+```
+
+```
+nano apple-svc.yaml
+```
+
+
+```
+kind: Service
+apiVersion: v1
+metadata:
+  name: apple-service
+spec:
+  type: ClusterIP
+  selector:
+    app: apple
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5678 # Default port for image
+```
+
+```
+kubectl apply -f .
+```
+
+```
+nano banana-deploy.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banana-app
+  labels:
+    app: banana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: banana
+  template:
+    metadata:
+      labels:
+        app: banana
+    spec:
+      containers:
+        - name: apple-app
+          image: hashicorp/http-echo
+          args:
+            - "-text=banana-<euer-name>"
+```
+
+```
+nano banana-svc.yaml
+```
+
+```
+kind: Service
+apiVersion: v1
+metadata:
+  name: banana-service
+spec:
+  type: ClusterIP
+  selector:
+    app: banana
+  ports:
+    - port: 80
+      targetPort: 5678 # Default port for image
+```
+
+```
+kubectl apply -f .
+```
+
+### Step 2: Testing connection by podIP and Service 
+
+```
+kubectl get svc
+kubectl get pods -o wide
+kubectl run podtest --rm -it --image busybox
+```
+
+```
+/ # wget -O - http://<pod-ip>:5678 
+/ # wget -O - http://<cluster-ip>
+```
+
+### Step 3: Walkthrough 
+
+```
+nano ingress.yml
+```
+
+```
+## Ingress
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: example-ingress
+spec:
+  ingressClassName: haproxy
   rules:
   - host: "<euername>.app.do.t3isp.de"
     http:
@@ -5158,124 +5612,6 @@ http://jochen.app.do.t3isp.de/banana
 ## geht nicht 
 http://jochen.app.do.t3isp.de/banana/nix
 ```
-
-### ingress mit traefik, letsencrypt und cert-manager
-
-
-### Schritt 1: cert-manager installieren 
-
-```
-helm repo add jetstack https://charts.jetstack.io
-helm upgrade --install cert-manager jetstack/cert-manager \
---namespace cert-manager --create-namespace \
---version v1.19.2 \
---set crds.enabled=true \
---reset-values
-```
-
-  * Ref: https://artifacthub.io/packages/helm/cert-manager/cert-manager
-
-### Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
-
-```
-cd
-mkdir -p manifests/cert-manager
-cd manifests/cert-manager
-nano cluster-issuer.yaml
-```
-
-
-
-```
-## cluster-issuer.yaml
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: letsencrypt-prod
-spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    # Email-Adresse ändern - example.com ist nicht erlaubt 
-    email: your-email@example.com
-    privateKeySecretRef:
-      name: letsencrypt-prod
-    solvers:
-    - http01:
-        ingress:
-          class: traefik
-```
-
-```
-kubectl apply -f .
-## Should be True 
-kubectl get clusterissuer 
-```
-
-
-### Schritt 3: Ingress-Objekt mit TLS erstellen 
-
-```
-nano example-ingress.yaml
-```
-
-```
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: example-ingress
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-spec:
-  ingressClassName: traefik
-  tls:
-  - hosts:
-    - <dein-name>.app.do.t3isp.de
-    secretName: example-tls
-
-  rules:
-  - host: "<dein-name>.app.do.t3isp.de"
-    http:
-      paths:
-        - path: /apple
-          pathType: Prefix
-          backend:
-            service:
-              name: apple-service
-              port:
-                number: 80
-        - path: /banana
-          pathType: Exact
-          backend:
-            service:
-              name: banana-service
-              port:
-                number: 80
-```
-
-```
-kubectl apply -f .
-```
-
- * Interessent, der cert-manager erstellt kurz ein Ingress - Objekt
-
-<img width="1057" height="172" alt="image" src="https://github.com/user-attachments/assets/54dce6f5-9d53-4ce4-ac79-dcfe095f77b5" />
-
-### Schritt 4: Herausfinden, ob Zertifikate erstellt werden 
-
-```
-kubectl describe certificate example-tls
-kubectl get cert
-## Certificate Request 
-kubectl get cr
-## da ist das Zertfikat drin 
-kubectl get secret example-tls 
-```
-
-### Schritt 5: Testen
-
-### Ref: 
-
-  * https://hbayraktar.medium.com/installing-cert-manager-and-nginx-ingress-with-lets-encrypt-on-kubernetes-fe0dff4b1924
 
 ## Kubernetes Praxis (Stateful Sets)
 
@@ -6177,6 +6513,291 @@ kubectl delete ns app-<namenskuerzel>
   * How to fix. Use memory limit in the application too !
     * https://techcommunity.microsoft.com/blog/appsonazureblog/unleashing-javascript-applications-a-guide-to-boosting-memory-limits-in-node-js/4080857
 
+### Installation, Upgrade, Uninstall helm-Chart exercise (wordpress-groundhog2k)
+
+
+### Schritt 1: install wordpress von groundhog2k  
+
+```
+## Repo hinzufügen (einmalig)
+helm repo add groundhog2k https://groundhog2k.github.io/helm-charts/
+helm repo update
+```
+
+```
+## Verzeichnisstruktur anlegen
+cd 
+mkdir -p wordpress-values/prod
+cd wordpress-values/prod
+```
+
+```
+nano values.yaml
+```
+
+```yaml
+## Ingress aktivieren
+ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - host: wordpress-<euernamenskuerzel>.appv1.do.t3isp.de
+      paths:
+        - path: /
+          pathType: Prefix
+
+## WordPress Storage (persistent)
+storage:
+  requestedSize: 10Gi
+  accessModes:
+    - ReadWriteOnce
+
+## MariaDB Subchart
+mariadb:
+  enabled: true
+  settings:
+    rootPassword: geheim123
+  userDatabase:
+    name: wordpress
+    user: wpuser
+    password: wppass123
+  storage:
+    requestedSize: 8Gi
+```
+
+```
+cd ..
+```
+
+```
+## Mini-Step 1: Testen 
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.3 --dry-run=client -f prod/values.yaml
+```
+
+```
+## Mini-Step 2: Installieren 
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.3 -f prod/values.yaml
+```
+
+```
+## Geht das denn auch ?
+kubectl get pods
+kubectl get pvc
+kubectl get ingress
+```
+
+```
+## Im Browser
+http://wordpress-<euernamenskuerzel>.appv1.do.t3isp.de
+```
+
+### Schritt 2: Umschauen 
+
+```
+kubectl get pods
+kubectl get pvc
+kubectl get ingress
+helm status my-wordpress 
+helm list
+## alle helm charts anzeigen, die im gesamten Cluster installierst wurden 
+helm list -A
+helm history my-wordpress 
+```
+
+### Schritt 3: Umschauen get 
+
+```
+## Wo speichert er Information, die er später mit helm get abruft
+kubectl get secrets
+```
+
+```
+helm get values my-wordpress
+helm get manifest my-wordpress
+## Zeige alle Kinds an 
+helm get manifest my-wordpress | grep -i -A 4 kind  
+## Can I see all values use -> YES
+## Look for COMPUTED VALUES in get all ->
+helm get all my-wordpress 
+```
+
+```
+## Hack COMPUTED VALUES anzeigen lassen
+## Welche Werte (values) hat er zur Installation verwendet
+helm get all my-wordpress | grep -i computed -A 200
+```
+
+### Schritt 4: Exercise: Upgrade to new version 
+
+#### Schritt 4.1 Default values (auf terminal) ausfindig machen 
+
+```
+## Recherchiere wie die Werte gesetzt werden (artifacthub.io) oder verwende die folgenden Befehle:
+helm show values groundhog2k/wordpress
+helm show values groundhog2k/wordpress | less
+```
+
+#### Schritt 4.2 Upgrade und resources ändern 
+
+```
+cd ~/wordpress-values/prod
+nano values.yaml
+```
+
+Ergänze die resources:
+
+```yaml
+## Resources für WordPress
+resources:
+  limits:
+    memory: 512Mi
+  requests:
+    memory: 256Mi
+    cpu: 100m
+
+## Ingress aktivieren
+ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - host: wordpress-<dein-namenskuerzel>.appv1.do.t3isp.de
+      paths:
+        - path: /
+          pathType: Prefix
+
+## WordPress Storage (persistent)
+storage:
+  requestedSize: 10Gi
+  accessModes:
+    - ReadWriteOnce
+
+## MariaDB Subchart
+mariadb:
+  enabled: true
+  settings:
+    rootPassword: geheim123
+  userDatabase:
+    name: wordpress
+    user: wpuser
+    password: wppass123
+  storage:
+    requestedSize: 8Gi
+  resources:
+    limits:
+      memory: 300Mi
+    requests:
+      memory: 200Mi
+      cpu: 100m
+```
+
+```
+cd ..
+```
+
+```
+## Testen 
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.4 --dry-run -f prod/values.yaml  
+```
+
+```
+## Real Upgrade
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.4 -f prod/values.yaml
+```
+
+```
+kubectl get pods
+kubectl describe pods my-wordpress-0
+helm list
+helm history my-wordpress
+helm get values my-wordpress  
+```
+
+### Schritt 4.3 Weiteres Update der Chart - Version
+
+```
+## Testen 
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.5 --dry-run -f prod/values.yaml  
+```
+
+```
+## Real Upgrade
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.5 -f prod/values.yaml
+```
+
+```
+## Schlägt fehl, weil mit dem apply bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
+```
+
+#### Lösung 
+
+  * Deinstallieren (pvc bleibt erhalten auch beim Deinstallieren -> so macht das helm)
+  * Und wieder installieren in der neuen Version 
+
+```
+## Frage, ist das pvc noch ?
+kubectl get pvc
+## Ja ! 
+```
+
+```
+helm uninstall my-wordpress
+kubectl get pvc 
+## auch nach der Deinstallation ist der pvc noch da
+## Super !! 
+```
+
+```
+## Real Upgrade
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.5 -f prod/values.yaml
+```
+
+```
+kubectl get pods
+```
+
+### Tipp: values aus alter revision anzeigen 
+
+```
+## Beispiel: 
+helm get values my-wordpress --revision 1
+```
+
+#### Uninstall 
+
+```
+helm uninstall my-wordpress 
+## namespace wird nicht gelöscht
+## händisch löschen
+kubectl delete ns app-<namenskuerzel>
+## crd's werden auch nicht gelöscht 
+```
+
+### Problem: OutOfMemory (OOM-Killer) if container passes limit in memory 
+
+  * if memory of container is bigger than limit an OOM-Killer will be triggered
+  * How to fix: Use memory limit in the application too!
+    * PHP memory_limit in WordPress konfigurieren
+    * https://techcommunity.microsoft.com/blog/appsonazureblog/unleashing-javascript-applications-a-guide-to-boosting-memory-limits-in-node-js/4080857
+
+### Hinweis: Externe Datenbank verwenden (optional)
+
+Falls du eine externe MariaDB/MySQL verwenden möchtest statt dem integrierten Subchart:
+
+```
+nano values.yaml
+```
+
+```yaml
+mariadb:
+  enabled: false
+
+externalDatabase:
+  name: wordpress
+  user: wpuser
+  password: wppass123
+  host: my-external-db
+```
+
 ### Helm Exercise with nginx
 
 
@@ -6606,7 +7227,7 @@ The main difference relies on the moment when you want to configure storage. For
 
 ```
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
-helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version v4.12.1 --reset-values 
+helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version 4.12.1 --reset-values 
 ```
 
 ### Step 2: Storage Class 
@@ -6627,7 +7248,7 @@ metadata:
   name: nfs-csi
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 10.135.0.68
+  server: 10.135.0.8
   share: /var/nfs
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -13027,6 +13648,8 @@ kubectl get pod/nginx-static-web -o wide
 kubectl describe pod nginx-static-web 
 ## show config 
 kubectl get pod/nginx-static-web -o yaml
+## seitenweise anzeigen 
+kubectl get pod/nginx-static-web -o yaml | less 
 
 ```
 
@@ -13314,7 +13937,7 @@ nano service.yml
 ## ClusterIP ersetzt durch NodePort 
 
 kubectl apply -f .
-## NodePOrt ab 30.000 ausfindig machen
+## NodePort ab 30.000 ausfindig machen
 kubectl get svc
 ```
 
@@ -13328,7 +13951,7 @@ kubectl get nodes -o wide
 
 ```
 ## im client Externe NodeIP und NodePort verwenden 
-curl http://164.92.193.245:30280
+curl http://164.92.193.245:32708
 ```
 
 ### Example II : Service with NodePort (long version)
