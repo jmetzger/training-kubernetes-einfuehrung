@@ -104,23 +104,10 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 
 ```
 kubectl get pods
-kubectl describe pods my-mariadb-0
-helm list
-helm history my-mariadb
-helm get values my-mariadb  
+# kein neuer pod
 ```
 
-## Schritt 4.3 Weiteres Update der Chart - Version (auf Version 0.9.0) 
-
-```
-# Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 --dry-run -f prod/values.yaml  
-```
-
-```
-# Real Upgrade
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 -f prod/values.yaml
-```
+## Schritt 4.3 Fehlgeschlagene Installation, wie lösen ? 
 
 ```
 # Schlägt fehle, weil mit dem apply bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
