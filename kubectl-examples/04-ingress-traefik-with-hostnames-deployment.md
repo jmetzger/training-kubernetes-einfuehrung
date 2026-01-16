@@ -223,7 +223,7 @@ kubectl apply -f .
 # was geht für die Property backend 
 kubectl explain ingress.spec.rules.http.paths.backend
 # und was geht für service
-kubectl explain ingress.spec.rules.http.paths.backend.service.port
+kubectl explain ingress.spec.rules.http.paths.backend.service
 # number 
 kubectl explain ingress.spec.rules.http.paths.backend.service.port
 ```
