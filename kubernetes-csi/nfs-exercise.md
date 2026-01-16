@@ -102,6 +102,7 @@ spec:
 ```
 kubectl apply -f .
 kubectl get pods
+kubectl describe pods nginx-nfs 
 ```
 
 ## Step 5: Testing
