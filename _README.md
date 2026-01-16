@@ -2718,7 +2718,7 @@ strategy.rollingUpdate.maxUnavailability:
 
 ```
 cd
-mkdir .kube
+mkdir -p .kube
 cd .kube
 cp /tmp/config config
 ls -la
@@ -5017,7 +5017,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "<euername>.appv1.do.t3isp.de"
+  - host: "<euername>.appv2.do.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -5100,7 +5100,7 @@ kubectl apply -f .
 ## was geht für die Property backend 
 kubectl explain ingress.spec.rules.http.paths.backend
 ## und was geht für service
-kubectl explain ingress.spec.rules.http.paths.backend.service.port
+kubectl explain ingress.spec.rules.http.paths.backend.service
 ## number 
 kubectl explain ingress.spec.rules.http.paths.backend.service.port
 ```
@@ -5161,12 +5161,12 @@ kubectl describe ingress example-ingress
 ```
 ## Im Browser auf:
 ## hier euer Name 
-http://jochen.appv1.do.t3isp.de/apple
-http://jochen.appv1.do.t3isp.de/apple/
-http://jochen.appv1.do.t3isp.de/apple/foo 
-http://jochen.appv1.do.t3isp.de/banana
+http://jochen.appv2.do.t3isp.de/apple
+http://jochen.appv2.do.t3isp.de/apple/
+http://jochen.appv2.do.t3isp.de/apple/foo 
+http://jochen.appv2.do.t3isp.de/banana
 ## geht nicht 
-http://jochen.appv1.do.t3isp.de/banana/nix
+http://jochen.appv2.do.t3isp.de/banana/nix
 ```
 
 ### ingress mit traefik, letsencrypt und cert-manager
@@ -6338,7 +6338,7 @@ helm install my-wordpress -f values.yml bitnami/wordpress
 
 ```
 ## Mini-Step 1: Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run=client
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run=server
 ```
 
 ```
@@ -6428,7 +6428,7 @@ cd ..
 
 ```
 ## Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 --dry-run -f prod/values.yaml  
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 --dry-run=server -f prod/values.yaml  
 ```
 
 ```
@@ -6438,23 +6438,10 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 
 ```
 kubectl get pods
-kubectl describe pods my-mariadb-0
-helm list
-helm history my-mariadb
-helm get values my-mariadb  
+## kein neuer pod
 ```
 
-### Schritt 4.3 Weiteres Update der Chart - Version (auf Version 0.9.0) 
-
-```
-## Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 --dry-run -f prod/values.yaml  
-```
-
-```
-## Real Upgrade
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 -f prod/values.yaml
-```
+### Schritt 4.3 Fehlgeschlagene Installation, wie lösen ? 
 
 ```
 ## Schlägt fehle, weil mit dem apply bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
@@ -6487,6 +6474,7 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 
 ```
 kubectl get pods
+helm get values my-mariadb 
 ```
 
 
@@ -6503,8 +6491,9 @@ helm get values  my-mariadb --revision 1
 helm uninstall my-mariadb 
 ## namespace wird nicht gelöscht
 ## händisch löschen
-kubectl delete ns app-<namenskuerzel>
-## crd's werden auch nicht gelöscht 
+kubectl delete ns <namenskuerzel>
+## crd's werden auch nicht gelöscht
+kubectl create ns <namenskuerzel>
 ```
 
 ### Problem: OutOfMemory (OOM-Killer) if container passes limit in memory 
@@ -7248,7 +7237,7 @@ metadata:
   name: nfs-csi
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 10.135.0.8
+  server: 10.135.0.5
   share: /var/nfs
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -7322,6 +7311,7 @@ spec:
 ```
 kubectl apply -f .
 kubectl get pods
+kubectl describe pods nginx-nfs 
 ```
 
 ### Step 5: Testing
