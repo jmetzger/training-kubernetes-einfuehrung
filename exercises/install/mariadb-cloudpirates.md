@@ -157,8 +157,9 @@ helm get values  my-mariadb --revision 1
 helm uninstall my-mariadb 
 # namespace wird nicht gelöscht
 # händisch löschen
-kubectl delete ns app-<namenskuerzel>
-# crd's werden auch nicht gelöscht 
+kubectl delete ns <namenskuerzel>
+# crd's werden auch nicht gelöscht
+kubectl create ns <namenskuerzel>
 ```
 
 ## Problem: OutOfMemory (OOM-Killer) if container passes limit in memory 
