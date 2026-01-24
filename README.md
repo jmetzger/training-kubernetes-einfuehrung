@@ -420,7 +420,7 @@
      * [Setting up metrics-server - microk8s](/microk8s/metrics-server.md)
 
   1. Kubernetes Monitoring (CheckMK)
-     * [CheckMK RAW - Kubernetes Monitoring einrichten](monitoring/checkmk/setup-kubernetes.md)
+     * [CheckMK RAW - Kubernetes Monitoring einrichten](kubernetes-monitoring/checkmk/setup-kubernetes.md)
 
   1. Kubernetes Security 
      * [Grundlagen und Beispiel (Praktisch)](security/grundlagen-security.md)
