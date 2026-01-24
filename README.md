@@ -421,6 +421,8 @@
 
   1. Kubernetes Monitoring (CheckMK)
      * [CheckMK RAW - Kubernetes Monitoring einrichten](kubernetes-monitoring/checkmk/setup-kubernetes.md)
+     * [CheckMK Enterprise Features für Kubernetes](kubernetes-monitoring/checkmk/02-checkmk-kubernetes-wichtig-enterprise.md)
+     * [Kubernetes Dashboards in CheckMK](kubernetes-monitoring/checkmk/03-kubernetes-dashboards.md)
 
   1. Kubernetes Security 
      * [Grundlagen und Beispiel (Praktisch)](security/grundlagen-security.md)
