@@ -409,16 +409,19 @@
      * [Kubernetes Backup](/backups/cluster-backup-kasten-io.md)
      * [Kasten.io overview](https://docs.kasten.io/latest/usage/overview.html)
 
-  1. Kubernetes Monitoring 
+  1. Kubernetes Monitoring
      * [Debugging von Ingress](/kubernetes/debugging-ingress.md)
-     * [Ebenen des Loggings](ebenen-des-loggings.md) 
+     * [Ebenen des Loggings](ebenen-des-loggings.md)
      * [Working with kubectl logs](/kubectl/logs.md)
      * [Built-In Monitoring tools - kubectl top pods/nodes](/metrics-server-helm.md)
      * [Protokollieren mit Elasticsearch und Fluentd (Devs/Ops)](microk8s/fluent-kibana-elastic-mit-microk8s.md)
      * [Long Installation step-by-step - Digitalocean](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes)
      * Container Level Monitoring (Devs/Ops)
-     * [Setting up metrics-server - microk8s](/microk8s/metrics-server.md) 
-  
+     * [Setting up metrics-server - microk8s](/microk8s/metrics-server.md)
+
+  1. Kubernetes Monitoring (CheckMK)
+     * [CheckMK RAW - Kubernetes Monitoring einrichten](monitoring/checkmk/setup-kubernetes.md)
+
   1. Kubernetes Security 
      * [Grundlagen und Beispiel (Praktisch)](security/grundlagen-security.md)
 
