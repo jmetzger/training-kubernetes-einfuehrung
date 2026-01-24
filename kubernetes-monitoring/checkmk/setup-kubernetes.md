@@ -265,7 +265,9 @@ curl https://checkmk-collector-tln<X>.app.do.t3isp.de/openmetrics
    - **Include namespaces:** Leer lassen fuer alle Namespaces
    - **Exclude namespaces:** `kube-public,kube-node-lease` (optional)
 
-   **Hinweis:** `kube-system` wird inkludiert um System-Komponenten zu monitoren. `kube-public` und `kube-node-lease` sind meist leer bzw. nicht relevant fuer Monitoring.
+   **Hinweise:**
+   - `kube-system` wird inkludiert um System-Komponenten zu monitoren. `kube-public` und `kube-node-lease` sind meist leer bzw. nicht relevant fuer Monitoring.
+   - **Filter-Logik:** Include wird zuerst angewendet (leer = alle), danach Exclude. **Exclude hat immer Vorrang** - ein Namespace in beiden Listen wird ausgeschlossen.
 
 7. **Explicit hosts:**
    - Waehle `k8s-cluster-<dein-name>` (Host aus Schritt 10)
