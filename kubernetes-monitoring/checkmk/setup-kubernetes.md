@@ -262,8 +262,10 @@ curl https://checkmk-collector-tln<X>.app.do.t3isp.de/openmetrics
      - ✓ CronJobs (falls benoetigt)
 
 6. **Namespace filtering:**
-   - **Include namespaces:** Leer lassen fuer alle (oder spezifische Namespaces)
-   - **Exclude namespaces:** `kube-system,kube-public,kube-node-lease` (optional)
+   - **Include namespaces:** Leer lassen fuer alle Namespaces
+   - **Exclude namespaces:** `kube-public,kube-node-lease` (optional)
+
+   **Hinweis:** `kube-system` wird inkludiert um System-Komponenten zu monitoren. `kube-public` und `kube-node-lease` sind meist leer bzw. nicht relevant fuer Monitoring.
 
 7. **Explicit hosts:**
    - Waehle `k8s-cluster-<dein-name>` (Host aus Schritt 10)
