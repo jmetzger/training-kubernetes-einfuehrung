@@ -37,16 +37,10 @@ helm repo update
 Verfuegbare Versionen anzeigen:
 
 ```
-helm search repo checkmk-chart --versions
+helm search repo checkmk-chart --versions | head -10
 ```
 
-## Schritt 2: Namespace erstellen
-
-```
-kubectl create namespace checkmk-monitoring
-```
-
-## Schritt 3: Cluster Collector deployen
+## Schritt 2: Cluster Collector deployen
 
 Standard-Konfiguration anzeigen:
 
@@ -73,11 +67,19 @@ Helm Chart installieren:
 
 ```
 helm upgrade --install checkmk checkmk-chart/checkmk \
-  -n checkmk-monitoring \
+  --namespace checkmk-monitoring \
+  --create-namespace \
+  --version 1.8.0 \
+  --reset-values \
   -f values.yaml
 ```
 
-## Schritt 4: Deployment pruefen
+**Erklärung der Flags:**
+- `--create-namespace`: Erstellt den Namespace automatisch (kein `kubectl create namespace` nötig)
+- `--version 1.8.0`: Verwendet spezifische Chart-Version (reproduzierbar)
+- `--reset-values`: Stellt sicher, dass keine alten Values übernommen werden
+
+## Schritt 3: Deployment pruefen
 
 ```
 kubectl get pods -n checkmk-monitoring
@@ -89,7 +91,7 @@ Erwartete Pods:
 - `checkmk-cluster-collector-*` - 1 Pod
 - `checkmk-node-collector-*` - 1 Pod pro Node (DaemonSet)
 
-## Schritt 5: Ingress-Objekt erstellen
+## Schritt 4: Ingress-Objekt erstellen
 
 Ingress mit TLS/HTTPS via Traefik und Let's Encrypt:
 
@@ -145,7 +147,7 @@ kubectl get secret checkmk-collector-tls -n checkmk-monitoring
 
 **Voraussetzung:** cert-manager muss installiert sein und der ClusterIssuer `letsencrypt-prod` muss existieren (siehe `ingress/https-letsencrypt-ingress-traefik.md`).
 
-## Schritt 6: Service Account Token extrahieren
+## Schritt 5: Service Account Token extrahieren
 
 Der ServiceAccount wurde automatisch vom Helm Chart erstellt. Token extrahieren:
 
@@ -166,7 +168,7 @@ Alternative (wenn kein Secret existiert):
 kubectl create token checkmk -n checkmk-monitoring --duration=87600h
 ```
 
-## Schritt 7: CA-Zertifikat extrahieren
+## Schritt 6: CA-Zertifikat extrahieren
 
 ```
 kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 --decode > /tmp/k8s-ca.crt
@@ -178,7 +180,7 @@ CA-Zertifikat anzeigen:
 cat /tmp/k8s-ca.crt
 ```
 
-## Schritt 8: Cluster Collector Endpoint ermitteln
+## Schritt 7: Cluster Collector Endpoint ermitteln
 
 Ingress-URL verwenden:
 
@@ -203,7 +205,7 @@ Testen (sollte Metriken zurueckgeben):
 curl https://checkmk-collector-tln<X>.app.do.t3isp.de/openmetrics
 ```
 
-## Schritt 9: CheckMK konfigurieren - Token speichern
+## Schritt 8: CheckMK konfigurieren - Token speichern
 
 1. Oeffne CheckMK: `https://checkmk-tln<X>.do.t3isp.de/`
 2. Gehe zu **Setup > General > Passwords**
@@ -211,17 +213,17 @@ curl https://checkmk-collector-tln<X>.app.do.t3isp.de/openmetrics
 4. Konfiguration:
    - **Unique ID:** `k8s-token`
    - **Title:** `Kubernetes Service Account Token`
-   - **Password:** Token aus Schritt 6 einfuegen
+   - **Password:** Token aus Schritt 5 einfuegen
 5. **Save**
 
-## Schritt 10: CA-Zertifikat in CheckMK importieren
+## Schritt 9: CA-Zertifikat in CheckMK importieren
 
 1. **Setup > Global settings > Site management**
 2. Suche nach **"Trusted certificate authorities for SSL"**
 3. Fuege den Inhalt von `/tmp/k8s-ca.crt` hinzu
 4. **Save**
 
-## Schritt 11: Piggyback Host erstellen
+## Schritt 10: Piggyback Host erstellen
 
 1. **Setup > Hosts > Add host**
 2. Konfiguration:
@@ -235,7 +237,7 @@ curl https://checkmk-collector-tln<X>.app.do.t3isp.de/openmetrics
 
 **Wichtig:** Der Host bekommt keine IP, da er nur Piggyback-Daten empfaengt!
 
-## Schritt 12: Kubernetes Special Agent konfigurieren
+## Schritt 11: Kubernetes Special Agent konfigurieren
 
 1. **Setup > Agents > VM, cloud, container > Kubernetes**
 2. Klicke **Add rule**
@@ -264,17 +266,17 @@ curl https://checkmk-collector-tln<X>.app.do.t3isp.de/openmetrics
    - **Exclude namespaces:** `kube-system,kube-public,kube-node-lease` (optional)
 
 7. **Explicit hosts:**
-   - Waehle `k8s-cluster-<dein-name>` (Host aus Schritt 11)
+   - Waehle `k8s-cluster-<dein-name>` (Host aus Schritt 10)
 
 8. **Save**
 
-## Schritt 13: Aenderungen aktivieren
+## Schritt 12: Aenderungen aktivieren
 
 1. Oben rechts auf **"1 change"** (oder mehr) klicken
 2. **Activate on selected sites**
 3. Warten bis Aktivierung abgeschlossen
 
-## Schritt 14: Service Discovery durchfuehren
+## Schritt 13: Service Discovery durchfuehren
 
 1. **Setup > Hosts**
 2. Suche Host `k8s-cluster-<dein-name>`
@@ -289,7 +291,7 @@ Erwartete Services:
 - `Kubernetes Node <node-name>`
 - Weitere Services je nach Objekt-Auswahl
 
-## Schritt 15: Piggyback Hosts fuer K8s Objekte erstellen (CheckMK RAW)
+## Schritt 14: Piggyback Hosts fuer K8s Objekte erstellen (CheckMK RAW)
 
 In CheckMK RAW werden Hosts fuer Kubernetes-Objekte NICHT automatisch erstellt. Manuelle Erstellung:
 
@@ -309,7 +311,7 @@ Alternativ in CheckMK GUI:
 
 **Tipp fuer CheckMK RAW:** Beginne mit wichtigen Objekten (Nodes, Deployments), nicht alle Pods einzeln.
 
-## Schritt 16: Periodic Service Discovery konfigurieren (optional)
+## Schritt 15: Periodic Service Discovery konfigurieren (optional)
 
 Automatische Discovery fuer neue Services:
 
@@ -322,7 +324,7 @@ Automatische Discovery fuer neue Services:
    - **Interval:** 15 Minuten (kuerzer als Standard)
 5. **Save**
 
-## Schritt 17: Monitoring testen
+## Schritt 16: Monitoring testen
 
 Services pruefen:
 
