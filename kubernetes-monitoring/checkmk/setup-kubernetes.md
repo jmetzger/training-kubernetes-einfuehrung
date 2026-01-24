@@ -13,11 +13,19 @@ CheckMK kann Kubernetes-Cluster ueber die Kubernetes API monitoren. Die Integrat
 
 **Wichtig:** CheckMK RAW erfordert manuelle Erstellung der Piggyback-Hosts (in kommerziellen Editionen automatisch).
 
+**Diese Anleitung verwendet:**
+- **Ingress (Traefik) mit HTTPS/TLS** statt NodePort
+- **Let's Encrypt** für automatische SSL-Zertifikate via cert-manager
+- **ClusterIP Service** für internen Zugriff
+
 ## Voraussetzungen
 
 - Zugang zum Kubernetes Cluster mit kubectl
 - CheckMK RAW Site: `https://checkmk-tln<X>.do.t3isp.de/` (X = Teilnehmer-Nummer)
 - Helm installiert
+- **cert-manager installiert** (siehe `ingress/https-letsencrypt-ingress-traefik.md`)
+- **ClusterIssuer `letsencrypt-prod` konfiguriert**
+- **Traefik Ingress Controller** installiert und funktionsfähig
 
 ## Schritt 1: Helm Repository hinzufuegen
 
@@ -46,7 +54,7 @@ Standard-Konfiguration anzeigen:
 helm show values checkmk-chart/checkmk > /tmp/checkmk-values.yaml
 ```
 
-Minimale Konfiguration fuer NodePort erstellen:
+Minimale Konfiguration fuer Ingress erstellen:
 
 ```
 cd
@@ -58,8 +66,7 @@ cd manifests/checkmk
 # vi values.yaml
 clusterCollector:
   service:
-    type: NodePort
-    nodePort: 30035
+    type: ClusterIP
 ```
 
 Helm Chart installieren:
@@ -82,7 +89,63 @@ Erwartete Pods:
 - `checkmk-cluster-collector-*` - 1 Pod
 - `checkmk-node-collector-*` - 1 Pod pro Node (DaemonSet)
 
-## Schritt 5: Service Account Token extrahieren
+## Schritt 5: Ingress-Objekt erstellen
+
+Ingress mit TLS/HTTPS via Traefik und Let's Encrypt:
+
+```
+# vi ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: checkmk-collector-ingress
+  namespace: checkmk-monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - checkmk-collector-tln<X>.app.do.t3isp.de
+    secretName: checkmk-collector-tls
+  rules:
+  - host: "checkmk-collector-tln<X>.app.do.t3isp.de"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: checkmk-cluster-collector
+            port:
+              number: 8080
+```
+
+**Wichtig:** Ersetze `<X>` mit deiner Teilnehmer-Nummer!
+
+Ingress erstellen:
+
+```
+kubectl apply -f ingress.yaml
+```
+
+Ingress pruefen:
+
+```
+kubectl get ingress -n checkmk-monitoring
+kubectl describe ingress checkmk-collector-ingress -n checkmk-monitoring
+```
+
+Zertifikat pruefen:
+
+```
+kubectl get certificate -n checkmk-monitoring
+kubectl get secret checkmk-collector-tls -n checkmk-monitoring
+```
+
+**Voraussetzung:** cert-manager muss installiert sein und der ClusterIssuer `letsencrypt-prod` muss existieren (siehe `ingress/https-letsencrypt-ingress-traefik.md`).
+
+## Schritt 6: Service Account Token extrahieren
 
 Der ServiceAccount wurde automatisch vom Helm Chart erstellt. Token extrahieren:
 
@@ -103,7 +166,7 @@ Alternative (wenn kein Secret existiert):
 kubectl create token checkmk -n checkmk-monitoring --duration=87600h
 ```
 
-## Schritt 6: CA-Zertifikat extrahieren
+## Schritt 7: CA-Zertifikat extrahieren
 
 ```
 kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 --decode > /tmp/k8s-ca.crt
@@ -115,27 +178,32 @@ CA-Zertifikat anzeigen:
 cat /tmp/k8s-ca.crt
 ```
 
-## Schritt 7: Cluster Collector Endpoint ermitteln
+## Schritt 8: Cluster Collector Endpoint ermitteln
 
-NodePort-Service finden:
-
-```
-kubectl get svc -n checkmk-monitoring checkmk-cluster-collector
-```
-
-Cluster IP und NodePort anzeigen. Der Endpoint ist:
+Ingress-URL verwenden:
 
 ```
-http://<DEINE-K8S-NODE-IP>:30035
+kubectl get ingress -n checkmk-monitoring
 ```
 
-**Tipp:** Deine K8s Node IP findest du mit:
+Der Cluster Collector Endpoint ist:
 
 ```
-kubectl get nodes -o wide
+https://checkmk-collector-tln<X>.app.do.t3isp.de
 ```
 
-## Schritt 8: CheckMK konfigurieren - Token speichern
+**Wichtig:**
+- Ersetze `<X>` mit deiner Teilnehmer-Nummer
+- HTTPS wird durch Let's Encrypt bereitgestellt
+- Der Endpoint ist von aussen erreichbar
+
+Testen (sollte Metriken zurueckgeben):
+
+```
+curl https://checkmk-collector-tln<X>.app.do.t3isp.de/openmetrics
+```
+
+## Schritt 9: CheckMK konfigurieren - Token speichern
 
 1. Oeffne CheckMK: `https://checkmk-tln<X>.do.t3isp.de/`
 2. Gehe zu **Setup > General > Passwords**
@@ -143,17 +211,17 @@ kubectl get nodes -o wide
 4. Konfiguration:
    - **Unique ID:** `k8s-token`
    - **Title:** `Kubernetes Service Account Token`
-   - **Password:** Token aus Schritt 5 einfuegen
+   - **Password:** Token aus Schritt 6 einfuegen
 5. **Save**
 
-## Schritt 9: CA-Zertifikat in CheckMK importieren
+## Schritt 10: CA-Zertifikat in CheckMK importieren
 
 1. **Setup > Global settings > Site management**
 2. Suche nach **"Trusted certificate authorities for SSL"**
 3. Fuege den Inhalt von `/tmp/k8s-ca.crt` hinzu
 4. **Save**
 
-## Schritt 10: Piggyback Host erstellen
+## Schritt 11: Piggyback Host erstellen
 
 1. **Setup > Hosts > Add host**
 2. Konfiguration:
@@ -167,7 +235,7 @@ kubectl get nodes -o wide
 
 **Wichtig:** Der Host bekommt keine IP, da er nur Piggyback-Daten empfaengt!
 
-## Schritt 11: Kubernetes Special Agent konfigurieren
+## Schritt 12: Kubernetes Special Agent konfigurieren
 
 1. **Setup > Agents > VM, cloud, container > Kubernetes**
 2. Klicke **Add rule**
@@ -178,7 +246,7 @@ kubectl get nodes -o wide
    - **SSL certificate verification:** Enabled (mit importiertem CA-Cert)
 
 4. **Collector configuration:**
-   - **Cluster collector endpoint:** `http://<DEINE-K8S-NODE-IP>:30035`
+   - **Cluster collector endpoint:** `https://checkmk-collector-tln<X>.app.do.t3isp.de`
 
 5. **Kubernetes API:**
    - **Object selection:** Waehle gewuenschte Objekte:
@@ -196,17 +264,17 @@ kubectl get nodes -o wide
    - **Exclude namespaces:** `kube-system,kube-public,kube-node-lease` (optional)
 
 7. **Explicit hosts:**
-   - Waehle `k8s-cluster-<dein-name>` (Host aus Schritt 10)
+   - Waehle `k8s-cluster-<dein-name>` (Host aus Schritt 11)
 
 8. **Save**
 
-## Schritt 12: Aenderungen aktivieren
+## Schritt 13: Aenderungen aktivieren
 
 1. Oben rechts auf **"1 change"** (oder mehr) klicken
 2. **Activate on selected sites**
 3. Warten bis Aktivierung abgeschlossen
 
-## Schritt 13: Service Discovery durchfuehren
+## Schritt 14: Service Discovery durchfuehren
 
 1. **Setup > Hosts**
 2. Suche Host `k8s-cluster-<dein-name>`
@@ -221,7 +289,7 @@ Erwartete Services:
 - `Kubernetes Node <node-name>`
 - Weitere Services je nach Objekt-Auswahl
 
-## Schritt 14: Piggyback Hosts fuer K8s Objekte erstellen (CheckMK RAW)
+## Schritt 15: Piggyback Hosts fuer K8s Objekte erstellen (CheckMK RAW)
 
 In CheckMK RAW werden Hosts fuer Kubernetes-Objekte NICHT automatisch erstellt. Manuelle Erstellung:
 
@@ -241,7 +309,7 @@ Alternativ in CheckMK GUI:
 
 **Tipp fuer CheckMK RAW:** Beginne mit wichtigen Objekten (Nodes, Deployments), nicht alle Pods einzeln.
 
-## Schritt 15: Periodic Service Discovery konfigurieren (optional)
+## Schritt 16: Periodic Service Discovery konfigurieren (optional)
 
 Automatische Discovery fuer neue Services:
 
@@ -254,7 +322,7 @@ Automatische Discovery fuer neue Services:
    - **Interval:** 15 Minuten (kuerzer als Standard)
 5. **Save**
 
-## Schritt 16: Monitoring testen
+## Schritt 17: Monitoring testen
 
 Services pruefen:
 
@@ -281,11 +349,18 @@ OMD[site]> cmk-piggyback show <hostname>
 
 **Loesung:**
 ```
-# NodePort pruefen
+# Ingress pruefen
+kubectl get ingress -n checkmk-monitoring
+kubectl describe ingress checkmk-collector-ingress -n checkmk-monitoring
+
+# Service pruefen
 kubectl get svc -n checkmk-monitoring
 
 # Testen von lokalem Rechner
-curl http://<node-ip>:30035/openmetrics
+curl https://checkmk-collector-tln<X>.app.do.t3isp.de/openmetrics
+
+# Zertifikat pruefen (sollte Ready: True sein)
+kubectl get certificate -n checkmk-monitoring
 ```
 
 ### Problem: Unauthorized bei API-Zugriff
@@ -330,12 +405,13 @@ In CheckMK:
 
 | Komponente | Status |
 |------------|--------|
-| Cluster Collector | Deployed via Helm |
+| Cluster Collector | Deployed via Helm (ClusterIP Service) |
+| Ingress | Traefik mit TLS/Let's Encrypt |
 | Node Collector | DaemonSet auf allen Nodes |
 | K8s Special Agent | Konfiguriert in CheckMK |
 | Piggyback Host | Manuell erstellt (RAW) |
 | Service Discovery | Durchgefuehrt |
-| Monitoring | Aktiv |
+| Monitoring | Aktiv via HTTPS |
 
 **CheckMK RAW Besonderheiten:**
 - ✓ Vollstaendige K8s API Integration
