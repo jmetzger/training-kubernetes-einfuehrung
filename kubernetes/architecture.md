@@ -49,7 +49,7 @@
 
 ### Pod/Pods 
 
-  * Pods sind die kleinsten einsetzbaren Einheiten, die in Kubernetes erstellt und verwaltet werden können.
+  * Pods sind die kleinste verwaltbare Einheit, die in Kubernetes erstellt und verwaltet werden können.
   * Ein Pod (übersetzt Gruppe) ist eine Gruppe von einem oder mehreren Containern
     * gemeinsam genutzter Speicher- und Netzwerkressourcen   
     * Befinden sich immer auf dem gleich virtuellen Server 
