@@ -134,6 +134,10 @@ curl http://164.92.193.245:32708
 ## Example II : Service with NodePort (long version)
 
 ```
+nano deploy.yml
+```
+
+```
 # you will get port opened on every node in the range 30000+
 apiVersion: apps/v1
 kind: Deployment
@@ -154,7 +158,13 @@ spec:
         image: nginx
         ports:
         - containerPort: 80
----
+```
+
+```
+nano service.yml
+```
+
+```
 apiVersion: v1
 kind: Service
 metadata:
@@ -170,6 +180,11 @@ spec:
     web: my-nginx
        
 ```        
+
+```
+kubectl apply -f .
+```
+
 
 ## Example III: Service mit LoadBalancer (ExternalIP)
 
