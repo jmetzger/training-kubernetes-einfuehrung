@@ -123,7 +123,8 @@ kubectl get cert
 # Certificate Request 
 kubectl get cr
 # da ist das Zertfikat drin 
-kubectl get secret example-tls 
+kubectl get secret example-tls
+kubectl get orders 
 ```
 
 ### Debugging 
