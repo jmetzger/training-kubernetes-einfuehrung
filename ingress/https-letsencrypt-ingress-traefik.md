@@ -1,5 +1,9 @@
 # https - mit letsencrypt in ingress 
 
+## Prerequisites 
+
+  * abi-projekt muss existieren
+
 ## Trainer: Schritt 1: cert-manager installieren 
 
 ```
@@ -53,7 +57,12 @@ kubectl get clusterissuer
 ## Schritt 3: Ingress-Objekt mit TLS erstellen 
 
 ```
-nano example-ingress.yaml
+cd
+cd manifests/abi
+```
+
+```
+nano ingress.yaml
 ```
 
 ```
