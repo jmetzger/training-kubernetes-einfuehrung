@@ -49,15 +49,6 @@
   1. Kubernetes Ingress (Grundlagen)
      * [Hintergrund Ingress](/kubernetes/ingress.md)
 
-  1. Kubernetes Ingress (Nginx - deprecated)   
-     * [Ingress Controller auf Digitalocean (doks) mit helm installieren](/digitalocean/ingress-auf-digitalocean-mit-helm.md)
-     * [Documentation for default ingress nginx](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
-     * [Beispiel Ingress](/kubectl-examples/04-ingress-nginx.md)
-     * [Beispiel mit Hostnamen](/kubectl-examples/04-ingress-nginx-with-hostnames.md)
-     * [Beispiel Deployment mit Ingress und Hostnamen](kubectl-examples/04-ingress-nginx-with-hostnames-deployment.md)
-     * [Achtung: Ingress mit Helm - annotations](/ingress-mit-helm-class-achtung.md)
-     * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
-
   1. Kubernetes Ingress (Traefik)
      * [Install Traefik-IngressController](/ingress/traefik/install-with-helm.md)
      * [Ingress mit traefik](kubectl-examples/04-ingress-traefik-with-hostnames-deployment.md)
@@ -180,6 +171,16 @@
 
   1. Kubernetes Ingress (Eingehender Traffik ins Cluster)
      * [Wann LoadBalancer, wann Ingress](ingress/ingress-vs-loadbalancer.md)
+    
+  1. Kubernetes Ingress (Nginx - deprecated)   
+     * [Ingress Controller auf Digitalocean (doks) mit helm installieren](/digitalocean/ingress-auf-digitalocean-mit-helm.md)
+     * [Documentation for default ingress nginx](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
+     * [Beispiel Ingress](/kubectl-examples/04-ingress-nginx.md)
+     * [Beispiel mit Hostnamen](/kubectl-examples/04-ingress-nginx-with-hostnames.md)
+     * [Beispiel Deployment mit Ingress und Hostnamen](kubectl-examples/04-ingress-nginx-with-hostnames-deployment.md)
+     * [Achtung: Ingress mit Helm - annotations](/ingress-mit-helm-class-achtung.md)
+     * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
+
 
   1. ServiceMesh
      * [Why a ServiceMesh ?](istio/overview/benefits-of-a-service-mesh.md)
