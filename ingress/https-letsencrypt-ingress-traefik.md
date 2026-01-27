@@ -62,7 +62,7 @@ cd manifests/abi
 ```
 
 ```
-nano ingress.yaml
+nano ingress.yml
 ```
 
 ```
