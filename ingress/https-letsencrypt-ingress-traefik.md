@@ -111,7 +111,15 @@ kubectl apply -f .
 
 ```
 kubectl describe certificate example-tls
+```
+```
+# muss auf True stehen 
 kubectl get cert
+```
+
+<img width="565" height="60" alt="image" src="https://github.com/user-attachments/assets/8d492fdf-a051-4b04-95cf-a62bdb3d0964" />
+
+```
 # Certificate Request 
 kubectl get cr
 # da ist das Zertfikat drin 
