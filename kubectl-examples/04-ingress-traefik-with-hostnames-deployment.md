@@ -32,7 +32,7 @@ spec:
         app: apple
     spec:
       containers:
-        - name: apple-app
+        - name: web
           image: hashicorp/http-echo
           args:
             - "-text=apple-<euer-name>"
@@ -84,7 +84,7 @@ spec:
         app: banana
     spec:
       containers:
-        - name: apple-app
+        - name: web
           image: hashicorp/http-echo
           args:
             - "-text=banana-<euer-name>"
