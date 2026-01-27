@@ -10,15 +10,6 @@
      * [Was ist ein Dockerfile](dockerfile.md) 
      * [Dockerfile - image kleinhalten](dockerfile-image-small.md)
 
-  1. Kubernetes Installation
-     * [Kubernetes Installation mit Proxmox und kubespray](installation/proxmox-kubespray.md)
-    
-  1. Kubernetes Workloads
-     * [Welche Wege gibt es Kubernetes Workloads auszurollen](kubernetes-workloads/best-practices-fuers-ausrollen.md)
-    
-  1. Kubernetes Infrastructure (Performance)
-     * [Performance of etcd for setup](kubernetes/etcd/performance-testing.md)
-    
   1. Kubernetes - Überblick
      * [Warum Kubernetes, was macht Kubernetes](warum-kubernetes.md)
      * [Aufbau Allgemein](/kubernetes/architecture.md)
@@ -30,26 +21,10 @@
      * [Installer für grosse Cluster](/kubernetes/grosse-installation-installer.md)
      * [Installation - Welche Komponenten from scratch](/kubernetes/installation-components-overview.md)
 
-  1. Kubernetes - Überblick
-     * [Liste wichtiger/sinnvoller Client-Tools](https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/tools/liste-client-tools.md)
-
-  1. Kubernetes - Hochverfügbarkeit
-     * [Strategien für Hochverfügbarkeit](kubernetes-ha/strategien-hochverfügbarkeit-kubernetes.md)
-    
-  1. Kubernetes - Authentication
-     * [oidc mit kubectl](security/authentication/oidc/oidc-mit-kubectl.md)
-     * [traefik authentication mit oidc](security/authentication/oidc/oidc-mit-traefik-fuer-auth.md)
-
-  1. Kubernetes Deployment - Internals
-     * [Strategy when creating and terminating pods in Deployment - RollingUpdate - maxSurge, maxUnavailability](/kubernetes/deployment/strategy/rollingUpdate-maxSurge-maxUnavailability.md)
-
   1. kubectl 
      * [kubectl einrichten mit namespace](/kubectl/kubectl-einrichten.md)
      * [kubectl cheatsheet kubernetes](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
      * [kubectl mit verschiedenen Clustern arbeiten](/kubectl/use-context.md)
-
-  1. Kubernetes Ingress (Eingehender Traffik ins Cluster)
-     * [Wann LoadBalancer, wann Ingress](ingress/ingress-vs-loadbalancer.md)
 
   1. Kubernetes Praxis API-Objekte 
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](/kubectl/spickzettel.md)
@@ -180,6 +155,31 @@
 
   1. Podman
      * [Podman vs. Docker](podman/podman-vs-docker.md) 
+
+ 1. Kubernetes Installation
+     * [Kubernetes Installation mit Proxmox und kubespray](installation/proxmox-kubespray.md)
+    
+  1. Kubernetes Workloads
+     * [Welche Wege gibt es Kubernetes Workloads auszurollen](kubernetes-workloads/best-practices-fuers-ausrollen.md)
+    
+  1. Kubernetes Infrastructure (Performance)
+     * [Performance of etcd for setup](kubernetes/etcd/performance-testing.md)
+    
+  1. Kubernetes - Überblick
+     * [Liste wichtiger/sinnvoller Client-Tools](https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/tools/liste-client-tools.md)
+
+  1. Kubernetes - Hochverfügbarkeit
+     * [Strategien für Hochverfügbarkeit](kubernetes-ha/strategien-hochverfügbarkeit-kubernetes.md)
+    
+  1. Kubernetes - Authentication
+     * [oidc mit kubectl](security/authentication/oidc/oidc-mit-kubectl.md)
+     * [traefik authentication mit oidc](security/authentication/oidc/oidc-mit-traefik-fuer-auth.md)
+
+  1. Kubernetes Deployment - Internals
+     * [Strategy when creating and terminating pods in Deployment - RollingUpdate - maxSurge, maxUnavailability](/kubernetes/deployment/strategy/rollingUpdate-maxSurge-maxUnavailability.md)
+
+  1. Kubernetes Ingress (Eingehender Traffik ins Cluster)
+     * [Wann LoadBalancer, wann Ingress](ingress/ingress-vs-loadbalancer.md)
 
   1. ServiceMesh
      * [Why a ServiceMesh ?](istio/overview/benefits-of-a-service-mesh.md)
