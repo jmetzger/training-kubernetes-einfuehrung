@@ -1,6 +1,6 @@
 # https - mit letsencrypt in ingress 
 
-## Schritt 1: cert-manager installieren 
+## Trainer: Schritt 1: cert-manager installieren 
 
 ```
 helm repo add jetstack https://charts.jetstack.io
@@ -13,7 +13,7 @@ helm upgrade --install cert-manager jetstack/cert-manager \
 
   * Ref: https://artifacthub.io/packages/helm/cert-manager/cert-manager
 
-## Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
+## Trainer: Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
 
 ```
 cd
