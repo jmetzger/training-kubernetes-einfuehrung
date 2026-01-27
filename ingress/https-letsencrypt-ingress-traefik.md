@@ -138,6 +138,8 @@ kubectl get challenges
 
 ## Schritt 5: Testen
 
+   * Aufruf der Subdomain im Browser (mit https): z.B. https://jochen.app.do.t3isp.de/banana
+
 ## Ref: 
 
   * https://hbayraktar.medium.com/installing-cert-manager-and-nginx-ingress-with-lets-encrypt-on-kubernetes-fe0dff4b1924
