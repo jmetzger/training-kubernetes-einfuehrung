@@ -126,6 +126,15 @@ kubectl get cr
 kubectl get secret example-tls 
 ```
 
+### Debugging 
+
+  * Solange das Zertifikat nicht bestätigt bei der ACME-Anfrage (Challenge), seht ihr das noch unter
+
+```
+kubectl get challenges
+```
+
+
 ## Schritt 5: Testen
 
 ## Ref: 
