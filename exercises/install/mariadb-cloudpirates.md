@@ -132,7 +132,7 @@ kubectl get pods
 # kein neuer pod
 ```
 
-## Schritt 5.2 Fehlgeschlagene Installation, wie lösen ? 
+### Schritt 5.2 Fehlgeschlagene Installation, wie lösen ? 
 
 ```
 # Schlägt fehle, weil mit dem upgrade bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
