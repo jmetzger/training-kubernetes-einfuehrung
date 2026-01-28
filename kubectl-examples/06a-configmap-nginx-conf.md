@@ -69,7 +69,7 @@ spec:
 ```
 kubectl apply -f .
 kubectl get pods 
-kubectl exec -it custom-nginx -- bash 
+kubectl exec -it custom-nginx -- sh
 ```
 
 ```
