@@ -74,7 +74,8 @@ kubectl exec -it custom-nginx -- sh
 
 ```
 cd /etc/nginx
-cat nginx.conf 
+cat nginx.conf
+exit
 ```
 
 ## Schritt 3: busybox connection 
