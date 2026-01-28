@@ -1,7 +1,5 @@
 # Konfiguration von Nginx mit einer configmap (conf anpassen) 
 
-# ConfigMap Example (Mariadb) 
-
 ## Schritt 1: configmap 
 
 ```
