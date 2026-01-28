@@ -82,7 +82,7 @@ exit
 
 ```
 # wir brauchen die pod-ip 
-kubectl get pods custom-nginx 
+kubectl get pods custom-nginx -o wide 
 kubectl run -it --rm podtest --image=busybox
 ```
 
