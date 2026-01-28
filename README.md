@@ -41,8 +41,8 @@
      * Services (Devs/Ops)
      * [kubectl/manifest/service](/kubectl-examples/03b-service.md)
      * DaemonSets (Devs/Ops)
-     * [ConfigMap Example](/kubectl-examples/06-configmap.md)
      * [ConfigMap Example MariaDB](/kubectl-examples/06a-configmap-mariadb.md)
+     * [ConfigMap Example nginx.conf](/kubectl-examples/06a-configmap-nginx-conf.md)
      * [Secrets Example MariaDB](/kubectl-examples/07-mariadb-secret.md)
      * [Connect to external database](/databases/connect-to-external-db.md)
 
