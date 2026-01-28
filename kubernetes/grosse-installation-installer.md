@@ -34,7 +34,7 @@
 ### Schritt 2: Kubernetes ausrollen 
 
     * Ansible (leichter bestimmte zu Konfigurieren) 
-    * kubeadmin 
+    * kubeadm
 
 ## Proxmox 
 
