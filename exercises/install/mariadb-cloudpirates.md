@@ -135,7 +135,7 @@ kubectl get pods
 ## Schritt 5.2 Fehlgeschlagene Installation, wie lösen ? 
 
 ```
-# Schlägt fehle, weil mit dem apply bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
+# Schlägt fehle, weil mit dem upgrade bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
 ```
 
 ### Lösung 
