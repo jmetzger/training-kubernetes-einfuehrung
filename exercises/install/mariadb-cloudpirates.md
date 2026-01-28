@@ -53,8 +53,7 @@ helm get all my-mariadb | grep -i computed -A 200
 
 ```
 
-
-## Schritt 4: Exercise: Upgrade to new version 
+## Schritt 4: Exercise: Upgrade with specific settings (same chart version)  
 
 ### Schritt 4.1 Default values (auf terminal) ausfindig machen 
 
@@ -64,7 +63,7 @@ helm show values oci://registry-1.docker.io/cloudpirates/mariadb
 helm show values oci://registry-1.docker.io/cloudpirates/mariadb | less
 ```
 
-### Schritt 4.2 Upgrade und resources ändern 
+### Schritt 4.2 Resources ändern 
 
 
 ```
@@ -94,6 +93,32 @@ cd ..
 
 ```
 # Testen 
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run=server -f prod/values.yaml  
+```
+
+```
+# Real Upgrade
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 -f prod/values.yaml
+```
+
+```
+kubectl get pods
+# kein neuer pod
+```
+
+
+
+
+
+## Schritt 5: Exercise: Upgrade to new version 
+
+
+### Schritt 5.1. Upgrade und resources beibehalten 
+
+  * Values wurden bereits im vorherigen Schritt angelegt 
+
+```
+# Testen 
 helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 --dry-run=server -f prod/values.yaml  
 ```
 
@@ -107,7 +132,7 @@ kubectl get pods
 # kein neuer pod
 ```
 
-## Schritt 4.3 Fehlgeschlagene Installation, wie lösen ? 
+## Schritt 5.2 Fehlgeschlagene Installation, wie lösen ? 
 
 ```
 # Schlägt fehle, weil mit dem apply bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
