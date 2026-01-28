@@ -115,6 +115,7 @@ kubectl exec -it nginx-nfs -- bash
 cd /mnt/nfs
 ls -la
 # outfile
+head /mnt/nfs/outfile 
 tail -f /mnt/nfs/outfile
 ```
 
