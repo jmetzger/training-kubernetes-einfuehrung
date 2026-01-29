@@ -32,6 +32,9 @@ kubeadm upgrade apply 1.33.7
 kubectl drain k8s-w1 --ignore-daemonsets 
 ```
 
+
+
+
 ```
 # in diesem Fall ist Cluster - Version 1.32 
 # 1. GPG-Key herunterladen
@@ -45,6 +48,11 @@ apt update
 ```
 # Alle verfügbaren Major - Versionen anzeigen
 apt-cache madison kubeadm
+```
+
+```
+# Betriebssystem upgraden
+apt upgrade 
 ```
 
 ```
