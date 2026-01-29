@@ -98,6 +98,10 @@
   1. Helm Charts erstellen und analysieren
      * [Eigenes Helm-Chart erstellen](helm/exercises/04a-create-chart-my-app-gruppenarbeit.md)
      * [Chart zur Analyse runterladen und entpacken](helm/commands/pull.md)
+     * [Wie starte ich am besten einfach - mit eigenem Projekt](helm/exercises/09-create-helm-chart-from-scratch-deployment.md)
+
+  1. Helm Advanced
+     * [Helm Dependencies Exercise](/helm/dependencies/exercise.md)
 
   1. Helm - Fehleranalye
      * [Beispiel Cloudpirates - helm chart nginx](helm/cloudpirates-helm-chart-nginx-fehleranalyse.md)
