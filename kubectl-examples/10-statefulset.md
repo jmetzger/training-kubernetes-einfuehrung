@@ -105,6 +105,12 @@ exit
 kubectl describe svc nginx 
 ```
 
+## Schritt 3: Aufräumen 
+
+```
+kubectl delete -f .
+```
+
 ## Referenz 
 
   * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/
