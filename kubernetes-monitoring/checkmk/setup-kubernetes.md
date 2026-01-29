@@ -188,7 +188,7 @@ kubectl get ingress -n checkmk-monitoring
 Der Cluster Collector Endpoint ist:
 
 ```
-https://checkmk-collector-tln<X>.app.do.t3isp.de
+https://checkmk-collector.tln<X>.app.do.t3isp.de
 ```
 
 **Wichtig:**
