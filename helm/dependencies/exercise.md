@@ -118,3 +118,9 @@ helm -n app-<euer-name> upgrade --reset-values --install app app -f ../helm-valu
 ```
 helm -n app-<euer-name> status app
 ```
+
+### Schritt 4: Aufräumen 
+
+```
+helm -n app-<euer-name> uninstall app
+```
