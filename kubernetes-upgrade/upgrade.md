@@ -60,7 +60,7 @@ apt upgrade
 kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data
 
 # 2. Auf dem Worker Node:
-apt-get install kubeadm=1.33.x-*
+apt-get install kubeadm=1.33.*
 kubeadm upgrade node
 
 apt-get install kubelet=1.33.* kubectl=1.33.*
