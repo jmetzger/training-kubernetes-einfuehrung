@@ -27,6 +27,16 @@ helm -n kube-system list
 # Repo hinzufügen für Client 
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm install my-nginx bitnami/nginx --version 19.0.1 --create-namespace --namespace=app-<namenskuerzel>
+# besser upgrade --install --reset-values (immer alle Werte wie im aktuellen Installationsbefehl
+helm upgrade --install --reset-values my-nginx bitnami/nginx --version 19.0.1 --create-namespace --namespace=app-<namenskuerzel>
+```
+
+## Helm - prüfen (nach Installation)
+
+```
+helm status my-release
+helm get values my-release
+helm get manifest my-release
 ```
 
 ## Helm - Suche  
