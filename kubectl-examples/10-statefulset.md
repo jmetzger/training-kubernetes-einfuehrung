@@ -27,6 +27,7 @@ kind: Service
 metadata:
   name: nginx
 spec:
+  type: ClusterIP
   ports:
   - port: 80
     name: web
