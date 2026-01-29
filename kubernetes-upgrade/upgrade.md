@@ -1,6 +1,6 @@
 # Upgrade Prozess 
 
-## Starten mit Control-Nodes 
+## Schritt 1: Starten mit Control-Nodes 
 
   * Warum ? Diese dürfen eine Major neuer sein als die Worker Node
 
@@ -25,12 +25,12 @@ kubeadm upgrade apply 1.33.7
 ```
 
 ```
-apt-get install kubelet=1.33.* kubectl=1.33.*
+apt install -y kubelet=1.33.* kubectl=1.33.*
 systemctl daemon-reload
 systemctl restart kubelet
 ```
 
-## Danach die Worker Nodes nacheinander 
+## Schritt 2: Danach die Worker Nodes nacheinander 
 
 
 ```
@@ -82,3 +82,23 @@ systemctl restart kubelet
 # 3. Node wieder freigeben (vom Control Plane aus)
 kubectl uncordon <node-name>
 ```
+
+## Schritt 3: Storage migrieren (kann man vom  client aus machen
+
+  * make muss installiert sein 
+
+```
+# 1. Repo klonen
+git clone https://github.com/kubernetes-sigs/kube-storage-version-migrator.git
+cd kube-storage-version-migrator
+
+# 2. Manifests generieren
+make local-manifests
+
+# 3. Installieren
+pushd manifests.local && kubectl apply -k ./ && popd
+```
+
+
+
+  * Ref: https://github.com/kubernetes-sigs/kube-storage-version-migrator/blob/master/USER_GUIDE.md
