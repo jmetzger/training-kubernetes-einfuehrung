@@ -93,9 +93,15 @@ kubectl get sts web
 kubectl delete sts web 
 kubectl apply -f .
 kubectl run --rm -it podtest --image=busybox 
+```
 
-ping web-0.nginx 
+```
+# in the shell 
+ping web-0.nginx
+exit
+``` 
 
+```
 kubectl describe svc nginx 
 ```
 
