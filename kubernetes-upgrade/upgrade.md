@@ -29,7 +29,7 @@ kubeadm upgrade apply 1.33.7
 
 ```
 # Node drainen z.b k8s-w1
-kubectl drain k8s-w1 --ignore-daemonsets 
+kubectl drain k8s-w1 --ignore-daemonsets --delete-emptydir-data
 ```
 
 
@@ -56,6 +56,17 @@ apt upgrade
 ```
 
 ```
-kubeadm upgrade plan
-kubeadm upgrade apply 1.33.7
+# 1. Node drainieren (vom Control Plane aus)
+kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data
+
+# 2. Auf dem Worker Node:
+apt-get install kubeadm=1.33.x-*
+kubeadm upgrade node
+
+apt-get install kubelet=1.33.* kubectl=1.33.*
+systemctl daemon-reload
+systemctl restart kubelet
+
+# 3. Node wieder freigeben (vom Control Plane aus)
+kubectl uncordon <node-name>
 ```
