@@ -108,7 +108,7 @@ spec:
     - checkmk-collector.tln<X>.do.t3isp.de
     secretName: checkmk-collector-tls
   rules:
-  - host: "checkmk-collector.tln<X>.app.do.t3isp.de"
+  - host: "checkmk-collector.tln<X>.do.t3isp.de"
     http:
       paths:
       - path: /
@@ -199,7 +199,7 @@ https://checkmk-collector-tln<X>.app.do.t3isp.de
 Testen (sollte Metriken zurueckgeben):
 
 ```
-curl https://checkmk-collector-tln<X>.app.do.t3isp.de/openmetrics
+curl https://checkmk-collector.tln<X>.do.t3isp.de/openmetrics
 ```
 
 ## Schritt 8: CheckMK konfigurieren - Token speichern
