@@ -55,7 +55,7 @@ helm upgrade --install checkmk checkmk-chart/checkmk \
   --namespace checkmk-monitoring \
   --create-namespace \
   --version 1.9.0 \
-  --reset-values \
+  --reset-values
 ```
 
 **Erklärung der Flags:**
