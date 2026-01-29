@@ -24,6 +24,12 @@ kubeadm upgrade plan
 kubeadm upgrade apply 1.33.7
 ```
 
+```
+apt-get install kubelet=1.33.* kubectl=1.33.*
+systemctl daemon-reload
+systemctl restart kubelet
+```
+
 ## Danach die Worker Nodes nacheinander 
 
 
