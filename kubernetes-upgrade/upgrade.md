@@ -65,10 +65,11 @@ kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data
 apt-get install kubeadm=1.33.*
 kubeadm upgrade node
 
-apt-get install kubelet=1.33.* kubectl=1.33.*
+apt-get install -y kubelet=1.33.* kubectl=1.33.*
 systemctl daemon-reload
 systemctl restart kubelet
 
+```
 # 3. Node wieder freigeben (vom Control Plane aus)
 kubectl uncordon <node-name>
 ```
