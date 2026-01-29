@@ -52,7 +52,9 @@ apt-cache madison kubeadm
 
 ```
 # Betriebssystem upgraden
-apt upgrade 
+apt upgrade -y
+# reboot falls kernel-änderung
+reboot 
 ```
 
 ```
