@@ -48,21 +48,6 @@ Standard-Konfiguration anzeigen:
 helm show values checkmk-chart/checkmk > /tmp/checkmk-values.yaml
 ```
 
-Minimale Konfiguration fuer Ingress erstellen:
-
-```
-cd
-mkdir -p manifests/checkmk
-cd manifests/checkmk
-```
-
-```
-# vi values.yaml
-clusterCollector:
-  service:
-    type: ClusterIP
-```
-
 Helm Chart installieren:
 
 ```
@@ -71,7 +56,6 @@ helm upgrade --install checkmk checkmk-chart/checkmk \
   --create-namespace \
   --version 1.8.0 \
   --reset-values \
-  -f values.yaml
 ```
 
 **Erklärung der Flags:**
