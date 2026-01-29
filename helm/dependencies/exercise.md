@@ -53,11 +53,6 @@ nano Chart.yaml
 ```
 
 ```
-helm dependency build
-```
-
-
-```
 # change dependency block
 # adding condition 
 dependencies:
@@ -65,6 +60,10 @@ dependencies:
     version: "0.9.x"
     repository: "oci://registry-1.docker.io/cloudpirates"
     condition: redis.enabled
+```
+
+```
+helm dependency build
 ```
 
 ```
