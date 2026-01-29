@@ -80,6 +80,19 @@ Erwartete Pods:
 Ingress mit TLS/HTTPS via Traefik und Let's Encrypt:
 
 ```
+cd
+mkdir -p manifests
+cd manifests
+mkdir -p checkmk
+cd checkmk
+```
+
+```
+nano ingress.yaml
+```
+
+
+```
 # vi ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
