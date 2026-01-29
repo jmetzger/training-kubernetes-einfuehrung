@@ -92,10 +92,10 @@ spec:
   ingressClassName: traefik
   tls:
   - hosts:
-    - checkmk-collector-tln<X>.app.do.t3isp.de
+    - checkmk-collector.tln<X>.do.t3isp.de
     secretName: checkmk-collector-tls
   rules:
-  - host: "checkmk-collector-tln<X>.app.do.t3isp.de"
+  - host: "checkmk-collector.tln<X>.app.do.t3isp.de"
     http:
       paths:
       - path: /
