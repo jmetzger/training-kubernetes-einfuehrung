@@ -53,6 +53,11 @@ nano Chart.yaml
 ```
 
 ```
+helm dependency build
+```
+
+
+```
 # change dependency block
 # adding condition 
 dependencies:
