@@ -99,6 +99,19 @@ make local-manifests
 pushd manifests.local && kubectl apply -k ./ && popd
 ```
 
-
+```
+# Alle Ressourcentypen auflisten und migrieren
+kubectl api-resources --verbs=list -o name | while read resource; do
+  cat <<EOF | kubectl apply -f -
+apiVersion: migration.k8s.io/v1alpha1
+kind: StorageVersionMigration
+metadata:
+  name: migrate-$(echo $resource | tr '.' '-')
+spec:
+  resource:
+    resource: $resource
+EOF
+done
+```
 
   * Ref: https://github.com/kubernetes-sigs/kube-storage-version-migrator/blob/master/USER_GUIDE.md
