@@ -109,6 +109,9 @@
   1. Helm - Fehleranalye
      * [Beispiel Cloudpirates - helm chart nginx](helm/cloudpirates-helm-chart-nginx-fehleranalyse.md)
 
+  1. Helm mit gitlab ci/cd
+     * [Helm mit gitlab ci/cd ausrollen](helm/helm/gitlab-ci-cd/example-helm-kubernetes.md)
+    
   1. Helpful plugins
      * [Use shortnames for kubectl - commands](https://gist.github.com/doevelopper/ff4a9a211e74f8a2d44eb4afb21f0a38)
 
@@ -232,10 +235,7 @@
        
   1. LoadBalancer on Premise (metallb)
      * [Metallb](/metallb.md)
-       
-  1. Helm mit gitlab ci/cd
-     * [Helm mit gitlab ci/cd ausrollen](helm/helm/gitlab-ci-cd/example-helm-kubernetes.md)
-    
+        
   1. Kubernetes Verläßlichkeit erreichen 
      * [Keine 2 pods auf gleichem Node - PodAntinAffinity](kubectl-examples/18-pod-anti-affinity.md)
       
