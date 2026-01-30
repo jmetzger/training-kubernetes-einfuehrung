@@ -243,13 +243,13 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de/openmetrics
 1. **Setup > Agents > VM, cloud, container > Kubernetes**
 2. Klicke **Add rule**
 3. **Kubernetes cluster configuration:**
-   - **Cluster name:** `mycluster` (oder eigener Name)
+   - **Cluster name:** `k8s-cluster-<dein-name>` (oder eigener Name)
    - **Token:** Waehle `k8s-token` aus Dropdown
-   - **API server endpoint:** `https://<DEINE-K8S-API-IP>:443`
+   - **API server endpoint:** `https://<DEINE-K8S-API-IP>:6443`
    - **SSL certificate verification:** Enabled (mit importiertem CA-Cert)
 
-4. **Collector configuration:**
-   - **Cluster collector endpoint:** `https://checkmk-collector-tln<X>.app.do.t3isp.de`
+4. **Collector: Enrich Data**
+   - **Cluster collector endpoint:** `https://checkmk-collector-tln<X>.do.t3isp.de`
 
 5. **Kubernetes API:**
    - **Object selection:** Waehle gewuenschte Objekte:
