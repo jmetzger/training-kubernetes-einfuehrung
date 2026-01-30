@@ -1,21 +1,21 @@
 # Work with different kubernetes - clusters (using use-context) 
 
 ```
-## Zwei config in KUBECONFIG env variable 
-export KUBECONFIG=~/.kube/config:~/.kube/config.doks
+## Zwei config in KUBECONFIG env variable
+cd ~/.kube
+mv config config.kubeadm 
+export KUBECONFIG=~/.kube/config.kubeadm:~/.kube/config.doks
 
 # wir sehen beide configs
 kubectl config view
 
-# Sicherheitsbackup 
-cd ~/.kube 
-
 kubectl config view --flatten > config
 unset KUBECONFIG
 
+# alle Contexti anzeigen lassen 
 kubectl config get-contexts 
-kubectl config use-context do-fra1-single 
 
+kubectl config use-context do-fra1-single 
 kubectl cluster-info
 kubectl get nodes 
 
