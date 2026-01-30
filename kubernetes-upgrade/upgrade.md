@@ -2,7 +2,7 @@
 
 ## Schritt 1: Starten mit Control-Nodes 
 
-  * Warum ? Diese dürfen eine Major neuer sein als die Worker Node
+  * Warum ? Diese dürfen eine Major-Version neuer sein als die Worker Node
 
 ```
 # in diesem Fall ist Cluster - Version 1.32 
@@ -12,6 +12,13 @@ curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key | sudo gpg --
 # 2. Repo mit Key-Referenz hinzufügen
 echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-1.33.gpg] https://pkgs.k8s.io/core:/stable:/v1.33/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 apt update
+```
+
+```
+# OS aktualisieren
+apt upgrade
+# Falls neuer Kernel
+reboot
 ```
 
 ```
