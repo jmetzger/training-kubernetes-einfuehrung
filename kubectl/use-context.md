@@ -15,11 +15,11 @@ unset KUBECONFIG
 # alle Contexti anzeigen lassen 
 kubectl config get-contexts 
 
-kubectl config use-context do-fra1-single 
+kubectl config use-context do-fra1-cluster-bka  
 kubectl cluster-info
 kubectl get nodes 
 
-kubectl config use-context do-fra-bka-cluster
+kubectl config use-context kubernetes-admin@kubernetes
 kubectl cluster-info
 kubectl get nodes 
 ```
