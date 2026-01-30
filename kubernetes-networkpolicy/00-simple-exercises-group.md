@@ -16,6 +16,10 @@ cd np
 ```
 
 ```
+nano 01-deployment.yml
+```
+
+```
 # nano 01-deployment.yml
 apiVersion: apps/v1
 kind: Deployment
@@ -40,6 +44,10 @@ spec:
 
 ```
 kubectl -n policy-demo-$KURZ apply -f . 
+```
+
+```
+nano 02-service.yaml
 ```
 
 ```
@@ -81,6 +89,10 @@ kubectl -n policy-demo-$KURZ get pods --show-labels
 ## Schritt 3: Policy festlegen, dass kein Zugriff erlaubt ist. 
 
 ```
+nano 03-default-deny.yaml
+```
+
+```
 # nano 03-default-deny.yaml 
 # Schritt 2: Policy festlegen, dass kein Ingress-Traffic erlaubt
 # in diesem namespace: policy-demo-$KURZ 
@@ -109,6 +121,10 @@ wget -q nginx -O -
 ```
 
 ## Schritt 4: Zugriff erlauben von pods mit dem Label run=access (alle mit run gestarteten pods mit namen access haben dieses label per default)
+
+```
+nano ß4-access-nginx.yaml
+```
 
 ```
 # nano 04-access-nginx.yaml 
