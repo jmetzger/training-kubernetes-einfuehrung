@@ -138,6 +138,11 @@
   1. Kubernetes Monitoring 
      * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
      * [Prometheus / Grafana Stack installieren](prometheus-grafana/install-with-helm.md)
+
+  1. Kubernetes Monitoring (checkmk)
+     * [Checkmk in Kubernetes einrichten](/kubernetes-monitoring/checkmk/setup-kubernetes.md)
+     * [Checkmk Raw vs. Enterprise in Bezug auf Kubernetes](/kubernetes-monitoring/checkmk/02-checkmk-kubernetes-wichtig-enterprise.md)
+     * [Kubernetes Dashboards](/kubernetes-monitoring/checkmk/03-kubernetes-dashboards.md)
  
   1. Kubernetes QoS / HealthChecks / Live / Readiness
      * [Quality of Service - evict pods](kubernetes/qos-class.md)
