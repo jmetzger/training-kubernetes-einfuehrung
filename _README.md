@@ -120,7 +120,10 @@
 
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](#probleme-über-logs-identifiziert---zb-non-root-image)
-   
+
+  1. Kubernetes RBAC
+     * [Kubernetes RBAC - was darf Traefik](#kubernetes-rbac---was-darf-traefik)
+     
   1. Weiter lernen 
      * [Lernumgebung](https://killercoda.com/)
      * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
@@ -143,7 +146,10 @@
      * [Checkmk in Kubernetes einrichten](#checkmk-in-kubernetes-einrichten)
      * [Checkmk Raw vs. Enterprise in Bezug auf Kubernetes](#checkmk-raw-vs-enterprise-in-bezug-auf-kubernetes)
      * [Kubernetes Dashboards](#kubernetes-dashboards)
- 
+
+  1. Kubernetes Perfomance
+     * [Heap analyse](#heap-analyse)
+      
   1. Kubernetes QoS / HealthChecks / Live / Readiness
      * [Quality of Service - evict pods](#quality-of-service---evict-pods)
      * [LiveNess/Readiness - Probe / HealthChecks](#livenessreadiness---probe--healthchecks)
@@ -4930,6 +4936,36 @@ kubectl apply -f .
 kubectl get pods
 ```
 
+## Kubernetes RBAC
+
+### Kubernetes RBAC - was darf Traefik
+
+
+  * Service Account wird in den Pod gehängt
+  * Und das was dieser ServiceAccount darf, darf der Pod auch über z.B. ein kubectl call machen
+
+### Weg der Berechtigung 
+
+```
+Service Account -> Rolebinding/ClusterRolebinding -> ClusterRole/Role
+```
+
+
+### Schritte zur Analyse
+
+```
+## wie ist das eingentlich beim ingress controller 
+## Welche ServiceAccount
+kubectl -n ingress get sa traefik
+## Wurde ClusterRole und Role verwendet - ClusterRole ist Serverweit 
+helm -n ingress get manifest traefik | grep -i -A 4 kind
+## Das darf dieser Rolle 
+kubectl  get clusterrole traefik-ingress -o yaml
+## Rolle wird mit User verknüpft, dadurch darf der User das, was die Rolle darf 
+kubectl get clusterrolebinding traefik-ingress -o yaml
+
+```
+
 ## Weiter lernen 
 
 ### Lernumgebung
@@ -5945,6 +5981,42 @@ https://docs.checkmk.com/latest/en/monitoring_kubernetes.html
 ### References:
 
 * [Checkmk about new Kubernetes Integration (since 2022)](https://www.youtube.com/watch?v=PpKAp14fXQI)
+
+## Kubernetes Perfomance
+
+### Heap analyse
+
+
+```
+4. Heap memory analyse 
+
+## JVM-Beispiel: Direkt im Container
+kubectl exec -it <pod> -- jmap -heap <pid>
+kubectl exec -it <pod> -- jstat -gc <pid> 1000
+
+## Oder Metriken exportieren
+## - JMX Exporter für JVM
+## - Prometheus + Grafana für Visualisierung
+## - /actuator/metrics (Spring Boot)
+
+## zu viel speicher 
+kubectl top pods 
+
+## OOM killer 
+kubectl describe po <pod-name>
+
+## Crashed 
+## OOMKilled Pods finden
+kubectl get pods -A -o json | \
+jq '.items[] | select(.status.containerStatuses[].lastState.terminated.reason=="OOMKilled")'
+
+## CPU-Throttling Events
+kubectl get events -A --field-selector reason=FailedScheduling
+
+## Pods ohne Limits (gefährlich!)
+kubectl get pods -A -o json | \
+jq '.items[] | select(.spec.containers[].resources.limits==null)'
+```
 
 ## Kubernetes QoS / HealthChecks / Live / Readiness
 
@@ -11359,6 +11431,10 @@ cd np
 ```
 
 ```
+nano 01-deployment.yml
+```
+
+```
 ## nano 01-deployment.yml
 apiVersion: apps/v1
 kind: Deployment
@@ -11383,6 +11459,10 @@ spec:
 
 ```
 kubectl -n policy-demo-$KURZ apply -f . 
+```
+
+```
+nano 02-service.yaml
 ```
 
 ```
@@ -11424,6 +11504,10 @@ kubectl -n policy-demo-$KURZ get pods --show-labels
 ### Schritt 3: Policy festlegen, dass kein Zugriff erlaubt ist. 
 
 ```
+nano 03-default-deny.yaml
+```
+
+```
 ## nano 03-default-deny.yaml 
 ## Schritt 2: Policy festlegen, dass kein Ingress-Traffic erlaubt
 ## in diesem namespace: policy-demo-$KURZ 
@@ -11452,6 +11536,10 @@ wget -q nginx -O -
 ```
 
 ### Schritt 4: Zugriff erlauben von pods mit dem Label run=access (alle mit run gestarteten pods mit namen access haben dieses label per default)
+
+```
+nano ß4-access-nginx.yaml
+```
 
 ```
 ## nano 04-access-nginx.yaml 
