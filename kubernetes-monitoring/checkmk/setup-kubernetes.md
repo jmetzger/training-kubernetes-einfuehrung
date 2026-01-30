@@ -176,6 +176,9 @@ CA-Zertifikat anzeigen:
 
 ```
 cat k8s-ca.crt
+# und prüfen ob es das richtige ist:
+# muss kubernetes heissen 
+openssl x509 -in k8s-ca.crt -issuer -noout
 ```
 
 ## Schritt 7: Cluster Collector Endpoint ermitteln
