@@ -21,6 +21,9 @@
      * [Installer für grosse Cluster](/kubernetes/grosse-installation-installer.md)
      * [Installation - Welche Komponenten from scratch](/kubernetes/installation-components-overview.md)
 
+  1. Kubernetes - Upgrade
+     * [Wie Upgrade ich Kubernetes in kubeadm](https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/kubernetes-upgrade/upgrade.md)
+
   1. kubectl 
      * [kubectl einrichten mit namespace](/kubectl/kubectl-einrichten.md)
      * [kubectl cheatsheet kubernetes](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
