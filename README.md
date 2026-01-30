@@ -120,7 +120,10 @@
 
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](kubectl-examples/16-run-pod-as-unprivileged-user.md)
-   
+
+  1. Kubernetes RBAC
+     * [Kubernetes RBAC - was darf Traefik](kubernetes-rbac/was-darf-traefik.md)
+     
   1. Weiter lernen 
      * [Lernumgebung](https://killercoda.com/)
      * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
