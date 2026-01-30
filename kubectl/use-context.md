@@ -9,8 +9,6 @@ kubectl config view
 
 # Sicherheitsbackup 
 cd ~/.kube 
-mv config config.kubeadm
-ls -la
 
 kubectl config view --flatten > config
 unset KUBECONFIG
