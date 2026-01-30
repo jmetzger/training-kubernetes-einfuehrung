@@ -143,7 +143,10 @@
      * [Checkmk in Kubernetes einrichten](/kubernetes-monitoring/checkmk/setup-kubernetes.md)
      * [Checkmk Raw vs. Enterprise in Bezug auf Kubernetes](/kubernetes-monitoring/checkmk/02-checkmk-kubernetes-wichtig-enterprise.md)
      * [Kubernetes Dashboards](/kubernetes-monitoring/checkmk/03-kubernetes-dashboards.md)
- 
+
+  1. Kubernetes Perfomance
+     * [Heap analyse](/kubernetes-perfomance/heap-memory-analyse.md)
+      
   1. Kubernetes QoS / HealthChecks / Live / Readiness
      * [Quality of Service - evict pods](kubernetes/qos-class.md)
      * [LiveNess/Readiness - Probe / HealthChecks](probes/uebung-liveness.md)
