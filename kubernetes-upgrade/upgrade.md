@@ -1,5 +1,9 @@
 # Upgrade Prozess 
 
+## Achtung: 
+
+  * In der Zeit des Upgrades des gesamten Cluster, bitte keine Resources erstellen 
+
 ## Schritt 1: Starten mit Control-Nodes 
 
   * Warum ? Diese dürfen eine Major-Version neuer sein als die Worker Node
@@ -71,11 +75,6 @@ reboot
 ```
 
 ```
-# 1. Node drainieren (vom Control Plane aus)
-kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data
-```
-
-```
 # 2. Auf dem Worker Node:
 apt install -y kubeadm=1.33.*
 kubeadm upgrade node
@@ -92,33 +91,13 @@ kubectl uncordon <node-name>
 
 ## Schritt 3: Storage migrieren (kann man vom  client aus machen
 
-  * make muss installiert sein 
+  * Aktuell beta (storage verison migration in Kubernetes direk)
+  * kubectl convert -> nimmt ein altes Manifest (könnt ihr angeben) und es schreibt es in die neue API-Version um
+    (nur die neue Datei)
+  * kubectl kann man mit krew installieren
 
-```
-# 1. Repo klonen
-git clone https://github.com/kubernetes-sigs/kube-storage-version-migrator.git
-cd kube-storage-version-migrator
+### neues Feature : beta sei 1.35 (muss aber über feature-gate aktiviert werden) 
 
-# 2. Manifests generieren
-make local-manifests
+  * Alle Resourcen, die ich anbei, migrieren. 
+  * https://kubernetes.io/docs/tasks/manage-kubernetes-objects/storage-version-migration/
 
-# 3. Installieren
-pushd manifests.local && kubectl apply -k ./ && popd
-```
-
-```
-# Alle Ressourcentypen auflisten und migrieren
-kubectl api-resources --verbs=list -o name | while read resource; do
-  cat <<EOF | kubectl apply -f -
-apiVersion: migration.k8s.io/v1alpha1
-kind: StorageVersionMigration
-metadata:
-  name: migrate-$(echo $resource | tr '.' '-')
-spec:
-  resource:
-    resource: $resource
-EOF
-done
-```
-
-  * Ref: https://github.com/kubernetes-sigs/kube-storage-version-migrator/blob/master/USER_GUIDE.md
