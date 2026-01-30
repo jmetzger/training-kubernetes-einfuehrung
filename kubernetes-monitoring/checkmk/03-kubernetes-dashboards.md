@@ -6,15 +6,16 @@
 
 ## Cluster Dashboard
 
-[Image: Cluster Dashboard visualization showing Kubernetes cluster monitoring]
+<img width="1258" height="711" alt="image" src="https://github.com/user-attachments/assets/31fa90fc-5755-4753-8b7c-c3dc07019e8c" />
 
-## Deployment Dashboard
+## Deploymnent Dashboard 
 
-[Image: Deployment Dashboard visualization showing Kubernetes deployment monitoring]
+<img width="1263" height="713" alt="image" src="https://github.com/user-attachments/assets/5b177fa2-9399-4108-bf20-e7a2795228e6" />
 
-## Detail
+## Detail 
 
-[Image: Detailed view of Kubernetes monitoring metrics]
+<img width="1280" height="541" alt="image" src="https://github.com/user-attachments/assets/e43a67d1-a544-4cdf-bfc0-9cc1522103cd" />
+
 
 ## References:
 
