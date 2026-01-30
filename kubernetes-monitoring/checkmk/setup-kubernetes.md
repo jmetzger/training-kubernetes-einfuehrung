@@ -230,7 +230,8 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de/openmetrics
 2. Konfiguration:
    - **Hostname:** `k8s-cluster-<dein-name>` (z.B. `k8s-cluster-jmetzger`)
    - **IP address family:** **No IP** (wichtig!)
-   - **Monitoring agents:** 
+   - **Monitoring agents:** <img width="340" height="39" alt="image" src="https://github.com/user-attachments/assets/9ffd4b87-993a-4b8d-b098-58609ab2f0ba" />
+
    - Labels hinzufuegen:
      - Key: `cmk/kubernetes`
      - Value: `yes`
