@@ -110,7 +110,7 @@
      * [Beispiel Cloudpirates - helm chart nginx](helm/cloudpirates-helm-chart-nginx-fehleranalyse.md)
 
   1. Helm mit gitlab ci/cd
-     * [Helm mit gitlab ci/cd ausrollen](helm/helm/gitlab-ci-cd/example-helm-kubernetes.md)
+     * [Helm mit gitlab ci/cd ausrollen](helm/gitlab-ci-cd/example-helm-kubernetes.md)
     
   1. Helpful plugins
      * [Use shortnames for kubectl - commands](https://gist.github.com/doevelopper/ff4a9a211e74f8a2d44eb4afb21f0a38)
