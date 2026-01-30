@@ -153,7 +153,7 @@ Der ServiceAccount wurde automatisch vom Helm Chart erstellt. Token extrahieren:
 kubectl get secrets -n checkmk-monitoring | grep checkmk
 
 # Token extrahieren und dekodieren
-kubectl get secret <secret-name> -n checkmk-monitoring -o jsonpath='{.data.token}' | base64 --decode > sa-token
+kubectl get secret checkmk-checkmk -n checkmk-monitoring -o jsonpath='{.data.token}' | base64 --decode > sa-token
 ```
 
 **Wichtig:** Token speichern - wird fuer CheckMK benoetigt!
