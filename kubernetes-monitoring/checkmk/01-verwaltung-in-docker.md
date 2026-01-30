@@ -21,3 +21,10 @@ omd sites
 # um auf die dortige Shell zu wechseln 
 omd su cmk
 ```
+
+```
+# mit dem cmk - Befehl können wir dann unterschiedliche Dinge debuggen
+cmk --help
+```
+
+<img width="858" height="320" alt="image" src="https://github.com/user-attachments/assets/1861bfd3-caef-43c1-bc1c-d7729da96e1d" />
