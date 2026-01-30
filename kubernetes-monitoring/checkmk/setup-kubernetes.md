@@ -168,13 +168,14 @@ kubectl create token checkmk -n checkmk-monitoring --duration=87600h
 ## Schritt 6: CA-Zertifikat extrahieren
 
 ```
-kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 --decode > /tmp/k8s-ca.crt
+# weil 1. Cluster digitalocean, index 0 
+kubectl config view --raw -o jsonpath='{.clusters[1].cluster.certificate-authority-data}' | base64 --decode > k8s-ca.crt
 ```
 
 CA-Zertifikat anzeigen:
 
 ```
-cat /tmp/k8s-ca.crt
+cat k8s-ca.crt
 ```
 
 ## Schritt 7: Cluster Collector Endpoint ermitteln
