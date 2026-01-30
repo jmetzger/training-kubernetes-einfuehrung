@@ -249,7 +249,7 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de/openmetrics
    - **API server endpoint:** `https://<DEINE-K8S-API-IP>:6443`
    - **SSL certificate verification:** Enabled (mit importiertem CA-Cert)
 
-4. **Collector: Enrich Data**
+4. **Collector: Enrich With Usage Data**
    - **Cluster collector endpoint:** `https://checkmk-collector-tln<X>.do.t3isp.de`
 
 5. **Kubernetes API:**
