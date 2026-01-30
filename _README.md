@@ -10,15 +10,6 @@
      * [Was ist ein Dockerfile](#was-ist-ein-dockerfile)
      * [Dockerfile - image kleinhalten](#dockerfile---image-kleinhalten)
 
-  1. Kubernetes Installation
-     * [Kubernetes Installation mit Proxmox und kubespray](#kubernetes-installation-mit-proxmox-und-kubespray)
-    
-  1. Kubernetes Workloads
-     * [Welche Wege gibt es Kubernetes Workloads auszurollen](#welche-wege-gibt-es-kubernetes-workloads-auszurollen)
-    
-  1. Kubernetes Infrastructure (Performance)
-     * [Performance of etcd for setup](#performance-of-etcd-for-setup)
-    
   1. Kubernetes - Überblick
      * [Warum Kubernetes, was macht Kubernetes](#warum-kubernetes-was-macht-kubernetes)
      * [Aufbau Allgemein](#aufbau-allgemein)
@@ -30,26 +21,16 @@
      * [Installer für grosse Cluster](#installer-für-grosse-cluster)
      * [Installation - Welche Komponenten from scratch](#installation---welche-komponenten-from-scratch)
 
-  1. Kubernetes - Überblick
-     * [Liste wichtiger/sinnvoller Client-Tools](https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/tools/liste-client-tools.md)
+  1. Kubernetes Cluster ausrollen
+     * [Kubernetes Cluster mit terraform und bash-scripting ausrollen](#kubernetes-cluster-mit-terraform-und-bash-scripting-ausrollen)
 
-  1. Kubernetes - Hochverfügbarkeit
-     * [Strategien für Hochverfügbarkeit](#strategien-für-hochverfügbarkeit)
-    
-  1. Kubernetes - Authentication
-     * [oidc mit kubectl](#oidc-mit-kubectl)
-     * [traefik authentication mit oidc](#traefik-authentication-mit-oidc)
-
-  1. Kubernetes Deployment - Internals
-     * [Strategy when creating and terminating pods in Deployment - RollingUpdate - maxSurge, maxUnavailability](#strategy-when-creating-and-terminating-pods-in-deployment---rollingupdate---maxsurge-maxunavailability)
+  1. Kubernetes - Upgrade
+     * [Wie Upgrade ich Kubernetes in kubeadm](https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/kubernetes-upgrade/upgrade.md)
 
   1. kubectl 
      * [kubectl einrichten mit namespace](#kubectl-einrichten-mit-namespace)
      * [kubectl cheatsheet kubernetes](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
      * [kubectl mit verschiedenen Clustern arbeiten](#kubectl-mit-verschiedenen-clustern-arbeiten)
-
-  1. Kubernetes Ingress (Eingehender Traffik ins Cluster)
-     * [Wann LoadBalancer, wann Ingress](#wann-loadbalancer-wann-ingress)
 
   1. Kubernetes Praxis API-Objekte 
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](#das-tool-kubectl-devsops---spickzettel)
@@ -66,22 +47,13 @@
      * Services (Devs/Ops)
      * [kubectl/manifest/service](#kubectlmanifestservice)
      * DaemonSets (Devs/Ops)
-     * [ConfigMap Example](#configmap-example)
      * [ConfigMap Example MariaDB](#configmap-example-mariadb)
+     * [ConfigMap Example nginx.conf](#configmap-example-nginxconf)
      * [Secrets Example MariaDB](#secrets-example-mariadb)
      * [Connect to external database](#connect-to-external-database)
 
   1. Kubernetes Ingress (Grundlagen)
      * [Hintergrund Ingress](#hintergrund-ingress)
-
-  1. Kubernetes Ingress (Nginx - deprecated)   
-     * [Ingress Controller auf Digitalocean (doks) mit helm installieren](#ingress-controller-auf-digitalocean-doks-mit-helm-installieren)
-     * [Documentation for default ingress nginx](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
-     * [Beispiel Ingress](#beispiel-ingress)
-     * [Beispiel mit Hostnamen](#beispiel-mit-hostnamen)
-     * [Beispiel Deployment mit Ingress und Hostnamen](#beispiel-deployment-mit-ingress-und-hostnamen)
-     * [Achtung: Ingress mit Helm - annotations](#achtung-ingress-mit-helm---annotations)
-     * [Permanente Weiterleitung mit Ingress](#permanente-weiterleitung-mit-ingress)
 
   1. Kubernetes Ingress (Traefik)
      * [Install Traefik-IngressController](#install-traefik-ingresscontroller)
@@ -100,6 +72,7 @@
      * [Kubernetes secrets Typen](#kubernetes-secrets-typen)
      * [Sealed Secrets - bitnami](#sealed-secrets---bitnami)
      * [Exercise Sealed Secret mariadb](#exercise-sealed-secret-mariadb)
+     * [Alternative zu Hashicorp Vault - Fork OpenBao](https://openbao.org/)
      * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
   1. Kubernetes API-Objekte (Teil 2)
@@ -131,10 +104,17 @@
   1. Helm Charts erstellen und analysieren
      * [Eigenes Helm-Chart erstellen](#eigenes-helm-chart-erstellen)
      * [Chart zur Analyse runterladen und entpacken](#chart-zur-analyse-runterladen-und-entpacken)
+     * [Wie starte ich am besten einfach - mit eigenem Projekt](#wie-starte-ich-am-besten-einfach---mit-eigenem-projekt)
+
+  1. Helm Advanced
+     * [Helm Dependencies Exercise](#helm-dependencies-exercise)
 
   1. Helm - Fehleranalye
      * [Beispiel Cloudpirates - helm chart nginx](#beispiel-cloudpirates---helm-chart-nginx)
 
+  1. Helm mit gitlab ci/cd
+     * [Helm mit gitlab ci/cd ausrollen](#helm-mit-gitlab-cicd-ausrollen)
+    
   1. Helpful plugins
      * [Use shortnames for kubectl - commands](https://gist.github.com/doevelopper/ff4a9a211e74f8a2d44eb4afb21f0a38)
 
@@ -158,6 +138,11 @@
   1. Kubernetes Monitoring 
      * [Prometheus Monitoring Server (Overview)](#prometheus-monitoring-server-overview)
      * [Prometheus / Grafana Stack installieren](#prometheus--grafana-stack-installieren)
+
+  1. Kubernetes Monitoring (checkmk)
+     * [Checkmk in Kubernetes einrichten](#checkmk-in-kubernetes-einrichten)
+     * [Checkmk Raw vs. Enterprise in Bezug auf Kubernetes](#checkmk-raw-vs-enterprise-in-bezug-auf-kubernetes)
+     * [Kubernetes Dashboards](#kubernetes-dashboards)
  
   1. Kubernetes QoS / HealthChecks / Live / Readiness
      * [Quality of Service - evict pods](#quality-of-service---evict-pods)
@@ -172,6 +157,9 @@
   1. Installation mit kubeadm
      * [Schritt für Schritt mit kubeadm](#schritt-für-schritt-mit-kubeadm)
 
+  1. Kubernetes Netzwerk (Antrea / NSX)
+     * [Netzwerkspezialität bei NSX mit Antrea](#netzwerkspezialität-bei-nsx-mit-antrea)
+
   1. Tipps & Tricks
      * [Pods bleiben im terminate-mode stehen](#pods-bleiben-im-terminate-mode-stehen)
      
@@ -180,6 +168,41 @@
 
   1. Podman
      * [Podman vs. Docker](#podman-vs-docker)
+
+ 1. Kubernetes Installation
+     * [Kubernetes Installation mit Proxmox und kubespray](#kubernetes-installation-mit-proxmox-und-kubespray)
+    
+  1. Kubernetes Workloads
+     * [Welche Wege gibt es Kubernetes Workloads auszurollen](#welche-wege-gibt-es-kubernetes-workloads-auszurollen)
+    
+  1. Kubernetes Infrastructure (Performance)
+     * [Performance of etcd for setup](#performance-of-etcd-for-setup)
+    
+  1. Kubernetes - Überblick
+     * [Liste wichtiger/sinnvoller Client-Tools](https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/tools/liste-client-tools.md)
+
+  1. Kubernetes - Hochverfügbarkeit
+     * [Strategien für Hochverfügbarkeit](#strategien-für-hochverfügbarkeit)
+    
+  1. Kubernetes - Authentication
+     * [oidc mit kubectl](#oidc-mit-kubectl)
+     * [traefik authentication mit oidc](#traefik-authentication-mit-oidc)
+
+  1. Kubernetes Deployment - Internals
+     * [Strategy when creating and terminating pods in Deployment - RollingUpdate - maxSurge, maxUnavailability](#strategy-when-creating-and-terminating-pods-in-deployment---rollingupdate---maxsurge-maxunavailability)
+
+  1. Kubernetes Ingress (Eingehender Traffik ins Cluster)
+     * [Wann LoadBalancer, wann Ingress](#wann-loadbalancer-wann-ingress)
+    
+  1. Kubernetes Ingress (Nginx - deprecated)   
+     * [Ingress Controller auf Digitalocean (doks) mit helm installieren](#ingress-controller-auf-digitalocean-doks-mit-helm-installieren)
+     * [Documentation for default ingress nginx](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
+     * [Beispiel Ingress](#beispiel-ingress)
+     * [Beispiel mit Hostnamen](#beispiel-mit-hostnamen)
+     * [Beispiel Deployment mit Ingress und Hostnamen](#beispiel-deployment-mit-ingress-und-hostnamen)
+     * [Achtung: Ingress mit Helm - annotations](#achtung-ingress-mit-helm---annotations)
+     * [Permanente Weiterleitung mit Ingress](#permanente-weiterleitung-mit-ingress)
+
 
   1. ServiceMesh
      * [Why a ServiceMesh ?](#why-a-servicemesh-)
@@ -220,10 +243,7 @@
        
   1. LoadBalancer on Premise (metallb)
      * [Metallb](#metallb)
-       
-  1. Helm mit gitlab ci/cd
-     * [Helm mit gitlab ci/cd ausrollen](#helm-mit-gitlab-cicd-ausrollen)
-    
+        
   1. Kubernetes Verläßlichkeit erreichen 
      * [Keine 2 pods auf gleichem Node - PodAntinAffinity](#keine-2-pods-auf-gleichem-node---podantinaffinity)
       
@@ -409,7 +429,7 @@
      * [Kubernetes Backup](#kubernetes-backup)
      * [Kasten.io overview](https://docs.kasten.io/latest/usage/overview.html)
 
-  1. Kubernetes Monitoring 
+  1. Kubernetes Monitoring
      * [Debugging von Ingress](#debugging-von-ingress)
      * [Ebenen des Loggings](#ebenen-des-loggings)
      * [Working with kubectl logs](#working-with-kubectl-logs)
@@ -418,7 +438,12 @@
      * [Long Installation step-by-step - Digitalocean](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes)
      * Container Level Monitoring (Devs/Ops)
      * [Setting up metrics-server - microk8s](#setting-up-metrics-server---microk8s)
-  
+
+  1. Kubernetes Monitoring (CheckMK)
+     * [CheckMK RAW - Kubernetes Monitoring einrichten](#checkmk-raw---kubernetes-monitoring-einrichten)
+     * [CheckMK Enterprise Features für Kubernetes](#checkmk-enterprise-features-für-kubernetes)
+     * [Kubernetes Dashboards in CheckMK](#kubernetes-dashboards-in-checkmk)
+
   1. Kubernetes Security 
      * [Grundlagen und Beispiel (Praktisch)](#grundlagen-und-beispiel-praktisch)
 
@@ -552,105 +577,6 @@ RUN apt-get update && \
  * https://codeburst.io/docker-from-scratch-2a84552470c8
 
 
-## Kubernetes Installation
-
-### Kubernetes Installation mit Proxmox und kubespray
-
-
-### Schritt 1: virtuellen Maschine deployen 
-
-  * 4GB (control nodes eher 8GB) - minimaler Arbeitsspeicher
-  * Debian als Betriebssystem
-  * minimale Installation
-  * ssh-server installiert (openssh-server)
-  * sudo benutzer ohne Passwort für privilege Escalation (z.B. admin darf als root arbeiten)
-
-### Info 1.1 Netzwerk 
-
-   * Alle virtuellen Maschinen im gleichen Netzwerk (kein VLAN)
-   * Kubernetes mit eigenem VLAN
-   * Alternativ neuerdings: mit SDN (Performance beobachten !)
-
-### Schritt 2: maschine für ansible deployen/nutzen 
-
-   * private/public key erstellen und den public auf die maschinen aus Schritt 1 verteilen
-   * ansible und git installieren
-   * kubespray clonen oder docker image verwenden (dann braucht man kein ansible installieren)
-   * apt update -y; apt install docker.io -y
-   * Inventory rauskopieren und anpassen
-
-```
-[all]
-## Master/Control Plane Node
-kube-master ansible_host=192.168.1.10
-## Worker Nodes
-kube-worker1 ansible_host=192.168.1.11
-kube-worker2 ansible_host=192.168.1.12
-
-[kube_control_plane]
-kube-master
-
-[etcd]
-kube-master
-
-[kube_node]
-kube-worker1
-kube-worker2
-```
-
-```
-## evtl config anpassen vornehmen in den group vars
-## z.B. 
-https://github.com/kubernetes-sigs/kubespray/blob/master/inventory/sample/group_vars/k8s_cluster/k8s-cluster.yml
-```
-
-```
-ansible-playbook -i inventory/mycluster/ cluster.yml -b -v \
-  --private-key=~/.ssh/private_key
-```
-
-```
-## zum hostsystem verbinden und die kubeconfig
-## in der Regel
-cd /home/<user-mit-dem-ich-installiert-habe>/.kube
-cat config
-```
-
-
-
-## Kubernetes Workloads
-
-### Welche Wege gibt es Kubernetes Workloads auszurollen
-
-
-  * gitlab ci/cd
-  * github actions
-  * bitbucket + jenkings
-  * ArgoCD
-  * Flux
-  * helm/helmfile
-
-### Grafik 
-
-<img width="1297" height="820" alt="image" src="https://github.com/user-attachments/assets/0593d586-3888-40a4-81a7-5dce1d8af63b" />
-
-## Kubernetes Infrastructure (Performance)
-
-### Performance of etcd for setup
-
-
-```
-etcdctl check perf --load="s"
-(s steht für small: 
-
-https://andreaskaris.github.io/blog/openshift/etcd_perf/
-The performance check's workload model. Accepted workloads: s(small), m(medium), l(large), xl(xLarge)
-
-
-
-
-```
-
 ## Kubernetes - Überblick
 
 ### Warum Kubernetes, was macht Kubernetes
@@ -729,7 +655,7 @@ The performance check's workload model. Accepted workloads: s(small), m(medium),
 
 #### Pod/Pods 
 
-  * Pods sind die kleinsten einsetzbaren Einheiten, die in Kubernetes erstellt und verwaltet werden können.
+  * Pods sind die kleinste verwaltbare Einheit, die in Kubernetes erstellt und verwaltet werden können.
   * Ein Pod (übersetzt Gruppe) ist eine Gruppe von einem oder mehreren Containern
     * gemeinsam genutzter Speicher- und Netzwerkressourcen   
     * Befinden sich immer auf dem gleich virtuellen Server 
@@ -931,8 +857,11 @@ it is not suitable for production.
 
 ### Rancherlabs Ranger (SuSE) 
 
-   * Grafische Weboberfläche
-   * kann eine oder mehrere Cluster verwaltetn
+   * Grafische Weboberfläche (Management GUI)
+     * mit Docker oder aber auch in einem cluster (z.B. helm - Chart)
+   * kann eine oder mehrere Cluster verwalten
+     * Installation: k3s
+     * Installation: RKE2 
 
 ### OpenStack (Alternative: vmware) - OpenSource 
 
@@ -944,7 +873,7 @@ it is not suitable for production.
 #### Schritt 2: Kubernetes ausrollen 
 
     * Ansible (leichter bestimmte zu Konfigurieren) 
-    * kubeadmin 
+    * kubeadm
 
 ### Proxmox 
 
@@ -1176,6 +1105,5860 @@ runcmd:
   - sed -i '/11trainingdo/c 11trainingdo:$6$HeLUJW3a$4xSfDFQjKWfAoGkZF3LFAxM4hgl3d6ATbr2kEu9zMOFwLxkYMO.AJF526mZONwdmsm9sg0tCBKl.SYbhS52u70:17476:0:99999:7:::' /etc/shadow
   - echo "11trainingdo ALL=(ALL) ALL" > /etc/sudoers.d/11trainingdo
   - chmod 0440 /etc/sudoers.d/11trainingdo
+```
+
+## Kubernetes Cluster ausrollen
+
+### Kubernetes Cluster mit terraform und bash-scripting ausrollen
+
+
+  * ausgerollt mit terraform (binary ist installiert) - snap install --classic terraform 
+  * beinhaltet
+      1. 1      controlplane
+      1. 2 worker nodes
+      1. metallb mit ips der Nodes (hacky but works)
+      1. ingress mit wildcard-domain:  *.tlnx.do.t3isp.de
+      1. cert-manager mit helmfile sync 
+   
+### Walktrough 
+
+```
+cd
+git clone https://github.com/jmetzger/training-istio-kubernetes-stack-do-terraform.git install
+cd install
+cat /tmp/.env
+source /tmp/.env
+terraform init
+terraform apply -auto-approve
+##
+helmfile sync 
+```
+
+### Hinweis
+
+```
+## Sollte es nicht sauber durchlaufen
+## einfach nochmal
+terraform apply -auto-approve
+
+## Wenn das nicht geht, einfach nochmal neu
+terraform destroy -auto-approve
+terraform apply -auto-approve
+```
+
+## Kubernetes - Upgrade
+
+### Wie Upgrade ich Kubernetes in kubeadm
+
+  * https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/kubernetes-upgrade/upgrade.md
+
+## kubectl 
+
+### kubectl einrichten mit namespace
+
+
+### config einrichten 
+
+```
+cd
+mkdir -p .kube
+cd .kube
+cp /tmp/config config
+ls -la
+## Alternative: nano config befüllen 
+## das bekommt ihr aus Eurem Cluster Management Tool 
+```
+
+```
+kubectl cluster-info
+```
+
+### Arbeitsbereich konfigurieren 
+
+```
+kubectl create ns <euername>
+kubectl get ns
+kubectl config set-context --current --namespace <euername>
+kubectl get pods
+```
+
+
+```
+## Beispiel 
+## kubectl create ns jochen
+## kubectl get ns
+## kubectl config set-context --current --namespace jochen
+## kubectl get pods
+```
+
+### kubectl cheatsheet kubernetes
+
+  * https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
+### kubectl mit verschiedenen Clustern arbeiten
+
+
+```
+### Zwei config in KUBECONFIG env variable
+cd ~/.kube
+mv config config.kubeadm 
+export KUBECONFIG=~/.kube/config.kubeadm:~/.kube/config.doks
+
+## wir sehen beide configs
+kubectl config view
+
+kubectl config view --flatten > config
+unset KUBECONFIG
+
+## alle Contexti anzeigen lassen 
+kubectl config get-contexts 
+
+kubectl config use-context do-fra1-cluster-bka  
+kubectl cluster-info
+kubectl get nodes 
+
+kubectl config use-context kubernetes-admin@kubernetes
+kubectl cluster-info
+kubectl get nodes 
+```
+
+## Kubernetes Praxis API-Objekte 
+
+### Das Tool kubectl (Devs/Ops) - Spickzettel
+
+
+### Hilfe
+
+```
+## Hilfe zu befehl
+kubectl help config
+## Hilfe nächste Ebene 
+kubectl config set-context --help
+```
+
+### Allgemein 
+
+```
+## Zeige Informationen über das Cluster 
+kubectl cluster-info 
+
+## Welche Ressourcen / Objekte gibt es, z.B. Pod 
+kubectl api-resources 
+kubectl api-resources | grep namespaces 
+
+## Hilfe zu object und eigenschaften bekommen
+kubectl explain pod 
+kubectl explain pod.metadata
+kubectl explain pod.metadata.name 
+
+```
+
+### namespaces 
+
+```
+kubectl get ns
+kubectl get namespaces 
+
+## namespace wechseln, z.B. nach Ingress
+kubectl config set-context --current --namespace=ingress 
+## jetzt werden alle Objekte im Namespace Ingress angezeigt 
+kubectl get all,configmaps 
+
+## wieder zurückwechseln. 
+## der standardmäßige Namespace ist 'default' 
+kubectl config set-context --current --namespace=default 
+
+```
+
+### Arbeiten mit manifesten 
+
+```
+kubectl apply -f nginx-replicaset.yml 
+## Wie ist aktuell die hinterlegte config im system
+kubectl get -o yaml -f nginx-replicaset.yml 
+
+## Änderung in nginx-replicaset.yml z.B. replicas: 4 
+## dry-run - was wird geändert 
+kubectl diff -f nginx-replicaset.yml 
+
+## anwenden 
+kubectl apply -f nginx-replicaset.yml 
+
+## Alle Objekte aus manifest löschen
+kubectl delete -f nginx-replicaset.yml 
+
+## Recursive Löschen
+cd ~/manifests 
+## multiple subfolders subfolders present 
+kubectl delete -f . -R 
+
+
+```
+
+### Ausgabeformate / Spezielle Informationen
+
+```
+## Ausgabe kann in verschiedenen Formaten erfolgen 
+kubectl get pods -o wide # weitere informationen 
+## im json format
+kubectl get pods -o json 
+
+## gilt natürluch auch für andere kommandos
+kubectl get deploy -o json 
+kubectl get deploy -o yaml 
+
+## Label anzeigen 
+kubectl get deploy --show-labels 
+
+```
+
+
+
+### Zu den Pods 
+
+```
+## Start einen pod // BESSER: direkt manifest verwenden
+## kubectl run podname image=imagename 
+kubectl run nginx image=nginx 
+
+## Pods anzeigen 
+kubectl get pods 
+kubectl get pod
+
+## Pods in allen namespaces anzeigen 
+kubectl get pods -A 
+
+## Format weitere Information 
+kubectl get pod -o wide 
+## Zeige labels der Pods
+kubectl get pods --show-labels 
+
+## Zeige pods mit einem bestimmten label 
+kubectl get pods -l app=nginx 
+
+## Status eines Pods anzeigen 
+kubectl describe pod nginx 
+
+## Pod löschen 
+kubectl delete pod nginx
+## Löscht alle Pods im eigenen Namespace bzw. Default 
+kubectl delete pods --all 
+
+## Kommando in pod ausführen 
+kubectl exec -it nginx -- bash 
+
+```
+
+
+
+### Alle Objekte anzeigen 
+
+```
+## Nur die wichtigsten Objekte werden mit all angezeigt  
+kubectl get all
+## Dies, kann ich wie folgt um weitere ergänzen 
+kubectl get all,configmaps 
+
+## Über alle Namespaces hinweg 
+kubectl get all -A 
+```
+
+### Logs
+
+```
+kubectl logs <container>
+kubectl logs <deployment>
+## e.g. 
+## kubectl logs -n namespace8 deploy/nginx
+## with timestamp 
+kubectl logs --timestamps -n namespace8 deploy/nginx
+## continously show output 
+kubectl logs -f <pod>
+## letzten x Zeilen anschauen aus log anschauen
+kubectl logs --tail=5 <your pod>
+```
+
+### Referenz
+
+  * https://kubernetes.io/de/docs/reference/kubectl/cheatsheet/
+
+### kubectl example with run
+
+
+### Example (that does work)
+
+```
+## Synopsis (most simplistic example 
+## kubectl run NAME --image=IMAGE_EG_FROM_DOCKER
+## example
+kubectl run nginx --image=nginx:1.23 
+
+kubectl get pods 
+## on which node does it run ? 
+kubectl get pods -o wide 
+```
+
+### Example (that does not work) 
+
+```
+kubectl run testpod --image=foo2
+## ImageErrPull - Image konnte nicht geladen werden 
+kubectl get pods 
+## Weitere status - info 
+kubectl describe pods testpod 
+```
+
+### Ref:
+
+  * https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#run
+
+### Bauen einer Applikation mit Resource Objekten
+
+
+![image](https://github.com/jmetzger/training-kubernetes-einfuehrung/assets/1933318/69da28e4-eb8e-402c-99f6-89ccb231f386)
+
+### Anatomie einer Webanwendungen
+
+
+![image](https://github.com/user-attachments/assets/0a0c519e-fad3-4aac-b945-2e0a7fc2999c)
+
+### kubectl/manifest/pod
+
+
+### Walkthrough 
+
+```
+cd
+mkdir -p manifests
+cd manifests/
+mkdir -p 01-web
+cd 01-web
+nano nginx-static.yml 
+```
+
+```
+## vi nginx-static.yml 
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-static-web
+  labels:
+    webserver: nginx
+spec:
+  containers:
+  - name: web
+    image: nginx:1.23
+
+```
+
+```
+kubectl apply -f nginx-static.yml 
+```
+
+```
+kubectl get pod/nginx-static-web -o wide 
+kubectl describe pod nginx-static-web 
+## show config 
+kubectl get pod/nginx-static-web -o yaml
+## seitenweise anzeigen 
+kubectl get pod/nginx-static-web -o yaml | less 
+
+```
+
+### Aufräumen 
+
+```
+kubectl delete -f .
+```
+
+### kubectl/manifest/replicaset
+
+
+### Walkthrough Erstellen 
+
+```
+cd
+mkdir -p manifests
+cd manifests 
+mkdir 02-rs
+cd 02-rs 
+nano rs.yml 
+```
+
+```
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx-replica-set
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      name: template-nginx-replica-set
+      labels:
+        tier: frontend
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.23
+          ports:
+             - containerPort: 80
+             
+
+```
+
+```
+kubectl apply -f .
+kubectl get all
+kubectl get pods -l tier=frontend
+kubectl get pods --show-labels 
+## name anpassen
+kubectl describe pod/nginx-replica-set-lpkbs
+```
+
+### Pod löschen, was passiert 
+
+```
+## kubectl delete po nginx-r<TAB>
+## einfach einen pod raussuchen und löschen 
+## z.B. 
+kubectl delete po nginx-replica-set-xg8jp
+```
+
+```
+## gucken, welches sind die neuesten ? 
+kubectl get pods
+``` 
+
+### Walthrough Skalieren
+
+```
+nano rs.yml
+```
+
+```
+## Ändern
+## replicas: 5
+## -> ändern in
+## replicas: 8
+```
+
+```
+kubectl apply -f .
+kubectl get pods
+```
+
+
+### Aufräumen des replicasets 
+
+```
+kubectl delete -f .
+``` 
+
+### kubectl/manifest/deployments
+
+
+### Prepare 
+
+```
+cd
+mkdir -p manifests 
+cd manifests 
+mkdir 03-deploy 
+cd 03-deploy 
+nano nginx-deployment.yml 
+```
+
+```
+## vi nginx-deployment.yml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 8 # tells deployment to run 8 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginxinc/nginx-unprivileged:1.28
+        ports:
+        - containerPort: 8080
+        
+```
+
+```
+kubectl apply -f . 
+```
+
+### Explore 
+
+```
+kubectl get all
+```
+
+### Optional: Change image - Version 
+
+```
+nano nginx-deployment.yml 
+```
+
+
+#### Version 1: (optical nicer)
+
+```
+## Ändern des images von nginxinc/nginx-unprivileged:1.28 -> auf 1.29
+## danach 
+kubectl apply -f . && watch kubectl get pods 
+```
+
+#### Version 2: 
+
+```
+## Ändern des images von nginxinc/nginx-unprivileged:1.28 -> auf 1.29
+## danach 
+kubectl apply -f .
+kubectl get all 
+kubectl get pods -w
+```
+
+
+### Netzwerkverbindung zum Pod testen
+
+
+### Situation 
+
+```
+Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
+```
+
+### Was wollen wir testen (auf der Verbindungsebene) ?
+
+<img width="900" height="343" alt="image" src="https://github.com/user-attachments/assets/937221ca-20ff-4b1f-926c-cee1f5923f60" />
+
+
+### Behelf: Eigenen Pod starten mit busybox 
+
+```
+## der einfachste Weg
+kubectl run podtest --rm -it --image busybox 
+```
+
+```
+## Alternative 
+kubectl run podtest --rm -it --image busybox -- /bin/sh
+```
+
+
+
+### Example test connection 
+
+```
+## wget befehl zum Kopieren
+ping -c4 10.244.0.99
+wget -O - http://10.244.0.99
+```
+
+```
+## -O -> Output (grosses O (buchstabe)) 
+kubectl run podtest --rm -ti --image busybox -- /bin/sh
+/ # wget -O - http://10.244.0.99
+/ # exit 
+```
+
+### kubectl/manifest/service
+
+
+### Warum Services ? 
+
+  * Wenn in einem Deployment bei einem Wechsel des images neue Pods erstellt werden, erhalten diese eine neue IP-Adresse
+  * Nachteil: Man müsste diese dann in allen Applikation ständig ändern, die auf die Pods zugreifen.
+  * Lösung: Wir schalten einen Service davor !
+
+### Hintergrund IP-Wechsel 
+ 
+ <img width="930" height="134" alt="image" src="https://github.com/user-attachments/assets/26c16134-1f2a-4b42-8cca-355099d08604" />
+
+ * Image-Version wurde jetzt in Deployment geändert, Ergebnis:
+
+<img width="939" height="137" alt="image" src="https://github.com/user-attachments/assets/fb5a665b-98a7-445b-8ec7-27f12c2267e1" />
+
+
+### Example I : Service with ClusterIP 
+
+#### Schritt 1: Vorbereitung 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir 04-service 
+cd 04-service 
+```
+
+#### Schritt 2: Deployment erstellen 
+
+```
+nano deploy.yml 
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-nginx
+spec:
+  selector:
+    matchLabels:
+      web: my-nginx
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        web: my-nginx
+    spec:
+      containers:
+      - name: cont-nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+```
+
+```
+nano service.yml
+```
+
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-nginx
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    web: my-nginx      
+        
+```        
+
+```
+kubectl apply -f .
+## wie ist die ClusterIP ?  
+kubectl get all
+kubectl get svc svc-nginx
+## Find endpoints / did svc find pods ?
+kubectl describe svc svc-nginx 
+```
+
+#### Schritt 3: Deployment löschen 
+
+```
+kubectl delete -f deploy.yml
+## Keine endpunkte mehr 
+kubectl describe svc svc-nginx
+```
+
+ ### Schritt 4: Deployment wieder erstellen 
+
+```
+kubectl apply -f .
+## Endpunkte wieder da
+kubectl describe svc svc-nginx
+```
+
+
+### Example II : Short version (NodePort)
+
+```
+## Wo sind wir ?
+## cd; cd manifests/04-service 
+```
+
+```
+nano service.yml
+## in Zeile type: 
+## ClusterIP ersetzt durch NodePort 
+
+kubectl apply -f .
+## NodePort ab 30.000 ausfindig machen
+kubectl get svc
+```
+
+<img width="793" height="44" alt="image" src="https://github.com/user-attachments/assets/16bf90d4-7c3f-4c8f-9846-2ff5d0e63fcf" />
+
+```
+kubectl get nodes -o wide
+```
+
+<img width="926" height="157" alt="image" src="https://github.com/user-attachments/assets/eb396f36-cff1-4b6d-b136-e110fff1c807" />
+
+```
+## im client Externe NodeIP und NodePort verwenden 
+curl http://164.92.193.245:32708
+```
+
+### Example II : Service with NodePort (long version)
+
+```
+nano deploy.yml
+```
+
+```
+## you will get port opened on every node in the range 30000+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-nginx
+spec:
+  selector:
+    matchLabels:
+      web: my-nginx
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        web: my-nginx
+    spec:
+      containers:
+      - name: cont-nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+```
+
+```
+nano service.yml
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-nginx
+  labels:
+    run: svc-my-nginx
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    web: my-nginx
+       
+```        
+
+```
+kubectl apply -f .
+```
+
+
+### Example III: Service mit LoadBalancer (ExternalIP)
+
+```
+nano service.yml
+## in Zeile type: 
+## NodePort ersetzt durch LoadBalancer  
+
+kubectl apply -f .
+kubectl get svc svc-nginx
+kubectl describe svc svc-nginx 
+kubectl get svc svc-nginx -w 
+## spätestens nach 5 Minuten bekommen wir eine externe ip
+## z.B. 41.32.44.45
+
+curl http://41.32.44.45 
+```
+
+
+### Example getting a specific ip from loadbalancer (if supported) 
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-nginx2
+spec:
+  type: LoadBalancer
+  # this line to get a specific ip if supported
+  loadBalancerIP: 10.34.12.34
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    web: my-nginx
+```       
+
+
+
+### Ref.
+
+  * https://kubernetes.io/docs/concepts/services-networking/connect-applications-service/
+
+### ConfigMap Example MariaDB
+
+
+### Schritt 1: configmap 
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir cftest 
+cd cftest 
+nano 01-configmap.yml 
+```
+
+```
+### 01-configmap.yml
+kind: ConfigMap 
+apiVersion: v1 
+metadata:
+  name: mariadb-configmap 
+data:
+  # als Wertepaare
+  MARIADB_ROOT_PASSWORD: 11abc432
+  TEST_CASE: "47"
+```
+
+```
+kubectl apply -f .
+kubectl describe cm  mariadb-configmap
+kubectl get cm
+kubectl get cm mariadb-configmap -o yaml
+```
+
+
+### Schritt 2: Deployment 
+```
+nano 02-deploy.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb-cont
+        image: mariadb:10.11
+        envFrom:
+        - configMapRef:
+            name: mariadb-configmap
+
+```
+
+```
+kubectl apply -f .
+kubectl get pods 
+kubectl exec -it deploy/mariadb-deployment -- bash 
+```
+
+```
+env
+env | grep ROOT
+env | grep TEST
+exit
+```
+
+### Schritt 3: Service for mariadb 
+
+```
+nano 03-service.yml 
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3306
+    protocol: TCP
+  selector:
+    app: mariadb
+```
+
+```
+kubectl apply -f 03-service.yml 
+```
+
+### Schritt 4: client aufsetzen 
+
+```
+nano 04-client.yml 
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-client
+spec:
+  selector:
+    matchLabels:
+      app: ubuntu
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      labels:
+        app: ubuntu
+    spec:
+      containers:
+      - name: service
+        image: ubuntu
+        command: [ "/bin/sh" , "-c", "tail -f /dev/null" ]
+        envFrom:
+        - configMapRef:
+            name: mariadb-configmap
+```
+
+```
+kubectl apply -f 04-client.yml 
+```
+
+
+
+```
+## im client 
+kubectl exec -it deploy/mariadb-client -- bash 
+apt update; apt install -y mariadb-client iputils-ping
+```
+
+### Schritt 5: mysql-zugang von aussen erstellen 
+
+```
+kubectl exec -it deploy/mariadb-deployment -- bash
+```
+
+```
+mysql -uroot -p$MARIADB_ROOT_PASSWORD
+```
+
+```
+## innerhalb von mysql 
+create user ext@'%' identified by '11abc432';
+grant all on *.* to ext@'%';
+
+```
+
+### Schritt 6: mysql von client aus testen 
+
+```
+kubectl exec -it deploy/mariadb-client -- bash
+```
+
+```
+mysql -uext -p$MARIADB_ROOT_PASSWORD -h mariadb
+```
+
+```
+show databases;
+```
+
+### Important Sidenode 
+
+  * If configmap changes, deployment does not know
+  * So kubectl apply -f deploy.yml will not have any effect
+  * to fix, use stakater/reloader: https://github.com/stakater/Reloader
+
+
+### ConfigMap Example nginx.conf
+
+
+### Schritt 1: configmap 
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir nginx-conf
+cd nginx-conf
+nano 01-configmap.yml 
+```
+
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  nginx.conf: |
+    events {
+      worker_connections 1024;
+    }
+    http {
+      server {
+        listen 80;
+        location / {
+          return 200 "Hello from ConfigMap!\n";
+          add_header Content-Type text/plain;
+        }
+        location /health {
+          return 200 "OK";
+        }
+      }
+    }
+```
+
+```
+kubectl apply -f .
+kubectl describe cm  nginx-config
+kubectl get cm
+kubectl get cm nginx-config -o yaml
+```
+
+
+### Schritt 2: Pod 
+```
+nano 02-pod.yml
+```
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: custom-nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:alpine
+    volumeMounts:
+    - name: nginx-config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: nginx.conf
+  volumes:
+  - name: nginx-config
+    configMap:
+      name: nginx-config
+```
+```
+kubectl apply -f .
+kubectl get pods 
+kubectl exec -it custom-nginx -- sh
+```
+
+```
+cd /etc/nginx
+cat nginx.conf
+exit
+```
+
+### Schritt 3: busybox connection 
+
+```
+## wir brauchen die pod-ip 
+kubectl get pods custom-nginx -o wide 
+kubectl run -it --rm podtest --image=busybox
+```
+
+```
+## in der shell
+wget -O - <ip-von-oben-aus-schritt-3>
+```
+
+```
+exit
+```
+
+
+
+### Secrets Example MariaDB
+
+
+### Schritt 1: secret  
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir secrettest
+cd secrettest 
+```
+
+```
+kubectl create secret generic mariadb-secret --from-literal=MARIADB_ROOT_PASSWORD=11abc432 --dry-run=client -o yaml > 01-secrets.yml
+```
+
+```
+kubectl apply -f .
+kubectl get secrets 
+kubectl get secrets  mariadb-secret  -o yaml
+```
+
+
+### Schritt 2: Deployment 
+```
+nano 02-deploy.yml
+```
+
+```
+##deploy.yml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb-cont
+        image: mariadb:latest
+        envFrom:
+        - secretRef:
+            name: mariadb-secret
+
+```
+
+```
+kubectl apply -f .
+```
+
+### Testing 
+
+```
+## Führt den Befehl env in einem Pod des Deployments aus  
+kubectl exec deployment/mariadb-deployment -- env
+## eigentlich macht er das:
+## kubectl exec mariadb-deployment-c6df6f959-q6swp -- env
+```
+
+
+### Important Sidenode 
+
+  * If configmap changes, deployment does not know
+  * So kubectl apply -f deploy.yml will not have any effect
+  * to fix, use stakater/reloader: [Stakater reloader](https://github.com/stakater/Reloader)
+
+### Connect to external database
+
+
+### Prerequisites 
+
+  * MariaDB - Server is running on digitalocean in same network as doks (kubernetes) - cluster (10.135.0.x) 
+  * DNS-Entry for mariadb-server.t3isp.de -> pointing to private ip: 10.135.0.9
+
+### Variante 1:
+
+#### Schritt 1: Service erstellen 
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir 05-external-db 
+cd 05-external-db 
+nano 01-external-db.yml
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: dbexternal
+spec:
+  type: ExternalName
+  externalName: mariadb-server.t3isp.de
+```
+
+```
+kubectl apply -f 01-external-db.yml 
+```
+
+#### Schritt 2: configmap anlegen oder ergänzen 
+
+```
+## Ergänzen 
+## unter data zwei weitere Zeile 
+### 01-configmap.yml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: mariadb-configmap
+data:
+  # als Wertepaare
+  MARIADB_ROOT_PASSWORD: 11abc432
+  DB_USER: ext
+  DB_PASS: 11dortmund22
+```
+
+```
+kubectl apply -f 01-configmap.yml  
+```
+
+```
+## client deployment gelöscht 
+kubectl delete -f 04-client.yml
+kubectl apply -f 04-client.yml 
+kubectl exec -it deploy/mariadb-client -- bash 
+```
+
+```
+## Im client 
+apt update; apt install -y mariadb-client iputils-ping 
+```
+
+
+#### Schritt 3: Service testen 
+
+```
+kubectl exec -it deploy/mariadb-client -- bash
+```
+
+```
+## im container verbinden mit mysql 
+mysql -u$DB_USER -p$DB_PASS -h dbexternal
+```
+
+```
+## im verbundenen MySQL-Client 
+show databases;
+```
+
+
+### Variante 2:
+
+```
+cd 
+mkdir -p manifests
+cd manifests
+mkdir 05-external-db 
+cd 05-external-db 
+nano 02-external-endpoint.yml
+```
+
+
+## Kubernetes Ingress (Grundlagen)
+
+### Hintergrund Ingress
+
+
+
+
+### Ref. / Dokumentation 
+
+  * https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+
+## Kubernetes Ingress (Traefik)
+
+### Install Traefik-IngressController
+
+
+```
+helm repo add traefik https://traefik.github.io/charts
+
+helm upgrade -n ingress --install traefik traefik/traefik --version 39.0.0 --create-namespace --skip-crds --reset-values
+
+kubectl -n ingress get pods
+kubectl -n ingress get svc
+helm -n ingress status traefik 
+
+## Use special crds helm chart instead, because it does not deploy crds for gateway-api by default
+## We get an error on digitalocean doks
+helm -n ingress upgrade --install traefik-crds traefik/traefik-crds --version 1.14.0 --reset-values 
+```
+
+### Ingress mit traefik
+
+
+### Step 1: Walkthrough 
+
+```
+cd
+mkdir -p manifests 
+cd manifests
+mkdir abi 
+cd abi
+```
+
+```
+nano apple-deploy.yml 
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apple-app
+  labels:
+    app: apple
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apple
+  template:
+    metadata:
+      labels:
+        app: apple
+    spec:
+      containers:
+        - name: web
+          image: hashicorp/http-echo
+          args:
+            - "-text=apple-<euer-name>"
+```
+
+```
+nano apple-svc.yaml
+```
+
+
+```
+kind: Service
+apiVersion: v1
+metadata:
+  name: apple-service
+spec:
+  type: ClusterIP
+  selector:
+    app: apple
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5678 # Default port for image
+```
+
+```
+kubectl apply -f .
+```
+
+```
+nano banana-deploy.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banana-app
+  labels:
+    app: banana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: banana
+  template:
+    metadata:
+      labels:
+        app: banana
+    spec:
+      containers:
+        - name: web
+          image: hashicorp/http-echo
+          args:
+            - "-text=banana-<euer-name>"
+```
+
+```
+nano banana-svc.yaml
+```
+
+```
+kind: Service
+apiVersion: v1
+metadata:
+  name: banana-service
+spec:
+  type: ClusterIP
+  selector:
+    app: banana
+  ports:
+    - port: 80
+      targetPort: 5678 # Default port for image
+```
+
+```
+kubectl apply -f .
+```
+
+### Step 2: Testing connection by podIP and Service 
+
+```
+kubectl get svc
+kubectl get pods -o wide
+kubectl run podtest --rm -it --image busybox
+```
+
+```
+/ # wget -O - http://<pod-ip>:5678 
+/ # wget -O - http://<cluster-ip>
+```
+
+### Step 3: Walkthrough 
+
+```
+nano ingress.yml
+```
+
+```
+## Ingress
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: example-ingress
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: "<euername>.app.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          backend:
+            serviceName: apple-service
+            servicePort: 80
+        - path: /banana
+          backend:
+            serviceName: banana-service
+            servicePort: 80
+```
+
+```
+## ingress 
+kubectl apply -f ingress.yml
+```
+
+### Reference 
+
+  * https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+
+### Step 4: Find the problem 
+
+#### Fix 4.1: Fehler: no matches kind "Ingress" in version "extensions/v1beta1"
+
+```
+## Gibt es diese Landkarte überhaupt
+kubectl api-versions
+## auf welcher Landkarte/Gruppe befindet sich Ingress jetzt 
+kubectl explain ingress | head
+## -> jetzt auf networking.k8s.io/v1 
+
+```
+
+```
+nano ingress.yml
+```
+
+```
+## auf apiVersion: extensions/v1beta1
+## wird -> networking.k8s.io/v1
+```
+
+```
+kubectl apply -f .
+```
+
+#### Fix 4.2: Bad Request unkown field ServiceName / ServicePort 
+
+
+```
+## was geht für die Property backend 
+kubectl explain ingress.spec.rules.http.paths.backend
+## und was geht für service
+kubectl explain ingress.spec.rules.http.paths.backend.service
+```
+
+```
+nano ingress.yml
+```
+
+```
+## Wir ersetzen 
+## serviceName: apple-service 
+## durch:
+## service: 
+##   name: apple-service 
+
+## das gleiche für banana 
+```
+
+```
+kubectl apply -f . 
+```
+
+
+#### Fix 4.3. BadRequest unknown field servicePort
+
+```
+## was geht für die Property backend 
+kubectl explain ingress.spec.rules.http.paths.backend
+## und was geht für service
+kubectl explain ingress.spec.rules.http.paths.backend.service
+## number 
+kubectl explain ingress.spec.rules.http.paths.backend.service.port
+```
+
+```
+## neue Variante sieht so aus
+backend:
+  service:
+    name: apple-service
+    port:
+      number: 80
+## das gleich für banana-service
+```
+
+```
+kubectl apply -f .
+```
+
+
+#### Fix 4.4. pathType must be specificied 
+
+```
+## Was macht das ?
+kubectl explain ingress.spec.rules.http.paths.pathType
+```
+
+```
+      paths:
+        - path: /apple
+          pathType: Prefix
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+        - path: /banana
+          pathType: Exact 
+          backend:
+            service:
+              name: banana-service
+              port:
+                number: 80                
+```
+
+```
+kubectl apply -f .
+kubectl get ingress example-ingress
+```
+
+
+### Step 5: Testing 
+
+```
+## mit describe herausfinden, ob er die services gefundet 
+kubectl describe ingress example-ingress
+```
+
+```
+## Im Browser auf:
+## hier euer Name 
+http://jochen.app.do.t3isp.de/apple
+http://jochen.app.do.t3isp.de/apple/
+http://jochen.app.do.t3isp.de/apple/foo 
+http://jochen.app.do.t3isp.de/banana
+## geht nicht 
+http://jochen.app.do.t3isp.de/banana/nix
+```
+
+### ingress mit traefik, letsencrypt und cert-manager
+
+
+### Prerequisites 
+
+  * abi-projekt muss existieren
+
+### Trainer: Schritt 1: cert-manager installieren 
+
+```
+helm repo add jetstack https://charts.jetstack.io
+helm upgrade --install cert-manager jetstack/cert-manager \
+--namespace cert-manager --create-namespace \
+--version v1.19.2 \
+--set crds.enabled=true \
+--reset-values
+```
+
+  * Ref: https://artifacthub.io/packages/helm/cert-manager/cert-manager
+
+### Trainer: Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
+
+```
+cd
+mkdir -p manifests/cert-manager
+cd manifests/cert-manager
+nano cluster-issuer.yaml
+```
+
+
+
+```
+## cluster-issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # Email-Adresse ändern - example.com ist nicht erlaubt 
+    email: your-email@example.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: traefik
+```
+
+```
+kubectl apply -f .
+## Should be True 
+kubectl get clusterissuer 
+```
+
+
+### Schritt 3: Ingress-Objekt mit TLS erstellen 
+
+```
+cd
+cd manifests/abi
+```
+
+```
+nano ingress.yml
+```
+
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - <dein-name>.app.do.t3isp.de
+    secretName: example-tls
+
+  rules:
+  - host: "<dein-name>.app.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          pathType: Prefix
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+        - path: /banana
+          pathType: Exact
+          backend:
+            service:
+              name: banana-service
+              port:
+                number: 80
+```
+
+```
+kubectl apply -f .
+```
+
+ * Interessent, der cert-manager erstellt kurz ein Ingress - Objekt
+
+<img width="1057" height="172" alt="image" src="https://github.com/user-attachments/assets/54dce6f5-9d53-4ce4-ac79-dcfe095f77b5" />
+
+### Schritt 4: Herausfinden, ob Zertifikate erstellt werden 
+
+```
+kubectl describe certificate example-tls
+```
+```
+## muss auf True stehen 
+kubectl get cert
+```
+
+<img width="565" height="60" alt="image" src="https://github.com/user-attachments/assets/8d492fdf-a051-4b04-95cf-a62bdb3d0964" />
+
+```
+## Certificate Request 
+kubectl get cr
+## da ist das Zertfikat drin 
+kubectl get secret example-tls
+kubectl get orders 
+```
+
+#### Debugging 
+
+  * Solange das Zertifikat nicht bestätigt bei der ACME-Anfrage (Challenge), seht ihr das noch unter
+
+```
+kubectl get challenges
+```
+
+
+### Schritt 5: Testen
+
+   * Aufruf der Subdomain im Browser (mit https): z.B. https://jochen.app.do.t3isp.de/banana
+
+### Ref: 
+
+  * https://hbayraktar.medium.com/installing-cert-manager-and-nginx-ingress-with-lets-encrypt-on-kubernetes-fe0dff4b1924
+
+## Kubernetes Ingress (HA Proxy)
+
+### Install HA Proxy-IngressController
+
+
+```
+cd 
+mkdir -p helm-values/ingress-haproxy
+cd helm-values/ingress-haproxy
+```
+
+```
+nano values.yaml
+```
+
+```
+controller:
+  service:
+     type: LoadBalancer
+```
+
+```
+helm repo add haproxytech https://haproxytech.github.io/helm-charts
+helm upgrade -n ingress-haproxy --install ingress-haproxy haproxytech/kubernetes-ingress --version 1.47.4 --reset-values -f values.yaml  
+```
+
+
+### Ref:
+
+  * https://artifacthub.io/packages/helm/haproxytech/kubernetes-ingress
+
+### Ingress mit ha proxy
+
+
+### Step 1: Walkthrough 
+
+```
+cd
+mkdir -p manifests 
+cd manifests
+mkdir abi 
+cd abi
+```
+
+```
+nano apple-deploy.yml 
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apple-app
+  labels:
+    app: apple
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apple
+  template:
+    metadata:
+      labels:
+        app: apple
+    spec:
+      containers:
+        - name: apple-app
+          image: hashicorp/http-echo
+          args:
+            - "-text=apple-<euer-name>"
+```
+
+```
+nano apple-svc.yaml
+```
+
+
+```
+kind: Service
+apiVersion: v1
+metadata:
+  name: apple-service
+spec:
+  type: ClusterIP
+  selector:
+    app: apple
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5678 # Default port for image
+```
+
+```
+kubectl apply -f .
+```
+
+```
+nano banana-deploy.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banana-app
+  labels:
+    app: banana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: banana
+  template:
+    metadata:
+      labels:
+        app: banana
+    spec:
+      containers:
+        - name: apple-app
+          image: hashicorp/http-echo
+          args:
+            - "-text=banana-<euer-name>"
+```
+
+```
+nano banana-svc.yaml
+```
+
+```
+kind: Service
+apiVersion: v1
+metadata:
+  name: banana-service
+spec:
+  type: ClusterIP
+  selector:
+    app: banana
+  ports:
+    - port: 80
+      targetPort: 5678 # Default port for image
+```
+
+```
+kubectl apply -f .
+```
+
+### Step 2: Testing connection by podIP and Service 
+
+```
+kubectl get svc
+kubectl get pods -o wide
+kubectl run podtest --rm -it --image busybox
+```
+
+```
+/ # wget -O - http://<pod-ip>:5678 
+/ # wget -O - http://<cluster-ip>
+```
+
+### Step 3: Walkthrough 
+
+```
+nano ingress.yml
+```
+
+```
+## Ingress
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: example-ingress
+spec:
+  ingressClassName: haproxy
+  rules:
+  - host: "<euername>.app.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          backend:
+            serviceName: apple-service
+            servicePort: 80
+        - path: /banana
+          backend:
+            serviceName: banana-service
+            servicePort: 80
+```
+
+```
+## ingress 
+kubectl apply -f ingress.yml
+```
+
+### Reference 
+
+  * https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
+
+### Step 4: Find the problem 
+
+#### Fix 4.1: Fehler: no matches kind "Ingress" in version "extensions/v1beta1"
+
+```
+## Gibt es diese Landkarte überhaupt
+kubectl api-versions
+## auf welcher Landkarte/Gruppe befindet sich Ingress jetzt 
+kubectl explain ingress | head
+## -> jetzt auf networking.k8s.io/v1 
+
+```
+
+```
+nano ingress.yml
+```
+
+```
+## auf apiVersion: extensions/v1beta1
+## wird -> networking.k8s.io/v1
+```
+
+```
+kubectl apply -f .
+```
+
+#### Fix 4.2: Bad Request unkown field ServiceName / ServicePort 
+
+
+```
+## was geht für die Property backend 
+kubectl explain ingress.spec.rules.http.paths.backend
+## und was geht für service
+kubectl explain ingress.spec.rules.http.paths.backend.service
+```
+
+```
+nano ingress.yml
+```
+
+```
+## Wir ersetzen 
+## serviceName: apple-service 
+## durch:
+## service: 
+##   name: apple-service 
+
+## das gleiche für banana 
+```
+
+```
+kubectl apply -f . 
+```
+
+
+#### Fix 4.3. BadRequest unknown field servicePort
+
+```
+## was geht für die Property backend 
+kubectl explain ingress.spec.rules.http.paths.backend
+## und was geht für service
+kubectl explain ingress.spec.rules.http.paths.backend.service.port
+## number 
+kubectl explain ingress.spec.rules.http.paths.backend.service.port
+```
+
+```
+## neue Variante sieht so aus
+backend:
+  service:
+    name: apple-service
+    port:
+      number: 80
+## das gleich für banana-service
+```
+
+```
+kubectl apply -f .
+```
+
+
+#### Fix 4.4. pathType must be specificied 
+
+```
+## Was macht das ?
+kubectl explain ingress.spec.rules.http.paths.pathType
+```
+
+```
+      paths:
+        - path: /apple
+          pathType: Prefix
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+        - path: /banana
+          pathType: Exact 
+          backend:
+            service:
+              name: banana-service
+              port:
+                number: 80                
+```
+
+```
+kubectl apply -f .
+kubectl get ingress example-ingress
+```
+
+
+### Step 5: Testing 
+
+```
+## mit describe herausfinden, ob er die services gefundet 
+kubectl describe ingress example-ingress
+```
+
+```
+## Im Browser auf:
+## hier euer Name 
+http://jochen.app.do.t3isp.de/apple
+http://jochen.app.do.t3isp.de/apple/
+http://jochen.app.do.t3isp.de/apple/foo 
+http://jochen.app.do.t3isp.de/banana
+## geht nicht 
+http://jochen.app.do.t3isp.de/banana/nix
+```
+
+## Kubernetes Praxis (Stateful Sets)
+
+### Hintergrund statefulsets
+
+
+### Why ?
+
+  * stable network identities (always the same name across restarts)  in contrast to deployments
+
+```
+Server:    10.0.0.10
+Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
+
+Name:      web-0.nginx
+Address 1: 10.244.1.6
+
+nslookup web-1.nginx
+Server:    10.0.0.10
+Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
+
+Name:      web-1.nginx
+Address 1: 10.244.2
+```
+
+```
+The Pods' ordinals, hostnames, SRV records, and A record names have not changed, but the IP addresses associated with the Pods may have changed.
+```
+
+
+
+
+### Features 
+
+  * Scaling Up: Ordered creation on scaling (web 2 till ready then web-3 till ready and so on) 
+
+```
+StatefulSet controller created each Pod sequentially 
+with respect to its ordinal index, 
+
+and it waited for each Pod's predecessor to be Running and Ready 
+
+before launching the subsequent Pod
+```
+
+  * Scaling Down: last created pod is torn down firstly, till finished, then the one before
+
+```
+The controller deleted one Pod at a time, 
+in reverse order with respect to its ordinal index, 
+and it waited for each to be completely shutdown before deleting the next.
+```
+
+  * VolumeClaimTemplate (In addition if the pod is scaled the copies will have their own storage)
+    * Plus: When you delete it, it gets recreated and claims the same persistentVolumeClaim 
+
+```
+volumeClaimTemplates:
+  - metadata:
+      name: www
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+```
+
+   * Update Strategy: RollingUpdate / OnDelete 
+   * Feature: Staging an Update with Partitions
+     * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#staging-an-update
+   * Feature: Rolling out a canary 
+     * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#rolling-out-a-canary
+     
+### Reference 
+
+  * https://kubernetes.io/docs/concepts/workloads/controllers/statefulsets/
+
+### Example stateful set
+
+
+### Schritt 1: 
+
+```
+cd 
+mkdir -p manifests 
+cd manifests
+mkdir sts
+cd sts 
+
+```
+
+```
+nano 01-svc.yml
+```
+
+```
+## vi 01-svc.yml 
+## Headless Service - no ClusterIP 
+## Just used for name resolution of pods
+## web-0.nginx
+## web-1.nginx 
+## nslookup web-0.nginx
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    name: web
+  clusterIP: None
+  selector:
+    app: nginx
+```
+
+```
+nano 02-sts.yml
+```
+
+```
+## vi 02-sts.yml 
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+## name des statefulset wird nachher für den dns-namen verwendet 
+  name: web
+spec:
+  serviceName: "nginx"
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: registry.k8s.io/nginx-slim:0.8
+        ports:
+        - containerPort: 80
+          name: web-nginx
+```
+
+```
+kubectl apply -f .
+
+```
+
+
+### Schritt 2: Auflösung Namen.
+
+```
+kubectl run --rm -it podtester --image=busybox
+```
+
+```
+## In der shell
+## web ist der name des statefulsets 
+ping web-0.nginx 
+ping web-1.nginx 
+exit
+```
+
+```
+## web-0 / web-1 
+kubectl get pods -o wide 
+kubectl get sts web
+kubectl delete sts web 
+kubectl apply -f .
+kubectl run --rm -it podtest --image=busybox 
+```
+
+```
+## in the shell 
+ping web-0.nginx
+exit
+``` 
+
+```
+kubectl describe svc nginx 
+```
+
+### Schritt 3: Aufräumen 
+
+```
+kubectl delete -f .
+```
+
+### Referenz 
+
+  * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/
+
+## Kubernetes Secrets und Encrypting von z.B. Credentials 
+
+### Kubernetes secrets Typen
+
+
+### Welche Arten von Secrets gibt es ?
+
+| Built-in Type	| Usage |
+| ------------- | ----- |
+| Opaque	| arbitrary user-defined data |
+| kubernetes.io/service-account-token	 | ServiceAccount token |
+| kubernetes.io/dockercfg	| serialized ~/.dockercfg file |
+| kubernetes.io/dockerconfigjson | serialized ~/.docker/config.json file |
+| kubernetes.io/basic-auth | credentials for basic authentication |
+| kubernetes.io/ssh-auth | credentials for SSH authentication |
+| kubernetes.io/tls	| data for a TLS client or server |
+| bootstrap.kubernetes.io/token	| bootstrap token data |
+
+  * Ref: https://kubernetes.io/docs/concepts/configuration/secret/#secret-types
+
+  
+
+### Sealed Secrets - bitnami
+
+
+### 2 Komponenten 
+
+ * Sealed Secrets besteht aus 2 Teilen 
+   * kubeseal, um z.B. die Passwörter zu verschlüsseln 
+   * Dem Operator (ein Controller), der das Entschlüsseln übernimmt  
+
+### Schritt 1: Walkthrough - Client Installation (als root)
+
+```
+curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.34.0/kubeseal-0.34.0-linux-amd64.tar.gz"
+tar -xvzf kubeseal-0.34.0-linux-amd64.tar.gz kubeseal
+sudo install -m 755 kubeseal /usr/local/bin/kubeseal
+```
+
+### Schritt 2: Walkthrough - Server Installation mit kubectl client 
+
+```
+helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
+helm upgrade --install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.18.0 --reset-values 
+```
+
+### Schritt 3: Walkthrough - Verwendung (als normaler/unpriviligierter Nutzer)
+
+```
+Übung ist hier zu finden:
+```
+
+[Beispiel mit kubeseal arbeiten](#exercise-sealed-secret-mariadb)
+
+
+### Wie kann man sicherstellen, dass nach der automatischen Änderung des Secretes, der Pod bzw. Deployment neu gestartet wird ?
+
+  * https://github.com/stakater/Reloader
+ 
+### Ref: 
+  
+  * Controller: https://github.com/bitnami-labs/sealed-secrets/releases/
+
+
+
+### Exercise Sealed Secret mariadb
+
+
+### Prerequisites: MariaDB secrets done 
+
+[MariaDB Secret](#secrets-example-mariadb)
+
+###  Based on mariadb secrets exercise 
+
+```
+cd
+cd manifests/secrettest
+```
+
+```
+## Cleanup
+kubectl delete -f 02-deploy.yml
+kubectl delete -f 01-secrets.yml
+## rm
+rm 01-secrets.yml 
+```
+
+
+```
+## öffentlichen Schlüssel zum Signieren holen 
+kubeseal --fetch-cert --controller-namespace=kube-system --controller-name=sealed-secrets > pub-sealed-secrets.pem
+cat pub-sealed-secrets.pem 
+```
+
+```
+## Secret - config erstellen mit dry-run, wird nicht auf Server angewendet (nicht an Kube-Api-Server geschickt) 
+kubectl create secret generic mariadb-secret --from-literal=MARIADB_ROOT_PASSWORD=11abc432 --dry-run=client -o yaml > 01-top-secret.yaml
+cat 01-top-secret.yaml 
+```
+
+```
+kubeseal --format=yaml --cert=pub-sealed-secrets.pem < 01-top-secret.yaml > 01-top-secret-sealed.yaml
+cat 01-top-secret-sealed.yaml 
+
+## Ausgangsfile von dry-run löschen 
+rm 01-top-secret.yaml
+
+## Ist das secret basic-auth vorher da ? 
+kubectl get secrets mariadb-secret  
+
+kubectl apply -f .
+
+## Kurz danach erstellt der Controller aus dem sealed secret das secret 
+kubectl get secret
+
+kubectl get sealedsecrets 
+kubectl get secret mariadb-secret -o yaml
+```
+
+```
+kubectl exec -it deploy/mariadb-deployment -- env | grep ROOT
+kubectl delete -f 01-top-secret-sealed.yaml
+kubectl get secrets
+kubectl get sealedsecrets 
+```
+
+### Alternative zu Hashicorp Vault - Fork OpenBao
+
+  * https://openbao.org/
+
+### registry mit secret auth
+
+  * https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+
+## Kubernetes API-Objekte (Teil 2)
+
+## Kubernetes Praxis
+
+### Befehle in pod ausführen - Übung
+
+
+```
+kubectl run my-nginx --image=nginx:1.23 
+```
+
+```
+kubectl exec my-nginx -- ls -la
+kubectl exec -it my-nginx -- bash 
+kubectl exec -it my-nginx -- sh 
+```
+
+```
+## in der shell 
+cat /etc/os-release
+cd /var/log/nginx 
+ls -la 
+exit 
+```
+
+```
+## Logs ausgeben 
+kubectl logs my-nginx 
+```
+
+### Welche Pods mit Namen gehören zu einem Service
+
+
+```
+kubectl get svc svc-nginx -o wide
+kubectl get pods -l web=my-nginx
+```
+
+## Security
+
+### ServiceLinks nicht in env in Pod einbinden
+
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+## Das ist hier --_>
+      enableServiceLinks: false
+      containers:
+      - name: mariadb-cont
+        image: mariadb:10.11
+        envFrom:
+        - configMapRef:
+            name: mariadb-configmap
+```
+
+### Pod with unprivilged user
+
+
+### Schritt 1:
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir -p unpriv
+cd unpriv
+```
+
+```
+nano pod.yaml
+```
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-unprivileged
+spec:
+  securityContext:
+    runAsUser: 1000  # Container läuft mit UID 1000 statt root
+  containers:
+    - name: nginx
+      image: nginx:1.25
+      ports:
+        - containerPort: 80
+```
+
+```
+kubectl apply -f .
+kubectl get pods
+```
+
+
+### Schritt 2: Debuggen 
+
+```
+## CrashLoopBackoff 
+kubectl get pods nginx-unprivileged 
+kubectl describe pods nginx-unprivileged
+```
+
+```
+## permission denied identifiziert 
+kubectl logs nginx-unprivileged
+```
+
+### Schritt 3: Lösung anderes image nehmen 
+
+```
+## in pod.yaml
+## Zeile image: nginx:1.25
+## in -> image: nginxinc/nginx-unprivileged:1.25
+## ändern
+```
+
+```
+kubectl apply -f .
+kubectl get pods
+```
+
+### Pod ohne capabilities starten. Funktioniert !
+
+
+### Walkthrough 
+
+```
+cd
+mkdir -p manifests/nocap
+cd manifests/nocap
+nano nocap-pod.yaml
+```
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nocap-nginx 
+spec:
+  containers:
+    - name: web
+      image: nginxinc/nginx-unprivileged:1.25 
+      securityContext:
+        capabilities:
+          drop:
+          - all
+```
+
+```
+kubectl apply -f . 
+kubectl get pods
+```
+
+## Helm (Kubernetes Paketmanager)
+
+### Helm - Was kann Helm
+
+
+- **Installieren** und **Deinstallieren** von Anwendungen in Kubernetes (`helm install / helm uninstall`)
+- **Upgraden** von bestehenden Installationen (`helm upgrade`)
+- **Rollbacks** durchführen, falls etwas schiefläuft (`helm rollback`)
+- **Anpassen** von Anwendungen durch Konfigurationswerte (`values.yaml`)
+- **Veröffentlichen** eigener Charts (z. B. in einem Helm-Repository)
+
+### Helm Grundlagen
+
+
+### Wo kann ich Helm-Charts suchen ? 
+
+ * Im Telefonbuch von helm [https://artifacthub.io/](https://artifacthub.io)
+
+### Komponenten 
+
+#### Chart
+
+  * beeinhaltet Beschreibung und Komponenten 
+
+#### Chart - Bereitstellungsformen 
+
+  * url
+  * .tgz (abkürzung tar.gz) - Format 
+  * oder Verzeichnis 
+
+```
+Wenn wir ein Chart installieren, wird eine Release erstellen 
+(parallel: image -> container, analog: chart -> release)
+```
+
+### Installation 
+
+#### Was brauchen wir ? 
+
+  * helm  client muss installiert sein
+
+#### Und sonst so ? 
+
+```
+## Beispiel ubuntu 
+## snap install --classic helm
+
+## Cluster auf das ich zugreifen kann und im client -> helm und kubectl 
+## Voraussetzung auf dem Client-Rechner (helm ist nichts als anderes als ein Client-Programm) 
+Ein lauffähiges kubectl auf dem lokalen System (welches sich mit dem Cluster verbinden.
+-> saubere -> .kube/config 
+
+## Test
+kubectl cluster-info 
+
+```
+
+
+### Helm Warum ?
+
+
+```
+Ein Paket für alle Komponenten
+Einfaches Installieren, Updaten und deinstallieren
+Konfigurations-Values-Files übergeben zum Konfigurieren
+Feststehende Struktur 
+```
+
+### Helm Example
+
+
+### Prerequisites 
+
+  * helm needs a config-file (kubeconfig) to know how to connect and credentials in there 
+  * Good: helm (as well as kubectl) works as unprivileged user as well - Good for our setup 
+  * install helm on ubuntu (client) as root: snap install --classic helm 
+    * this installs helm3
+  * Please only use: helm3. No server-side components needed (in cluster) 
+    * Get away from examples using helm2 (hint: helm init) - uses tiller  
+
+### Simple Walkthrough (Example 0: Step 1)
+
+```
+## Repo hinzufpgen 
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+## gecachte Informationen aktualieren 
+helm repo update
+
+helm search repo bitnami 
+## helm install release-name bitnami/mysql
+```
+
+### Simple Walkthrough (Example 0: Step 2: for learning - pull)
+
+```
+helm pull bitnami/mysql
+tar xvfz mysql*
+
+```
+
+
+
+### Simple Walkthrough (Example 0: Step 3: install) 
+
+```
+helm install my-mysql bitnami/mysql
+## Chart runterziehen ohne installieren 
+## helm pull bitnami/mysql
+
+## Release anzeigen zu lassen
+helm list 
+
+## Status einer Release / Achtung, heisst nicht unbedingt nicht, dass pod läuft 
+helm status my-mysql 
+
+## weitere release installieren 
+## helm install neuer-release-name  bitnami/mysql 
+
+
+```
+
+### Under the hood 
+
+```
+## Helm speichert Informationen über die Releases in den Secrets
+kubectl get secrets | grep helm 
+
+
+```
+
+
+### Example 1: - To get know the structure 
+
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm search repo bitnami 
+helm repo update
+helm pull bitnami/mysql 
+tar xzvf mysql-9.0.0.tgz 
+
+## Show how the template would look like being sent to kube-api-server 
+helm template bitnami/mysql
+
+```
+
+
+
+### Example 2: We will setup mysql without persistent storage (not helpful in production ;o() 
+
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm search repo bitnami 
+helm repo update
+
+helm install my-mysql bitnami/mysql
+
+
+```
+
+
+### Example 2 - continue - fehlerbehebung 
+
+```
+helm uninstall my-mysql 
+## Install with persistentStorage disabled - Setting a specific value 
+helm install my-mysql --set primary.persistence.enabled=false bitnami/mysql
+
+## just as notice 
+## helm uninstall my-mysql 
+
+```
+
+### Example 2b: using a values file 
+
+```
+## mkdir helm-mysql
+## cd helm-mysql
+## vi values.yml 
+primary:
+  persistence:
+    enabled: false 
+```
+
+```
+helm uninstall my-mysql
+helm install my-mysql bitnami/mysql -f values.yml 
+```
+
+### Example 3: Install wordpress 
+
+### Example 3.1: Setting values with --set 
+
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm install my-wordpress \
+  --set wordpressUsername=admin \
+  --set wordpressPassword=password \
+  --set mariadb.auth.rootPassword=secretpassword \
+    bitnami/wordpress
+```
+
+### Example 3.2: Setting values with values.yml file 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir helm-wordpress
+cd helm-wordpress
+nano values.yml 
+```
+
+```
+## values.yml
+wordpressUsername: admin
+wordpressPassword: password
+mariadb:
+  auth:
+    rootPassword: secretpassword
+```
+
+```
+## helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm install my-wordpress -f values.yml bitnami/wordpress
+
+```
+
+
+### Referenced
+
+  * https://github.com/bitnami/charts/tree/master/bitnami/mysql/#installing-the-chart
+  * https://helm.sh/docs/intro/quickstart/
+
+### Installation, Upgrade, Uninstall helm-Chart exercise - simple (mariadb-cloudpirates)
+
+
+### Schritt 1: install mariadb von cloudpirates  
+
+```
+## Mini-Step 1: Testen 
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run=server
+```
+
+```
+## Mini-Step 2: Installieren 
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1
+```
+
+```
+## Geht das denn auch ?
+kubectl get pods
+```
+
+### Schritt 2: Umschauen 
+
+```
+kubectl get pods
+helm status my-mariadb 
+helm list
+## alle helm charts anzeigen, die im gesamten Cluster installierst wurden 
+helm list -A
+helm history my-mariadb 
+```
+
+### Schritt 3: Umschauen get 
+
+```
+## Wo speichert er Information, die er später mit helm get abruft
+kubectl get secrets
+```
+
+
+```
+helm get values my-mariadb
+helm get manifest my-mariadb
+## Zeige alle Kinds an 
+helm get manifest my-mariadb | grep -i -A 4 kind  
+## Can I see all values use -> YES
+## Look for COMPUTED VALUES in get all ->
+helm get all my-mariadb 
+```
+
+```
+## Hack COMPUTED VALUES anzeigen lassen
+## Welche Werte (values) hat er zur Installation verwendet
+helm get all my-mariadb | grep -i computed -A 200
+
+```
+
+### Schritt 4: Exercise: Upgrade with specific settings (same chart version)  
+
+#### Schritt 4.1 Default values (auf terminal) ausfindig machen 
+
+```
+## Recherchiere wie die Werte gesetzt werden (artifacthub.io) oder verwende die folgenden Befehle:
+helm show values oci://registry-1.docker.io/cloudpirates/mariadb
+helm show values oci://registry-1.docker.io/cloudpirates/mariadb | less
+```
+
+#### Schritt 4.2 Resources ändern 
+
+
+```
+cd 
+mkdir -p mariadb-values 
+cd mariadb-values
+mkdir prod
+cd prod
+```
+
+```
+nano values.yaml
+```
+
+```
+resources:
+  limits:
+     memory: 300Mi
+  requests:
+     memory: 300Mi
+     cpu: 100m
+```
+
+```
+cd ..
+```
+
+```
+## Testen 
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run=server -f prod/values.yaml  
+```
+
+```
+## Real Upgrade
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 -f prod/values.yaml
+```
+
+```
+## neuer pod wird erstellt 
+kubectl get pod
+helm get values my-mariadbs
+```
+
+
+
+
+
+### Schritt 5: Exercise: Upgrade to new version 
+
+
+#### Schritt 5.1. Upgrade und resources beibehalten 
+
+  * Values wurden bereits im vorherigen Schritt angelegt 
+
+```
+## Testen 
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 --dry-run=server -f prod/values.yaml  
+```
+
+```
+## Real Upgrade
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 -f prod/values.yaml
+```
+
+```
+kubectl get pods
+## kein neuer pod
+```
+
+#### Schritt 5.2 Fehlgeschlagene Installation, wie lösen ? 
+
+```
+## Schlägt fehle, weil mit dem upgrade bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
+```
+
+#### Lösung 
+
+  * Deinstallieren (pvc bleibt erhalten auch beim Deinstallieren -> so macht das helm)
+  * Und wieder installieren in der neuen Version 
+
+```
+## Frage, ist das pvc noch ?
+kubectl get pvc
+## Ja ! 
+```
+
+<img width="891" height="82" alt="image" src="https://github.com/user-attachments/assets/849b5859-a5f2-40df-8bc6-018eaedbd146" />
+
+```
+helm uninstall my-mariadb
+kubectl get pvc 
+## auch nach der Deinstallation ist der pvc noch da
+## Super !! 
+```
+
+```
+## Real Upgrade
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 -f prod/values.yaml
+```
+
+```
+kubectl get pods
+helm get values my-mariadb 
+```
+
+
+### Tipp: values aus alter revision anzeigen 
+
+```
+## Beispiel: 
+helm get values  my-mariadb --revision 1
+```
+
+#### Uninstall 
+
+```
+helm uninstall my-mariadb 
+## namespace wird nicht gelöscht
+## händisch löschen
+kubectl delete ns <namenskuerzel>
+## crd's werden auch nicht gelöscht
+kubectl create ns <namenskuerzel>
+```
+
+### Problem: OutOfMemory (OOM-Killer) if container passes limit in memory 
+
+  * if memory of container is bigger than limit an OOM-Killer will be triggered
+  * How to fix. Use memory limit in the application too !
+    * https://techcommunity.microsoft.com/blog/appsonazureblog/unleashing-javascript-applications-a-guide-to-boosting-memory-limits-in-node-js/4080857
+
+### Installation, Upgrade, Uninstall helm-Chart exercise (wordpress-groundhog2k)
+
+
+### Schritt 1: install wordpress von groundhog2k  
+
+```
+## Repo hinzufügen (einmalig)
+helm repo add groundhog2k https://groundhog2k.github.io/helm-charts/
+helm repo update
+```
+
+```
+## Verzeichnisstruktur anlegen
+cd 
+mkdir -p wordpress-values/prod
+cd wordpress-values/prod
+```
+
+```
+nano values.yaml
+```
+
+```yaml
+## Ingress aktivieren
+ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - host: wordpress-<euernamenskuerzel>.appv1.do.t3isp.de
+      paths:
+        - path: /
+          pathType: Prefix
+
+## WordPress Storage (persistent)
+storage:
+  requestedSize: 10Gi
+  accessModes:
+    - ReadWriteOnce
+
+## MariaDB Subchart
+mariadb:
+  enabled: true
+  settings:
+    rootPassword: geheim123
+  userDatabase:
+    name: wordpress
+    user: wpuser
+    password: wppass123
+  storage:
+    requestedSize: 8Gi
+```
+
+```
+cd ..
+```
+
+```
+## Mini-Step 1: Testen 
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.3 --dry-run=client -f prod/values.yaml
+```
+
+```
+## Mini-Step 2: Installieren 
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.3 -f prod/values.yaml
+```
+
+```
+## Geht das denn auch ?
+kubectl get pods
+kubectl get pvc
+kubectl get ingress
+```
+
+```
+## Im Browser
+http://wordpress-<euernamenskuerzel>.appv1.do.t3isp.de
+```
+
+### Schritt 2: Umschauen 
+
+```
+kubectl get pods
+kubectl get pvc
+kubectl get ingress
+helm status my-wordpress 
+helm list
+## alle helm charts anzeigen, die im gesamten Cluster installierst wurden 
+helm list -A
+helm history my-wordpress 
+```
+
+### Schritt 3: Umschauen get 
+
+```
+## Wo speichert er Information, die er später mit helm get abruft
+kubectl get secrets
+```
+
+```
+helm get values my-wordpress
+helm get manifest my-wordpress
+## Zeige alle Kinds an 
+helm get manifest my-wordpress | grep -i -A 4 kind  
+## Can I see all values use -> YES
+## Look for COMPUTED VALUES in get all ->
+helm get all my-wordpress 
+```
+
+```
+## Hack COMPUTED VALUES anzeigen lassen
+## Welche Werte (values) hat er zur Installation verwendet
+helm get all my-wordpress | grep -i computed -A 200
+```
+
+### Schritt 4: Exercise: Upgrade to new version 
+
+#### Schritt 4.1 Default values (auf terminal) ausfindig machen 
+
+```
+## Recherchiere wie die Werte gesetzt werden (artifacthub.io) oder verwende die folgenden Befehle:
+helm show values groundhog2k/wordpress
+helm show values groundhog2k/wordpress | less
+```
+
+#### Schritt 4.2 Upgrade und resources ändern 
+
+```
+cd ~/wordpress-values/prod
+nano values.yaml
+```
+
+Ergänze die resources:
+
+```yaml
+## Resources für WordPress
+resources:
+  limits:
+    memory: 512Mi
+  requests:
+    memory: 256Mi
+    cpu: 100m
+
+## Ingress aktivieren
+ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - host: wordpress-<dein-namenskuerzel>.appv1.do.t3isp.de
+      paths:
+        - path: /
+          pathType: Prefix
+
+## WordPress Storage (persistent)
+storage:
+  requestedSize: 10Gi
+  accessModes:
+    - ReadWriteOnce
+
+## MariaDB Subchart
+mariadb:
+  enabled: true
+  settings:
+    rootPassword: geheim123
+  userDatabase:
+    name: wordpress
+    user: wpuser
+    password: wppass123
+  storage:
+    requestedSize: 8Gi
+  resources:
+    limits:
+      memory: 300Mi
+    requests:
+      memory: 200Mi
+      cpu: 100m
+```
+
+```
+cd ..
+```
+
+```
+## Testen 
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.4 --dry-run -f prod/values.yaml  
+```
+
+```
+## Real Upgrade
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.4 -f prod/values.yaml
+```
+
+```
+kubectl get pods
+kubectl describe pods my-wordpress-0
+helm list
+helm history my-wordpress
+helm get values my-wordpress  
+```
+
+### Schritt 4.3 Weiteres Update der Chart - Version
+
+```
+## Testen 
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.5 --dry-run -f prod/values.yaml  
+```
+
+```
+## Real Upgrade
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.5 -f prod/values.yaml
+```
+
+```
+## Schlägt fehl, weil mit dem apply bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
+```
+
+#### Lösung 
+
+  * Deinstallieren (pvc bleibt erhalten auch beim Deinstallieren -> so macht das helm)
+  * Und wieder installieren in der neuen Version 
+
+```
+## Frage, ist das pvc noch ?
+kubectl get pvc
+## Ja ! 
+```
+
+```
+helm uninstall my-wordpress
+kubectl get pvc 
+## auch nach der Deinstallation ist der pvc noch da
+## Super !! 
+```
+
+```
+## Real Upgrade
+helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.5 -f prod/values.yaml
+```
+
+```
+kubectl get pods
+```
+
+### Tipp: values aus alter revision anzeigen 
+
+```
+## Beispiel: 
+helm get values my-wordpress --revision 1
+```
+
+#### Uninstall 
+
+```
+helm uninstall my-wordpress 
+## namespace wird nicht gelöscht
+## händisch löschen
+kubectl delete ns app-<namenskuerzel>
+## crd's werden auch nicht gelöscht 
+```
+
+### Problem: OutOfMemory (OOM-Killer) if container passes limit in memory 
+
+  * if memory of container is bigger than limit an OOM-Killer will be triggered
+  * How to fix: Use memory limit in the application too!
+    * PHP memory_limit in WordPress konfigurieren
+    * https://techcommunity.microsoft.com/blog/appsonazureblog/unleashing-javascript-applications-a-guide-to-boosting-memory-limits-in-node-js/4080857
+
+### Hinweis: Externe Datenbank verwenden (optional)
+
+Falls du eine externe MariaDB/MySQL verwenden möchtest statt dem integrierten Subchart:
+
+```
+nano values.yaml
+```
+
+```yaml
+mariadb:
+  enabled: false
+
+externalDatabase:
+  name: wordpress
+  user: wpuser
+  password: wppass123
+  host: my-external-db
+```
+
+### Helm Exercise with nginx
+
+
+### Part 1: Chart erstellen 
+
+```
+cd
+mkdir -p charts
+cd charts
+## mit helm neues Chart erstellen
+helm create beispiel-chart
+``` 
+
+### Part 2: chart installieren 
+
+```
+helm upgrade --install my-nginx beispiel-chart
+```
+
+### Part 3: funktioniert es ?
+
+```
+kubectl get pods
+helm list
+```
+
+### Part 4: Spezielle Konfiguration 
+
+#### Part 4.1: Analyse 
+
+```
+## Können wir die replicas und den type server ändern
+## Entweder variante 1 ins Chart
+less beispiel-chart/values.yaml
+## mit hlem bordmitteln
+helm show values beispiel-chart | less
+```
+
+#### Part 4.2. values.yaml  (eigene Knfiguration) erstellen und anwenden 
+
+```
+cd
+mkdir helm-values
+cd helm-values
+mkdir beispiel-chart
+cd beispiel-chart
+nano values.yaml
+```
+
+```
+## in der Datei values.yaml
+replicaCount: 2
+service:
+  type: NodePort
+```
+
+```
+cd
+cd charts
+helm upgrade --install my-nginx beispiel-chart --reset-values -f ../helm-values/beispiel-chart/values.yaml
+kubectl get pods
+## neue Revision 
+helm list
+## hier NodePort auslesen 
+kubectl get svc my-nginx-beispiel-chart
+kubectl get nodes -o wide  
+```
+
+```
+## Testen
+curl http://<ip-aus-nodes>:<nodePort>
+## z.B.
+curl http://159.223.24.231:32465
+```
+
+#### Part 4.3 Explore 
+
+```
+helm list
+helm list -A (über alle namespaces hinweg)
+```
+
+```
+## Zeige mir alles von der installierten Release 
+helm get all my-nginx 
+helm get values my-nginx 
+helm get manifest my-nginx
+```
+
+```
+## chart von online
+## für unser chart
+cd
+cd charts 
+helm show values beispiel-chart # latest version 
+```
+
+### Part 5 Uninstall nginx 
+
+```
+## Achtung keine Deinstallation von CRD's, keine Deinstallation von PVC (Persistent Volume Claims), RBAC
+helm uninstall my-nginx
+
+## Überprüfung, ob Deinstallation erfolgt ist:
+helm list 
+```
+
+### Helm Spickzettel
+
+
+### Hilfe 
+
+```
+helm help
+helm help <command>
+helm help upgrade
+```
+
+
+### Alle helm-releases anzeigen 
+
+```
+## im eigenen Namespace 
+helm list
+## in allen Namespaces
+helm list -A
+## für einen speziellen
+helm -n kube-system list 
+```
+
+### Helm - Chart installieren 
+
+```
+## Empfehlung mit namespace
+## Repo hinzufügen für Client 
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install my-nginx bitnami/nginx --version 19.0.1 --create-namespace --namespace=app-<namenskuerzel>
+## besser upgrade --install --reset-values (immer alle Werte wie im aktuellen Installationsbefehl
+helm upgrade --install --reset-values my-nginx bitnami/nginx --version 19.0.1 --create-namespace --namespace=app-<namenskuerzel>
+```
+
+### Helm - prüfen (nach Installation)
+
+```
+helm status my-release
+helm get values my-release
+helm get manifest my-release
+```
+
+### Helm - Suche  
+
+```
+## welche Repos sind konfiguriert
+helm repo list
+helm search repo bitnami
+helm search hub
+```
+
+### Helm - template 
+
+```
+## Rendern des Templates
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm template my-nginx bitnami/nginx
+helm template bitnami/nginx
+```  
+
+
+## Helm Charts erstellen und analysieren
+
+### Eigenes Helm-Chart erstellen
+
+
+### Chart erstellen 
+
+```
+cd 
+mkdir my-charts
+cd my-charts
+```
+
+```
+helm create my-app
+``` 
+
+### Install helm - chart 
+
+```
+## Variante 1:
+helm -n my-app-<namenskuerzel> install meine-app my-app --create-namespace 
+```
+
+```
+## Variante 2:
+cd my-app
+helm -n my-app-<namenskuerzel> install meine-app . --create-namespace 
+```
+
+```
+helm -n my-app-<namenskuerzel> status meine-app 
+kubectl -n my-app-<namenskuerzel> get all
+kubectl -n my-app-<namenskuerzel> get pods 
+```
+
+### Aufräumen 
+
+```
+helm -n my-app-<namenskuerzel> uninstall meine-app
+```
+
+### Chart zur Analyse runterladen und entpacken
+
+
+```
+cd 
+mkdir -p charts-download
+cd charts-download
+```
+
+
+```
+## Lädt die letzte version herunter
+helm pull oci://registry-1.docker.io/cloudpirates/mariadb
+
+## Lädt bestimmte chart-version runter 
+## helm pull oci://registry-1.docker.io/cloudpirates/mariadb --version 0.9.0
+## evtl. entpacken wenn gewünscht
+## tar xvf mariadb-12.1.6.tgz
+
+## Schnelle Variante
+helm pull oci://registry-1.docker.io/cloudpirates/mariadb --version 0.9.0 --untar
+```
+
+### Wie starte ich am besten einfach - mit eigenem Projekt
+
+## Helm Advanced
+
+### Helm Dependencies Exercise
+
+
+### Prepare: Create folder structure 
+
+```
+cd 
+mkdir -p my-charts 
+helm create app
+cd app
+```
+
+### Exercise 1: Create chart with Dependency 
+
+```
+nano Chart.yaml 
+```
+
+```
+## Add dependencies 
+dependencies:
+  - name: redis
+    version: "0.9.x"
+    repository: "oci://registry-1.docker.io/cloudpirates"
+```
+
+```
+## Das 1. Mal - dann wird Chart.lock angelegt 
+helm dependency update
+ls -la Chart.lock
+ls -la charts/
+```
+
+```
+rm -fR charts
+helm dependency build
+```
+
+```
+helm dependency --help 
+### what is the difference 
+```
+
+```
+helm template .
+```
+
+### Exercise 2: Create chart with condition 
+
+#### Schritt 1 
+
+```
+nano Chart.yaml
+```
+
+```
+## change dependency block
+## adding condition 
+dependencies:
+  - name: redis
+    version: "0.9.x"
+    repository: "oci://registry-1.docker.io/cloudpirates"
+    condition: redis.enabled
+```
+
+```
+helm dependency build
+```
+
+```
+nano values.yaml
+```
+
+```
+## unten anfügen 
+redis:
+  enabled: false
+```
+
+```
+helm template .
+## oder wenn die release app in namespace installiert wurde 
+helm -n app-<euer-name> template app . 
+```
+
+#### Schritt 2
+
+```
+## values-file anlegen
+cd
+mkdir -p helm-values
+cd helm-values
+mkdir app
+cd app
+```
+
+```
+nano values.yaml
+```
+
+```
+redis:
+  enabled: true
+```
+
+```
+cd
+cd my-charts
+helm template app -f ../helm-values/app/values.yaml
+helm template app -f ../helm-values/app/values.yaml | grep kind -A 2
+```
+
+#### Schritt 3: Installation update 
+
+```
+helm -n app-<euer-name> upgrade --reset-values --install app app -f ../helm-values/app/values.yaml
+```
+
+```
+helm -n app-<euer-name> status app
+```
+
+#### Schritt 4: Aufräumen 
+
+```
+helm -n app-<euer-name> uninstall app
+```
+
+## Helm - Fehleranalye
+
+### Beispiel Cloudpirates - helm chart nginx
+
+
+### Test (mit aktuell letzter Version 0.1.10)
+
+```
+helm upgrade --install  my-nginx oci://registry-1.docker.io/cloudpirates/nginx --reset-values --version 0.1.10
+
+### wie sehen die logs aus
+kubectl logs deployment/my-nginx
+```
+
+```
+Permission denied port 80
+```
+
+#### Lauffaehig mit (leider aktuell so nicht in der Doku)
+
+```
+cd
+mkdir helm-values/nginx 
+cd helm-values/nginx
+nano values.yaml
+```
+
+```
+containerPorts:
+- name: http
+  containerPort: 8080
+  protocol: TCP
+
+serverConfig: |
+  server {
+    listen 0.0.0.0:8080;
+    root /usr/share/nginx/html;
+    index index.html index.htm;
+
+    location / {
+      try_files $uri $uri/ /index.html;
+    }
+  }
+livenessProbe:
+  type: httpGet
+  path: /
+readinessProbe:
+  type: httpGet
+  path: /
+```
+
+```
+helm upgrade --install  my-nginx oci://registry-1.docker.io/cloudpirates/nginx --version 0.1.10 --reset-values -f values.yaml
+```
+
+```bash
+kubectl exec -it deploy/my-nginx -- sh
+```
+```
+## in der shell
+id
+```
+
+<img width="707" height="65" alt="image" src="https://github.com/user-attachments/assets/b749f30f-843b-43f8-897e-9aa24704a5da" />
+
+```
+## pod läuft nicht unter root
+## Deshalb funktioniert ein Öffnen des Ports 80 beim Starten nicht
+``` 
+
+
+## Helm mit gitlab ci/cd
+
+### Helm mit gitlab ci/cd ausrollen
+
+
+### Step 1: Create gitlab - repo and pipeline 
+
+```
+1. Create new repo on gitlab 
+2. Click on pipeline Editor and creat .gitlab-ci.yml with Button 
+
+```
+
+### Step 2: Push your helm chart files to repo 
+
+
+   * Now looks like this
+
+![image](https://github.com/user-attachments/assets/5e88593b-5b31-4adf-a2bb-e5e9a5129be5)
+
+### Step 3: Add your KUBECONFIG as Variable (type: File) to Variables 
+
+  * https://gitlab.com/jmetzger/training-helm-chart-kubernetes-gitlab-ci-cd/-/settings/ci_cd#js-cicd-variables-settings
+
+![image](https://github.com/user-attachments/assets/b5168cf3-dd74-4d86-becf-e807985dd471)
+
+### Step 4: Create a pipeline for deployment 
+
+```
+stages:          # List of stages for jobs, and their order of execution
+  - deploy
+
+variables:
+  APP_NAME: my-first-app
+
+deploy:
+  stage: deploy
+  image: 
+    name: alpine/helm:3.2.1
+## Important to unset entrypoint 
+    entrypoint: [""]
+  script:
+    - ls -la
+    - cd; mkdir .kube; cd .kube; cat $KUBECONFIG_SECRET > config; ls -la;
+    - cd $CI_PROJECT_DIR; helm upgrade ${APP_NAME} ./charts/my-app --install --namespace ${APP_NAME} --create-namespace -f ./config/values.yaml
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
+      when: always
+
+```
+
+
+### Reference: Example Project (Public)
+
+  * https://gitlab.com/jmetzger/training-helm-chart-kubernetes-gitlab-ci-cd
+
+## Helpful plugins
+
+### Use shortnames for kubectl - commands
+
+  * https://gist.github.com/doevelopper/ff4a9a211e74f8a2d44eb4afb21f0a38
+
+## Kubernetes Debugging
+
+### Probleme über Logs identifiziert - z.B. non-root image
+
+
+### Schritt 1:
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir -p unpriv
+cd unpriv
+```
+
+```
+nano pod.yaml
+```
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-unprivileged
+spec:
+  securityContext:
+    runAsUser: 1000  # Container läuft mit UID 1000 statt root
+  containers:
+    - name: nginx
+      image: nginx:1.25
+      ports:
+        - containerPort: 80
+```
+
+```
+kubectl apply -f .
+kubectl get pods
+```
+
+
+### Schritt 2: Debuggen 
+
+```
+## CrashLoopBackoff 
+kubectl get pods nginx-unprivileged 
+kubectl describe pods nginx-unprivileged
+```
+
+```
+## permission denied identifiziert 
+kubectl logs nginx-unprivileged
+```
+
+### Schritt 3: Lösung anderes image nehmen 
+
+```
+## in pod.yaml
+## Zeile image: nginx:1.25
+## in -> image: nginxinc/nginx-unprivileged:1.25
+## ändern
+```
+
+```
+kubectl apply -f .
+kubectl get pods
+```
+
+## Weiter lernen 
+
+### Lernumgebung
+
+  * https://killercoda.com/
+
+### Kubernetes Doku - Bestimmte Tasks lernen
+
+  * https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/
+
+### Kubernetes Videos mit Hands On
+
+  * https://www.youtube.com/watch?v=16fgzklcF7Y
+
+## Kubernetes Storage (CSI) 
+
+### Überblick Persistant Volumes (CSI)
+
+
+### Überblick 
+
+#### Warum CSI ?
+
+  * Each vendor can create his own driver for his storage 
+
+#### Vorteile ? 
+
+```
+I. Automatically create storage when required.
+II. Make storage available to containers wherever they’re scheduled.
+III. Automatically delete the storage when no longer needed. 
+```
+
+#### Wie war es vorher ?
+
+```
+Vendor needed to wait till his code was checked in in tree of kubernetes (in-tree)
+```
+
+#### Unterschied static vs. dynamisch 
+
+```
+The main difference relies on the moment when you want to configure storage. For instance, if you need to pre-populate data in a volume, you choose static provisioning. Whereas, if you need to create volumes on demand, you go for dynamic provisioning.
+```
+
+### Komponenten 
+
+#### Treiber 
+
+  * Für jede Storage Class (Storage Provider) muss es einen Treiber geben
+
+#### Storage Class 
+
+### Liste der Treiber mit Features (CSI)
+
+  * https://kubernetes-csi.github.io/docs/drivers.html
+
+### Übung Persistant Storage
+
+
+  * Step 1 + 2 : nur Trainer
+  * ab Step 3: Trainees 
+
+### Step 1: Do the same with helm - chart 
+
+```
+helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version 4.12.1 --reset-values 
+```
+
+### Step 2: Storage Class 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir csi-storage
+cd csi-storage 
+nano 01-storageclass.yml
+```
+
+```
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-csi
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: 10.135.0.11
+  share: /var/nfs
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+```
+
+```
+kubectl apply -f .
+```
+
+### Step 3: Persistent Volume Claim 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir csi
+cd csi
+nano 02-pvc.yaml
+```
+
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-nfs-dynamic
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: nfs-csi
+```
+
+```
+kubectl apply -f .
+kubectl get pvc
+##
+kubectl get pv 
+```
+
+### Step 4: Pod 
+
+```
+nano 03-pod.yaml
+```
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-nfs
+spec:
+  containers:
+    - image: nginx:1.23
+      name: nginx-nfs
+      command:
+        - "/bin/bash"
+        - "-c"
+        - set -euo pipefail; while true; do echo $(date) >> /mnt/nfs/outfile; sleep 1; done
+      volumeMounts:
+        - name: persistent-storage
+          mountPath: "/mnt/nfs"
+          readOnly: false
+  volumes:
+    - name: persistent-storage
+      persistentVolumeClaim:
+        claimName: pvc-nfs-dynamic
+```
+
+```
+kubectl apply -f .
+kubectl get pods
+kubectl describe pods nginx-nfs 
+```
+
+### Step 5: Testing
+
+```
+kubectl exec -it nginx-nfs -- bash 
+```
+
+```
+cd /mnt/nfs
+ls -la
+## outfile
+head /mnt/nfs/outfile 
+tail -f /mnt/nfs/outfile
+```
+
+```
+CTRL+C
+exit
+```
+
+### Step 6: Destroy 
+
+```
+kubectl delete -f 03-pod.yaml 
+
+### Verify in nfs - trainer !! 
+```
+
+### Step 7: Recreate 
+
+```
+kubectl apply -f 03-pod.yaml
+```
+
+```
+kubectl exec -it nginx-nfs -- bash
+```
+
+```
+## is old data here ? 
+head /mnt/nfs/outfile 
+##
+tail -f /mnt/nfs/outfile
+```
+
+```
+CTRL + C
+exit
+```
+### Step 8: Cleanup 
+
+```
+kubectl delete -f .
+```
+
+
+### Reference:
+
+ * https://rudimartinsen.com/2024/01/09/nfs-csi-driver-kubernetes/
+
+### Beispiel mariadb
+
+
+  * How to persistently use mariadb with a storage class / driver nfs.csi.
+
+### Step 1: Treiber installieren 
+
+  * https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/docs/install-csi-driver-v4.6.0.md
+
+```
+curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.6.0/deploy/install-driver.sh | bash -s v4.6.0 --
+```
+
+### Step 2: Storage Class 
+
+```
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-csi
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: 10.135.0.18
+  share: /var/nfs
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+mountOptions:
+  - nfsvers=3
+```
+
+### Step 3: PVC, Configmap, Deployment 
+
+```
+mkdir -p manifests
+cd manifests
+mkdir mariadb-csi
+cd mariadb-csi
+```
+
+```
+nano 01-pvc.yaml
+```
+
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-nfs-dynamic-mariadb
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: nfs-csi
+```
+
+```
+kubectl apply -f .
+```
+
+```
+nano 02-configmap.yml
+```
+
+```
+### 02-configmap.yml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: mariadb-configmap
+data:
+  # als Wertepaare
+  MARIADB_ROOT_PASSWORD: 11abc432
+```
+
+```
+nano 03-deployment.yml
+```
+
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb-cont
+        image: mariadb:10.11
+        envFrom:
+        - configMapRef:
+            name: mariadb-configmap
+        volumeMounts:
+        - name: persistent-storage
+          mountPath: "/var/lib/mysql"
+          readOnly: false
+      volumes:
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: pvc-nfs-dynamic-mariadb
+```
+
+```
+kubectl apply -f .
+```
+
+```
+kubectl describe po mariadb-deployment-<euer-pod>
+```
+
+## Kubernetes Installation
+
+### k3s installation
+
+
+### Exercise 
+
+```
+Schritt 1: windows store ubuntu installieren und ausführen
+
+Siehe: 
+https://docs.k3s.io/quick-start
+
+## in den root benutzer wechseln
+sudo su - 
+## passwort eingeben 
+
+curl -sfL https://get.k3s.io | sh -
+
+systemctl stop k3s
+## k3s automatischer start beim booten ausschalten
+systemctl disable k3s 
+systemctl start k3s
+
+## Verwenden 
+kubectl cluster-info 
+kubectl get nodes 
+```
+
+## Kubernetes Monitoring 
+
+### Prometheus Monitoring Server (Overview)
+
+
+### What does it do ?
+
+  * It monitors your system by collecting data
+  * Data is pulled from your system by defined endpoints (http) from your cluster 
+  * To provide data on your system, a lot of exporters are available, that
+    * collect the data and provide it in Prometheus
+
+### Technical 
+
+  * Prometheus has a TDB (Time Series Database) and is good as storing time series with data
+  * Prometheus includes a local on-disk time series database, but also optionally integrates with remote storage systems.
+  * Prometheus's local time series database stores data in a custom, highly efficient format on local storage.
+  * Ref: https://prometheus.io/docs/prometheus/latest/storage/
+
+### What are time series ? 
+
+  * A time series is a sequence of data points that occur in successive order over some period of time. 
+  * Beispiel: 
+    * Du willst die täglichen Schlusspreise für eine Aktie für ein Jahr dokumentieren
+    * Damit willst Du weitere Analysen machen 
+    * Du würdest das Paar Datum/Preis dann in der Datumsreihenfolge sortieren und so ausgeben
+    * Dies wäre eine "time series" 
+
+### Kompenenten von Prometheus 
+
+![Prometheus Schaubild](https://www.devopsschool.com/blog/wp-content/uploads/2021/01/What-is-Prometheus-Architecutre-components1-740x414.png)
+
+Quelle: https://www.devopsschool.com/
+
+#### Prometheus Server 
+
+1. Retrieval (Sammeln) 
+   * Data Retrieval Worker 
+     * pull metrics data
+1. Storage 
+   * Time Series Database (TDB)
+     * stores metrics data
+1. HTTP Server 
+   * Accepts PromQL - Queries (e.g. from Grafana)
+     * accept queries 
+  
+### Grafana ? 
+
+  * Grafana wird meist verwendet um die grafische Auswertung zu machen.
+  * Mit Grafana kann ich einfach Dashboards verwenden 
+  * Ich kann sehr leicht festlegen (Durch Data Sources), so meine Daten herkommen
+
+### Prometheus / Grafana Stack installieren
+
+
+  * using the kube-prometheus-stack (recommended !: includes important metrics)
+
+### Step 1: Prepare values-file  
+
+```
+cd
+mkdir -p manifests 
+cd manifests 
+mkdir -p monitoring 
+cd monitoring 
+```
+
+```
+vi values.yml 
+```
+
+```
+fullnameOverride: prometheus
+
+alertmanager:
+  fullnameOverride: alertmanager
+
+grafana:
+  fullnameOverride: grafana
+
+kube-state-metrics:
+  fullnameOverride: kube-state-metrics
+
+prometheus-node-exporter:
+  fullnameOverride: node-exporter
+```
+
+### Step 2: Install with helm 
+
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install prometheus prometheus-community/kube-prometheus-stack -f values.yml --namespace monitoring --create-namespace --version 61.3.1
+```
+
+### Step 3: Connect to prometheus from the outside world 
+
+#### Step 3.1: Start proxy to connect (to on Linux Client)
+
+```
+## this is shown in the helm information 
+helm -n monitoring get notes prometheus
+
+## Get pod that runs prometheus 
+kubectl -n monitoring get service 
+kubectl -n monitoring port-forward svc/prometheus-prometheus 9090 &
+
+```
+
+#### Step 3.2: Start a tunnel in (from) your local-system to the server 
+
+```
+ssh -L 9090:localhost:9090 tln1@164.92.129.7
+```
+
+#### Step 3.3: Open prometheus in your local browser 
+
+```
+## in browser
+http://localhost:9090 
+```
+
+### Step 4: Connect to the grafana from the outside world 
+
+#### Step 4.1: Start proxy to connect 
+
+```
+## Do the port forwarding 
+## Adjust your pods here
+kubectl -n monitoring get pods | grep grafana 
+kubectl -n monitoring port-forward grafana-56b45d8bd9-bp899 3000 &
+```
+
+#### Step 4.2: Start a tunnel in (from) your local-system to the server 
+
+```
+ssh -L 3000:localhost:3000 tln1@164.92.129.7
+```
+
+
+
+
+
+
+### References:
+
+  * https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md
+  * https://artifacthub.io/packages/helm/prometheus-community/prometheus
+
+  
+
+## Kubernetes Monitoring (checkmk)
+
+### Checkmk in Kubernetes einrichten
+
+
+### Hintergrund
+
+CheckMK kann Kubernetes-Cluster ueber die Kubernetes API monitoren. Die Integration besteht aus:
+
+| Komponente | Funktion | Deployment |
+|------------|----------|------------|
+| **Cluster Collector** | Sammelt Metriken aus dem Cluster (CPU, RAM, Netzwerk) | Helm Chart in K8s |
+| **Node Collector** | Laeuft auf jedem Node, sammelt Ressourcen-Auslastung | DaemonSet via Helm |
+| **Kubernetes Special Agent** | Fragt K8s API ab (Pods, Services, Deployments, etc.) | Laeuft auf CheckMK Server |
+| **Piggyback Hosts** | Virtuelle Hosts fuer K8s Objekte in CheckMK | Manuell in CheckMK RAW |
+
+**Wichtig:** CheckMK RAW erfordert manuelle Erstellung der Piggyback-Hosts (in kommerziellen Editionen automatisch).
+
+**Diese Anleitung verwendet:**
+- **Ingress (Traefik) mit HTTPS/TLS** statt NodePort
+- **Let's Encrypt** für automatische SSL-Zertifikate via cert-manager
+- **ClusterIP Service** für internen Zugriff
+
+### Voraussetzungen
+
+- Zugang zum Kubernetes Cluster mit kubectl
+- CheckMK RAW Site: `https://checkmk-tln<X>.do.t3isp.de/` (X = Teilnehmer-Nummer)
+- Helm installiert
+- **cert-manager installiert** (siehe `ingress/https-letsencrypt-ingress-traefik.md`)
+- **ClusterIssuer `letsencrypt-prod` konfiguriert**
+- **Traefik Ingress Controller** installiert und funktionsfähig
+
+### Schritt 1: Helm Repository hinzufuegen
+
+```
+helm repo add checkmk-chart https://checkmk.github.io/checkmk_kube_agent
+helm repo update
+```
+
+Verfuegbare Versionen anzeigen:
+
+```
+helm search repo checkmk-chart --versions | head -10
+```
+
+### Schritt 2: Cluster Collector deployen
+
+Standard-Konfiguration anzeigen:
+
+```
+helm show values checkmk-chart/checkmk > /tmp/checkmk-values.yaml
+```
+
+Helm Chart installieren:
+
+```
+helm upgrade --install checkmk checkmk-chart/checkmk \
+  --namespace checkmk-monitoring \
+  --create-namespace \
+  --version 1.9.0 \
+  --reset-values
+```
+
+**Erklärung der Flags:**
+- `--create-namespace`: Erstellt den Namespace automatisch (kein `kubectl create namespace` nötig)
+- `--version 1.8.0`: Verwendet spezifische Chart-Version (reproduzierbar)
+- `--reset-values`: Stellt sicher, dass keine alten Values übernommen werden
+
+### Schritt 3: Deployment pruefen
+
+```
+kubectl get pods -n checkmk-monitoring
+kubectl get svc -n checkmk-monitoring
+kubectl get daemonset -n checkmk-monitoring
+```
+
+Erwartete Pods:
+- `checkmk-cluster-collector-*` - 1 Pod
+- `checkmk-node-collector-*` - 1 Pod pro Node (DaemonSet)
+
+### Schritt 4: Ingress-Objekt erstellen
+
+Ingress mit TLS/HTTPS via Traefik und Let's Encrypt:
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir -p checkmk
+cd checkmk
+```
+
+```
+nano ingress.yaml
+```
+
+
+```
+## vi ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: checkmk-collector-ingress
+  namespace: checkmk-monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - checkmk-collector.tln<X>.do.t3isp.de
+    secretName: checkmk-collector-tls
+  rules:
+  - host: "checkmk-collector.tln<X>.do.t3isp.de"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: checkmk-cluster-collector
+            port:
+              number: 8080
+```
+
+**Wichtig:** Ersetze `<X>` mit deiner Teilnehmer-Nummer!
+
+Ingress erstellen:
+
+```
+kubectl apply -f ingress.yaml
+```
+
+Ingress pruefen:
+
+```
+kubectl get ingress -n checkmk-monitoring
+kubectl describe ingress checkmk-collector-ingress -n checkmk-monitoring
+```
+
+Zertifikat pruefen:
+
+```
+kubectl get certificate -n checkmk-monitoring
+kubectl get secret checkmk-collector-tls -n checkmk-monitoring
+```
+
+**Voraussetzung:** cert-manager muss installiert sein und der ClusterIssuer `letsencrypt-prod` muss existieren (siehe `ingress/https-letsencrypt-ingress-traefik.md`).
+
+### Schritt 5: Service Account Token extrahieren
+
+Der ServiceAccount wurde automatisch vom Helm Chart erstellt. Token extrahieren:
+
+```
+## Secret-Name finden
+kubectl get secrets -n checkmk-monitoring | grep checkmk
+
+## Token extrahieren und dekodieren
+kubectl get secret checkmk-checkmk -n checkmk-monitoring -o jsonpath='{.data.token}' | base64 --decode > sa-token
+```
+
+**Wichtig:** Token speichern - wird fuer CheckMK benoetigt!
+
+Alternative (wenn kein Secret existiert):
+
+```
+## Token direkt vom ServiceAccount holen
+kubectl create token checkmk -n checkmk-monitoring --duration=87600h
+```
+
+### Schritt 6: CA-Zertifikat extrahieren
+
+```
+## weil 1. Cluster digitalocean, index 0 
+kubectl config view --raw -o jsonpath='{.clusters[1].cluster.certificate-authority-data}' | base64 --decode > k8s-ca.crt
+```
+
+CA-Zertifikat anzeigen:
+
+```
+cat k8s-ca.crt
+## und prüfen ob es das richtige ist:
+## muss kubernetes heissen 
+openssl x509 -in k8s-ca.crt -issuer -noout
+```
+
+### Schritt 7: Cluster Collector Endpoint ermitteln
+
+Ingress-URL verwenden:
+
+```
+kubectl get ingress -n checkmk-monitoring
+```
+
+Der Cluster Collector Endpoint ist:
+
+```
+https://checkmk-collector.tln<X>.do.t3isp.de
+```
+
+**Wichtig:**
+- Ersetze `<X>` mit deiner Teilnehmer-Nummer
+- HTTPS wird durch Let's Encrypt bereitgestellt
+- Der Endpoint ist von aussen erreichbar
+
+Testen (sollte Metriken zurueckgeben):
+
+```
+curl https://checkmk-collector.tln<X>.do.t3isp.de/openmetrics
+```
+
+### Schritt 8: CheckMK konfigurieren - Token speichern
+
+1. Oeffne CheckMK: `https://checkmk-tln<X>.do.t3isp.de/`
+2. Gehe zu **Setup > General > Passwords**
+3. Klicke **Add password**
+4. Konfiguration:
+   - **Unique ID:** `k8s-token`
+   - **Title:** `Kubernetes Service Account Token`
+   - **Password:** Token aus Schritt 5 einfuegen
+5. **Save**
+
+### Schritt 9: CA-Zertifikat in CheckMK importieren
+
+1. **Setup > Global settings > Site management**
+2. Suche nach **"Trusted certificate authorities for SSL"**
+3. Fuege den Inhalt von `/tmp/k8s-ca.crt` hinzu
+4. **Save**
+
+### Schritt 10: Piggyback Host erstellen
+
+1. **Setup > Hosts > Add host**
+2. Konfiguration:
+   - **Hostname:** `k8s-cluster-<dein-name>` (z.B. `k8s-cluster-jmetzger`)
+   - **IP address family:** **No IP** (wichtig!)
+   - **Monitoring agents:** <img width="340" height="39" alt="image" src="https://github.com/user-attachments/assets/9ffd4b87-993a-4b8d-b098-58609ab2f0ba" />
+
+   - Labels hinzufuegen:
+     - Key: `cmk/kubernetes`
+     - Value: `yes`
+3. **Save & go to service configuration** (NICHT "Save & run service discovery")
+
+**Wichtig:** Der Host bekommt keine IP, da er nur Piggyback-Daten empfaengt!
+
+### Schritt 11: Kubernetes Special Agent konfigurieren
+
+1. **Setup > Agents > VM, cloud, container > Kubernetes**
+2. Klicke **Add rule**
+3. **Kubernetes cluster configuration:**
+   - **Cluster name:** `k8s-cluster-<dein-name>` (oder eigener Name)
+   - **Token:** Waehle `k8s-token` aus Dropdown
+   - **API server endpoint:** `https://<DEINE-K8S-API-IP>:6443`
+   - **SSL certificate verification:** Enabled (mit importiertem CA-Cert)
+
+4. **Collector: Enrich With Usage Data**
+   - **Cluster collector endpoint:** `https://checkmk-collector-tln<X>.do.t3isp.de`
+
+5. **Kubernetes API:**
+   - **Object selection:** Waehle gewuenschte Objekte:
+     - ✓ Pods
+     - ✓ Nodes
+     - ✓ Deployments
+     - ✓ DaemonSets
+     - ✓ StatefulSets
+     - ✓ Services
+     - ✓ Namespaces
+     - ✓ CronJobs (falls benoetigt)
+
+6. **Namespace filtering:**
+   - **Include namespaces:** Leer lassen fuer alle Namespaces
+   - **Exclude namespaces:** `kube-public,kube-node-lease` (optional)
+
+   **Hinweise:**
+   - `kube-system` wird inkludiert um System-Komponenten zu monitoren. `kube-public` und `kube-node-lease` sind meist leer bzw. nicht relevant fuer Monitoring.
+   - **Filter-Logik:** Include wird zuerst angewendet (leer = alle), danach Exclude. **Exclude hat immer Vorrang** - ein Namespace in beiden Listen wird ausgeschlossen.
+
+7. **Explicit hosts:**
+   - Waehle `k8s-cluster-<dein-name>` (Host aus Schritt 10)
+
+8. **Save**
+
+### Schritt 12: Aenderungen aktivieren
+
+1. Oben rechts auf **"1 change"** (oder mehr) klicken
+2. **Activate on selected sites**
+3. Warten bis Aktivierung abgeschlossen
+
+### Schritt 13: Service Discovery durchfuehren
+
+1. **Setup > Hosts**
+2. Suche Host `k8s-cluster-<dein-name>`
+3. Klicke auf Host
+4. **Run service discovery**
+5. **Accept all**
+6. **Activate changes**
+
+Erwartete Services:
+- `Kubernetes Cluster CPU resources`
+- `Kubernetes Cluster Memory resources`
+- `Kubernetes Node <node-name>`
+- Weitere Services je nach Objekt-Auswahl
+
+### Schritt 14: Piggyback Hosts fuer K8s Objekte erstellen (CheckMK RAW)
+
+In CheckMK RAW werden Hosts fuer Kubernetes-Objekte NICHT automatisch erstellt. Manuelle Erstellung:
+
+```
+## Auf dem CheckMK Server (falls SSH-Zugang)
+## Site-Kontext wechseln
+OMD[site]> cmk-piggyback list orphans
+```
+
+Alternativ in CheckMK GUI:
+1. **Setup > Hosts > Add host**
+2. Fuer jedes K8s Objekt (Pod, Deployment, etc.) einen Host erstellen:
+   - **Hostname:** Exakter Name aus Piggyback-Daten (z.B. `pod_nginx-deployment-xyz`)
+   - **IP address family:** No IP
+   - Label: `cmk/kubernetes: yes`
+3. Service Discovery durchfuehren
+
+**Tipp fuer CheckMK RAW:** Beginne mit wichtigen Objekten (Nodes, Deployments), nicht alle Pods einzeln.
+
+### Schritt 15: Periodic Service Discovery konfigurieren (optional)
+
+Automatische Discovery fuer neue Services:
+
+1. **Setup > Periodic service discovery**
+2. **Add rule**
+3. **Conditions:**
+   - **Host labels:** `cmk/kubernetes:yes`
+4. **Service discovery:**
+   - **Mode:** "Add unmonitored services and new host labels"
+   - **Interval:** 15 Minuten (kuerzer als Standard)
+5. **Save**
+
+### Schritt 16: Monitoring testen
+
+Services pruefen:
+
+1. **Monitor > All hosts**
+2. Filter: `cmk/kubernetes:yes`
+3. Services pruefen - Status sollte OK sein
+
+Dashboards (nur in kommerziellen Editionen):
+- CheckMK RAW hat keine vordefinierten K8s Dashboards
+- Manuell Views erstellen moeglich
+
+### Troubleshooting
+
+#### Problem: Keine Services gefunden
+
+**Loesung:**
+```
+## Piggyback-Daten pruefen (auf CheckMK Server)
+OMD[site]> cmk-piggyback list
+OMD[site]> cmk-piggyback show <hostname>
+```
+
+#### Problem: Connection refused zum Cluster Collector
+
+**Loesung:**
+```
+## Ingress pruefen
+kubectl get ingress -n checkmk-monitoring
+kubectl describe ingress checkmk-collector-ingress -n checkmk-monitoring
+
+## Service pruefen
+kubectl get svc -n checkmk-monitoring
+
+## Testen von lokalem Rechner
+curl https://checkmk-collector-tln<X>.app.do.t3isp.de/openmetrics
+
+## Zertifikat pruefen (sollte Ready: True sein)
+kubectl get certificate -n checkmk-monitoring
+```
+
+#### Problem: Unauthorized bei API-Zugriff
+
+**Loesung:**
+```
+## Token-Gueltigkeit pruefen
+kubectl get secrets -n checkmk-monitoring
+
+## Neues Token erstellen
+kubectl create token checkmk -n checkmk-monitoring --duration=87600h
+```
+
+#### Problem: Piggyback Hosts erstellen in RAW zu aufwaendig
+
+**Loesung:**
+- Fokus auf wichtige Hosts (Nodes, kritische Deployments)
+- Script zur automatischen Host-Erstellung schreiben
+- Oder: Upgrade zu kommerzieller Edition erwägen
+
+### Aufraeumen
+
+Helm Release entfernen:
+
+```
+helm uninstall checkmk -n checkmk-monitoring
+```
+
+Namespace loeschen:
+
+```
+kubectl delete namespace checkmk-monitoring
+```
+
+In CheckMK:
+1. Hosts loeschen: **Setup > Hosts**
+2. Rule loeschen: **Setup > Agents > VM, cloud, container > Kubernetes**
+3. Token loeschen: **Setup > General > Passwords**
+4. **Activate changes**
+
+### Zusammenfassung
+
+| Komponente | Status |
+|------------|--------|
+| Cluster Collector | Deployed via Helm (ClusterIP Service) |
+| Ingress | Traefik mit TLS/Let's Encrypt |
+| Node Collector | DaemonSet auf allen Nodes |
+| K8s Special Agent | Konfiguriert in CheckMK |
+| Piggyback Host | Manuell erstellt (RAW) |
+| Service Discovery | Durchgefuehrt |
+| Monitoring | Aktiv via HTTPS |
+
+**CheckMK RAW Besonderheiten:**
+- ✓ Vollstaendige K8s API Integration
+- ✓ Cluster Collector fuer Metriken
+- ✗ Keine automatischen Piggyback Hosts
+- ✗ Keine vorgefertigten Dashboards
+- Manueller Aufwand hoeher als kommerzielle Editionen
+
+### Weiterführende Informationen
+
+Offizielle Dokumentation:
+https://docs.checkmk.com/latest/en/monitoring_kubernetes.html
+
+### Checkmk Raw vs. Enterprise in Bezug auf Kubernetes
+
+
+### Prerequisites
+
+  * Use at least version 2.1 of checkmk
+
+### Spoiler Alert
+
+   * Kubernetes läßt sich in checkmk nur gut monitoren mit der checkmk Enterprise - Version
+
+### Was hat die checkmk Enterprise gegenüber der Raw-Version besonderes für Kubernetes
+
+  * Spezielle Kubernetes Dashboard, bereits fix und fertig. (Ansonsten sehr viel Arbeit nachzubauen)
+  * Noch wichtiger: Dynamic Host Management
+
+#### Dynamic Host Management
+
+  * Neues Pods werden automatisch erkannt (auch Services, Deployments usw.)
+  * Resourcen, die nicht mehr da sind, werden automatisch rausgelöscht.
+
+#### Alternative Dynamic Host Management: Ich müsste das händisch machen bzw. selbst scripten
+
+  * Ich müsste rest-api call ausführen, um dies über die api von check zu setzen.
+  * Neue Hosts müßte ich discovern, alte rauslöschen (automatisch)
+
+#### Alternative: Dashboards
+
+  * Dashboards selber bauen
+  * Grafana mit checkmk - Daten (Aus meiner Sicht wenig praktikabel, dann entweder ganz Grafana  + Prometheus oder checkmk Enterprise)
+
+### Kubernetes Dashboards
+
+
+* These dashboards are only available in Checkmk Enterprise (so not in community version: CheckMk Raw)
+* But, you could also create them yourself (not recommended)
+  * Ref: https://docs.checkmk.com/latest/en/dashboards.html
+
+### Cluster Dashboard
+
+<img width="1258" height="711" alt="image" src="https://github.com/user-attachments/assets/31fa90fc-5755-4753-8b7c-c3dc07019e8c" />
+
+### Deploymnent Dashboard 
+
+<img width="1263" height="713" alt="image" src="https://github.com/user-attachments/assets/5b177fa2-9399-4108-bf20-e7a2795228e6" />
+
+### Detail 
+
+<img width="1280" height="541" alt="image" src="https://github.com/user-attachments/assets/e43a67d1-a544-4cdf-bfc0-9cc1522103cd" />
+
+
+### References:
+
+* [Checkmk about new Kubernetes Integration (since 2022)](https://www.youtube.com/watch?v=PpKAp14fXQI)
+
+## Kubernetes QoS / HealthChecks / Live / Readiness
+
+### Quality of Service - evict pods
+
+
+### Die Class wird auf Basis der Limits und Requests der Container vergeben
+
+```
+Request: Definiert wieviel ein Container mindestens braucht (CPU,memory)
+Limit: Definiert, was ein Container maximal braucht.
+
+in spec.containers.resources 
+kubectl explain pod.spec.containers.resources
+
+```
+
+### Art der Typen: 
+
+  * Guaranteed
+  * Burstable
+  * BestEffort 
+
+### Wie werden die Pods evicted 
+
+  * Das wird in der folgenden Reihenfolge gemacht: Zu erst alle BestEffort, dann burstable und zum Schluss Guaranteed
+
+### Guaranteed 
+
+```
+Type: Guaranteed:
+https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/#create-a-pod-that-gets-assigned-a-qos-class-of-guaranteed
+
+set when limit equals request
+(request: das braucht er,
+limit: das braucht er maximal) 
+
+Garantied ist die höchste Stufe und diese werden bei fehlenden Ressourcen 
+als letztes "evicted"
+```
+
+### Guaranteed Exercise 
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir qos
+cd qos
+nano 01-pod.yaml
+```
+
+
+```
+apiVersion: v1
+
+kind: Pod
+metadata:
+  name: qos-demo
+spec:
+  containers:
+  - name: qos-demo-ctr
+    image: nginx
+    resources:
+      limits:
+        memory: "200Mi"
+        cpu: "700m"
+
+      requests:
+        memory: "200Mi"
+        cpu: "700m"
+```
+
+
+
+```
+kubectl apply -f .
+kubectl describe po qos-demo 
+```
+
+### Risiko Guaranteed
+
+
+ * Limit: CPU: Diese wird maximal zur Verfügung gestellt
+ * Limit: Memory: Wenn die Anwendung das Limit überschreitet, greift der OOM-Killer (Out of Memory Killer)
+ * Wenn Limit Memory: Dann auch dafür sorgen, dass das laufende Programme selbst auch eine Speichergrenze
+   * Java-Programm ohne Speichergrenze oder zu hoher Speichergrenze 
+
+
+### Burstable 
+
+
+* At least one Container in the Pod has a memory or CPU request or limit
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir burstable
+cd burstable
+```
+
+```
+nano 01-pod.yaml
+```
+
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: qos-burstable
+spec:
+  containers:
+  - name: qos-demo-2-ctr
+    image: nginx
+    resources:
+      limits:
+        memory: "200Mi"
+      requests:
+        memory: "100Mi"
+```
+
+```
+kubectl apply -f .
+kubectl describe po qos-burstable
+```
+
+### BestEffort
+
+  * gar keine Limits und Requests gesetzt (bitte nicht machen)
+
+
+### LiveNess/Readiness - Probe / HealthChecks
+
+
+
+### Übung 1: Liveness (command) 
+
+```
+What does it do ? 
+ 
+* At the beginning pod is ready (first 30 seconds)
+* Check will be done after 5 seconds of pod being startet
+* Check will be done periodically every 5 seconds and will check
+  * for /tmp/healthy
+  * if file is there will return: 0 
+  * if file is not there will return: 1 
+* After 30 seconds container will be killed
+* After 35 seconds container will be restarted
+```
+
+```bash
+cd
+mkdir -p manifests/probes
+cd manifests/probes 
+nano 01-pod-liveness-command.yml 
+```
+
+```bash 
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    test: liveness
+  name: liveness-exec
+spec:
+  containers:
+  - name: liveness
+    image: k8s.gcr.io/busybox
+    args:
+    - /bin/sh
+    - -c
+    - touch /tmp/healthy; sleep 30; rm -f /tmp/healthy; sleep 600
+    livenessProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+      initialDelaySeconds: 5
+      periodSeconds: 5
+```
+
+```
+## apply and test 
+kubectl apply -f .
+kubectl describe -l test=liveness pods | grep -A  40 Events
+sleep 30
+kubectl describe -l test=liveness pods | grep -A  40 Events
+sleep 5
+kubectl describe -l test=liveness pods | grep -A  40 Events
+
+```
+
+```
+## cleanup
+kubectl delete -f .
+ 
+``` 
+
+### Übung 2: Liveness Probe (HTTP)
+
+```
+## Step 0: Understanding Prerequisite:
+This is how this image works:
+## after 10 seconds it returns code 500 
+http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+    duration := time.Now().Sub(started)
+    if duration.Seconds() > 10 {
+        w.WriteHeader(500)
+        w.Write([]byte(fmt.Sprintf("error: %v", duration.Seconds())))
+    } else {
+        w.WriteHeader(200)
+        w.Write([]byte("ok"))
+    }
+})
+```
+
+```
+## Step 1: Pod  - manifest 
+## vi 02-pod-liveness-http.yml
+## status-code >=200 and < 400 o.k. 
+## else failure 
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    test: liveness
+  name: liveness-http
+spec:
+  containers:
+  - name: liveness
+    image: k8s.gcr.io/liveness
+    args:
+    - /server
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+        httpHeaders:
+        - name: Custom-Header
+          value: Awesome
+      initialDelaySeconds: 3
+      periodSeconds: 3
+```
+
+```
+## Step 2: apply and test
+kubectl apply -f 02-pod-liveness-http.yml
+## after 10 seconds port should have been started 
+sleep 10 
+kubectl describe pod liveness-http
+
+```
+
+
+### Reference:
+ 
+   * https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+
+### Taints / Toleratioins
+
+
+### Taints 
+
+```
+Taints schliessen auf einer Node alle Pods aus, die nicht bestimmte tolerations haben:
+
+Möglichkeiten:
+
+o Sie werden nicht gescheduled - NoSchedule 
+o Sie werden nicht executed - NoExecute 
+o Sie werden möglichst nicht gescheduled. - PreferNoSchedule 
+
+```
+
+### Tolerations 
+
+```
+Tolerations werden auf Pod-Ebene vergeben: 
+tolerations: 
+
+Ein Pod kann (wenn es auf einem Node taints gibt), nur 
+gescheduled bzw. ausgeführt werden, wenn er die 
+Labels hat, die auch als
+Taints auf dem Node vergeben sind.
+```
+
+### Walkthrough  
+
+#### Step 1: Cordon the other nodes - scheduling will not be possible there 
+
+```
+## Cordon nodes n11 and n111 
+## You will see a taint here 
+kubectl cordon n11
+kubectl cordon n111
+kubectl describe n111 | grep -i taint 
+```
+
+
+
+#### Step 2: Set taint on first node 
+
+```
+kubectl taint nodes n1 gpu=true:NoSchedule
+```
+
+### Step 3
+
+```
+cd 
+mkdir -p manifests
+cd manifests 
+mkdir tainttest 
+cd tainttest 
+nano 01-no-tolerations.yml
+```
+
+```
+##vi 01-no-tolerations.yml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-test-no-tol
+  labels:
+    env: test-env
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.21
+```
+
+```
+kubectl apply -f . 
+kubectl get po nginx-test-no-tol
+kubectl get describe nginx-test-no-tol
+```
+
+### Step 4:
+
+```
+## vi 02-nginx-test-wrong-tol.yml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-test-wrong-tol
+  labels:
+    env: test-env
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+  tolerations:
+  - key: "cpu"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+```
+
+```
+kubectl apply -f .
+kubectl get po nginx-test-wrong-tol
+kubectl describe po nginx-test-wrong-tol
+```
+
+### Step 5:
+
+```
+## vi 03-good-tolerations.yml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-test-good-tol
+  labels:
+    env: test-env
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+  tolerations:
+  - key: "gpu"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+```
+
+```
+kubectl apply -f .
+kubectl get po nginx-test-good-tol
+kubectl describe po nginx-test-good-tol
+```
+
+#### Taints rausnehmen 
+
+```
+kubectl taint nodes n1 gpu:true:NoSchedule-
+```
+
+#### uncordon other nodes 
+
+```
+kubectl uncordon n11
+kubectl uncordon n111
+```
+
+### References 
+  
+  * [Doku Kubernetes Taints and Tolerations](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
+  * https://blog.kubecost.com/blog/kubernetes-taints/
+
+## Installation mit microk8s
+
+### Schritt 1: auf 3 Maschinen mit Ubuntu 24.04LTS
+
+
+### Walkthrough
+
+```
+sudo snap install microk8s --classic
+## Important enable dns // otherwice not dns lookup is possible 
+microk8s enable dns 
+microk8s status
+
+## Execute kubectl commands like so 
+microk8s kubectl
+microk8s kubectl cluster-info
+
+## Make it easier with an alias 
+echo "alias kubectl='microk8s kubectl'" >> ~/.bashrc
+source ~/.bashrc
+kubectl
+
+```
+### Working with snaps 
+
+```
+snap info microk8s 
+
+```
+
+### Ref:
+
+  * https://microk8s.io/docs/setting-snap-channel
+
+### Schritt 2: cluster - node2 + node3 einbinden - master ist node 1
+
+
+### Walkthrough 
+
+```
+## auf master (jeweils für jedes node neu ausführen)
+microk8s add-node
+
+## dann auf jeweiligem node vorigen Befehl der ausgegeben wurde ausführen
+## Kann mehr als 60 sekunden dauern ! Geduld...Geduld..Geduld 
+##z.B. -> ACHTUNG evtl. IP ändern 
+microk8s join 10.128.63.86:25000/567a21bdfc9a64738ef4b3286b2b8a69
+
+```
+
+### Auf einem Node addon aktivieren z.B. ingress
+
+```
+gucken, ob es auf dem anderen node auch aktiv ist. 
+```
+
+### Add Node only as Worker-Node 
+
+```
+microk8s join 10.135.0.15:25000/5857843e774c2ebe368e14e8b95bdf80/9bf3ceb70a58 --worker
+Contacting cluster at 10.135.0.15
+
+root@n41:~# microk8s status
+This MicroK8s deployment is acting as a node in a cluster.
+Please use the master node.
+```
+
+
+
+### Ref:
+
+  * https://microk8s.io/docs/high-availability
+
+### Schritt 3: Remote Verbindung einrichten
+
+
+### Walkthrough 
+
+```
+## auf master (jeweils für jedes node neu ausführen)
+microk8s add-node
+
+## dann auf jeweiligem node vorigen Befehl der ausgegeben wurde ausführen
+## Kann mehr als 60 sekunden dauern ! Geduld...Geduld..Geduld 
+##z.B. -> ACHTUNG evtl. IP ändern 
+microk8s join 10.128.63.86:25000/567a21bdfc9a64738ef4b3286b2b8a69
+
+```
+
+### Auf einem Node addon aktivieren z.B. ingress
+
+```
+gucken, ob es auf dem anderen node auch aktiv ist. 
+```
+
+### Add Node only as Worker-Node 
+
+```
+microk8s join 10.135.0.15:25000/5857843e774c2ebe368e14e8b95bdf80/9bf3ceb70a58 --worker
+Contacting cluster at 10.135.0.15
+
+root@n41:~# microk8s status
+This MicroK8s deployment is acting as a node in a cluster.
+Please use the master node.
+```
+
+
+
+### Ref:
+
+  * https://microk8s.io/docs/high-availability
+
+## Installation mit kubeadm
+
+### Schritt für Schritt mit kubeadm
+
+
+### Version 
+
+  * Ubuntu 20.04 LTS
+  * 1 control plane und 3 worker nodes 
+
+### Done for you (for 4 Servers)
+
+  * Servers are setup:
+    * ssh-running
+    * kubeadm, kubelet, kubectl installed
+    * containerd - runtime installed 
+
+  * Installed on all nodes (with cloud-init)
+
+```
+##!/bin/bash 
+
+groupadd sshadmin
+USERS="mysupersecretuser"
+SUDO_USER="mysupersecretuser"
+PASS="yoursupersecretpass"
+for USER in $USERS
+do
+  echo "Adding user $USER"
+  useradd -s /bin/bash --create-home $USER
+  usermod -aG sshadmin $USER
+  echo "$USER:$PASS | chpasswd
+done
+
+## We can sudo with $SUDO_USER
+usermod -aG sudo $SUDO_USER
+
+## 20.04 and 22.04 this will be in the subfolder
+if [ -f /etc/ssh/sshd_config.d/50-cloud-init.conf ]
+then
+  sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config.d/50-cloud-init.conf
+fi
+
+### both is needed 
+sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config
+
+usermod -aG sshadmin root
+
+## TBD - Delete AllowUsers Entries with sed 
+## otherwice we cannot login by group 
+
+echo "AllowGroups sshadmin" >> /etc/ssh/sshd_config 
+systemctl reload sshd
+
+## Now let us do some generic setup
+echo "Installing kubeadm kubelet kubectl"
+
+#### A lot of stuff needs to be done here
+#### https://www.linuxtechi.com/install-kubernetes-on-ubuntu-22-04/
+
+## 1. no swap please
+swapoff -a
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+## 2. Loading necessary modules
+echo "overlay" >> /etc/modules-load.d/containerd.conf
+echo "br_netfilter" >> /etc /modules-load.d/containerd.conf
+modprobe overlay
+modprobe br_netfilter
+
+## 3. necessary kernel settings
+echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/kubernetes.conf
+sysctl --system
+
+## 4. Update the meta-information
+apt-get -y update
+
+## 5. Installing container runtime
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmour -o /etc/apt/trusted.gpg.d/docker.add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"       apt-get install -y containerd.io
+
+## 6. Configure containerd
+containerd config default > /etc/containerd/config.toml
+sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+systemctl restart containerd
+systemctl enable containerd
+
+## 7. Add Kubernetes Repository for Kubernetes
+mkdir -m 755 /etc/apt/keyrings
+apt-get install -y apt-transport-https ca-certificates curl gpg
+curl -fsSL https://pkgs.k8s.io/core:/stable:/$K8S_VERSION/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/$K8S_VERSI                                                                                                               # 8. Install kubectl kubeadm kubectl
+apt-get -y update
+apt-get install -y kubelet kubeadm kubectl
+apt-mark hold -y kubelet kubeadm kubectl
+
+## 9. Install helm
+snap install helm --classic
+
+## Installing nfs-common
+apt-get -y install nfs-common
+```
+
+
+### Prerequisites 
+
+  * 4 Servers setup and reachable through ssh.
+  * user: 11trainingdo
+  * pass: PLEASE ask your instructor 
+
+
+```
+## Important - Servers are not reachable through
+## Domain !! Only IP. 
+controlplane.tln<nr>.t3isp.de 
+worker1.tln<nr>.do.t3isp.de
+worker2.tln<nr>.do.t3isp.de
+worker3.tln<nr>.do.t3isp.de
+```
+
+### Step 1: Setup controlnode (login through ssh) 
+
+```
+## This CIDR is the recommendation for calico
+## Other CNI's might be different 
+CLUSTER_CIDR="192.168.0.0/16"
+
+kubeadm init --pod-network-cidr=$CLUSTER_CIDR && \
+  mkdir -p /root/.kube && \
+  cp -i /etc/kubernetes/admin.conf /root/.kube/config && \
+  chown $(id -u):$(id -g) /root/.kube/config && \
+  cp -i /root/.kube/config /tmp/config.kubeadm && \
+  chmod o+r /tmp/config.kubeadm 
+```
+
+```
+## Copy output of join (needed for workers) 
+## e.g. 
+kubeadm join 159.89.99.35:6443 --token rpylp0.rdphpzbavdyx3llz \
+        --discovery-token-ca-cert-hash sha256:05d42f2c051a974a27577270e09c77602eeec85523b1815378b815b64cb99932
+```
+
+### Step 2: Setup worker1 - node (login through ssh) 
+
+```
+## use join command from Step 1:
+kubeadm join 159.89.99.35:6443 --token rpylp0.rdphpzbavdyx3llz \
+        --discovery-token-ca-cert-hash sha256:05d42f2c051a974a27577270e09c77602eeec85523b1815378b815b64cb99932
+```
+
+### Step 3: Setup worker2 - node (login through ssh) 
+
+```
+## use join command from Step 1:
+kubeadm join 159.89.99.35:6443 --token rpylp0.rdphpzbavdyx3llz \
+        --discovery-token-ca-cert-hash sha256:05d42f2c051a974a27577270e09c77602eeec85523b1815378b815b64cb99932
+```
+
+### Step 4: Setup worker3 - node (login through ssh) 
+
+```
+## use join command from Step 1:
+kubeadm join 159.89.99.35:6443 --token rpylp0.rdphpzbavdyx3llz \
+        --discovery-token-ca-cert-hash sha256:05d42f2c051a974a27577270e09c77602eeec85523b1815378b815b64cb99932
+```
+
+### Step 5: CNI-Setup (calico) on controlnode (login through ssh) 
+
+```
+kubectl get nodes 
+```
+
+```
+## Output
+root@controlplane:~# kubectl get nodes
+NAME           STATUS     ROLES           AGE     VERSION
+controlplane   NotReady   control-plane   6m27s   v1.28.6
+worker1        NotReady   <none>          3m18s   v1.28.6
+worker2        NotReady   <none>          2m10s   v1.28.6
+worker3        NotReady   <none>          60s     v1.28.6
+```
+
+```
+## Installing calico CNI 
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.29.2/manifests/tigera-operator.yaml
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.29.2/manifests/custom-resources.yaml
+kubectl get ns
+kubectl -n calico-system get all
+kubectl -n calico-system get pods -o wide -w 
+```
+
+```
+## After if all pods are up and running -> CTRL + C
+```
+
+```
+kubectl -n calico-system get pods -o wide
+## all nodes should be ready now 
+kubectl get nodes -o wide 
+```
+
+```
+## Output
+root@controlplane:~# kubectl get nodes
+NAME           STATUS   ROLES           AGE    VERSION
+controlplane   Ready    control-plane   14m    v1.28.6
+worker1        Ready    <none>          11m    v1.28.6
+worker2        Ready    <none>          10m    v1.28.6
+worker3        Ready    <none>          9m9s   v1.28.6
+```
+
+### Do it with ansible 
+
+  * https://spacelift.io/blog/ansible-kubernetes
+
+## Kubernetes Netzwerk (Antrea / NSX)
+
+### Netzwerkspezialität bei NSX mit Antrea
+
+
+<img width="914" height="299" alt="image" src="https://github.com/user-attachments/assets/7d17926e-6cd4-461d-9f9d-81505943884a" />
+
+### Besonderheit Netzwerk 
+
+  * Dann kannst direkt von anderen VM's in ESXi in einen Pod reinrouten
+  * Eine VM kann einen Pod im Kubernetes Cluster über sein Pod-IP direkt erreichen
+
+### Konsequenz des Netzwerkaufbau 
+
+  * Range für Pods (IP-Range) -> Cluster CIDR, darf nicht schon nsx verwendet worden sein
+
+
+
+## Tipps & Tricks
+
+### Pods bleiben im terminate-mode stehen
+
+
+Ein Pod hängt in Terminierung meist aus folgenden Gründen:
+
+### Häufigste Ursachen:
+
+**1. Graceful Shutdown Timeout**
+- Container reagiert nicht auf SIGTERM
+- Nach `terminationGracePeriodSeconds` (default 30s) wird SIGKILL gesendet
+- Check: `kubectl describe pod <pod>` → Events
+
+**2. Finalizers blockieren**
+```bash
+kubectl get pod <pod> -o yaml | grep finalizers -A 5
+```
+Manuelle Entfernung (Notfall):
+```bash
+kubectl patch pod <pod> -p '{"metadata":{"finalizers":null}}'
+```
+
+**3. PreStop Hook hängt**
+- Zählt zur Grace Period
+- Hook-Fehler blockiert Terminierung
+
+**4. Volume Unmount Problem**
+- Node kann Volume nicht freigeben
+- Oft bei NFS/CSI-Storage
+
+**5. Node NotReady**
+- Kubelet antwortet nicht
+- Pod bleibt in Terminating bis Node zurück oder nach ~5min force-deleted
+
+### Quick Fix:
+```bash
+## Force delete (wenn nichts anderes hilft)
+kubectl delete pod <pod> --grace-period=0 --force
+```
+
+**Debug-Befehle:**
+```bash
+kubectl get pod <pod> -o yaml
+kubectl describe pod <pod>
+kubectl logs <pod> --previous
+```
+
+### Was sind finalizer 
+
+  * Finalizers sind Strings im metadata.finalizers-Array eines Pods, die verhindern, dass Kubernetes das Objekt vollständig löscht, bis alle Finalizer entfernt wurden.
+
+```
+Bei kubectl delete pod setzt Kubernetes nur metadata.deletionTimestamp
+Pod geht in Status Terminating
+Controller/Operator mit zuständigem Finalizer führt Cleanup aus
+Controller entfernt seinen Finalizer aus dem Array
+Erst wenn Array leer → vollständige Löschung
+```
+
+### Probleme mit Volumes 
+
+**VolumeAttachment-Objekt** (separates K8s-Objekt):
+```yaml
+apiVersion: storage.k8s.io/v1
+kind: VolumeAttachment
+metadata:
+  finalizers:
+  - external-attacher/csi-driver-name  # <-- Hier ist der Finalizer
+spec:
+  attacher: csi-driver
+  nodeName: worker-1
+  source:
+    persistentVolumeName: pvc-xyz
+```
+
+**Pod-Objekt** hat normalerweise **keine Volume-Finalizer**:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  finalizers: []  # Meist leer oder mit anderen Finalizern
+```
+
+### Warum Pods trotzdem bei Volumes hängen:
+
+1. **Kubelet wartet** auf erfolgreiches Volume-Unmount (nicht Finalizer-basiert)
+2. **VolumeAttachment-Finalizer** verhindert Detach vom Node
+3. **Node nicht erreichbar** → Kubelet kann nicht unmounten
+4. **CSI-Driver-Probleme** → external-attacher kann Finalizer nicht clearen
+
+### Typisches Problem-Szenario:
+
+```bash
+## Pod bleibt Terminating
+kubectl get pod -o yaml
+## deletionTimestamp gesetzt, aber keine Volume-Finalizer
+
+## VolumeAttachment existiert noch
+kubectl get volumeattachment
+## Hat Finalizer vom CSI-Driver
+```
+
+**Force-Delete** hilft hier nicht beim Volume-Problem, sondern man muss das VolumeAttachment-Objekt oder den Node-Status addressieren.
+
+## Podman
+
+### Podman vs. Docker
+
+---
+
+### Was ist Podman?
+
+**Podman** (kurz für: *Pod Manager*) ist eine Open-Source-Container-Engine, die als Alternative zu Docker entwickelt wurde.
+
+---
+
+### Warum Podman?
+
+Hier die wichtigsten Gründe, warum Podman gerne verwendet wird:
+
+| Vorteil                                         | Erklärung                                                                                                                                                                 |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Daemonless**                                  | Podman benötigt keinen zentralen Hintergrunddienst (Daemon), sondern läuft als normaler Benutzerprozess. Dadurch weniger Angriffsfläche und flexibler.                    |
+| **Rootless Support**                            | Container können ohne Root-Rechte gestartet werden, was Sicherheitsvorteile bringt.                                                                                       |
+| **Docker-kompatibel**                           | Podman kann Dockerfiles bauen und verwendet dieselben Container Images. Auch `podman` CLI ist zu `docker` CLI fast identisch (`alias docker=podman` geht oft problemlos). |
+| **Pods-Unterstützung**                          | Inspiriert von Kubernetes: Mehrere Container in einem gemeinsamen Netzwerk-Namespace (Pod). Praktisch für lokale Kubernetes-ähnliche Setups.                              |
+| **Bessere Integration für Systemd**             | Einfaches Erstellen von Systemd-Units aus Containern (`podman generate systemd`). Ideal für Serverdienste ohne externes Orchestration-Tool.                               |
+| **Kein Root-Daemon**                            | Keine ständigen Root-Rechte nötig, weniger Sicherheitsrisiko durch kompromittierte Daemons.                                                                               |
+| **Red Hat / Fedora / CentOS bevorzugen Podman** | Dort wird Podman inzwischen oft als Standardlösung ausgeliefert.                                                                                                          |
+
+---
+
+### Typische Einsatzbereiche
+
+* Entwicklung: wie Docker
+* Serverbetrieb: Container als Systemdienste
+* Kubernetes-nahes Testing (Pods)
+* Rootless Deployment auf Servern ohne Container-Daemon
+
+---
+
+### Beispiel: Container starten
+
+```bash
+podman run -d -p 8080:80 nginx
+```
+
+Fast wie bei Docker.
+
+---
+
+### Podman vs Docker kurz gesagt:
+
+|                     | Docker     | Podman            |
+| ------------------- | ---------- | ----------------- |
+| Daemon              | ja         | nein              |
+| Rootless            | begrenzt   | ja                |
+| Kubernetes-nah      | weniger    | stärker           |
+| Systemd-Integration | wenig      | stark             |
+| Kompatibilität      | verbreitet | Docker-kompatibel |
+
+---
+
+
+### Kubernetes Installation mit Proxmox und kubespray
+
+
+### Schritt 1: virtuellen Maschine deployen 
+
+  * 4GB (control nodes eher 8GB) - minimaler Arbeitsspeicher
+  * Debian als Betriebssystem
+  * minimale Installation
+  * ssh-server installiert (openssh-server)
+  * sudo benutzer ohne Passwort für privilege Escalation (z.B. admin darf als root arbeiten)
+
+### Info 1.1 Netzwerk 
+
+   * Alle virtuellen Maschinen im gleichen Netzwerk (kein VLAN)
+   * Kubernetes mit eigenem VLAN
+   * Alternativ neuerdings: mit SDN (Performance beobachten !)
+
+### Schritt 2: maschine für ansible deployen/nutzen 
+
+   * private/public key erstellen und den public auf die maschinen aus Schritt 1 verteilen
+   * ansible und git installieren
+   * kubespray clonen oder docker image verwenden (dann braucht man kein ansible installieren)
+   * apt update -y; apt install docker.io -y
+   * Inventory rauskopieren und anpassen
+
+```
+[all]
+## Master/Control Plane Node
+kube-master ansible_host=192.168.1.10
+## Worker Nodes
+kube-worker1 ansible_host=192.168.1.11
+kube-worker2 ansible_host=192.168.1.12
+
+[kube_control_plane]
+kube-master
+
+[etcd]
+kube-master
+
+[kube_node]
+kube-worker1
+kube-worker2
+```
+
+```
+## evtl config anpassen vornehmen in den group vars
+## z.B. 
+https://github.com/kubernetes-sigs/kubespray/blob/master/inventory/sample/group_vars/k8s_cluster/k8s-cluster.yml
+```
+
+```
+ansible-playbook -i inventory/mycluster/ cluster.yml -b -v \
+  --private-key=~/.ssh/private_key
+```
+
+```
+## zum hostsystem verbinden und die kubeconfig
+## in der Regel
+cd /home/<user-mit-dem-ich-installiert-habe>/.kube
+cat config
+```
+
+
+
+## Kubernetes Workloads
+
+### Welche Wege gibt es Kubernetes Workloads auszurollen
+
+
+  * gitlab ci/cd
+  * github actions
+  * bitbucket + jenkings
+  * ArgoCD
+  * Flux
+  * helm/helmfile
+
+### Grafik 
+
+<img width="1297" height="820" alt="image" src="https://github.com/user-attachments/assets/0593d586-3888-40a4-81a7-5dce1d8af63b" />
+
+## Kubernetes Infrastructure (Performance)
+
+### Performance of etcd for setup
+
+
+```
+etcdctl check perf --load="s"
+(s steht für small: 
+
+https://andreaskaris.github.io/blog/openshift/etcd_perf/
+The performance check's workload model. Accepted workloads: s(small), m(medium), l(large), xl(xLarge)
+
+
+
+
 ```
 
 ## Kubernetes - Überblick
@@ -2709,64 +8492,6 @@ strategy.rollingUpdate.maxUnavailability:
 
 
 
-## kubectl 
-
-### kubectl einrichten mit namespace
-
-
-### config einrichten 
-
-```
-cd
-mkdir -p .kube
-cd .kube
-cp /tmp/config config
-ls -la
-## Alternative: nano config befüllen 
-## das bekommt ihr aus Eurem Cluster Management Tool 
-```
-
-```
-kubectl cluster-info
-```
-
-### Arbeitsbereich konfigurieren 
-
-```
-kubectl create ns <euername>
-kubectl get ns
-kubectl config set-context --current --namespace <euername>
-kubectl get pods
-```
-
-
-```
-## Beispiel 
-## kubectl create ns jochen
-## kubectl get ns
-## kubectl config set-context --current --namespace jochen
-## kubectl get pods
-```
-
-### kubectl cheatsheet kubernetes
-
-  * https://kubernetes.io/docs/reference/kubectl/cheatsheet/
-
-### kubectl mit verschiedenen Clustern arbeiten
-
-
-```
-### Zwei config in KUBECONFIG env variable 
-export KUBECONFIG=~/.kube/config:~/.kube/config.single
-kubectl config view 
-cp config config.bkup 
-kbuectl config view --flatten > config.yaml 
-kubectl config get-contexts 
-kubectl config use-context do-fra1-single 
-kubectl get nodes 
-kubectl config use-context do-fra-bka-cluster 
-```
-
 ## Kubernetes Ingress (Eingehender Traffik ins Cluster)
 
 ### Wann LoadBalancer, wann Ingress
@@ -2792,1162 +8517,6 @@ kubectl config use-context do-fra-bka-cluster
   * Anbieter mit sehr guter Session Stickyness
   * Nur eine IP für alle Dienste (die IP, die Ingress selbst benötigt, um erreichbar zu sein)
   * HTTPS Termination
-
-## Kubernetes Praxis API-Objekte 
-
-### Das Tool kubectl (Devs/Ops) - Spickzettel
-
-
-### Hilfe
-
-```
-## Hilfe zu befehl
-kubectl help config
-## Hilfe nächste Ebene 
-kubectl config set-context --help
-```
-
-### Allgemein 
-
-```
-## Zeige Informationen über das Cluster 
-kubectl cluster-info 
-
-## Welche Ressourcen / Objekte gibt es, z.B. Pod 
-kubectl api-resources 
-kubectl api-resources | grep namespaces 
-
-## Hilfe zu object und eigenschaften bekommen
-kubectl explain pod 
-kubectl explain pod.metadata
-kubectl explain pod.metadata.name 
-
-```
-
-### namespaces 
-
-```
-kubectl get ns
-kubectl get namespaces 
-
-## namespace wechseln, z.B. nach Ingress
-kubectl config set-context --current --namespace=ingress 
-## jetzt werden alle Objekte im Namespace Ingress angezeigt 
-kubectl get all,configmaps 
-
-## wieder zurückwechseln. 
-## der standardmäßige Namespace ist 'default' 
-kubectl config set-context --current --namespace=default 
-
-```
-
-### Arbeiten mit manifesten 
-
-```
-kubectl apply -f nginx-replicaset.yml 
-## Wie ist aktuell die hinterlegte config im system
-kubectl get -o yaml -f nginx-replicaset.yml 
-
-## Änderung in nginx-replicaset.yml z.B. replicas: 4 
-## dry-run - was wird geändert 
-kubectl diff -f nginx-replicaset.yml 
-
-## anwenden 
-kubectl apply -f nginx-replicaset.yml 
-
-## Alle Objekte aus manifest löschen
-kubectl delete -f nginx-replicaset.yml 
-
-## Recursive Löschen
-cd ~/manifests 
-## multiple subfolders subfolders present 
-kubectl delete -f . -R 
-
-
-```
-
-### Ausgabeformate / Spezielle Informationen
-
-```
-## Ausgabe kann in verschiedenen Formaten erfolgen 
-kubectl get pods -o wide # weitere informationen 
-## im json format
-kubectl get pods -o json 
-
-## gilt natürluch auch für andere kommandos
-kubectl get deploy -o json 
-kubectl get deploy -o yaml 
-
-## Label anzeigen 
-kubectl get deploy --show-labels 
-
-```
-
-
-
-### Zu den Pods 
-
-```
-## Start einen pod // BESSER: direkt manifest verwenden
-## kubectl run podname image=imagename 
-kubectl run nginx image=nginx 
-
-## Pods anzeigen 
-kubectl get pods 
-kubectl get pod
-
-## Pods in allen namespaces anzeigen 
-kubectl get pods -A 
-
-## Format weitere Information 
-kubectl get pod -o wide 
-## Zeige labels der Pods
-kubectl get pods --show-labels 
-
-## Zeige pods mit einem bestimmten label 
-kubectl get pods -l app=nginx 
-
-## Status eines Pods anzeigen 
-kubectl describe pod nginx 
-
-## Pod löschen 
-kubectl delete pod nginx
-## Löscht alle Pods im eigenen Namespace bzw. Default 
-kubectl delete pods --all 
-
-## Kommando in pod ausführen 
-kubectl exec -it nginx -- bash 
-
-```
-
-
-
-### Alle Objekte anzeigen 
-
-```
-## Nur die wichtigsten Objekte werden mit all angezeigt  
-kubectl get all
-## Dies, kann ich wie folgt um weitere ergänzen 
-kubectl get all,configmaps 
-
-## Über alle Namespaces hinweg 
-kubectl get all -A 
-```
-
-### Logs
-
-```
-kubectl logs <container>
-kubectl logs <deployment>
-## e.g. 
-## kubectl logs -n namespace8 deploy/nginx
-## with timestamp 
-kubectl logs --timestamps -n namespace8 deploy/nginx
-## continously show output 
-kubectl logs -f <pod>
-## letzten x Zeilen anschauen aus log anschauen
-kubectl logs --tail=5 <your pod>
-```
-
-### Referenz
-
-  * https://kubernetes.io/de/docs/reference/kubectl/cheatsheet/
-
-### kubectl example with run
-
-
-### Example (that does work)
-
-```
-## Synopsis (most simplistic example 
-## kubectl run NAME --image=IMAGE_EG_FROM_DOCKER
-## example
-kubectl run nginx --image=nginx:1.23 
-
-kubectl get pods 
-## on which node does it run ? 
-kubectl get pods -o wide 
-```
-
-### Example (that does not work) 
-
-```
-kubectl run testpod --image=foo2
-## ImageErrPull - Image konnte nicht geladen werden 
-kubectl get pods 
-## Weitere status - info 
-kubectl describe pods testpod 
-```
-
-### Ref:
-
-  * https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#run
-
-### Bauen einer Applikation mit Resource Objekten
-
-
-![image](https://github.com/jmetzger/training-kubernetes-einfuehrung/assets/1933318/69da28e4-eb8e-402c-99f6-89ccb231f386)
-
-### Anatomie einer Webanwendungen
-
-
-![image](https://github.com/user-attachments/assets/0a0c519e-fad3-4aac-b945-2e0a7fc2999c)
-
-### kubectl/manifest/pod
-
-
-### Walkthrough 
-
-```
-cd
-mkdir -p manifests
-cd manifests/
-mkdir -p 01-web
-cd 01-web
-nano nginx-static.yml 
-```
-
-```
-## vi nginx-static.yml 
-
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx-static-web
-  labels:
-    webserver: nginx
-spec:
-  containers:
-  - name: web
-    image: nginx:1.23
-
-```
-
-```
-kubectl apply -f nginx-static.yml 
-```
-
-```
-kubectl get pod/nginx-static-web -o wide 
-kubectl describe pod nginx-static-web 
-## show config 
-kubectl get pod/nginx-static-web -o yaml
-## seitenweise anzeigen 
-kubectl get pod/nginx-static-web -o yaml | less 
-
-```
-
-### Aufräumen 
-
-```
-kubectl delete -f .
-```
-
-### kubectl/manifest/replicaset
-
-
-### Walkthrough Erstellen 
-
-```
-cd
-mkdir -p manifests
-cd manifests 
-mkdir 02-rs
-cd 02-rs 
-nano rs.yml 
-```
-
-```
-apiVersion: apps/v1
-kind: ReplicaSet
-metadata:
-  name: nginx-replica-set
-spec:
-  replicas: 5
-  selector:
-    matchLabels:
-      tier: frontend
-  template:
-    metadata:
-      name: template-nginx-replica-set
-      labels:
-        tier: frontend
-    spec:
-      containers:
-        - name: nginx
-          image: nginx:1.23
-          ports:
-             - containerPort: 80
-             
-
-```
-
-```
-kubectl apply -f .
-kubectl get all
-kubectl get pods -l tier=frontend
-kubectl get pods --show-labels 
-## name anpassen
-kubectl describe pod/nginx-replica-set-lpkbs
-```
-
-### Pod löschen, was passiert 
-
-```
-## kubectl delete po nginx-r<TAB>
-## einfach einen pod raussuchen und löschen 
-## z.B. 
-kubectl delete po nginx-replica-set-xg8jp
-```
-
-```
-## gucken, welches sind die neuesten ? 
-kubectl get pods
-``` 
-
-### Walthrough Skalieren
-
-```
-nano rs.yml
-```
-
-```
-## Ändern
-## replicas: 5
-## -> ändern in
-## replicas: 8
-```
-
-```
-kubectl apply -f .
-kubectl get pods
-```
-
-
-### Aufräumen des replicasets 
-
-```
-kubectl delete -f .
-``` 
-
-### kubectl/manifest/deployments
-
-
-### Prepare 
-
-```
-cd
-mkdir -p manifests 
-cd manifests 
-mkdir 03-deploy 
-cd 03-deploy 
-nano nginx-deployment.yml 
-```
-
-```
-## vi nginx-deployment.yml 
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-spec:
-  selector:
-    matchLabels:
-      app: nginx
-  replicas: 8 # tells deployment to run 8 pods matching the template
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginxinc/nginx-unprivileged:1.28
-        ports:
-        - containerPort: 8080
-        
-```
-
-```
-kubectl apply -f . 
-```
-
-### Explore 
-
-```
-kubectl get all
-```
-
-### Optional: Change image - Version 
-
-```
-nano nginx-deployment.yml 
-```
-
-
-#### Version 1: (optical nicer)
-
-```
-## Ändern des images von nginxinc/nginx-unprivileged:1.28 -> auf 1.29
-## danach 
-kubectl apply -f . && watch kubectl get pods 
-```
-
-#### Version 2: 
-
-```
-## Ändern des images von nginxinc/nginx-unprivileged:1.28 -> auf 1.29
-## danach 
-kubectl apply -f .
-kubectl get all 
-kubectl get pods -w
-```
-
-
-### Netzwerkverbindung zum Pod testen
-
-
-### Situation 
-
-```
-Managed Cluster und ich kann nicht auf einzelne Nodes per ssh zugreifen
-```
-
-### Was wollen wir testen (auf der Verbindungsebene) ?
-
-<img width="900" height="343" alt="image" src="https://github.com/user-attachments/assets/937221ca-20ff-4b1f-926c-cee1f5923f60" />
-
-
-### Behelf: Eigenen Pod starten mit busybox 
-
-```
-## der einfachste Weg
-kubectl run podtest --rm -it --image busybox 
-```
-
-```
-## Alternative 
-kubectl run podtest --rm -it --image busybox -- /bin/sh
-```
-
-
-
-### Example test connection 
-
-```
-## wget befehl zum Kopieren
-ping -c4 10.244.0.99
-wget -O - http://10.244.0.99
-```
-
-```
-## -O -> Output (grosses O (buchstabe)) 
-kubectl run podtest --rm -ti --image busybox -- /bin/sh
-/ # wget -O - http://10.244.0.99
-/ # exit 
-```
-
-### kubectl/manifest/service
-
-
-### Warum Services ? 
-
-  * Wenn in einem Deployment bei einem Wechsel des images neue Pods erstellt werden, erhalten diese eine neue IP-Adresse
-  * Nachteil: Man müsste diese dann in allen Applikation ständig ändern, die auf die Pods zugreifen.
-  * Lösung: Wir schalten einen Service davor !
-
-### Hintergrund IP-Wechsel 
- 
- <img width="930" height="134" alt="image" src="https://github.com/user-attachments/assets/26c16134-1f2a-4b42-8cca-355099d08604" />
-
- * Image-Version wurde jetzt in Deployment geändert, Ergebnis:
-
-<img width="939" height="137" alt="image" src="https://github.com/user-attachments/assets/fb5a665b-98a7-445b-8ec7-27f12c2267e1" />
-
-
-### Example I : Service with ClusterIP 
-
-#### Schritt 1: Vorbereitung 
-
-```
-cd
-mkdir -p manifests
-cd manifests
-mkdir 04-service 
-cd 04-service 
-```
-
-#### Schritt 2: Deployment erstellen 
-
-```
-nano deploy.yml 
-```
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: web-nginx
-spec:
-  selector:
-    matchLabels:
-      web: my-nginx
-  replicas: 2
-  template:
-    metadata:
-      labels:
-        web: my-nginx
-    spec:
-      containers:
-      - name: cont-nginx
-        image: nginx
-        ports:
-        - containerPort: 80
-```
-
-```
-nano service.yml
-```
-
-
-```
-apiVersion: v1
-kind: Service
-metadata:
-  name: svc-nginx
-spec:
-  type: ClusterIP
-  ports:
-  - port: 80
-    protocol: TCP
-  selector:
-    web: my-nginx      
-        
-```        
-
-```
-kubectl apply -f .
-## wie ist die ClusterIP ?  
-kubectl get all
-kubectl get svc svc-nginx
-## Find endpoints / did svc find pods ?
-kubectl describe svc svc-nginx 
-```
-
-#### Schritt 3: Deployment löschen 
-
-```
-kubectl delete -f deploy.yml
-## Keine endpunkte mehr 
-kubectl describe svc svc-nginx
-```
-
- ### Schritt 4: Deployment wieder erstellen 
-
-```
-kubectl apply -f .
-## Endpunkte wieder da
-kubectl describe svc svc-nginx
-```
-
-
-### Example II : Short version (NodePort)
-
-```
-## Wo sind wir ?
-## cd; cd manifests/04-service 
-```
-
-```
-nano service.yml
-## in Zeile type: 
-## ClusterIP ersetzt durch NodePort 
-
-kubectl apply -f .
-## NodePort ab 30.000 ausfindig machen
-kubectl get svc
-```
-
-<img width="793" height="44" alt="image" src="https://github.com/user-attachments/assets/16bf90d4-7c3f-4c8f-9846-2ff5d0e63fcf" />
-
-```
-kubectl get nodes -o wide
-```
-
-<img width="926" height="157" alt="image" src="https://github.com/user-attachments/assets/eb396f36-cff1-4b6d-b136-e110fff1c807" />
-
-```
-## im client Externe NodeIP und NodePort verwenden 
-curl http://164.92.193.245:32708
-```
-
-### Example II : Service with NodePort (long version)
-
-```
-## you will get port opened on every node in the range 30000+
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: web-nginx
-spec:
-  selector:
-    matchLabels:
-      web: my-nginx
-  replicas: 2
-  template:
-    metadata:
-      labels:
-        web: my-nginx
-    spec:
-      containers:
-      - name: cont-nginx
-        image: nginx
-        ports:
-        - containerPort: 80
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: svc-nginx
-  labels:
-    run: svc-my-nginx
-spec:
-  type: NodePort
-  ports:
-  - port: 80
-    protocol: TCP
-  selector:
-    web: my-nginx
-       
-```        
-
-### Example III: Service mit LoadBalancer (ExternalIP)
-
-```
-nano service.yml
-## in Zeile type: 
-## NodePort ersetzt durch LoadBalancer  
-
-kubectl apply -f .
-kubectl get svc svc-nginx
-kubectl describe svc svc-nginx 
-kubectl get svc svc-nginx -w 
-## spätestens nach 5 Minuten bekommen wir eine externe ip
-## z.B. 41.32.44.45
-
-curl http://41.32.44.45 
-```
-
-
-### Example getting a specific ip from loadbalancer (if supported) 
-
-```
-apiVersion: v1
-kind: Service
-metadata:
-  name: svc-nginx2
-spec:
-  type: LoadBalancer
-  # this line to get a specific ip if supported
-  loadBalancerIP: 10.34.12.34
-  ports:
-  - port: 80
-    protocol: TCP
-  selector:
-    web: my-nginx
-```       
-
-
-
-### Ref.
-
-  * https://kubernetes.io/docs/concepts/services-networking/connect-applications-service/
-
-### ConfigMap Example
-
-
-### Schritt 1: configmap vorbereiten 
-```
-cd 
-mkdir -p manifests 
-cd manifests
-mkdir configmaptests 
-cd configmaptests
-nano 01-configmap.yml
-```
-
-```
-### 01-configmap.yml
-kind: ConfigMap 
-apiVersion: v1 
-metadata:
-  name: example-configmap 
-data:
-  # als Wertepaare
-  database: mongodb
-  database_uri: mongodb://localhost:27017
-  testdata: |
-     run=true
-     file=/hello/you 
-```
-
-```
-kubectl apply -f 01-configmap.yml 
-kubectl get cm
-kubectl get cm example-configmap -o yaml
-```
-
-### Schritt 2: Beispiel als Datei 
-
-
-```
-nano 02-pod.yml
-```
-
-```
-kind: Pod 
-apiVersion: v1 
-metadata:
-  name: pod-mit-configmap 
-
-spec:
-  # Add the ConfigMap as a volume to the Pod
-  volumes:
-    # `name` here must match the name
-    # specified in the volume mount
-    - name: example-configmap-volume
-      # Populate the volume with config map data
-      configMap:
-        # `name` here must match the name 
-        # specified in the ConfigMap's YAML 
-        name: example-configmap
-
-  containers:
-    - name: container-configmap
-      image: nginx:latest
-      # Mount the volume that contains the configuration data 
-      # into your container filesystem
-      volumeMounts:
-        # `name` here must match the name
-        # from the volumes section of this pod
-        - name: example-configmap-volume
-          mountPath: /etc/config
-
-```
-
-```
-kubectl apply -f 02-pod.yml 
-```
-
-```
-##Jetzt schauen wir uns den Container/Pod mal an
-kubectl exec pod-mit-configmap -- ls -la /etc/config
-kubectl exec -it pod-mit-configmap --  bash
-## ls -la /etc/config 
-```
-
-### Schritt 3: Beispiel. ConfigMap als env-variablen 
-
-```
-nano 03-pod-mit-env.yml
-```
-
-```
-## 03-pod-mit-env.yml 
-kind: Pod 
-apiVersion: v1 
-metadata:
-  name: pod-env-var 
-spec:
-  containers:
-    - name: env-var-configmap
-      image: nginx:latest 
-      envFrom:
-        - configMapRef:
-            name: example-configmap
-
-```
-
-```
-kubectl apply -f 03-pod-mit-env.yml
-```
-
-```
-## und wir schauen uns das an 
-##Jetzt schauen wir uns den Container/Pod mal an
-kubectl exec pod-env-var -- env
-kubectl exec -it pod-env-var --  bash
-## env
-
-```
-
-
-### Reference: 
-
- * https://matthewpalmer.net/kubernetes-app-developer/articles/ultimate-configmap-guide-kubernetes.html
-
-### ConfigMap Example MariaDB
-
-
-### Schritt 1: configmap 
-
-```
-cd 
-mkdir -p manifests
-cd manifests
-mkdir cftest 
-cd cftest 
-nano 01-configmap.yml 
-```
-
-```
-### 01-configmap.yml
-kind: ConfigMap 
-apiVersion: v1 
-metadata:
-  name: mariadb-configmap 
-data:
-  # als Wertepaare
-  MARIADB_ROOT_PASSWORD: 11abc432
-  TEST_CASE: "47"
-```
-
-```
-kubectl apply -f .
-kubectl describe cm  mariadb-configmap
-kubectl get cm
-kubectl get cm mariadb-configmap -o yaml
-```
-
-
-### Schritt 2: Deployment 
-```
-nano 02-deploy.yml
-```
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mariadb-deployment
-spec:
-  selector:
-    matchLabels:
-      app: mariadb
-  replicas: 1 
-  template:
-    metadata:
-      labels:
-        app: mariadb
-    spec:
-      containers:
-      - name: mariadb-cont
-        image: mariadb:10.11
-        envFrom:
-        - configMapRef:
-            name: mariadb-configmap
-
-```
-
-```
-kubectl apply -f .
-kubectl get pods 
-kubectl exec -it deploy/mariadb-deployment -- bash 
-```
-
-```
-env
-env | grep ROOT
-env | grep TEST
-exit
-```
-
-### Schritt 3: Service for mariadb 
-
-```
-nano 03-service.yml 
-```
-
-```
-apiVersion: v1
-kind: Service
-metadata:
-  name: mariadb
-spec:
-  type: ClusterIP
-  ports:
-  - port: 3306
-    protocol: TCP
-  selector:
-    app: mariadb
-```
-
-```
-kubectl apply -f 03-service.yml 
-```
-
-### Schritt 4: client aufsetzen 
-
-```
-nano 04-client.yml 
-```
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mariadb-client
-spec:
-  selector:
-    matchLabels:
-      app: ubuntu
-  replicas: 1 # tells deployment to run 2 pods matching the template
-  template: # create pods using pod definition in this template
-    metadata:
-      labels:
-        app: ubuntu
-    spec:
-      containers:
-      - name: service
-        image: ubuntu
-        command: [ "/bin/sh" , "-c", "tail -f /dev/null" ]
-        envFrom:
-        - configMapRef:
-            name: mariadb-configmap
-```
-
-```
-kubectl apply -f 04-client.yml 
-```
-
-
-
-```
-## im client 
-kubectl exec -it deploy/mariadb-client -- bash 
-apt update; apt install -y mariadb-client iputils-ping
-```
-
-### Schritt 5: mysql-zugang von aussen erstellen 
-
-```
-kubectl exec -it deploy/mariadb-deployment -- bash
-```
-
-```
-mysql -uroot -p$MARIADB_ROOT_PASSWORD
-```
-
-```
-## innerhalb von mysql 
-create user ext@'%' identified by '11abc432';
-grant all on *.* to ext@'%';
-
-```
-
-### Schritt 6: mysql von client aus testen 
-
-```
-kubectl exec -it deploy/mariadb-client -- bash
-```
-
-```
-mysql -uext -p$MARIADB_ROOT_PASSWORD -h mariadb
-```
-
-```
-show databases;
-```
-
-### Important Sidenode 
-
-  * If configmap changes, deployment does not know
-  * So kubectl apply -f deploy.yml will not have any effect
-  * to fix, use stakater/reloader: https://github.com/stakater/Reloader
-
-
-### Secrets Example MariaDB
-
-
-### Schritt 1: secret  
-
-```
-cd 
-mkdir -p manifests
-cd manifests
-mkdir secrettest
-cd secrettest 
-```
-
-```
-kubectl create secret generic mariadb-secret --from-literal=MARIADB_ROOT_PASSWORD=11abc432 --dry-run=client -o yaml > 01-secrets.yml
-```
-
-```
-kubectl apply -f .
-kubectl get secrets 
-kubectl get secrets  mariadb-secret  -o yaml
-```
-
-
-### Schritt 2: Deployment 
-```
-nano 02-deploy.yml
-```
-
-```
-##deploy.yml 
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mariadb-deployment
-spec:
-  selector:
-    matchLabels:
-      app: mariadb
-  replicas: 1 
-  template:
-    metadata:
-      labels:
-        app: mariadb
-    spec:
-      containers:
-      - name: mariadb-cont
-        image: mariadb:latest
-        envFrom:
-        - secretRef:
-            name: mariadb-secret
-
-```
-
-```
-kubectl apply -f .
-```
-
-### Testing 
-
-```
-## Führt den Befehl env in einem Pod des Deployments aus  
-kubectl exec deployment/mariadb-deployment -- env
-## eigentlich macht er das:
-## kubectl exec mariadb-deployment-c6df6f959-q6swp -- env
-```
-
-
-### Important Sidenode 
-
-  * If configmap changes, deployment does not know
-  * So kubectl apply -f deploy.yml will not have any effect
-  * to fix, use stakater/reloader: [Stakater reloader](https://github.com/stakater/Reloader)
-
-### Connect to external database
-
-
-### Prerequisites 
-
-  * MariaDB - Server is running on digitalocean in same network as doks (kubernetes) - cluster (10.135.0.x) 
-  * DNS-Entry for mariadb-server.t3isp.de -> pointing to private ip: 10.135.0.9
-
-### Variante 1:
-
-#### Schritt 1: Service erstellen 
-
-```
-cd 
-mkdir -p manifests
-cd manifests
-mkdir 05-external-db 
-cd 05-external-db 
-nano 01-external-db.yml
-```
-
-```
-apiVersion: v1
-kind: Service
-metadata:
-  name: dbexternal
-spec:
-  type: ExternalName
-  externalName: mariadb-server.t3isp.de
-```
-
-```
-kubectl apply -f 01-external-db.yml 
-```
-
-#### Schritt 2: configmap anlegen oder ergänzen 
-
-```
-## Ergänzen 
-## unter data zwei weitere Zeile 
-### 01-configmap.yml
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: mariadb-configmap
-data:
-  # als Wertepaare
-  MARIADB_ROOT_PASSWORD: 11abc432
-  DB_USER: ext
-  DB_PASS: 11dortmund22
-```
-
-```
-kubectl apply -f 01-configmap.yml  
-```
-
-```
-## client deployment gelöscht 
-kubectl delete -f 04-client.yml
-kubectl apply -f 04-client.yml 
-kubectl exec -it deploy/mariadb-client -- bash 
-```
-
-```
-## Im client 
-apt update; apt install -y mariadb-client iputils-ping 
-```
-
-
-#### Schritt 3: Service testen 
-
-```
-kubectl exec -it deploy/mariadb-client -- bash
-```
-
-```
-## im container verbinden mit mysql 
-mysql -u$DB_USER -p$DB_PASS -h dbexternal
-```
-
-```
-## im verbundenen MySQL-Client 
-show databases;
-```
-
-
-### Variante 2:
-
-```
-cd 
-mkdir -p manifests
-cd manifests
-mkdir 05-external-db 
-cd 05-external-db 
-nano 02-external-endpoint.yml
-```
-
-
-## Kubernetes Ingress (Grundlagen)
-
-### Hintergrund Ingress
-
-
-
-
-### Ref. / Dokumentation 
-
-  * https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
 
 ## Kubernetes Ingress (Nginx - deprecated)   
 
@@ -4856,3721 +9425,6 @@ This annotation allows to return a permanent redirect instead of sending data to
   * https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md#permanent-redirect
   * 
 
-## Kubernetes Ingress (Traefik)
-
-### Install Traefik-IngressController
-
-
-```
-helm repo add traefik https://traefik.github.io/charts
-
-helm upgrade -n ingress --install traefik traefik/traefik --version 38.0.2 --create-namespace --skip-crds --reset-values
-
-kubectl -n ingress get pods
-kubectl -n ingress get svc  
-
-## Use special crds helm chart instead, because it does not deploy crds for gateway-api by default
-## We get an error on digitalocean doks
-helm -n ingress upgrade --install traefik-crds traefik/traefik-crds --version 1.13.1 --reset-values 
-```
-
-### Ingress mit traefik
-
-
-### Step 1: Walkthrough 
-
-```
-cd
-mkdir -p manifests 
-cd manifests
-mkdir abi 
-cd abi
-```
-
-```
-nano apple-deploy.yml 
-```
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: apple-app
-  labels:
-    app: apple
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: apple
-  template:
-    metadata:
-      labels:
-        app: apple
-    spec:
-      containers:
-        - name: apple-app
-          image: hashicorp/http-echo
-          args:
-            - "-text=apple-<euer-name>"
-```
-
-```
-nano apple-svc.yaml
-```
-
-
-```
-kind: Service
-apiVersion: v1
-metadata:
-  name: apple-service
-spec:
-  type: ClusterIP
-  selector:
-    app: apple
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 5678 # Default port for image
-```
-
-```
-kubectl apply -f .
-```
-
-```
-nano banana-deploy.yml
-```
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: banana-app
-  labels:
-    app: banana
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: banana
-  template:
-    metadata:
-      labels:
-        app: banana
-    spec:
-      containers:
-        - name: apple-app
-          image: hashicorp/http-echo
-          args:
-            - "-text=banana-<euer-name>"
-```
-
-```
-nano banana-svc.yaml
-```
-
-```
-kind: Service
-apiVersion: v1
-metadata:
-  name: banana-service
-spec:
-  type: ClusterIP
-  selector:
-    app: banana
-  ports:
-    - port: 80
-      targetPort: 5678 # Default port for image
-```
-
-```
-kubectl apply -f .
-```
-
-### Step 2: Testing connection by podIP and Service 
-
-```
-kubectl get svc
-kubectl get pods -o wide
-kubectl run podtest --rm -it --image busybox
-```
-
-```
-/ # wget -O - http://<pod-ip>:5678 
-/ # wget -O - http://<cluster-ip>
-```
-
-### Step 3: Walkthrough 
-
-```
-nano ingress.yml
-```
-
-```
-## Ingress
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: example-ingress
-spec:
-  ingressClassName: traefik
-  rules:
-  - host: "<euername>.appv2.do.t3isp.de"
-    http:
-      paths:
-        - path: /apple
-          backend:
-            serviceName: apple-service
-            servicePort: 80
-        - path: /banana
-          backend:
-            serviceName: banana-service
-            servicePort: 80
-```
-
-```
-## ingress 
-kubectl apply -f ingress.yml
-```
-
-### Reference 
-
-  * https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
-
-### Step 4: Find the problem 
-
-#### Fix 4.1: Fehler: no matches kind "Ingress" in version "extensions/v1beta1"
-
-```
-## Gibt es diese Landkarte überhaupt
-kubectl api-versions
-## auf welcher Landkarte/Gruppe befindet sich Ingress jetzt 
-kubectl explain ingress | head
-## -> jetzt auf networking.k8s.io/v1 
-
-```
-
-```
-nano ingress.yml
-```
-
-```
-## auf apiVersion: extensions/v1beta1
-## wird -> networking.k8s.io/v1
-```
-
-```
-kubectl apply -f .
-```
-
-#### Fix 4.2: Bad Request unkown field ServiceName / ServicePort 
-
-
-```
-## was geht für die Property backend 
-kubectl explain ingress.spec.rules.http.paths.backend
-## und was geht für service
-kubectl explain ingress.spec.rules.http.paths.backend.service
-```
-
-```
-nano ingress.yml
-```
-
-```
-## Wir ersetzen 
-## serviceName: apple-service 
-## durch:
-## service: 
-##   name: apple-service 
-
-## das gleiche für banana 
-```
-
-```
-kubectl apply -f . 
-```
-
-
-#### Fix 4.3. BadRequest unknown field servicePort
-
-```
-## was geht für die Property backend 
-kubectl explain ingress.spec.rules.http.paths.backend
-## und was geht für service
-kubectl explain ingress.spec.rules.http.paths.backend.service
-## number 
-kubectl explain ingress.spec.rules.http.paths.backend.service.port
-```
-
-```
-## neue Variante sieht so aus
-backend:
-  service:
-    name: apple-service
-    port:
-      number: 80
-## das gleich für banana-service
-```
-
-```
-kubectl apply -f .
-```
-
-
-#### Fix 4.4. pathType must be specificied 
-
-```
-## Was macht das ?
-kubectl explain ingress.spec.rules.http.paths.pathType
-```
-
-```
-      paths:
-        - path: /apple
-          pathType: Prefix
-          backend:
-            service:
-              name: apple-service
-              port:
-                number: 80
-        - path: /banana
-          pathType: Exact 
-          backend:
-            service:
-              name: banana-service
-              port:
-                number: 80                
-```
-
-```
-kubectl apply -f .
-kubectl get ingress example-ingress
-```
-
-
-### Step 5: Testing 
-
-```
-## mit describe herausfinden, ob er die services gefundet 
-kubectl describe ingress example-ingress
-```
-
-```
-## Im Browser auf:
-## hier euer Name 
-http://jochen.appv2.do.t3isp.de/apple
-http://jochen.appv2.do.t3isp.de/apple/
-http://jochen.appv2.do.t3isp.de/apple/foo 
-http://jochen.appv2.do.t3isp.de/banana
-## geht nicht 
-http://jochen.appv2.do.t3isp.de/banana/nix
-```
-
-### ingress mit traefik, letsencrypt und cert-manager
-
-
-### Schritt 1: cert-manager installieren 
-
-```
-helm repo add jetstack https://charts.jetstack.io
-helm upgrade --install cert-manager jetstack/cert-manager \
---namespace cert-manager --create-namespace \
---version v1.19.2 \
---set crds.enabled=true \
---reset-values
-```
-
-  * Ref: https://artifacthub.io/packages/helm/cert-manager/cert-manager
-
-### Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
-
-```
-cd
-mkdir -p manifests/cert-manager
-cd manifests/cert-manager
-nano cluster-issuer.yaml
-```
-
-
-
-```
-## cluster-issuer.yaml
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: letsencrypt-prod
-spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    # Email-Adresse ändern - example.com ist nicht erlaubt 
-    email: your-email@example.com
-    privateKeySecretRef:
-      name: letsencrypt-prod
-    solvers:
-    - http01:
-        ingress:
-          class: traefik
-```
-
-```
-kubectl apply -f .
-## Should be True 
-kubectl get clusterissuer 
-```
-
-
-### Schritt 3: Ingress-Objekt mit TLS erstellen 
-
-```
-nano example-ingress.yaml
-```
-
-```
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: example-ingress
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-spec:
-  ingressClassName: traefik
-  tls:
-  - hosts:
-    - <dein-name>.app.do.t3isp.de
-    secretName: example-tls
-
-  rules:
-  - host: "<dein-name>.app.do.t3isp.de"
-    http:
-      paths:
-        - path: /apple
-          pathType: Prefix
-          backend:
-            service:
-              name: apple-service
-              port:
-                number: 80
-        - path: /banana
-          pathType: Exact
-          backend:
-            service:
-              name: banana-service
-              port:
-                number: 80
-```
-
-```
-kubectl apply -f .
-```
-
- * Interessent, der cert-manager erstellt kurz ein Ingress - Objekt
-
-<img width="1057" height="172" alt="image" src="https://github.com/user-attachments/assets/54dce6f5-9d53-4ce4-ac79-dcfe095f77b5" />
-
-### Schritt 4: Herausfinden, ob Zertifikate erstellt werden 
-
-```
-kubectl describe certificate example-tls
-kubectl get cert
-## Certificate Request 
-kubectl get cr
-## da ist das Zertfikat drin 
-kubectl get secret example-tls 
-```
-
-### Schritt 5: Testen
-
-### Ref: 
-
-  * https://hbayraktar.medium.com/installing-cert-manager-and-nginx-ingress-with-lets-encrypt-on-kubernetes-fe0dff4b1924
-
-## Kubernetes Ingress (HA Proxy)
-
-### Install HA Proxy-IngressController
-
-
-```
-cd 
-mkdir -p helm-values/ingress-haproxy
-cd helm-values/ingress-haproxy
-```
-
-```
-nano values.yaml
-```
-
-```
-controller:
-  service:
-     type: LoadBalancer
-```
-
-```
-helm repo add haproxytech https://haproxytech.github.io/helm-charts
-helm upgrade -n ingress-haproxy --install ingress-haproxy haproxytech/kubernetes-ingress --version 1.47.4 --reset-values -f values.yaml  
-```
-
-
-### Ref:
-
-  * https://artifacthub.io/packages/helm/haproxytech/kubernetes-ingress
-
-### Ingress mit ha proxy
-
-
-### Step 1: Walkthrough 
-
-```
-cd
-mkdir -p manifests 
-cd manifests
-mkdir abi 
-cd abi
-```
-
-```
-nano apple-deploy.yml 
-```
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: apple-app
-  labels:
-    app: apple
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: apple
-  template:
-    metadata:
-      labels:
-        app: apple
-    spec:
-      containers:
-        - name: apple-app
-          image: hashicorp/http-echo
-          args:
-            - "-text=apple-<euer-name>"
-```
-
-```
-nano apple-svc.yaml
-```
-
-
-```
-kind: Service
-apiVersion: v1
-metadata:
-  name: apple-service
-spec:
-  type: ClusterIP
-  selector:
-    app: apple
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 5678 # Default port for image
-```
-
-```
-kubectl apply -f .
-```
-
-```
-nano banana-deploy.yml
-```
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: banana-app
-  labels:
-    app: banana
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: banana
-  template:
-    metadata:
-      labels:
-        app: banana
-    spec:
-      containers:
-        - name: apple-app
-          image: hashicorp/http-echo
-          args:
-            - "-text=banana-<euer-name>"
-```
-
-```
-nano banana-svc.yaml
-```
-
-```
-kind: Service
-apiVersion: v1
-metadata:
-  name: banana-service
-spec:
-  type: ClusterIP
-  selector:
-    app: banana
-  ports:
-    - port: 80
-      targetPort: 5678 # Default port for image
-```
-
-```
-kubectl apply -f .
-```
-
-### Step 2: Testing connection by podIP and Service 
-
-```
-kubectl get svc
-kubectl get pods -o wide
-kubectl run podtest --rm -it --image busybox
-```
-
-```
-/ # wget -O - http://<pod-ip>:5678 
-/ # wget -O - http://<cluster-ip>
-```
-
-### Step 3: Walkthrough 
-
-```
-nano ingress.yml
-```
-
-```
-## Ingress
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: example-ingress
-spec:
-  ingressClassName: haproxy
-  rules:
-  - host: "<euername>.app.do.t3isp.de"
-    http:
-      paths:
-        - path: /apple
-          backend:
-            serviceName: apple-service
-            servicePort: 80
-        - path: /banana
-          backend:
-            serviceName: banana-service
-            servicePort: 80
-```
-
-```
-## ingress 
-kubectl apply -f ingress.yml
-```
-
-### Reference 
-
-  * https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html
-
-### Step 4: Find the problem 
-
-#### Fix 4.1: Fehler: no matches kind "Ingress" in version "extensions/v1beta1"
-
-```
-## Gibt es diese Landkarte überhaupt
-kubectl api-versions
-## auf welcher Landkarte/Gruppe befindet sich Ingress jetzt 
-kubectl explain ingress | head
-## -> jetzt auf networking.k8s.io/v1 
-
-```
-
-```
-nano ingress.yml
-```
-
-```
-## auf apiVersion: extensions/v1beta1
-## wird -> networking.k8s.io/v1
-```
-
-```
-kubectl apply -f .
-```
-
-#### Fix 4.2: Bad Request unkown field ServiceName / ServicePort 
-
-
-```
-## was geht für die Property backend 
-kubectl explain ingress.spec.rules.http.paths.backend
-## und was geht für service
-kubectl explain ingress.spec.rules.http.paths.backend.service
-```
-
-```
-nano ingress.yml
-```
-
-```
-## Wir ersetzen 
-## serviceName: apple-service 
-## durch:
-## service: 
-##   name: apple-service 
-
-## das gleiche für banana 
-```
-
-```
-kubectl apply -f . 
-```
-
-
-#### Fix 4.3. BadRequest unknown field servicePort
-
-```
-## was geht für die Property backend 
-kubectl explain ingress.spec.rules.http.paths.backend
-## und was geht für service
-kubectl explain ingress.spec.rules.http.paths.backend.service.port
-## number 
-kubectl explain ingress.spec.rules.http.paths.backend.service.port
-```
-
-```
-## neue Variante sieht so aus
-backend:
-  service:
-    name: apple-service
-    port:
-      number: 80
-## das gleich für banana-service
-```
-
-```
-kubectl apply -f .
-```
-
-
-#### Fix 4.4. pathType must be specificied 
-
-```
-## Was macht das ?
-kubectl explain ingress.spec.rules.http.paths.pathType
-```
-
-```
-      paths:
-        - path: /apple
-          pathType: Prefix
-          backend:
-            service:
-              name: apple-service
-              port:
-                number: 80
-        - path: /banana
-          pathType: Exact 
-          backend:
-            service:
-              name: banana-service
-              port:
-                number: 80                
-```
-
-```
-kubectl apply -f .
-kubectl get ingress example-ingress
-```
-
-
-### Step 5: Testing 
-
-```
-## mit describe herausfinden, ob er die services gefundet 
-kubectl describe ingress example-ingress
-```
-
-```
-## Im Browser auf:
-## hier euer Name 
-http://jochen.app.do.t3isp.de/apple
-http://jochen.app.do.t3isp.de/apple/
-http://jochen.app.do.t3isp.de/apple/foo 
-http://jochen.app.do.t3isp.de/banana
-## geht nicht 
-http://jochen.app.do.t3isp.de/banana/nix
-```
-
-## Kubernetes Praxis (Stateful Sets)
-
-### Hintergrund statefulsets
-
-
-### Why ?
-
-  * stable network identities (always the same name across restarts)  in contrast to deployments
-
-```
-Server:    10.0.0.10
-Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
-
-Name:      web-0.nginx
-Address 1: 10.244.1.6
-
-nslookup web-1.nginx
-Server:    10.0.0.10
-Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
-
-Name:      web-1.nginx
-Address 1: 10.244.2
-```
-
-```
-The Pods' ordinals, hostnames, SRV records, and A record names have not changed, but the IP addresses associated with the Pods may have changed.
-```
-
-
-
-
-### Features 
-
-  * Scaling Up: Ordered creation on scaling (web 2 till ready then web-3 till ready and so on) 
-
-```
-StatefulSet controller created each Pod sequentially 
-with respect to its ordinal index, 
-
-and it waited for each Pod's predecessor to be Running and Ready 
-
-before launching the subsequent Pod
-```
-
-  * Scaling Down: last created pod is torn down firstly, till finished, then the one before
-
-```
-The controller deleted one Pod at a time, 
-in reverse order with respect to its ordinal index, 
-and it waited for each to be completely shutdown before deleting the next.
-```
-
-  * VolumeClaimTemplate (In addition if the pod is scaled the copies will have their own storage)
-    * Plus: When you delete it, it gets recreated and claims the same persistentVolumeClaim 
-
-```
-volumeClaimTemplates:
-  - metadata:
-      name: www
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 1Gi
-```
-
-   * Update Strategy: RollingUpdate / OnDelete 
-   * Feature: Staging an Update with Partitions
-     * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#staging-an-update
-   * Feature: Rolling out a canary 
-     * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#rolling-out-a-canary
-     
-### Reference 
-
-  * https://kubernetes.io/docs/concepts/workloads/controllers/statefulsets/
-
-### Example stateful set
-
-
-### Schritt 1: 
-
-```
-cd 
-mkdir -p manifests 
-cd manifests
-mkdir sts
-cd sts 
-
-```
-
-```
-nano 01-svc.yml
-```
-
-```
-## vi 01-svc.yml 
-## Headless Service - no ClusterIP 
-## Just used for name resolution of pods
-## web-0.nginx
-## web-1.nginx 
-## nslookup web-0.nginx
-apiVersion: v1
-kind: Service
-metadata:
-  name: nginx
-spec:
-  ports:
-  - port: 80
-    name: web
-  clusterIP: None
-  selector:
-    app: nginx
-```
-
-```
-nano 02-sts.yml
-```
-
-```
-## vi 02-sts.yml 
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-## name des statefulset wird nachher für den dns-namen verwendet 
-  name: web
-spec:
-  serviceName: "nginx"
-  replicas: 2
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: registry.k8s.io/nginx-slim:0.8
-        ports:
-        - containerPort: 80
-          name: web-nginx
-```
-
-```
-kubectl apply -f .
-
-```
-
-
-### Schritt 2: Auflösung Namen.
-
-```
-kubectl run --rm -it podtester --image=busybox
-```
-
-```
-## In der shell
-## web ist der name des statefulsets 
-ping web-0.nginx 
-ping web-1.nginx 
-exit
-```
-
-```
-## web-0 / web-1 
-kubectl get pods -o wide 
-kubectl get sts web
-kubectl delete sts web 
-kubectl apply -f .
-kubectl run --rm -it podtest --image=busybox 
-
-ping web-0.nginx 
-
-kubectl describe svc nginx 
-```
-
-### Referenz 
-
-  * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/
-
-## Kubernetes Secrets und Encrypting von z.B. Credentials 
-
-### Kubernetes secrets Typen
-
-
-### Welche Arten von Secrets gibt es ?
-
-| Built-in Type	| Usage |
-| ------------- | ----- |
-| Opaque	| arbitrary user-defined data |
-| kubernetes.io/service-account-token	 | ServiceAccount token |
-| kubernetes.io/dockercfg	| serialized ~/.dockercfg file |
-| kubernetes.io/dockerconfigjson | serialized ~/.docker/config.json file |
-| kubernetes.io/basic-auth | credentials for basic authentication |
-| kubernetes.io/ssh-auth | credentials for SSH authentication |
-| kubernetes.io/tls	| data for a TLS client or server |
-| bootstrap.kubernetes.io/token	| bootstrap token data |
-
-  * Ref: https://kubernetes.io/docs/concepts/configuration/secret/#secret-types
-
-  
-
-### Sealed Secrets - bitnami
-
-
-### 2 Komponenten 
-
- * Sealed Secrets besteht aus 2 Teilen 
-   * kubeseal, um z.B. die Passwörter zu verschlüsseln 
-   * Dem Operator (ein Controller), der das Entschlüsseln übernimmt  
-
-### Schritt 1: Walkthrough - Client Installation (als root)
-
-```
-curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.34.0/kubeseal-0.34.0-linux-amd64.tar.gz"
-tar -xvzf kubeseal-0.34.0-linux-amd64.tar.gz kubeseal
-sudo install -m 755 kubeseal /usr/local/bin/kubeseal
-```
-
-### Schritt 2: Walkthrough - Server Installation mit kubectl client 
-
-```
-helm repo add bitnami-labs https://bitnami-labs.github.io/sealed-secrets/
-helm upgrade --install sealed-secrets --namespace kube-system bitnami-labs/sealed-secrets --version 2.18.0 --reset-values 
-```
-
-### Schritt 3: Walkthrough - Verwendung (als normaler/unpriviligierter Nutzer)
-
-```
-Übung ist hier zu finden:
-```
-
-[Beispiel mit kubeseal arbeiten](#exercise-sealed-secret-mariadb)
-
-
-### Wie kann man sicherstellen, dass nach der automatischen Änderung des Secretes, der Pod bzw. Deployment neu gestartet wird ?
-
-  * https://github.com/stakater/Reloader
- 
-### Ref: 
-  
-  * Controller: https://github.com/bitnami-labs/sealed-secrets/releases/
-
-
-
-### Exercise Sealed Secret mariadb
-
-
-### Prerequisites: MariaDB secrets done 
-
-[MariaDB Secret](#secrets-example-mariadb)
-
-###  Based on mariadb secrets exercise 
-
-```
-cd
-cd manifests/secrettest
-```
-
-```
-## Cleanup
-kubectl delete -f 02-deploy.yml
-kubectl delete -f 01-secrets.yml
-## rm
-rm 01-secrets.yml 
-```
-
-
-```
-## öffentlichen Schlüssel zum Signieren holen 
-kubeseal --fetch-cert --controller-namespace=kube-system --controller-name=sealed-secrets > pub-sealed-secrets.pem
-cat pub-sealed-secrets.pem 
-```
-
-```
-## Secret - config erstellen mit dry-run, wird nicht auf Server angewendet (nicht an Kube-Api-Server geschickt) 
-kubectl create secret generic mariadb-secret --from-literal=MARIADB_ROOT_PASSWORD=11abc432 --dry-run=client -o yaml > 01-top-secret.yaml
-cat 01-top-secret.yaml 
-```
-
-```
-kubeseal --format=yaml --cert=pub-sealed-secrets.pem < 01-top-secret.yaml > 01-top-secret-sealed.yaml
-cat 01-top-secret-sealed.yaml 
-
-## Ausgangsfile von dry-run löschen 
-rm 01-top-secret.yaml
-
-## Ist das secret basic-auth vorher da ? 
-kubectl get secrets mariadb-secret  
-
-kubectl apply -f .
-
-## Kurz danach erstellt der Controller aus dem sealed secret das secret 
-kubectl get secret
-
-kubectl get sealedsecrets 
-kubectl get secret mariadb-secret -o yaml
-```
-
-```
-kubectl exec -it deploy/mariadb-deployment -- env | grep ROOT
-kubectl delete -f 01-top-secret-sealed.yaml
-kubectl get secrets
-kubectl get sealedsecrets 
-```
-
-### registry mit secret auth
-
-  * https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-
-## Kubernetes API-Objekte (Teil 2)
-
-## Kubernetes Praxis
-
-### Befehle in pod ausführen - Übung
-
-
-```
-kubectl run my-nginx --image=nginx:1.23 
-```
-
-```
-kubectl exec my-nginx -- ls -la
-kubectl exec -it my-nginx -- bash 
-kubectl exec -it my-nginx -- sh 
-```
-
-```
-## in der shell 
-cat /etc/os-release
-cd /var/log/nginx 
-ls -la 
-exit 
-```
-
-```
-## Logs ausgeben 
-kubectl logs my-nginx 
-```
-
-### Welche Pods mit Namen gehören zu einem Service
-
-
-```
-kubectl get svc svc-nginx -o wide
-kubectl get pods -l web=my-nginx
-```
-
-## Security
-
-### ServiceLinks nicht in env in Pod einbinden
-
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mariadb-deployment
-spec:
-  selector:
-    matchLabels:
-      app: mariadb
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: mariadb
-    spec:
-## Das ist hier --_>
-      enableServiceLinks: false
-      containers:
-      - name: mariadb-cont
-        image: mariadb:10.11
-        envFrom:
-        - configMapRef:
-            name: mariadb-configmap
-```
-
-### Pod with unprivilged user
-
-
-### Schritt 1:
-
-```
-cd
-mkdir -p manifests
-cd manifests
-mkdir -p unpriv
-cd unpriv
-```
-
-```
-nano pod.yaml
-```
-
-```
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx-unprivileged
-spec:
-  securityContext:
-    runAsUser: 1000  # Container läuft mit UID 1000 statt root
-  containers:
-    - name: nginx
-      image: nginx:1.25
-      ports:
-        - containerPort: 80
-```
-
-```
-kubectl apply -f .
-kubectl get pods
-```
-
-
-### Schritt 2: Debuggen 
-
-```
-## CrashLoopBackoff 
-kubectl get pods nginx-unprivileged 
-kubectl describe pods nginx-unprivileged
-```
-
-```
-## permission denied identifiziert 
-kubectl logs nginx-unprivileged
-```
-
-### Schritt 3: Lösung anderes image nehmen 
-
-```
-## in pod.yaml
-## Zeile image: nginx:1.25
-## in -> image: nginxinc/nginx-unprivileged:1.25
-## ändern
-```
-
-```
-kubectl apply -f .
-kubectl get pods
-```
-
-### Pod ohne capabilities starten. Funktioniert !
-
-
-### Walkthrough 
-
-```
-cd
-mkdir -p manifests/nocap
-cd manifests/nocap
-nano nocap-pod.yaml
-```
-
-```
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nocap-nginx 
-spec:
-  containers:
-    - name: web
-      image: nginxinc/nginx-unprivileged:1.25 
-      securityContext:
-        capabilities:
-          drop:
-          - all
-```
-
-```
-kubectl apply -f . 
-kubectl get pods
-```
-
-## Helm (Kubernetes Paketmanager)
-
-### Helm - Was kann Helm
-
-
-- **Installieren** und **Deinstallieren** von Anwendungen in Kubernetes (`helm install / helm uninstall`)
-- **Upgraden** von bestehenden Installationen (`helm upgrade`)
-- **Rollbacks** durchführen, falls etwas schiefläuft (`helm rollback`)
-- **Anpassen** von Anwendungen durch Konfigurationswerte (`values.yaml`)
-- **Veröffentlichen** eigener Charts (z. B. in einem Helm-Repository)
-
-### Helm Grundlagen
-
-
-### Wo kann ich Helm-Charts suchen ? 
-
- * Im Telefonbuch von helm [https://artifacthub.io/](https://artifacthub.io)
-
-### Komponenten 
-
-#### Chart
-
-  * beeinhaltet Beschreibung und Komponenten 
-
-#### Chart - Bereitstellungsformen 
-
-  * url
-  * .tgz (abkürzung tar.gz) - Format 
-  * oder Verzeichnis 
-
-```
-Wenn wir ein Chart installieren, wird eine Release erstellen 
-(parallel: image -> container, analog: chart -> release)
-```
-
-### Installation 
-
-#### Was brauchen wir ? 
-
-  * helm  client muss installiert sein
-
-#### Und sonst so ? 
-
-```
-## Beispiel ubuntu 
-## snap install --classic helm
-
-## Cluster auf das ich zugreifen kann und im client -> helm und kubectl 
-## Voraussetzung auf dem Client-Rechner (helm ist nichts als anderes als ein Client-Programm) 
-Ein lauffähiges kubectl auf dem lokalen System (welches sich mit dem Cluster verbinden.
--> saubere -> .kube/config 
-
-## Test
-kubectl cluster-info 
-
-```
-
-
-### Helm Warum ?
-
-
-```
-Ein Paket für alle Komponenten
-Einfaches Installieren, Updaten und deinstallieren
-Konfigurations-Values-Files übergeben zum Konfigurieren
-Feststehende Struktur 
-```
-
-### Was kann helm ?
-
-
-- **Installieren** und **Deinstallieren** von Anwendungen in Kubernetes (`helm install / helm uninstall`)
-- **Upgraden** von bestehenden Installationen (`helm upgrade`)
-- **Rollbacks** durchführen, falls etwas schiefläuft (`helm rollback`)
-- **Anpassen** von Anwendungen durch Konfigurationswerte (`values.yaml`)
-- **Veröffentlichen** eigener Charts (z. B. in einem Helm-Repository)
-
-### Helm Example
-
-
-### Prerequisites 
-
-  * helm needs a config-file (kubeconfig) to know how to connect and credentials in there 
-  * Good: helm (as well as kubectl) works as unprivileged user as well - Good for our setup 
-  * install helm on ubuntu (client) as root: snap install --classic helm 
-    * this installs helm3
-  * Please only use: helm3. No server-side components needed (in cluster) 
-    * Get away from examples using helm2 (hint: helm init) - uses tiller  
-
-### Simple Walkthrough (Example 0: Step 1)
-
-```
-## Repo hinzufpgen 
-helm repo add bitnami https://charts.bitnami.com/bitnami 
-## gecachte Informationen aktualieren 
-helm repo update
-
-helm search repo bitnami 
-## helm install release-name bitnami/mysql
-```
-
-### Simple Walkthrough (Example 0: Step 2: for learning - pull)
-
-```
-helm pull bitnami/mysql
-tar xvfz mysql*
-
-```
-
-
-
-### Simple Walkthrough (Example 0: Step 3: install) 
-
-```
-helm install my-mysql bitnami/mysql
-## Chart runterziehen ohne installieren 
-## helm pull bitnami/mysql
-
-## Release anzeigen zu lassen
-helm list 
-
-## Status einer Release / Achtung, heisst nicht unbedingt nicht, dass pod läuft 
-helm status my-mysql 
-
-## weitere release installieren 
-## helm install neuer-release-name  bitnami/mysql 
-
-
-```
-
-### Under the hood 
-
-```
-## Helm speichert Informationen über die Releases in den Secrets
-kubectl get secrets | grep helm 
-
-
-```
-
-
-### Example 1: - To get know the structure 
-
-```
-helm repo add bitnami https://charts.bitnami.com/bitnami 
-helm search repo bitnami 
-helm repo update
-helm pull bitnami/mysql 
-tar xzvf mysql-9.0.0.tgz 
-
-## Show how the template would look like being sent to kube-api-server 
-helm template bitnami/mysql
-
-```
-
-
-
-### Example 2: We will setup mysql without persistent storage (not helpful in production ;o() 
-
-```
-helm repo add bitnami https://charts.bitnami.com/bitnami 
-helm search repo bitnami 
-helm repo update
-
-helm install my-mysql bitnami/mysql
-
-
-```
-
-
-### Example 2 - continue - fehlerbehebung 
-
-```
-helm uninstall my-mysql 
-## Install with persistentStorage disabled - Setting a specific value 
-helm install my-mysql --set primary.persistence.enabled=false bitnami/mysql
-
-## just as notice 
-## helm uninstall my-mysql 
-
-```
-
-### Example 2b: using a values file 
-
-```
-## mkdir helm-mysql
-## cd helm-mysql
-## vi values.yml 
-primary:
-  persistence:
-    enabled: false 
-```
-
-```
-helm uninstall my-mysql
-helm install my-mysql bitnami/mysql -f values.yml 
-```
-
-### Example 3: Install wordpress 
-
-### Example 3.1: Setting values with --set 
-
-```
-helm repo add bitnami https://charts.bitnami.com/bitnami 
-helm install my-wordpress \
-  --set wordpressUsername=admin \
-  --set wordpressPassword=password \
-  --set mariadb.auth.rootPassword=secretpassword \
-    bitnami/wordpress
-```
-
-### Example 3.2: Setting values with values.yml file 
-
-```
-cd
-mkdir -p manifests
-cd manifests
-mkdir helm-wordpress
-cd helm-wordpress
-nano values.yml 
-```
-
-```
-## values.yml
-wordpressUsername: admin
-wordpressPassword: password
-mariadb:
-  auth:
-    rootPassword: secretpassword
-```
-
-```
-## helm repo add bitnami https://charts.bitnami.com/bitnami 
-helm install my-wordpress -f values.yml bitnami/wordpress
-
-```
-
-
-### Referenced
-
-  * https://github.com/bitnami/charts/tree/master/bitnami/mysql/#installing-the-chart
-  * https://helm.sh/docs/intro/quickstart/
-
-### Installation, Upgrade, Uninstall helm-Chart exercise - simple (mariadb-cloudpirates)
-
-
-### Schritt 1: install mariadb von cloudpirates  
-
-```
-## Mini-Step 1: Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run=server
-```
-
-```
-## Mini-Step 2: Installieren 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1
-```
-
-```
-## Geht das denn auch ?
-kubectl get pods
-```
-
-### Schritt 2: Umschauen 
-
-```
-kubectl get pods
-helm status my-mariadb 
-helm list
-## alle helm charts anzeigen, die im gesamten Cluster installierst wurden 
-helm list -A
-helm history my-mariadb 
-```
-
-### Schritt 3: Umschauen get 
-
-```
-## Wo speichert er Information, die er später mit helm get abruft
-kubectl get secrets
-```
-
-
-```
-helm get values my-mariadb
-helm get manifest my-mariadb
-## Zeige alle Kinds an 
-helm get manifest my-mariadb | grep -i -A 4 kind  
-## Can I see all values use -> YES
-## Look for COMPUTED VALUES in get all ->
-helm get all my-mariadb 
-```
-
-```
-## Hack COMPUTED VALUES anzeigen lassen
-## Welche Werte (values) hat er zur Installation verwendet
-helm get all my-mariadb | grep -i computed -A 200
-
-```
-
-
-### Schritt 4: Exercise: Upgrade to new version 
-
-#### Schritt 4.1 Default values (auf terminal) ausfindig machen 
-
-```
-## Recherchiere wie die Werte gesetzt werden (artifacthub.io) oder verwende die folgenden Befehle:
-helm show values oci://registry-1.docker.io/cloudpirates/mariadb
-helm show values oci://registry-1.docker.io/cloudpirates/mariadb | less
-```
-
-#### Schritt 4.2 Upgrade und resources ändern 
-
-
-```
-cd 
-mkdir -p mariadb-values 
-cd mariadb-values
-mkdir prod
-cd prod
-```
-
-```
-nano values.yaml
-```
-
-```
-resources:
-  limits:
-     memory: 300Mi
-  requests:
-     memory: 300Mi
-     cpu: 100m
-```
-
-```
-cd ..
-```
-
-```
-## Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 --dry-run=server -f prod/values.yaml  
-```
-
-```
-## Real Upgrade
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 -f prod/values.yaml
-```
-
-```
-kubectl get pods
-## kein neuer pod
-```
-
-### Schritt 4.3 Fehlgeschlagene Installation, wie lösen ? 
-
-```
-## Schlägt fehle, weil mit dem apply bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
-```
-
-#### Lösung 
-
-  * Deinstallieren (pvc bleibt erhalten auch beim Deinstallieren -> so macht das helm)
-  * Und wieder installieren in der neuen Version 
-
-```
-## Frage, ist das pvc noch ?
-kubectl get pvc
-## Ja ! 
-```
-
-<img width="891" height="82" alt="image" src="https://github.com/user-attachments/assets/849b5859-a5f2-40df-8bc6-018eaedbd146" />
-
-```
-helm uninstall my-mariadb
-kubectl get pvc 
-## auch nach der Deinstallation ist der pvc noch da
-## Super !! 
-```
-
-```
-## Real Upgrade
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 -f prod/values.yaml
-```
-
-```
-kubectl get pods
-helm get values my-mariadb 
-```
-
-
-### Tipp: values aus alter revision anzeigen 
-
-```
-## Beispiel: 
-helm get values  my-mariadb --revision 1
-```
-
-#### Uninstall 
-
-```
-helm uninstall my-mariadb 
-## namespace wird nicht gelöscht
-## händisch löschen
-kubectl delete ns <namenskuerzel>
-## crd's werden auch nicht gelöscht
-kubectl create ns <namenskuerzel>
-```
-
-### Problem: OutOfMemory (OOM-Killer) if container passes limit in memory 
-
-  * if memory of container is bigger than limit an OOM-Killer will be triggered
-  * How to fix. Use memory limit in the application too !
-    * https://techcommunity.microsoft.com/blog/appsonazureblog/unleashing-javascript-applications-a-guide-to-boosting-memory-limits-in-node-js/4080857
-
-### Installation, Upgrade, Uninstall helm-Chart exercise (wordpress-groundhog2k)
-
-
-### Schritt 1: install wordpress von groundhog2k  
-
-```
-## Repo hinzufügen (einmalig)
-helm repo add groundhog2k https://groundhog2k.github.io/helm-charts/
-helm repo update
-```
-
-```
-## Verzeichnisstruktur anlegen
-cd 
-mkdir -p wordpress-values/prod
-cd wordpress-values/prod
-```
-
-```
-nano values.yaml
-```
-
-```yaml
-## Ingress aktivieren
-ingress:
-  enabled: true
-  className: traefik
-  hosts:
-    - host: wordpress-<euernamenskuerzel>.appv1.do.t3isp.de
-      paths:
-        - path: /
-          pathType: Prefix
-
-## WordPress Storage (persistent)
-storage:
-  requestedSize: 10Gi
-  accessModes:
-    - ReadWriteOnce
-
-## MariaDB Subchart
-mariadb:
-  enabled: true
-  settings:
-    rootPassword: geheim123
-  userDatabase:
-    name: wordpress
-    user: wpuser
-    password: wppass123
-  storage:
-    requestedSize: 8Gi
-```
-
-```
-cd ..
-```
-
-```
-## Mini-Step 1: Testen 
-helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.3 --dry-run=client -f prod/values.yaml
-```
-
-```
-## Mini-Step 2: Installieren 
-helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.3 -f prod/values.yaml
-```
-
-```
-## Geht das denn auch ?
-kubectl get pods
-kubectl get pvc
-kubectl get ingress
-```
-
-```
-## Im Browser
-http://wordpress-<euernamenskuerzel>.appv1.do.t3isp.de
-```
-
-### Schritt 2: Umschauen 
-
-```
-kubectl get pods
-kubectl get pvc
-kubectl get ingress
-helm status my-wordpress 
-helm list
-## alle helm charts anzeigen, die im gesamten Cluster installierst wurden 
-helm list -A
-helm history my-wordpress 
-```
-
-### Schritt 3: Umschauen get 
-
-```
-## Wo speichert er Information, die er später mit helm get abruft
-kubectl get secrets
-```
-
-```
-helm get values my-wordpress
-helm get manifest my-wordpress
-## Zeige alle Kinds an 
-helm get manifest my-wordpress | grep -i -A 4 kind  
-## Can I see all values use -> YES
-## Look for COMPUTED VALUES in get all ->
-helm get all my-wordpress 
-```
-
-```
-## Hack COMPUTED VALUES anzeigen lassen
-## Welche Werte (values) hat er zur Installation verwendet
-helm get all my-wordpress | grep -i computed -A 200
-```
-
-### Schritt 4: Exercise: Upgrade to new version 
-
-#### Schritt 4.1 Default values (auf terminal) ausfindig machen 
-
-```
-## Recherchiere wie die Werte gesetzt werden (artifacthub.io) oder verwende die folgenden Befehle:
-helm show values groundhog2k/wordpress
-helm show values groundhog2k/wordpress | less
-```
-
-#### Schritt 4.2 Upgrade und resources ändern 
-
-```
-cd ~/wordpress-values/prod
-nano values.yaml
-```
-
-Ergänze die resources:
-
-```yaml
-## Resources für WordPress
-resources:
-  limits:
-    memory: 512Mi
-  requests:
-    memory: 256Mi
-    cpu: 100m
-
-## Ingress aktivieren
-ingress:
-  enabled: true
-  className: traefik
-  hosts:
-    - host: wordpress-<dein-namenskuerzel>.appv1.do.t3isp.de
-      paths:
-        - path: /
-          pathType: Prefix
-
-## WordPress Storage (persistent)
-storage:
-  requestedSize: 10Gi
-  accessModes:
-    - ReadWriteOnce
-
-## MariaDB Subchart
-mariadb:
-  enabled: true
-  settings:
-    rootPassword: geheim123
-  userDatabase:
-    name: wordpress
-    user: wpuser
-    password: wppass123
-  storage:
-    requestedSize: 8Gi
-  resources:
-    limits:
-      memory: 300Mi
-    requests:
-      memory: 200Mi
-      cpu: 100m
-```
-
-```
-cd ..
-```
-
-```
-## Testen 
-helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.4 --dry-run -f prod/values.yaml  
-```
-
-```
-## Real Upgrade
-helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.4 -f prod/values.yaml
-```
-
-```
-kubectl get pods
-kubectl describe pods my-wordpress-0
-helm list
-helm history my-wordpress
-helm get values my-wordpress  
-```
-
-### Schritt 4.3 Weiteres Update der Chart - Version
-
-```
-## Testen 
-helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.5 --dry-run -f prod/values.yaml  
-```
-
-```
-## Real Upgrade
-helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.5 -f prod/values.yaml
-```
-
-```
-## Schlägt fehl, weil mit dem apply bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
-```
-
-#### Lösung 
-
-  * Deinstallieren (pvc bleibt erhalten auch beim Deinstallieren -> so macht das helm)
-  * Und wieder installieren in der neuen Version 
-
-```
-## Frage, ist das pvc noch ?
-kubectl get pvc
-## Ja ! 
-```
-
-```
-helm uninstall my-wordpress
-kubectl get pvc 
-## auch nach der Deinstallation ist der pvc noch da
-## Super !! 
-```
-
-```
-## Real Upgrade
-helm upgrade --install my-wordpress groundhog2k/wordpress --reset-values --version 0.14.5 -f prod/values.yaml
-```
-
-```
-kubectl get pods
-```
-
-### Tipp: values aus alter revision anzeigen 
-
-```
-## Beispiel: 
-helm get values my-wordpress --revision 1
-```
-
-#### Uninstall 
-
-```
-helm uninstall my-wordpress 
-## namespace wird nicht gelöscht
-## händisch löschen
-kubectl delete ns app-<namenskuerzel>
-## crd's werden auch nicht gelöscht 
-```
-
-### Problem: OutOfMemory (OOM-Killer) if container passes limit in memory 
-
-  * if memory of container is bigger than limit an OOM-Killer will be triggered
-  * How to fix: Use memory limit in the application too!
-    * PHP memory_limit in WordPress konfigurieren
-    * https://techcommunity.microsoft.com/blog/appsonazureblog/unleashing-javascript-applications-a-guide-to-boosting-memory-limits-in-node-js/4080857
-
-### Hinweis: Externe Datenbank verwenden (optional)
-
-Falls du eine externe MariaDB/MySQL verwenden möchtest statt dem integrierten Subchart:
-
-```
-nano values.yaml
-```
-
-```yaml
-mariadb:
-  enabled: false
-
-externalDatabase:
-  name: wordpress
-  user: wpuser
-  password: wppass123
-  host: my-external-db
-```
-
-### Helm Exercise with nginx
-
-
-### Part 1: Chart erstellen 
-
-```
-cd
-mkdir -p charts
-cd charts
-## mit helm neues Chart erstellen
-helm create beispiel-chart
-``` 
-
-### Part 2: chart installieren 
-
-```
-helm upgrade --install my-nginx beispiel-chart
-```
-
-### Part 3: funktioniert es ?
-
-```
-kubectl get pods
-helm list
-```
-
-### Part 4: Spezielle Konfiguration 
-
-#### Part 4.1: Analyse 
-
-```
-## Können wir die replicas und den type server ändern
-## Entweder variante 1 ins Chart
-less beispiel-chart/values.yaml
-## mit hlem bordmitteln
-helm show values beispiel-chart | less
-```
-
-#### Part 4.2. values.yaml  (eigene Knfiguration) erstellen und anwenden 
-
-```
-cd
-mkdir helm-values
-cd helm-values
-mkdir beispiel-chart
-cd beispiel-chart
-nano values.yaml
-```
-
-```
-## in der Datei values.yaml
-replicaCount: 2
-service:
-  type: NodePort
-```
-
-```
-cd
-cd charts
-helm upgrade --install my-nginx beispiel-chart --reset-values -f ../helm-values/beispiel-chart/values.yaml
-kubectl get pods
-## neue Revision 
-helm list
-## hier NodePort auslesen 
-kubectl get svc my-nginx-beispiel-chart
-kubectl get nodes -o wide  
-```
-
-```
-## Testen
-curl http://<ip-aus-nodes>:<nodePort>
-## z.B.
-curl http://159.223.24.231:32465
-```
-
-#### Part 4.3 Explore 
-
-```
-helm list
-helm list -A (über alle namespaces hinweg)
-```
-
-```
-## Zeige mir alles von der installierten Release 
-helm get all my-nginx 
-helm get values my-nginx 
-helm get manifest my-nginx
-```
-
-```
-## chart von online
-## für unser chart
-cd
-cd charts 
-helm show values beispiel-chart # latest version 
-```
-
-### Part 5 Uninstall nginx 
-
-```
-## Achtung keine Deinstallation von CRD's, keine Deinstallation von PVC (Persistent Volume Claims), RBAC
-helm uninstall my-nginx
-
-## Überprüfung, ob Deinstallation erfolgt ist:
-helm list 
-```
-
-### Helm Spickzettel
-
-
-### Hilfe 
-
-```
-helm help
-helm help <command>
-helm help upgrade
-```
-
-
-### Alle helm-releases anzeigen 
-
-```
-## im eigenen Namespace 
-helm list
-## in allen Namespaces
-helm list -A
-## für einen speziellen
-helm -n kube-system list 
-```
-
-### Helm - Chart installieren 
-
-```
-## Empfehlung mit namespace
-## Repo hinzufügen für Client 
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install my-nginx bitnami/nginx --version 19.0.1 --create-namespace --namespace=app-<namenskuerzel>
-```
-
-### Helm - Suche  
-
-```
-## welche Repos sind konfiguriert
-helm repo list
-helm search repo bitnami
-helm search hub
-```
-
-### Helm - template 
-
-```
-## Rendern des Templates
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm template my-nginx bitnami/nginx
-helm template bitnami/nginx
-```  
-
-
-## Helm Charts erstellen und analysieren
-
-### Eigenes Helm-Chart erstellen
-
-
-### Chart erstellen 
-
-```
-cd 
-mkdir my-charts
-cd my-charts
-```
-
-```
-helm create my-app
-``` 
-
-### Install helm - chart 
-
-```
-## Variante 1:
-helm -n my-app-<namenskuerzel> install meine-app my-app --create-namespace 
-```
-
-```
-## Variante 2:
-cd my-app
-helm -n my-app-<namenskuerzel> install meine-app . --create-namespace 
-```
-
-```
-kubectl -n my-app-<namenskuerzel> get all
-kubectl -n my-app-<namenskuerzel> get pods 
-```
-
-### Chart zur Analyse runterladen und entpacken
-
-
-```
-cd 
-mkdir -p charts-download
-cd charts-download
-```
-
-
-```
-helm pull oci://registry-1.docker.io/cloudpirates/mariadb
-
-## Lädt die letzte version herunter
-helm pull oci://registry-1.docker.io/cloudpirates/mariadb
-
-## Lädt bestimmte chart-version runter 
-## helm pull oci://registry-1.docker.io/cloudpirates/mariadb --version 0.9.0
-## evtl. entpacken wenn gewünscht
-## tar xvf mariadb-12.1.6.tgz
-
-## Schnelle Variante
-helm pull oci://registry-1.docker.io/cloudpirates/mariadb --version 0.9.0 --untar
-```
-
-## Helm - Fehleranalye
-
-### Beispiel Cloudpirates - helm chart nginx
-
-
-### Test (mit aktuell letzter Version 0.1.10)
-
-```
-helm upgrade --install  my-nginx oci://registry-1.docker.io/cloudpirates/nginx --reset-values --version 0.1.10
-
-### wie sehen die logs aus
-kubectl logs deployment/my-nginx
-```
-
-```
-Permission denied port 80
-```
-
-#### Lauffaehig mit (leider aktuell so nicht in der Doku)
-
-```
-cd
-mkdir helm-values/nginx 
-cd helm-values/nginx
-nano values.yaml
-```
-
-```
-containerPorts:
-- name: http
-  containerPort: 8080
-  protocol: TCP
-
-serverConfig: |
-  server {
-    listen 0.0.0.0:8080;
-    root /usr/share/nginx/html;
-    index index.html index.htm;
-
-    location / {
-      try_files $uri $uri/ /index.html;
-    }
-  }
-livenessProbe:
-  type: httpGet
-  path: /
-readinessProbe:
-  type: httpGet
-  path: /
-```
-
-```
-helm upgrade --install  my-nginx oci://registry-1.docker.io/cloudpirates/nginx --version 0.1.10 --reset-values -f values.yaml
-```
-
-```bash
-kubectl exec -it deploy/my-nginx -- sh
-```
-```
-## in der shell
-id
-```
-
-<img width="707" height="65" alt="image" src="https://github.com/user-attachments/assets/b749f30f-843b-43f8-897e-9aa24704a5da" />
-
-```
-## pod läuft nicht unter root
-## Deshalb funktioniert ein Öffnen des Ports 80 beim Starten nicht
-``` 
-
-
-## Helpful plugins
-
-### Use shortnames for kubectl - commands
-
-  * https://gist.github.com/doevelopper/ff4a9a211e74f8a2d44eb4afb21f0a38
-
-## Kubernetes Debugging
-
-### Probleme über Logs identifiziert - z.B. non-root image
-
-
-### Schritt 1:
-
-```
-cd
-mkdir -p manifests
-cd manifests
-mkdir -p unpriv
-cd unpriv
-```
-
-```
-nano pod.yaml
-```
-
-```
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx-unprivileged
-spec:
-  securityContext:
-    runAsUser: 1000  # Container läuft mit UID 1000 statt root
-  containers:
-    - name: nginx
-      image: nginx:1.25
-      ports:
-        - containerPort: 80
-```
-
-```
-kubectl apply -f .
-kubectl get pods
-```
-
-
-### Schritt 2: Debuggen 
-
-```
-## CrashLoopBackoff 
-kubectl get pods nginx-unprivileged 
-kubectl describe pods nginx-unprivileged
-```
-
-```
-## permission denied identifiziert 
-kubectl logs nginx-unprivileged
-```
-
-### Schritt 3: Lösung anderes image nehmen 
-
-```
-## in pod.yaml
-## Zeile image: nginx:1.25
-## in -> image: nginxinc/nginx-unprivileged:1.25
-## ändern
-```
-
-```
-kubectl apply -f .
-kubectl get pods
-```
-
-## Weiter lernen 
-
-### Lernumgebung
-
-  * https://killercoda.com/
-
-### Kubernetes Doku - Bestimmte Tasks lernen
-
-  * https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/
-
-### Kubernetes Videos mit Hands On
-
-  * https://www.youtube.com/watch?v=16fgzklcF7Y
-
-## Kubernetes Storage (CSI) 
-
-### Überblick Persistant Volumes (CSI)
-
-
-### Überblick 
-
-#### Warum CSI ?
-
-  * Each vendor can create his own driver for his storage 
-
-#### Vorteile ? 
-
-```
-I. Automatically create storage when required.
-II. Make storage available to containers wherever they’re scheduled.
-III. Automatically delete the storage when no longer needed. 
-```
-
-#### Wie war es vorher ?
-
-```
-Vendor needed to wait till his code was checked in in tree of kubernetes (in-tree)
-```
-
-#### Unterschied static vs. dynamisch 
-
-```
-The main difference relies on the moment when you want to configure storage. For instance, if you need to pre-populate data in a volume, you choose static provisioning. Whereas, if you need to create volumes on demand, you go for dynamic provisioning.
-```
-
-### Komponenten 
-
-#### Treiber 
-
-  * Für jede Storage Class (Storage Provider) muss es einen Treiber geben
-
-#### Storage Class 
-
-### Liste der Treiber mit Features (CSI)
-
-  * https://kubernetes-csi.github.io/docs/drivers.html
-
-### Übung Persistant Storage
-
-
-  * Step 1 + 2 : nur Trainer
-  * ab Step 3: Trainees 
-
-### Step 1: Do the same with helm - chart 
-
-```
-helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
-helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version 4.12.1 --reset-values 
-```
-
-### Step 2: Storage Class 
-
-```
-cd
-mkdir -p manifests
-cd manifests
-mkdir csi-storage
-cd csi-storage 
-nano 01-storageclass.yml
-```
-
-```
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: nfs-csi
-provisioner: nfs.csi.k8s.io
-parameters:
-  server: 10.135.0.5
-  share: /var/nfs
-reclaimPolicy: Retain
-volumeBindingMode: Immediate
-```
-
-```
-kubectl apply -f .
-```
-
-### Step 3: Persistent Volume Claim 
-
-```
-cd
-mkdir -p manifests
-cd manifests
-mkdir csi
-cd csi
-nano 02-pvc.yaml
-```
-
-```
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-nfs-dynamic
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 2Gi
-  storageClassName: nfs-csi
-```
-
-```
-kubectl apply -f .
-kubectl get pvc
-##
-kubectl get pv 
-```
-
-### Step 4: Pod 
-
-```
-nano 03-pod.yaml
-```
-
-```
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx-nfs
-spec:
-  containers:
-    - image: nginx:1.23
-      name: nginx-nfs
-      command:
-        - "/bin/bash"
-        - "-c"
-        - set -euo pipefail; while true; do echo $(date) >> /mnt/nfs/outfile; sleep 1; done
-      volumeMounts:
-        - name: persistent-storage
-          mountPath: "/mnt/nfs"
-          readOnly: false
-  volumes:
-    - name: persistent-storage
-      persistentVolumeClaim:
-        claimName: pvc-nfs-dynamic
-```
-
-```
-kubectl apply -f .
-kubectl get pods
-kubectl describe pods nginx-nfs 
-```
-
-### Step 5: Testing
-
-```
-kubectl exec -it nginx-nfs -- bash 
-```
-
-```
-cd /mnt/nfs
-ls -la
-## outfile
-tail -f /mnt/nfs/outfile
-```
-
-```
-CTRL+C
-exit
-```
-
-### Step 6: Destroy 
-
-```
-kubectl delete -f 03-pod.yaml 
-
-### Verify in nfs - trainer !! 
-```
-
-### Step 7: Recreate 
-
-```
-kubectl apply -f 03-pod.yaml
-```
-
-```
-kubectl exec -it nginx-nfs -- bash
-```
-
-```
-## is old data here ? 
-head /mnt/nfs/outfile 
-##
-tail -f /mnt/nfs/outfile
-```
-
-```
-CTRL + C
-exit
-```
-### Step 8: Cleanup 
-
-```
-kubectl delete -f .
-```
-
-
-### Reference:
-
- * https://rudimartinsen.com/2024/01/09/nfs-csi-driver-kubernetes/
-
-### Beispiel mariadb
-
-
-  * How to persistently use mariadb with a storage class / driver nfs.csi.
-
-### Step 1: Treiber installieren 
-
-  * https://github.com/kubernetes-csi/csi-driver-nfs/blob/master/docs/install-csi-driver-v4.6.0.md
-
-```
-curl -skSL https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/v4.6.0/deploy/install-driver.sh | bash -s v4.6.0 --
-```
-
-### Step 2: Storage Class 
-
-```
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: nfs-csi
-provisioner: nfs.csi.k8s.io
-parameters:
-  server: 10.135.0.18
-  share: /var/nfs
-reclaimPolicy: Delete
-volumeBindingMode: Immediate
-mountOptions:
-  - nfsvers=3
-```
-
-### Step 3: PVC, Configmap, Deployment 
-
-```
-mkdir -p manifests
-cd manifests
-mkdir mariadb-csi
-cd mariadb-csi
-```
-
-```
-nano 01-pvc.yaml
-```
-
-```
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-nfs-dynamic-mariadb
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 2Gi
-  storageClassName: nfs-csi
-```
-
-```
-kubectl apply -f .
-```
-
-```
-nano 02-configmap.yml
-```
-
-```
-### 02-configmap.yml
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: mariadb-configmap
-data:
-  # als Wertepaare
-  MARIADB_ROOT_PASSWORD: 11abc432
-```
-
-```
-nano 03-deployment.yml
-```
-
-
-```
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mariadb-deployment
-spec:
-  selector:
-    matchLabels:
-      app: mariadb
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: mariadb
-    spec:
-      containers:
-      - name: mariadb-cont
-        image: mariadb:10.11
-        envFrom:
-        - configMapRef:
-            name: mariadb-configmap
-        volumeMounts:
-        - name: persistent-storage
-          mountPath: "/var/lib/mysql"
-          readOnly: false
-      volumes:
-      - name: persistent-storage
-        persistentVolumeClaim:
-          claimName: pvc-nfs-dynamic-mariadb
-```
-
-```
-kubectl apply -f .
-```
-
-```
-kubectl describe po mariadb-deployment-<euer-pod>
-```
-
-## Kubernetes Installation
-
-### k3s installation
-
-
-### Exercise 
-
-```
-Schritt 1: windows store ubuntu installieren und ausführen
-
-Siehe: 
-https://docs.k3s.io/quick-start
-
-## in den root benutzer wechseln
-sudo su - 
-## passwort eingeben 
-
-curl -sfL https://get.k3s.io | sh -
-
-systemctl stop k3s
-## k3s automatischer start beim booten ausschalten
-systemctl disable k3s 
-systemctl start k3s
-
-## Verwenden 
-kubectl cluster-info 
-kubectl get nodes 
-```
-
-## Kubernetes Monitoring 
-
-### Prometheus Monitoring Server (Overview)
-
-
-### What does it do ?
-
-  * It monitors your system by collecting data
-  * Data is pulled from your system by defined endpoints (http) from your cluster 
-  * To provide data on your system, a lot of exporters are available, that
-    * collect the data and provide it in Prometheus
-
-### Technical 
-
-  * Prometheus has a TDB (Time Series Database) and is good as storing time series with data
-  * Prometheus includes a local on-disk time series database, but also optionally integrates with remote storage systems.
-  * Prometheus's local time series database stores data in a custom, highly efficient format on local storage.
-  * Ref: https://prometheus.io/docs/prometheus/latest/storage/
-
-### What are time series ? 
-
-  * A time series is a sequence of data points that occur in successive order over some period of time. 
-  * Beispiel: 
-    * Du willst die täglichen Schlusspreise für eine Aktie für ein Jahr dokumentieren
-    * Damit willst Du weitere Analysen machen 
-    * Du würdest das Paar Datum/Preis dann in der Datumsreihenfolge sortieren und so ausgeben
-    * Dies wäre eine "time series" 
-
-### Kompenenten von Prometheus 
-
-![Prometheus Schaubild](https://www.devopsschool.com/blog/wp-content/uploads/2021/01/What-is-Prometheus-Architecutre-components1-740x414.png)
-
-Quelle: https://www.devopsschool.com/
-
-#### Prometheus Server 
-
-1. Retrieval (Sammeln) 
-   * Data Retrieval Worker 
-     * pull metrics data
-1. Storage 
-   * Time Series Database (TDB)
-     * stores metrics data
-1. HTTP Server 
-   * Accepts PromQL - Queries (e.g. from Grafana)
-     * accept queries 
-  
-### Grafana ? 
-
-  * Grafana wird meist verwendet um die grafische Auswertung zu machen.
-  * Mit Grafana kann ich einfach Dashboards verwenden 
-  * Ich kann sehr leicht festlegen (Durch Data Sources), so meine Daten herkommen
-
-### Prometheus / Grafana Stack installieren
-
-
-  * using the kube-prometheus-stack (recommended !: includes important metrics)
-
-### Step 1: Prepare values-file  
-
-```
-cd
-mkdir -p manifests 
-cd manifests 
-mkdir -p monitoring 
-cd monitoring 
-```
-
-```
-vi values.yml 
-```
-
-```
-fullnameOverride: prometheus
-
-alertmanager:
-  fullnameOverride: alertmanager
-
-grafana:
-  fullnameOverride: grafana
-
-kube-state-metrics:
-  fullnameOverride: kube-state-metrics
-
-prometheus-node-exporter:
-  fullnameOverride: node-exporter
-```
-
-### Step 2: Install with helm 
-
-```
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm install prometheus prometheus-community/kube-prometheus-stack -f values.yml --namespace monitoring --create-namespace --version 61.3.1
-```
-
-### Step 3: Connect to prometheus from the outside world 
-
-#### Step 3.1: Start proxy to connect (to on Linux Client)
-
-```
-## this is shown in the helm information 
-helm -n monitoring get notes prometheus
-
-## Get pod that runs prometheus 
-kubectl -n monitoring get service 
-kubectl -n monitoring port-forward svc/prometheus-prometheus 9090 &
-
-```
-
-#### Step 3.2: Start a tunnel in (from) your local-system to the server 
-
-```
-ssh -L 9090:localhost:9090 tln1@164.92.129.7
-```
-
-#### Step 3.3: Open prometheus in your local browser 
-
-```
-## in browser
-http://localhost:9090 
-```
-
-### Step 4: Connect to the grafana from the outside world 
-
-#### Step 4.1: Start proxy to connect 
-
-```
-## Do the port forwarding 
-## Adjust your pods here
-kubectl -n monitoring get pods | grep grafana 
-kubectl -n monitoring port-forward grafana-56b45d8bd9-bp899 3000 &
-```
-
-#### Step 4.2: Start a tunnel in (from) your local-system to the server 
-
-```
-ssh -L 3000:localhost:3000 tln1@164.92.129.7
-```
-
-
-
-
-
-
-### References:
-
-  * https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md
-  * https://artifacthub.io/packages/helm/prometheus-community/prometheus
-
-  
-
-## Kubernetes QoS / HealthChecks / Live / Readiness
-
-### Quality of Service - evict pods
-
-
-### Die Class wird auf Basis der Limits und Requests der Container vergeben
-
-```
-Request: Definiert wieviel ein Container mindestens braucht (CPU,memory)
-Limit: Definiert, was ein Container maximal braucht.
-
-in spec.containers.resources 
-kubectl explain pod.spec.containers.resources
-
-```
-
-### Art der Typen: 
-
-  * Guaranteed
-  * Burstable
-  * BestEffort 
-
-### Wie werden die Pods evicted 
-
-  * Das wird in der folgenden Reihenfolge gemacht: Zu erst alle BestEffort, dann burstable und zum Schluss Guaranteed
-
-### Guaranteed 
-
-```
-Type: Guaranteed:
-https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod/#create-a-pod-that-gets-assigned-a-qos-class-of-guaranteed
-
-set when limit equals request
-(request: das braucht er,
-limit: das braucht er maximal) 
-
-Garantied ist die höchste Stufe und diese werden bei fehlenden Ressourcen 
-als letztes "evicted"
-```
-
-### Guaranteed Exercise 
-
-```
-cd
-mkdir -p manifests
-cd manifests
-mkdir qos
-cd qos
-nano 01-pod.yaml
-```
-
-
-```
-apiVersion: v1
-
-kind: Pod
-metadata:
-  name: qos-demo
-spec:
-  containers:
-  - name: qos-demo-ctr
-    image: nginx
-    resources:
-      limits:
-        memory: "200Mi"
-        cpu: "700m"
-
-      requests:
-        memory: "200Mi"
-        cpu: "700m"
-```
-
-
-
-```
-kubectl apply -f .
-kubectl describe po qos-demo 
-```
-
-### Risiko Guaranteed
-
-
- * Limit: CPU: Diese wird maximal zur Verfügung gestellt
- * Limit: Memory: Wenn die Anwendung das Limit überschreitet, greift der OOM-Killer (Out of Memory Killer)
- * Wenn Limit Memory: Dann auch dafür sorgen, dass das laufende Programme selbst auch eine Speichergrenze
-   * Java-Programm ohne Speichergrenze oder zu hoher Speichergrenze 
-
-
-### Burstable 
-
-
-* At least one Container in the Pod has a memory or CPU request or limit
-
-```
-cd
-mkdir -p manifests
-cd manifests
-mkdir burstable
-cd burstable
-```
-
-```
-nano 01-pod.yaml
-```
-
-
-```
-apiVersion: v1
-kind: Pod
-metadata:
-  name: qos-burstable
-spec:
-  containers:
-  - name: qos-demo-2-ctr
-    image: nginx
-    resources:
-      limits:
-        memory: "200Mi"
-      requests:
-        memory: "100Mi"
-```
-
-```
-kubectl apply -f .
-kubectl describe po qos-burstable
-```
-
-### BestEffort
-
-  * gar keine Limits und Requests gesetzt (bitte nicht machen)
-
-
-### LiveNess/Readiness - Probe / HealthChecks
-
-
-
-### Übung 1: Liveness (command) 
-
-```
-What does it do ? 
- 
-* At the beginning pod is ready (first 30 seconds)
-* Check will be done after 5 seconds of pod being startet
-* Check will be done periodically every 5 seconds and will check
-  * for /tmp/healthy
-  * if file is there will return: 0 
-  * if file is not there will return: 1 
-* After 30 seconds container will be killed
-* After 35 seconds container will be restarted
-```
-
-```bash
-cd
-mkdir -p manifests/probes
-cd manifests/probes 
-nano 01-pod-liveness-command.yml 
-```
-
-```bash 
-apiVersion: v1
-kind: Pod
-metadata:
-  labels:
-    test: liveness
-  name: liveness-exec
-spec:
-  containers:
-  - name: liveness
-    image: k8s.gcr.io/busybox
-    args:
-    - /bin/sh
-    - -c
-    - touch /tmp/healthy; sleep 30; rm -f /tmp/healthy; sleep 600
-    livenessProbe:
-      exec:
-        command:
-        - cat
-        - /tmp/healthy
-      initialDelaySeconds: 5
-      periodSeconds: 5
-```
-
-```
-## apply and test 
-kubectl apply -f .
-kubectl describe -l test=liveness pods | grep -A  40 Events
-sleep 30
-kubectl describe -l test=liveness pods | grep -A  40 Events
-sleep 5
-kubectl describe -l test=liveness pods | grep -A  40 Events
-
-```
-
-```
-## cleanup
-kubectl delete -f .
- 
-``` 
-
-### Übung 2: Liveness Probe (HTTP)
-
-```
-## Step 0: Understanding Prerequisite:
-This is how this image works:
-## after 10 seconds it returns code 500 
-http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
-    duration := time.Now().Sub(started)
-    if duration.Seconds() > 10 {
-        w.WriteHeader(500)
-        w.Write([]byte(fmt.Sprintf("error: %v", duration.Seconds())))
-    } else {
-        w.WriteHeader(200)
-        w.Write([]byte("ok"))
-    }
-})
-```
-
-```
-## Step 1: Pod  - manifest 
-## vi 02-pod-liveness-http.yml
-## status-code >=200 and < 400 o.k. 
-## else failure 
-apiVersion: v1
-kind: Pod
-metadata:
-  labels:
-    test: liveness
-  name: liveness-http
-spec:
-  containers:
-  - name: liveness
-    image: k8s.gcr.io/liveness
-    args:
-    - /server
-    livenessProbe:
-      httpGet:
-        path: /healthz
-        port: 8080
-        httpHeaders:
-        - name: Custom-Header
-          value: Awesome
-      initialDelaySeconds: 3
-      periodSeconds: 3
-```
-
-```
-## Step 2: apply and test
-kubectl apply -f 02-pod-liveness-http.yml
-## after 10 seconds port should have been started 
-sleep 10 
-kubectl describe pod liveness-http
-
-```
-
-
-### Reference:
- 
-   * https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-
-### Taints / Toleratioins
-
-
-### Taints 
-
-```
-Taints schliessen auf einer Node alle Pods aus, die nicht bestimmte tolerations haben:
-
-Möglichkeiten:
-
-o Sie werden nicht gescheduled - NoSchedule 
-o Sie werden nicht executed - NoExecute 
-o Sie werden möglichst nicht gescheduled. - PreferNoSchedule 
-
-```
-
-### Tolerations 
-
-```
-Tolerations werden auf Pod-Ebene vergeben: 
-tolerations: 
-
-Ein Pod kann (wenn es auf einem Node taints gibt), nur 
-gescheduled bzw. ausgeführt werden, wenn er die 
-Labels hat, die auch als
-Taints auf dem Node vergeben sind.
-```
-
-### Walkthrough  
-
-#### Step 1: Cordon the other nodes - scheduling will not be possible there 
-
-```
-## Cordon nodes n11 and n111 
-## You will see a taint here 
-kubectl cordon n11
-kubectl cordon n111
-kubectl describe n111 | grep -i taint 
-```
-
-
-
-#### Step 2: Set taint on first node 
-
-```
-kubectl taint nodes n1 gpu=true:NoSchedule
-```
-
-### Step 3
-
-```
-cd 
-mkdir -p manifests
-cd manifests 
-mkdir tainttest 
-cd tainttest 
-nano 01-no-tolerations.yml
-```
-
-```
-##vi 01-no-tolerations.yml 
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx-test-no-tol
-  labels:
-    env: test-env
-spec:
-  containers:
-  - name: nginx
-    image: nginx:1.21
-```
-
-```
-kubectl apply -f . 
-kubectl get po nginx-test-no-tol
-kubectl get describe nginx-test-no-tol
-```
-
-### Step 4:
-
-```
-## vi 02-nginx-test-wrong-tol.yml 
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx-test-wrong-tol
-  labels:
-    env: test-env
-spec:
-  containers:
-  - name: nginx
-    image: nginx:latest
-  tolerations:
-  - key: "cpu"
-    operator: "Equal"
-    value: "true"
-    effect: "NoSchedule"
-```
-
-```
-kubectl apply -f .
-kubectl get po nginx-test-wrong-tol
-kubectl describe po nginx-test-wrong-tol
-```
-
-### Step 5:
-
-```
-## vi 03-good-tolerations.yml 
-apiVersion: v1
-kind: Pod
-metadata:
-  name: nginx-test-good-tol
-  labels:
-    env: test-env
-spec:
-  containers:
-  - name: nginx
-    image: nginx:latest
-  tolerations:
-  - key: "gpu"
-    operator: "Equal"
-    value: "true"
-    effect: "NoSchedule"
-```
-
-```
-kubectl apply -f .
-kubectl get po nginx-test-good-tol
-kubectl describe po nginx-test-good-tol
-```
-
-#### Taints rausnehmen 
-
-```
-kubectl taint nodes n1 gpu:true:NoSchedule-
-```
-
-#### uncordon other nodes 
-
-```
-kubectl uncordon n11
-kubectl uncordon n111
-```
-
-### References 
-  
-  * [Doku Kubernetes Taints and Tolerations](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
-  * https://blog.kubecost.com/blog/kubernetes-taints/
-
-## Installation mit microk8s
-
-### Schritt 1: auf 3 Maschinen mit Ubuntu 24.04LTS
-
-
-### Walkthrough
-
-```
-sudo snap install microk8s --classic
-## Important enable dns // otherwice not dns lookup is possible 
-microk8s enable dns 
-microk8s status
-
-## Execute kubectl commands like so 
-microk8s kubectl
-microk8s kubectl cluster-info
-
-## Make it easier with an alias 
-echo "alias kubectl='microk8s kubectl'" >> ~/.bashrc
-source ~/.bashrc
-kubectl
-
-```
-### Working with snaps 
-
-```
-snap info microk8s 
-
-```
-
-### Ref:
-
-  * https://microk8s.io/docs/setting-snap-channel
-
-### Schritt 2: cluster - node2 + node3 einbinden - master ist node 1
-
-
-### Walkthrough 
-
-```
-## auf master (jeweils für jedes node neu ausführen)
-microk8s add-node
-
-## dann auf jeweiligem node vorigen Befehl der ausgegeben wurde ausführen
-## Kann mehr als 60 sekunden dauern ! Geduld...Geduld..Geduld 
-##z.B. -> ACHTUNG evtl. IP ändern 
-microk8s join 10.128.63.86:25000/567a21bdfc9a64738ef4b3286b2b8a69
-
-```
-
-### Auf einem Node addon aktivieren z.B. ingress
-
-```
-gucken, ob es auf dem anderen node auch aktiv ist. 
-```
-
-### Add Node only as Worker-Node 
-
-```
-microk8s join 10.135.0.15:25000/5857843e774c2ebe368e14e8b95bdf80/9bf3ceb70a58 --worker
-Contacting cluster at 10.135.0.15
-
-root@n41:~# microk8s status
-This MicroK8s deployment is acting as a node in a cluster.
-Please use the master node.
-```
-
-
-
-### Ref:
-
-  * https://microk8s.io/docs/high-availability
-
-### Schritt 3: Remote Verbindung einrichten
-
-
-### Walkthrough 
-
-```
-## auf master (jeweils für jedes node neu ausführen)
-microk8s add-node
-
-## dann auf jeweiligem node vorigen Befehl der ausgegeben wurde ausführen
-## Kann mehr als 60 sekunden dauern ! Geduld...Geduld..Geduld 
-##z.B. -> ACHTUNG evtl. IP ändern 
-microk8s join 10.128.63.86:25000/567a21bdfc9a64738ef4b3286b2b8a69
-
-```
-
-### Auf einem Node addon aktivieren z.B. ingress
-
-```
-gucken, ob es auf dem anderen node auch aktiv ist. 
-```
-
-### Add Node only as Worker-Node 
-
-```
-microk8s join 10.135.0.15:25000/5857843e774c2ebe368e14e8b95bdf80/9bf3ceb70a58 --worker
-Contacting cluster at 10.135.0.15
-
-root@n41:~# microk8s status
-This MicroK8s deployment is acting as a node in a cluster.
-Please use the master node.
-```
-
-
-
-### Ref:
-
-  * https://microk8s.io/docs/high-availability
-
-## Installation mit kubeadm
-
-### Schritt für Schritt mit kubeadm
-
-
-### Version 
-
-  * Ubuntu 20.04 LTS
-  * 1 control plane und 3 worker nodes 
-
-### Done for you (for 4 Servers)
-
-  * Servers are setup:
-    * ssh-running
-    * kubeadm, kubelet, kubectl installed
-    * containerd - runtime installed 
-
-  * Installed on all nodes (with cloud-init)
-
-```
-##!/bin/bash 
-
-groupadd sshadmin
-USERS="mysupersecretuser"
-SUDO_USER="mysupersecretuser"
-PASS="yoursupersecretpass"
-for USER in $USERS
-do
-  echo "Adding user $USER"
-  useradd -s /bin/bash --create-home $USER
-  usermod -aG sshadmin $USER
-  echo "$USER:$PASS | chpasswd
-done
-
-## We can sudo with $SUDO_USER
-usermod -aG sudo $SUDO_USER
-
-## 20.04 and 22.04 this will be in the subfolder
-if [ -f /etc/ssh/sshd_config.d/50-cloud-init.conf ]
-then
-  sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config.d/50-cloud-init.conf
-fi
-
-### both is needed 
-sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config
-
-usermod -aG sshadmin root
-
-## TBD - Delete AllowUsers Entries with sed 
-## otherwice we cannot login by group 
-
-echo "AllowGroups sshadmin" >> /etc/ssh/sshd_config 
-systemctl reload sshd
-
-## Now let us do some generic setup
-echo "Installing kubeadm kubelet kubectl"
-
-#### A lot of stuff needs to be done here
-#### https://www.linuxtechi.com/install-kubernetes-on-ubuntu-22-04/
-
-## 1. no swap please
-swapoff -a
-sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
-
-## 2. Loading necessary modules
-echo "overlay" >> /etc/modules-load.d/containerd.conf
-echo "br_netfilter" >> /etc /modules-load.d/containerd.conf
-modprobe overlay
-modprobe br_netfilter
-
-## 3. necessary kernel settings
-echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/kubernetes.conf
-sysctl --system
-
-## 4. Update the meta-information
-apt-get -y update
-
-## 5. Installing container runtime
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmour -o /etc/apt/trusted.gpg.d/docker.add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"       apt-get install -y containerd.io
-
-## 6. Configure containerd
-containerd config default > /etc/containerd/config.toml
-sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
-systemctl restart containerd
-systemctl enable containerd
-
-## 7. Add Kubernetes Repository for Kubernetes
-mkdir -m 755 /etc/apt/keyrings
-apt-get install -y apt-transport-https ca-certificates curl gpg
-curl -fsSL https://pkgs.k8s.io/core:/stable:/$K8S_VERSION/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/$K8S_VERSI                                                                                                               # 8. Install kubectl kubeadm kubectl
-apt-get -y update
-apt-get install -y kubelet kubeadm kubectl
-apt-mark hold -y kubelet kubeadm kubectl
-
-## 9. Install helm
-snap install helm --classic
-
-## Installing nfs-common
-apt-get -y install nfs-common
-```
-
-
-### Prerequisites 
-
-  * 4 Servers setup and reachable through ssh.
-  * user: 11trainingdo
-  * pass: PLEASE ask your instructor 
-
-
-```
-## Important - Servers are not reachable through
-## Domain !! Only IP. 
-controlplane.tln<nr>.t3isp.de 
-worker1.tln<nr>.do.t3isp.de
-worker2.tln<nr>.do.t3isp.de
-worker3.tln<nr>.do.t3isp.de
-```
-
-### Step 1: Setup controlnode (login through ssh) 
-
-```
-## This CIDR is the recommendation for calico
-## Other CNI's might be different 
-CLUSTER_CIDR="192.168.0.0/16"
-
-kubeadm init --pod-network-cidr=$CLUSTER_CIDR && \
-  mkdir -p /root/.kube && \
-  cp -i /etc/kubernetes/admin.conf /root/.kube/config && \
-  chown $(id -u):$(id -g) /root/.kube/config && \
-  cp -i /root/.kube/config /tmp/config.kubeadm && \
-  chmod o+r /tmp/config.kubeadm 
-```
-
-```
-## Copy output of join (needed for workers) 
-## e.g. 
-kubeadm join 159.89.99.35:6443 --token rpylp0.rdphpzbavdyx3llz \
-        --discovery-token-ca-cert-hash sha256:05d42f2c051a974a27577270e09c77602eeec85523b1815378b815b64cb99932
-```
-
-### Step 2: Setup worker1 - node (login through ssh) 
-
-```
-## use join command from Step 1:
-kubeadm join 159.89.99.35:6443 --token rpylp0.rdphpzbavdyx3llz \
-        --discovery-token-ca-cert-hash sha256:05d42f2c051a974a27577270e09c77602eeec85523b1815378b815b64cb99932
-```
-
-### Step 3: Setup worker2 - node (login through ssh) 
-
-```
-## use join command from Step 1:
-kubeadm join 159.89.99.35:6443 --token rpylp0.rdphpzbavdyx3llz \
-        --discovery-token-ca-cert-hash sha256:05d42f2c051a974a27577270e09c77602eeec85523b1815378b815b64cb99932
-```
-
-### Step 4: Setup worker3 - node (login through ssh) 
-
-```
-## use join command from Step 1:
-kubeadm join 159.89.99.35:6443 --token rpylp0.rdphpzbavdyx3llz \
-        --discovery-token-ca-cert-hash sha256:05d42f2c051a974a27577270e09c77602eeec85523b1815378b815b64cb99932
-```
-
-### Step 5: CNI-Setup (calico) on controlnode (login through ssh) 
-
-```
-kubectl get nodes 
-```
-
-```
-## Output
-root@controlplane:~# kubectl get nodes
-NAME           STATUS     ROLES           AGE     VERSION
-controlplane   NotReady   control-plane   6m27s   v1.28.6
-worker1        NotReady   <none>          3m18s   v1.28.6
-worker2        NotReady   <none>          2m10s   v1.28.6
-worker3        NotReady   <none>          60s     v1.28.6
-```
-
-```
-## Installing calico CNI 
-kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.29.2/manifests/tigera-operator.yaml
-kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.29.2/manifests/custom-resources.yaml
-kubectl get ns
-kubectl -n calico-system get all
-kubectl -n calico-system get pods -o wide -w 
-```
-
-```
-## After if all pods are up and running -> CTRL + C
-```
-
-```
-kubectl -n calico-system get pods -o wide
-## all nodes should be ready now 
-kubectl get nodes -o wide 
-```
-
-```
-## Output
-root@controlplane:~# kubectl get nodes
-NAME           STATUS   ROLES           AGE    VERSION
-controlplane   Ready    control-plane   14m    v1.28.6
-worker1        Ready    <none>          11m    v1.28.6
-worker2        Ready    <none>          10m    v1.28.6
-worker3        Ready    <none>          9m9s   v1.28.6
-```
-
-### Do it with ansible 
-
-  * https://spacelift.io/blog/ansible-kubernetes
-
-## Tipps & Tricks
-
-### Pods bleiben im terminate-mode stehen
-
-
-Ein Pod hängt in Terminierung meist aus folgenden Gründen:
-
-### Häufigste Ursachen:
-
-**1. Graceful Shutdown Timeout**
-- Container reagiert nicht auf SIGTERM
-- Nach `terminationGracePeriodSeconds` (default 30s) wird SIGKILL gesendet
-- Check: `kubectl describe pod <pod>` → Events
-
-**2. Finalizers blockieren**
-```bash
-kubectl get pod <pod> -o yaml | grep finalizers -A 5
-```
-Manuelle Entfernung (Notfall):
-```bash
-kubectl patch pod <pod> -p '{"metadata":{"finalizers":null}}'
-```
-
-**3. PreStop Hook hängt**
-- Zählt zur Grace Period
-- Hook-Fehler blockiert Terminierung
-
-**4. Volume Unmount Problem**
-- Node kann Volume nicht freigeben
-- Oft bei NFS/CSI-Storage
-
-**5. Node NotReady**
-- Kubelet antwortet nicht
-- Pod bleibt in Terminating bis Node zurück oder nach ~5min force-deleted
-
-### Quick Fix:
-```bash
-## Force delete (wenn nichts anderes hilft)
-kubectl delete pod <pod> --grace-period=0 --force
-```
-
-**Debug-Befehle:**
-```bash
-kubectl get pod <pod> -o yaml
-kubectl describe pod <pod>
-kubectl logs <pod> --previous
-```
-
-### Was sind finalizer 
-
-  * Finalizers sind Strings im metadata.finalizers-Array eines Pods, die verhindern, dass Kubernetes das Objekt vollständig löscht, bis alle Finalizer entfernt wurden.
-
-```
-Bei kubectl delete pod setzt Kubernetes nur metadata.deletionTimestamp
-Pod geht in Status Terminating
-Controller/Operator mit zuständigem Finalizer führt Cleanup aus
-Controller entfernt seinen Finalizer aus dem Array
-Erst wenn Array leer → vollständige Löschung
-```
-
-### Probleme mit Volumes 
-
-**VolumeAttachment-Objekt** (separates K8s-Objekt):
-```yaml
-apiVersion: storage.k8s.io/v1
-kind: VolumeAttachment
-metadata:
-  finalizers:
-  - external-attacher/csi-driver-name  # <-- Hier ist der Finalizer
-spec:
-  attacher: csi-driver
-  nodeName: worker-1
-  source:
-    persistentVolumeName: pvc-xyz
-```
-
-**Pod-Objekt** hat normalerweise **keine Volume-Finalizer**:
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  finalizers: []  # Meist leer oder mit anderen Finalizern
-```
-
-### Warum Pods trotzdem bei Volumes hängen:
-
-1. **Kubelet wartet** auf erfolgreiches Volume-Unmount (nicht Finalizer-basiert)
-2. **VolumeAttachment-Finalizer** verhindert Detach vom Node
-3. **Node nicht erreichbar** → Kubelet kann nicht unmounten
-4. **CSI-Driver-Probleme** → external-attacher kann Finalizer nicht clearen
-
-### Typisches Problem-Szenario:
-
-```bash
-## Pod bleibt Terminating
-kubectl get pod -o yaml
-## deletionTimestamp gesetzt, aber keine Volume-Finalizer
-
-## VolumeAttachment existiert noch
-kubectl get volumeattachment
-## Hat Finalizer vom CSI-Driver
-```
-
-**Force-Delete** hilft hier nicht beim Volume-Problem, sondern man muss das VolumeAttachment-Objekt oder den Node-Status addressieren.
-
-## Podman
-
-### Podman vs. Docker
-
----
-
-### Was ist Podman?
-
-**Podman** (kurz für: *Pod Manager*) ist eine Open-Source-Container-Engine, die als Alternative zu Docker entwickelt wurde.
-
----
-
-### Warum Podman?
-
-Hier die wichtigsten Gründe, warum Podman gerne verwendet wird:
-
-| Vorteil                                         | Erklärung                                                                                                                                                                 |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Daemonless**                                  | Podman benötigt keinen zentralen Hintergrunddienst (Daemon), sondern läuft als normaler Benutzerprozess. Dadurch weniger Angriffsfläche und flexibler.                    |
-| **Rootless Support**                            | Container können ohne Root-Rechte gestartet werden, was Sicherheitsvorteile bringt.                                                                                       |
-| **Docker-kompatibel**                           | Podman kann Dockerfiles bauen und verwendet dieselben Container Images. Auch `podman` CLI ist zu `docker` CLI fast identisch (`alias docker=podman` geht oft problemlos). |
-| **Pods-Unterstützung**                          | Inspiriert von Kubernetes: Mehrere Container in einem gemeinsamen Netzwerk-Namespace (Pod). Praktisch für lokale Kubernetes-ähnliche Setups.                              |
-| **Bessere Integration für Systemd**             | Einfaches Erstellen von Systemd-Units aus Containern (`podman generate systemd`). Ideal für Serverdienste ohne externes Orchestration-Tool.                               |
-| **Kein Root-Daemon**                            | Keine ständigen Root-Rechte nötig, weniger Sicherheitsrisiko durch kompromittierte Daemons.                                                                               |
-| **Red Hat / Fedora / CentOS bevorzugen Podman** | Dort wird Podman inzwischen oft als Standardlösung ausgeliefert.                                                                                                          |
-
----
-
-### Typische Einsatzbereiche
-
-* Entwicklung: wie Docker
-* Serverbetrieb: Container als Systemdienste
-* Kubernetes-nahes Testing (Pods)
-* Rootless Deployment auf Servern ohne Container-Daemon
-
----
-
-### Beispiel: Container starten
-
-```bash
-podman run -d -p 8080:80 nginx
-```
-
-Fast wie bei Docker.
-
----
-
-### Podman vs Docker kurz gesagt:
-
-|                     | Docker     | Podman            |
-| ------------------- | ---------- | ----------------- |
-| Daemon              | ja         | nein              |
-| Rootless            | begrenzt   | ja                |
-| Kubernetes-nah      | weniger    | stärker           |
-| Systemd-Integration | wenig      | stark             |
-| Kompatibilität      | verbreitet | Docker-kompatibel |
-
----
-
-
 ## ServiceMesh
 
 ### Why a ServiceMesh ?
@@ -9217,8 +10071,15 @@ helm -n my-app-<namenskuerzel> install meine-app . --create-namespace
 ```
 
 ```
+helm -n my-app-<namenskuerzel> status meine-app 
 kubectl -n my-app-<namenskuerzel> get all
 kubectl -n my-app-<namenskuerzel> get pods 
+```
+
+### Aufräumen 
+
+```
+helm -n my-app-<namenskuerzel> uninstall meine-app
 ```
 
 ### Wie starte ich am besten - Übung
@@ -9730,62 +10591,6 @@ kubectl delete -f 03-deploy.yml 04-service.yml
 ### Schritt 5: Referenz:
 
   * https://metallb.io/installation/#installation-with-helm
-
-## Helm mit gitlab ci/cd
-
-### Helm mit gitlab ci/cd ausrollen
-
-
-### Step 1: Create gitlab - repo and pipeline 
-
-```
-1. Create new repo on gitlab 
-2. Click on pipeline Editor and creat .gitlab-ci.yml with Button 
-
-```
-
-### Step 2: Push your helm chart files to repo 
-
-
-   * Now looks like this
-
-![image](https://github.com/user-attachments/assets/5e88593b-5b31-4adf-a2bb-e5e9a5129be5)
-
-### Step 3: Add your KUBECONFIG as Variable (type: File) to Variables 
-
-  * https://gitlab.com/jmetzger/training-helm-chart-kubernetes-gitlab-ci-cd/-/settings/ci_cd#js-cicd-variables-settings
-
-![image](https://github.com/user-attachments/assets/b5168cf3-dd74-4d86-becf-e807985dd471)
-
-### Step 4: Create a pipeline for deployment 
-
-```
-stages:          # List of stages for jobs, and their order of execution
-  - deploy
-
-variables:
-  APP_NAME: my-first-app
-
-deploy:
-  stage: deploy
-  image: 
-    name: alpine/helm:3.2.1
-## Important to unset entrypoint 
-    entrypoint: [""]
-  script:
-    - ls -la
-    - cd; mkdir .kube; cd .kube; cat $KUBECONFIG_SECRET > config; ls -la;
-    - cd $CI_PROJECT_DIR; helm upgrade ${APP_NAME} ./charts/my-app --install --namespace ${APP_NAME} --create-namespace -f ./config/values.yaml
-  rules:
-    - if: $CI_COMMIT_BRANCH == 'master'
-      when: always
-
-```
-
-
-### Reference: Example Project (Public)
-
-  * https://gitlab.com/jmetzger/training-helm-chart-kubernetes-gitlab-ci-cd
 
 ## Kubernetes Verläßlichkeit erreichen 
 
@@ -12900,7 +13705,7 @@ Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität
 
 #### Pod/Pods 
 
-  * Pods sind die kleinsten einsetzbaren Einheiten, die in Kubernetes erstellt und verwaltet werden können.
+  * Pods sind die kleinste verwaltbare Einheit, die in Kubernetes erstellt und verwaltet werden können.
   * Ein Pod (übersetzt Gruppe) ist eine Gruppe von einem oder mehreren Containern
     * gemeinsam genutzter Speicher- und Netzwerkressourcen   
     * Befinden sich immer auf dem gleich virtuellen Server 
@@ -13947,6 +14752,10 @@ curl http://164.92.193.245:32708
 ### Example II : Service with NodePort (long version)
 
 ```
+nano deploy.yml
+```
+
+```
 ## you will get port opened on every node in the range 30000+
 apiVersion: apps/v1
 kind: Deployment
@@ -13967,7 +14776,13 @@ spec:
         image: nginx
         ports:
         - containerPort: 80
----
+```
+
+```
+nano service.yml
+```
+
+```
 apiVersion: v1
 kind: Service
 metadata:
@@ -13983,6 +14798,11 @@ spec:
     web: my-nginx
        
 ```        
+
+```
+kubectl apply -f .
+```
+
 
 ### Example III: Service mit LoadBalancer (ExternalIP)
 
@@ -15734,15 +16554,6 @@ Konfigurations-Values-Files übergeben zum Konfigurieren
 Feststehende Struktur 
 ```
 
-### Was kann helm ?
-
-
-- **Installieren** und **Deinstallieren** von Anwendungen in Kubernetes (`helm install / helm uninstall`)
-- **Upgraden** von bestehenden Installationen (`helm upgrade`)
-- **Rollbacks** durchführen, falls etwas schiefläuft (`helm rollback`)
-- **Anpassen** von Anwendungen durch Konfigurationswerte (`values.yaml`)
-- **Veröffentlichen** eigener Charts (z. B. in einem Helm-Repository)
-
 ### Grundlagen / Aufbau / Verwendung (Dev/Ops)
 
 
@@ -16436,7 +17247,7 @@ Restore is done on the K10 - Interface
 
   * https://docs.kasten.io/latest/usage/overview.html
 
-## Kubernetes Monitoring 
+## Kubernetes Monitoring
 
 ### Debugging von Ingress
 
@@ -16593,6 +17404,499 @@ kubectl top pods
 
   * https://kubernetes-sigs.github.io/metrics-server/
   * kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+## Kubernetes Monitoring (CheckMK)
+
+### CheckMK RAW - Kubernetes Monitoring einrichten
+
+
+### Hintergrund
+
+CheckMK kann Kubernetes-Cluster ueber die Kubernetes API monitoren. Die Integration besteht aus:
+
+| Komponente | Funktion | Deployment |
+|------------|----------|------------|
+| **Cluster Collector** | Sammelt Metriken aus dem Cluster (CPU, RAM, Netzwerk) | Helm Chart in K8s |
+| **Node Collector** | Laeuft auf jedem Node, sammelt Ressourcen-Auslastung | DaemonSet via Helm |
+| **Kubernetes Special Agent** | Fragt K8s API ab (Pods, Services, Deployments, etc.) | Laeuft auf CheckMK Server |
+| **Piggyback Hosts** | Virtuelle Hosts fuer K8s Objekte in CheckMK | Manuell in CheckMK RAW |
+
+**Wichtig:** CheckMK RAW erfordert manuelle Erstellung der Piggyback-Hosts (in kommerziellen Editionen automatisch).
+
+**Diese Anleitung verwendet:**
+- **Ingress (Traefik) mit HTTPS/TLS** statt NodePort
+- **Let's Encrypt** für automatische SSL-Zertifikate via cert-manager
+- **ClusterIP Service** für internen Zugriff
+
+### Voraussetzungen
+
+- Zugang zum Kubernetes Cluster mit kubectl
+- CheckMK RAW Site: `https://checkmk-tln<X>.do.t3isp.de/` (X = Teilnehmer-Nummer)
+- Helm installiert
+- **cert-manager installiert** (siehe `ingress/https-letsencrypt-ingress-traefik.md`)
+- **ClusterIssuer `letsencrypt-prod` konfiguriert**
+- **Traefik Ingress Controller** installiert und funktionsfähig
+
+### Schritt 1: Helm Repository hinzufuegen
+
+```
+helm repo add checkmk-chart https://checkmk.github.io/checkmk_kube_agent
+helm repo update
+```
+
+Verfuegbare Versionen anzeigen:
+
+```
+helm search repo checkmk-chart --versions | head -10
+```
+
+### Schritt 2: Cluster Collector deployen
+
+Standard-Konfiguration anzeigen:
+
+```
+helm show values checkmk-chart/checkmk > /tmp/checkmk-values.yaml
+```
+
+Helm Chart installieren:
+
+```
+helm upgrade --install checkmk checkmk-chart/checkmk \
+  --namespace checkmk-monitoring \
+  --create-namespace \
+  --version 1.9.0 \
+  --reset-values
+```
+
+**Erklärung der Flags:**
+- `--create-namespace`: Erstellt den Namespace automatisch (kein `kubectl create namespace` nötig)
+- `--version 1.8.0`: Verwendet spezifische Chart-Version (reproduzierbar)
+- `--reset-values`: Stellt sicher, dass keine alten Values übernommen werden
+
+### Schritt 3: Deployment pruefen
+
+```
+kubectl get pods -n checkmk-monitoring
+kubectl get svc -n checkmk-monitoring
+kubectl get daemonset -n checkmk-monitoring
+```
+
+Erwartete Pods:
+- `checkmk-cluster-collector-*` - 1 Pod
+- `checkmk-node-collector-*` - 1 Pod pro Node (DaemonSet)
+
+### Schritt 4: Ingress-Objekt erstellen
+
+Ingress mit TLS/HTTPS via Traefik und Let's Encrypt:
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir -p checkmk
+cd checkmk
+```
+
+```
+nano ingress.yaml
+```
+
+
+```
+## vi ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: checkmk-collector-ingress
+  namespace: checkmk-monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - checkmk-collector.tln<X>.do.t3isp.de
+    secretName: checkmk-collector-tls
+  rules:
+  - host: "checkmk-collector.tln<X>.do.t3isp.de"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: checkmk-cluster-collector
+            port:
+              number: 8080
+```
+
+**Wichtig:** Ersetze `<X>` mit deiner Teilnehmer-Nummer!
+
+Ingress erstellen:
+
+```
+kubectl apply -f ingress.yaml
+```
+
+Ingress pruefen:
+
+```
+kubectl get ingress -n checkmk-monitoring
+kubectl describe ingress checkmk-collector-ingress -n checkmk-monitoring
+```
+
+Zertifikat pruefen:
+
+```
+kubectl get certificate -n checkmk-monitoring
+kubectl get secret checkmk-collector-tls -n checkmk-monitoring
+```
+
+**Voraussetzung:** cert-manager muss installiert sein und der ClusterIssuer `letsencrypt-prod` muss existieren (siehe `ingress/https-letsencrypt-ingress-traefik.md`).
+
+### Schritt 5: Service Account Token extrahieren
+
+Der ServiceAccount wurde automatisch vom Helm Chart erstellt. Token extrahieren:
+
+```
+## Secret-Name finden
+kubectl get secrets -n checkmk-monitoring | grep checkmk
+
+## Token extrahieren und dekodieren
+kubectl get secret checkmk-checkmk -n checkmk-monitoring -o jsonpath='{.data.token}' | base64 --decode > sa-token
+```
+
+**Wichtig:** Token speichern - wird fuer CheckMK benoetigt!
+
+Alternative (wenn kein Secret existiert):
+
+```
+## Token direkt vom ServiceAccount holen
+kubectl create token checkmk -n checkmk-monitoring --duration=87600h
+```
+
+### Schritt 6: CA-Zertifikat extrahieren
+
+```
+## weil 1. Cluster digitalocean, index 0 
+kubectl config view --raw -o jsonpath='{.clusters[1].cluster.certificate-authority-data}' | base64 --decode > k8s-ca.crt
+```
+
+CA-Zertifikat anzeigen:
+
+```
+cat k8s-ca.crt
+## und prüfen ob es das richtige ist:
+## muss kubernetes heissen 
+openssl x509 -in k8s-ca.crt -issuer -noout
+```
+
+### Schritt 7: Cluster Collector Endpoint ermitteln
+
+Ingress-URL verwenden:
+
+```
+kubectl get ingress -n checkmk-monitoring
+```
+
+Der Cluster Collector Endpoint ist:
+
+```
+https://checkmk-collector.tln<X>.do.t3isp.de
+```
+
+**Wichtig:**
+- Ersetze `<X>` mit deiner Teilnehmer-Nummer
+- HTTPS wird durch Let's Encrypt bereitgestellt
+- Der Endpoint ist von aussen erreichbar
+
+Testen (sollte Metriken zurueckgeben):
+
+```
+curl https://checkmk-collector.tln<X>.do.t3isp.de/openmetrics
+```
+
+### Schritt 8: CheckMK konfigurieren - Token speichern
+
+1. Oeffne CheckMK: `https://checkmk-tln<X>.do.t3isp.de/`
+2. Gehe zu **Setup > General > Passwords**
+3. Klicke **Add password**
+4. Konfiguration:
+   - **Unique ID:** `k8s-token`
+   - **Title:** `Kubernetes Service Account Token`
+   - **Password:** Token aus Schritt 5 einfuegen
+5. **Save**
+
+### Schritt 9: CA-Zertifikat in CheckMK importieren
+
+1. **Setup > Global settings > Site management**
+2. Suche nach **"Trusted certificate authorities for SSL"**
+3. Fuege den Inhalt von `/tmp/k8s-ca.crt` hinzu
+4. **Save**
+
+### Schritt 10: Piggyback Host erstellen
+
+1. **Setup > Hosts > Add host**
+2. Konfiguration:
+   - **Hostname:** `k8s-cluster-<dein-name>` (z.B. `k8s-cluster-jmetzger`)
+   - **IP address family:** **No IP** (wichtig!)
+   - **Monitoring agents:** <img width="340" height="39" alt="image" src="https://github.com/user-attachments/assets/9ffd4b87-993a-4b8d-b098-58609ab2f0ba" />
+
+   - Labels hinzufuegen:
+     - Key: `cmk/kubernetes`
+     - Value: `yes`
+3. **Save & go to service configuration** (NICHT "Save & run service discovery")
+
+**Wichtig:** Der Host bekommt keine IP, da er nur Piggyback-Daten empfaengt!
+
+### Schritt 11: Kubernetes Special Agent konfigurieren
+
+1. **Setup > Agents > VM, cloud, container > Kubernetes**
+2. Klicke **Add rule**
+3. **Kubernetes cluster configuration:**
+   - **Cluster name:** `k8s-cluster-<dein-name>` (oder eigener Name)
+   - **Token:** Waehle `k8s-token` aus Dropdown
+   - **API server endpoint:** `https://<DEINE-K8S-API-IP>:6443`
+   - **SSL certificate verification:** Enabled (mit importiertem CA-Cert)
+
+4. **Collector: Enrich With Usage Data**
+   - **Cluster collector endpoint:** `https://checkmk-collector-tln<X>.do.t3isp.de`
+
+5. **Kubernetes API:**
+   - **Object selection:** Waehle gewuenschte Objekte:
+     - ✓ Pods
+     - ✓ Nodes
+     - ✓ Deployments
+     - ✓ DaemonSets
+     - ✓ StatefulSets
+     - ✓ Services
+     - ✓ Namespaces
+     - ✓ CronJobs (falls benoetigt)
+
+6. **Namespace filtering:**
+   - **Include namespaces:** Leer lassen fuer alle Namespaces
+   - **Exclude namespaces:** `kube-public,kube-node-lease` (optional)
+
+   **Hinweise:**
+   - `kube-system` wird inkludiert um System-Komponenten zu monitoren. `kube-public` und `kube-node-lease` sind meist leer bzw. nicht relevant fuer Monitoring.
+   - **Filter-Logik:** Include wird zuerst angewendet (leer = alle), danach Exclude. **Exclude hat immer Vorrang** - ein Namespace in beiden Listen wird ausgeschlossen.
+
+7. **Explicit hosts:**
+   - Waehle `k8s-cluster-<dein-name>` (Host aus Schritt 10)
+
+8. **Save**
+
+### Schritt 12: Aenderungen aktivieren
+
+1. Oben rechts auf **"1 change"** (oder mehr) klicken
+2. **Activate on selected sites**
+3. Warten bis Aktivierung abgeschlossen
+
+### Schritt 13: Service Discovery durchfuehren
+
+1. **Setup > Hosts**
+2. Suche Host `k8s-cluster-<dein-name>`
+3. Klicke auf Host
+4. **Run service discovery**
+5. **Accept all**
+6. **Activate changes**
+
+Erwartete Services:
+- `Kubernetes Cluster CPU resources`
+- `Kubernetes Cluster Memory resources`
+- `Kubernetes Node <node-name>`
+- Weitere Services je nach Objekt-Auswahl
+
+### Schritt 14: Piggyback Hosts fuer K8s Objekte erstellen (CheckMK RAW)
+
+In CheckMK RAW werden Hosts fuer Kubernetes-Objekte NICHT automatisch erstellt. Manuelle Erstellung:
+
+```
+## Auf dem CheckMK Server (falls SSH-Zugang)
+## Site-Kontext wechseln
+OMD[site]> cmk-piggyback list orphans
+```
+
+Alternativ in CheckMK GUI:
+1. **Setup > Hosts > Add host**
+2. Fuer jedes K8s Objekt (Pod, Deployment, etc.) einen Host erstellen:
+   - **Hostname:** Exakter Name aus Piggyback-Daten (z.B. `pod_nginx-deployment-xyz`)
+   - **IP address family:** No IP
+   - Label: `cmk/kubernetes: yes`
+3. Service Discovery durchfuehren
+
+**Tipp fuer CheckMK RAW:** Beginne mit wichtigen Objekten (Nodes, Deployments), nicht alle Pods einzeln.
+
+### Schritt 15: Periodic Service Discovery konfigurieren (optional)
+
+Automatische Discovery fuer neue Services:
+
+1. **Setup > Periodic service discovery**
+2. **Add rule**
+3. **Conditions:**
+   - **Host labels:** `cmk/kubernetes:yes`
+4. **Service discovery:**
+   - **Mode:** "Add unmonitored services and new host labels"
+   - **Interval:** 15 Minuten (kuerzer als Standard)
+5. **Save**
+
+### Schritt 16: Monitoring testen
+
+Services pruefen:
+
+1. **Monitor > All hosts**
+2. Filter: `cmk/kubernetes:yes`
+3. Services pruefen - Status sollte OK sein
+
+Dashboards (nur in kommerziellen Editionen):
+- CheckMK RAW hat keine vordefinierten K8s Dashboards
+- Manuell Views erstellen moeglich
+
+### Troubleshooting
+
+#### Problem: Keine Services gefunden
+
+**Loesung:**
+```
+## Piggyback-Daten pruefen (auf CheckMK Server)
+OMD[site]> cmk-piggyback list
+OMD[site]> cmk-piggyback show <hostname>
+```
+
+#### Problem: Connection refused zum Cluster Collector
+
+**Loesung:**
+```
+## Ingress pruefen
+kubectl get ingress -n checkmk-monitoring
+kubectl describe ingress checkmk-collector-ingress -n checkmk-monitoring
+
+## Service pruefen
+kubectl get svc -n checkmk-monitoring
+
+## Testen von lokalem Rechner
+curl https://checkmk-collector-tln<X>.app.do.t3isp.de/openmetrics
+
+## Zertifikat pruefen (sollte Ready: True sein)
+kubectl get certificate -n checkmk-monitoring
+```
+
+#### Problem: Unauthorized bei API-Zugriff
+
+**Loesung:**
+```
+## Token-Gueltigkeit pruefen
+kubectl get secrets -n checkmk-monitoring
+
+## Neues Token erstellen
+kubectl create token checkmk -n checkmk-monitoring --duration=87600h
+```
+
+#### Problem: Piggyback Hosts erstellen in RAW zu aufwaendig
+
+**Loesung:**
+- Fokus auf wichtige Hosts (Nodes, kritische Deployments)
+- Script zur automatischen Host-Erstellung schreiben
+- Oder: Upgrade zu kommerzieller Edition erwägen
+
+### Aufraeumen
+
+Helm Release entfernen:
+
+```
+helm uninstall checkmk -n checkmk-monitoring
+```
+
+Namespace loeschen:
+
+```
+kubectl delete namespace checkmk-monitoring
+```
+
+In CheckMK:
+1. Hosts loeschen: **Setup > Hosts**
+2. Rule loeschen: **Setup > Agents > VM, cloud, container > Kubernetes**
+3. Token loeschen: **Setup > General > Passwords**
+4. **Activate changes**
+
+### Zusammenfassung
+
+| Komponente | Status |
+|------------|--------|
+| Cluster Collector | Deployed via Helm (ClusterIP Service) |
+| Ingress | Traefik mit TLS/Let's Encrypt |
+| Node Collector | DaemonSet auf allen Nodes |
+| K8s Special Agent | Konfiguriert in CheckMK |
+| Piggyback Host | Manuell erstellt (RAW) |
+| Service Discovery | Durchgefuehrt |
+| Monitoring | Aktiv via HTTPS |
+
+**CheckMK RAW Besonderheiten:**
+- ✓ Vollstaendige K8s API Integration
+- ✓ Cluster Collector fuer Metriken
+- ✗ Keine automatischen Piggyback Hosts
+- ✗ Keine vorgefertigten Dashboards
+- Manueller Aufwand hoeher als kommerzielle Editionen
+
+### Weiterführende Informationen
+
+Offizielle Dokumentation:
+https://docs.checkmk.com/latest/en/monitoring_kubernetes.html
+
+### CheckMK Enterprise Features für Kubernetes
+
+
+### Prerequisites
+
+  * Use at least version 2.1 of checkmk
+
+### Spoiler Alert
+
+   * Kubernetes läßt sich in checkmk nur gut monitoren mit der checkmk Enterprise - Version
+
+### Was hat die checkmk Enterprise gegenüber der Raw-Version besonderes für Kubernetes
+
+  * Spezielle Kubernetes Dashboard, bereits fix und fertig. (Ansonsten sehr viel Arbeit nachzubauen)
+  * Noch wichtiger: Dynamic Host Management
+
+#### Dynamic Host Management
+
+  * Neues Pods werden automatisch erkannt (auch Services, Deployments usw.)
+  * Resourcen, die nicht mehr da sind, werden automatisch rausgelöscht.
+
+#### Alternative Dynamic Host Management: Ich müsste das händisch machen bzw. selbst scripten
+
+  * Ich müsste rest-api call ausführen, um dies über die api von check zu setzen.
+  * Neue Hosts müßte ich discovern, alte rauslöschen (automatisch)
+
+#### Alternative: Dashboards
+
+  * Dashboards selber bauen
+  * Grafana mit checkmk - Daten (Aus meiner Sicht wenig praktikabel, dann entweder ganz Grafana  + Prometheus oder checkmk Enterprise)
+
+### Kubernetes Dashboards in CheckMK
+
+
+* These dashboards are only available in Checkmk Enterprise (so not in community version: CheckMk Raw)
+* But, you could also create them yourself (not recommended)
+  * Ref: https://docs.checkmk.com/latest/en/dashboards.html
+
+### Cluster Dashboard
+
+<img width="1258" height="711" alt="image" src="https://github.com/user-attachments/assets/31fa90fc-5755-4753-8b7c-c3dc07019e8c" />
+
+### Deploymnent Dashboard 
+
+<img width="1263" height="713" alt="image" src="https://github.com/user-attachments/assets/5b177fa2-9399-4108-bf20-e7a2795228e6" />
+
+### Detail 
+
+<img width="1280" height="541" alt="image" src="https://github.com/user-attachments/assets/e43a67d1-a544-4cdf-bfc0-9cc1522103cd" />
+
+
+### References:
+
+* [Checkmk about new Kubernetes Integration (since 2022)](https://www.youtube.com/watch?v=PpKAp14fXQI)
 
 ## Kubernetes Security 
 
