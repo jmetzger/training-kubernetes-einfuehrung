@@ -65,8 +65,6 @@ kubectl apply -f . && watch kubectl get pods
 ```
 # Ändern des images von nginxinc/nginx-unprivileged:1.28 -> auf 1.29
 # danach 
-kubectl apply -f .
-kubectl get all 
-kubectl get pods -w
+kubectl apply -f . && kubectl get all && kubectl get pods -w
 ```
 
