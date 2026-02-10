@@ -26,6 +26,19 @@ complete -F __start_kubectl k
 
 ```
 
+```
+# für permanente Nutzungn
+# eintragen in ~/.bash_profile oder anlegen, wenn datei nicht vorhanden
+alias k=kubectl
+complete -o default -F __start_kubectl k
+```
+
+```
+# und danach rausgehen und entweder
+# Session neu starten
+# pder su - <benutzername>
+```
+
 ## Reference 
 
   * https://kubernetes.io/docs/tasks/tools/included/optional-kubectl-configs-bash-linux/
