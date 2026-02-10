@@ -48,7 +48,7 @@ helm search repo checkmk-chart --versions | head -10
 Standard-Konfiguration anzeigen:
 
 ```
-helm show values checkmk-chart/checkmk > /tmp/checkmk-values.yaml
+helm show values checkmk-chart/checkmk > ~/checkmk-values.yaml
 ```
 
 Helm Chart installieren:
