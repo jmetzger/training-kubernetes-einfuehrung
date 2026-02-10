@@ -195,7 +195,15 @@ nano service.yml
 
 kubectl apply -f .
 kubectl get svc svc-nginx
-kubectl describe svc svc-nginx 
+
+kubectl describe svc svc-nginx
+# hier heisst das nicht External-IP ->
+# sondern
+```
+
+<img width="775" height="63" alt="image" src="https://github.com/user-attachments/assets/3f1db219-e5d8-4bbf-a001-17fc5eaae93f" />
+
+```
 kubectl get svc svc-nginx -w 
 # spätestens nach 5 Minuten bekommen wir eine externe ip
 # z.B. 41.32.44.45
