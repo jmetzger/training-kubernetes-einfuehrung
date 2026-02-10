@@ -7,6 +7,13 @@
       1. metallb mit ips der Nodes (hacky but works)
       1. ingress mit wildcard-domain:  *.tlnx.do.t3isp.de
       1. cert-manager mit helmfile sync 
+
+## Prerequisites 
+
+```
+# in /tmp/.env ist die Umgebungsvariable wie folgt gesetzt
+export TF_VARS_do_token=<dein-do-token>
+```
    
 ## Walktrough 
 
