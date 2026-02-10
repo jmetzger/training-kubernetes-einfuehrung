@@ -43,13 +43,43 @@ Verfuegbare Versionen anzeigen:
 helm search repo checkmk-chart --versions | head -10
 ```
 
-## Schritt 2: Cluster Collector deployen
+## Schritt 2: Cluster Collector deployen (mit Ingress) 
 
 Standard-Konfiguration anzeigen:
 
 ```
 helm show values checkmk-chart/checkmk > ~/checkmk-values.yaml
 ```
+
+Values für ingress setzen 
+
+```
+cd
+mkdir -p helm-charts/checkmk
+cd helm-charts/checkmk
+nano values.yaml
+```
+
+**Wichtig:** Ersetze `<X>` mit deiner Teilnehmer-Nummer!
+
+```
+clusterCollector:
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hosts:
+      - host: checkmk-collector.tln<X>.do.t3isp.de
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+        - checkmk-collector.tln<X>.do.t3isp.de
+        secretName: checkmk-collector-tls
+```
+
 
 Helm Chart installieren:
 
@@ -59,12 +89,14 @@ helm upgrade --install checkmk checkmk-chart/checkmk \
   --create-namespace \
   --version 1.9.0 \
   --reset-values
+  -f values.yaml 
 ```
 
 **Erklärung der Flags:**
 - `--create-namespace`: Erstellt den Namespace automatisch (kein `kubectl create namespace` nötig)
 - `--version 1.8.0`: Verwendet spezifische Chart-Version (reproduzierbar)
 - `--reset-values`: Stellt sicher, dass keine alten Values übernommen werden
+- `-f values.yaml`: Konfigurationswerte aus values.yaml verwenden (für ingress.yaml)
 
 ## Schritt 3: Deployment pruefen
 
@@ -78,65 +110,10 @@ Erwartete Pods:
 - `checkmk-cluster-collector-*` - 1 Pod
 - `checkmk-node-collector-*` - 1 Pod pro Node (DaemonSet)
 
-## Schritt 4: Ingress-Objekt erstellen
-
-Ingress mit TLS/HTTPS via Traefik und Let's Encrypt:
-
-```
-cd
-mkdir -p manifests
-cd manifests
-mkdir -p checkmk
-cd checkmk
-```
-
-```
-nano ingress.yaml
-```
 
 
-```
-# vi ingress.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: checkmk-collector-ingress
-  namespace: checkmk-monitoring
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-spec:
-  ingressClassName: traefik
-  tls:
-  - hosts:
-    - checkmk-collector.tln<X>.do.t3isp.de
-    secretName: checkmk-collector-tls
-  rules:
-  - host: "checkmk-collector.tln<X>.do.t3isp.de"
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: checkmk-cluster-collector
-            port:
-              number: 8080
-```
 
-**Wichtig:** Ersetze `<X>` mit deiner Teilnehmer-Nummer!
-
-Ingress erstellen:
-
-```
-kubectl apply -f ingress.yaml
-```
-
-Ingress pruefen:
-
-```
-kubectl get ingress -n checkmk-monitoring
-kubectl describe ingress checkmk-collector-ingress -n checkmk-monitoring
-```
+## Schritt 4: Zertifikat prüfen 
 
 Zertifikat pruefen:
 
