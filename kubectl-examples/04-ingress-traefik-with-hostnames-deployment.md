@@ -277,7 +277,7 @@ kubectl get ingress example-ingress
 ## Step 5: Testing 
 
 ```
-# mit describe herausfinden, ob er die services gefundet 
+# mit describe herausfinden, ob er die services gefunden hat
 kubectl describe ingress example-ingress
 ```
 
