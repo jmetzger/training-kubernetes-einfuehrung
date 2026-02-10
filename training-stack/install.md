@@ -12,7 +12,7 @@
 
 ```
 # in /tmp/.env ist die Umgebungsvariable wie folgt gesetzt
-export TF_VARS_do_token=<dein-do-token>
+export TF_VAR_do_token=<dein-do-token>
 ```
    
 ## Walktrough 
