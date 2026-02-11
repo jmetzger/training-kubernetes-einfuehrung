@@ -10,7 +10,7 @@ Name:      web-0.nginx
 Address 1: 10.244.1.6
 
 Name:      web-1.nginx
-Address 1: 10.244.2
+Address 1: 10.244.2.20
 ```
 
 ```
