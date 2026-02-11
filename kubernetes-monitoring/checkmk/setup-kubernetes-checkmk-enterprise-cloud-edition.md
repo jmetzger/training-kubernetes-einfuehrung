@@ -212,10 +212,13 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
 
 ## Schritt 9: CA-Zertifikat in CheckMK importieren
 
-1. **Setup > Global settings > Site management**
-2. Suche nach **"Trusted certificate authorities for SSL"**
-3. Fuege den Inhalt von `/tmp/k8s-ca.crt` hinzu
-4. **Save**
+1. **Setup > General > Global settings > Site management (Ausklappen) **
+2. Suche nach **"Trusted certificate authorities for SSL"** -> Rechts in das Feld mit allen Zertifikateinträgen klicken
+3. ** Add new CA certificate or chain **
+4. Fuege den Inhalt von `k8s-ca.crt` hinzu
+5. **Save**
+6. 1 change (oben rechts) anklicken
+7. Activate on selected sites 
 
 ## Schritt 10: Piggyback Host erstellen
 
@@ -232,7 +235,10 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
 
 **Wichtig:** Der Host bekommt keine IP, da er nur Piggyback-Daten empfaengt!
 
-## Schritt 11: Kubernetes Special Agent konfigurieren
+## Schritt 11: Dynamic Host Management einrichten 
+
+
+## Schritt 12: Kubernetes Special Agent konfigurieren
 
 1. **Setup > Agents > VM, cloud, container > Kubernetes**
 2. Klicke **Add rule**
@@ -269,11 +275,9 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
 
 8. **Save**
 
-## Schritt 12: Aenderungen aktivieren
-
-1. Oben rechts auf **"1 change"** (oder mehr) klicken
-2. **Activate on selected sites**
-3. Warten bis Aktivierung abgeschlossen
+9. Oben rechts auf **"1 change"** (oder mehr) klicken
+10. **Activate on selected sites**
+11. Warten bis Aktivierung abgeschlossen
 
 ## Schritt 13: Service Discovery durchfuehren
 
@@ -289,26 +293,6 @@ Erwartete Services:
 - `Kubernetes Cluster Memory resources`
 - `Kubernetes Node <node-name>`
 - Weitere Services je nach Objekt-Auswahl
-
-## Schritt 14: Piggyback Hosts fuer K8s Objekte erstellen (CheckMK RAW)
-
-In CheckMK RAW werden Hosts fuer Kubernetes-Objekte NICHT automatisch erstellt. Manuelle Erstellung:
-
-```
-# Auf dem CheckMK Server (falls SSH-Zugang)
-# Site-Kontext wechseln
-OMD[site]> cmk-piggyback list orphans
-```
-
-Alternativ in CheckMK GUI:
-1. **Setup > Hosts > Add host**
-2. Fuer jedes K8s Objekt (Pod, Deployment, etc.) einen Host erstellen:
-   - **Hostname:** Exakter Name aus Piggyback-Daten (z.B. `pod_nginx-deployment-xyz`)
-   - **IP address family:** No IP
-   - Label: `cmk/kubernetes: yes`
-3. Service Discovery durchfuehren
-
-**Tipp fuer CheckMK RAW:** Beginne mit wichtigen Objekten (Nodes, Deployments), nicht alle Pods einzeln.
 
 ## Schritt 15: Periodic Service Discovery konfigurieren (optional)
 
