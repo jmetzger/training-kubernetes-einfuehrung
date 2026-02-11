@@ -240,6 +240,9 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
 
 1. Setup > Hosts > Add folder (in which the dynamic host management can automatically create all hosts of a cluster. However, creating or using such a folder is optional)
 2. Title: z.B. k8s-cluster-jmetzger-data
+3. **Save**
+4. 1 change anklicken
+5. **Activate on selected sites**
 
 ## Schritt 12: Kubernetes Special Agent konfigurieren
 
