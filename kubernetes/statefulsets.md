@@ -5,15 +5,9 @@
   * stable network identities (always the same name across restarts)  in contrast to deployments
 
 ```
-Server:    10.0.0.10
-Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
 
 Name:      web-0.nginx
 Address 1: 10.244.1.6
-
-nslookup web-1.nginx
-Server:    10.0.0.10
-Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
 
 Name:      web-1.nginx
 Address 1: 10.244.2
