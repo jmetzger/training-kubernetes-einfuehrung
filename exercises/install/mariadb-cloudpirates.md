@@ -42,7 +42,6 @@ helm get values my-mariadb
 helm get manifest my-mariadb
 # Zeige alle Kinds an 
 helm get manifest my-mariadb | grep -i -A 4 kind  
-# Can I see all values use -> YES
 # Look for COMPUTED VALUES in get all ->
 helm get all my-mariadb 
 ```
