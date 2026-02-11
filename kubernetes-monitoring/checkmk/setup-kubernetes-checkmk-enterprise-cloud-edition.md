@@ -148,7 +148,18 @@ kubectl create token checkmk -n checkmk-monitoring --duration=87600h
 ## Schritt 6: CA-Zertifikat extrahieren
 
 ```
-# weil 1. Cluster digitalocean, index 0 
+kubectl config view 
+# [1] weil 1. Cluster digitalocean, index 0
+# Wenn nur 1 Eintrag, dann [0]
+
+# Testen, ob ich so ein Zertifikat sehe 
+kubectl config view --raw -o jsonpath='{.clusters[1].cluster.certificate-authority-data}' | base64 --decode 
+```
+
+<img width="1160" height="694" alt="image" src="https://github.com/user-attachments/assets/85e14f69-a728-4a40-bab7-88a435a23a80" />
+
+```
+# Abspeichern
 kubectl config view --raw -o jsonpath='{.clusters[1].cluster.certificate-authority-data}' | base64 --decode > k8s-ca.crt
 ```
 
@@ -180,10 +191,10 @@ https://checkmk-collector.tln<X>.do.t3isp.de
 - HTTPS wird durch Let's Encrypt bereitgestellt
 - Der Endpoint ist von aussen erreichbar
 
-Testen (sollte Metriken zurueckgeben):
+Testen (sollte Not authorized zurueckgeben):
 
 ```
-curl https://checkmk-collector.tln<X>.do.t3isp.de/openmetrics
+curl https://checkmk-collector.tln<X>.do.t3isp.de
 ```
 
 ## Schritt 8: CheckMK konfigurieren - Token speichern
@@ -196,6 +207,8 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de/openmetrics
    - **Title:** `Kubernetes Service Account Token`
    - **Password:** Token aus Schritt 5 einfuegen
 5. **Save**
+6. 1 Changes (oben rechts anklicken)
+7. **Activate on selected sites**
 
 ## Schritt 9: CA-Zertifikat in CheckMK importieren
 
@@ -209,7 +222,7 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de/openmetrics
 1. **Setup > Hosts > Add host**
 2. Konfiguration:
    - **Hostname:** `k8s-cluster-<dein-name>` (z.B. `k8s-cluster-jmetzger`)
-   - **IP address family:** **No IP** (wichtig!)
+   - **IP address family:** -> anklicken, dann im Select **No IP** (wichtig!)
    - **Monitoring agents:** <img width="340" height="39" alt="image" src="https://github.com/user-attachments/assets/9ffd4b87-993a-4b8d-b098-58609ab2f0ba" />
 
    - Labels hinzufuegen:
