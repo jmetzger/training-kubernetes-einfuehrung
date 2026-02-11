@@ -226,17 +226,20 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
 2. Konfiguration:
    - **Hostname:** `k8s-cluster-<dein-name>` (z.B. `k8s-cluster-jmetzger`)
    - **IP address family:** -> anklicken, dann im Select **No IP** (wichtig!)
-   - **Monitoring agents:** <img width="340" height="39" alt="image" src="https://github.com/user-attachments/assets/9ffd4b87-993a-4b8d-b098-58609ab2f0ba" />
-
+   - **Monitoring agents:** -> Zeile: Checkmk agent /API integrations -> anklicken -> <img width="340" height="39" alt="image" src="https://github.com/user-attachments/assets/9ffd4b87-993a-4b8d-b098-58609ab2f0ba" />
+   - ** Custom attributes ausklappen ** -> dort
    - Labels hinzufuegen:
-     - Key: `cmk/kubernetes`
-     - Value: `yes`
-3. **Save & go to service configuration** (NICHT "Save & run service discovery")
+     - `cmk/kubernetes`:yes
+3. **Save & view folder ** (NICHT "Save & run service discovery")
+4. 1 change anklicken
+5. **Activate on selected sites**
 
 **Wichtig:** Der Host bekommt keine IP, da er nur Piggyback-Daten empfaengt!
 
 ## Schritt 11: Dynamic Host Management einrichten 
 
+1. Setup > Hosts > Add folder (in which the dynamic host management can automatically create all hosts of a cluster. However, creating or using such a folder is optional)
+2. Title: z.B. k8s-cluster-jmetzger-data
 
 ## Schritt 12: Kubernetes Special Agent konfigurieren
 
