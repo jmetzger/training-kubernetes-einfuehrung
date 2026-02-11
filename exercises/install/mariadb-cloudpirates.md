@@ -15,6 +15,7 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 ```
 # Geht das denn auch ?
 kubectl get pods
+helm status my-mariadb
 ```
 
 ## Schritt 2: Umschauen 
