@@ -96,7 +96,8 @@ kubectl run --rm -it podtest --image=busybox
 ```
 
 ```
-# in the shell 
+# in the shell
+# gleicher namer, aber andere IP als beim letzten Ping 
 ping web-0.nginx
 exit
 ``` 
