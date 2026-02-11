@@ -169,7 +169,9 @@
 
   1. Tipps & Tricks
      * [Pods bleiben im terminate-mode stehen](/tipps-tricks/pod-bleibt-in-terminate.md)
-     
+
+  1. Datenbanken
+     * [MariaDB Operatoren](https://github.com/mariadb-operator/mariadb-operator)
 
 ## Backlog 
 
