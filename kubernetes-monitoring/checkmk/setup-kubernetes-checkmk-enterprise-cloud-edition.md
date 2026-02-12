@@ -287,6 +287,8 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
 4. **Collector: Enrich With Usage Data**
    - **Cluster collector endpoint:** `https://checkmk-collector-tln<X>.do.t3isp.de`
 
+<img width="410" height="115" alt="image" src="https://github.com/user-attachments/assets/339da970-d3a0-422b-94c2-4577f3b98a96" />
+
 5. **Kubernetes API:**
    - **Object selection:** Waehle gewuenschte Objekte:
      - ✓ Pods
@@ -315,7 +317,7 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
 10. **Activate on selected sites**
 11. Warten bis Aktivierung abgeschlossen
 
-## Schritt 13: Service Discovery durchfuehren
+## Schritt 14: Service Discovery durchfuehren
 
 1. **Setup > Hosts**
 2. Suche Host `k8s-cluster-<dein-name>`
@@ -395,13 +397,6 @@ kubectl get secrets -n checkmk-monitoring
 kubectl create token checkmk -n checkmk-monitoring --duration=87600h
 ```
 
-### Problem: Piggyback Hosts erstellen in RAW zu aufwaendig
-
-**Loesung:**
-- Fokus auf wichtige Hosts (Nodes, kritische Deployments)
-- Script zur automatischen Host-Erstellung schreiben
-- Oder: Upgrade zu kommerzieller Edition erwägen
-
 ## Aufraeumen
 
 Helm Release entfernen:
@@ -433,13 +428,6 @@ In CheckMK:
 | Piggyback Host | Manuell erstellt (RAW) |
 | Service Discovery | Durchgefuehrt |
 | Monitoring | Aktiv via HTTPS |
-
-**CheckMK RAW Besonderheiten:**
-- ✓ Vollstaendige K8s API Integration
-- ✓ Cluster Collector fuer Metriken
-- ✗ Keine automatischen Piggyback Hosts
-- ✗ Keine vorgefertigten Dashboards
-- Manueller Aufwand hoeher als kommerzielle Editionen
 
 ## Weiterführende Informationen
 
