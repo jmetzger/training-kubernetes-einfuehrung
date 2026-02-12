@@ -174,6 +174,7 @@
      * [MariaDB Operator](https://github.com/mariadb-operator/mariadb-operator)
      * [HA mit dem Postgres Operator -> cloudnativePG umsetzen](databases/postgresql/operator/cloudnativepg.md)
      * [Graph-Datenbank neo4j installieren mit helm](/databases/neo4j/installation.md)
+     * [Graph-Datenbank neo4j Cluster mit Operator installieren](https://github.com/neo4j-partners/neo4j-kubernetes-operator/blob/main/examples/clusters/multi-server-cluster.yaml)
 
 ## Backlog 
 
