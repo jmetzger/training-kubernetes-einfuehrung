@@ -285,9 +285,7 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
    - **SSL certificate verification:** Enabled (mit importiertem CA-Cert)
 
 4. **Collector: Enrich With Usage Data**
-   - **Cluster collector endpoint:** `https://checkmk-collector-tln<X>.do.t3isp.de`
-
-<img width="410" height="115" alt="image" src="https://github.com/user-attachments/assets/339da970-d3a0-422b-94c2-4577f3b98a96" />
+   - **Cluster collector endpoint:** `https://checkmk-collector.tln<X>.do.t3isp.de` (Achtung https vorner ist wichtig)
 
 5. **Kubernetes API:**
    - **Object selection:** Waehle gewuenschte Objekte:
@@ -322,15 +320,15 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
 1. **Setup > Hosts**
 2. Suche Host `k8s-cluster-<dein-name>`
 3. Klicke auf Host
-4. **Run service discovery**
-5. **Accept all**
-6. **Activate changes**
+4. **Run service discovery** (Das ist eines der Symbole - gelber Kasten) <img width="36" height="34" alt="image" src="https://github.com/user-attachments/assets/9324179f-ec1c-40ca-9026-c0d428819761" />
 
 Erwartete Services:
 - `Kubernetes Cluster CPU resources`
 - `Kubernetes Cluster Memory resources`
 - `Kubernetes Node <node-name>`
 - Weitere Services je nach Objekt-Auswahl
+
+  5. Nach dem finden der Services dieses übernehmen 
 
 ## Schritt 15: Periodic Service Discovery konfigurieren (optional)
 
