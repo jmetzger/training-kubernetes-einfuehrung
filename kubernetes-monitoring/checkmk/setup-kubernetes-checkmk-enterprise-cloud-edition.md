@@ -236,7 +236,9 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
 
 **Wichtig:** Der Host bekommt keine IP, da er nur Piggyback-Daten empfaengt!
 
-## Schritt 11: Dynamic Host Management einrichten 
+## Schritt 11: Ordner für Dynamic Host Management einrichten 
+
+   * Wir brauchen nur den Ordner erstellen, sonst nichts. Alles was man dort eintragen kann, sind defaults die sich dann auf die Host vererben. 
 
 1. Setup > Hosts > Add folder (in which the dynamic host management can automatically create all hosts of a cluster. However, creating or using such a folder is optional)
 2. Title: z.B. k8s-cluster-jmetzger-data
@@ -244,7 +246,35 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
 4. 1 change anklicken
 5. **Activate on selected sites**
 
-## Schritt 12: Kubernetes Special Agent konfigurieren
+## Schritt 12: Dynamic Host Management einrichten 
+
+ 1. Setup > Hosts > Dynamic host management > Add connection
+ 2. Unique ID und Title eintragen
+
+<img width="828" height="322" alt="image" src="https://github.com/user-attachments/assets/b41fd0ff-0a0c-47f6-8aa3-d3eade8e666c" />
+
+ 3. Bei **Create Hosts in** den gerade erstellten Ordner aus 11 angeben
+
+ <img width="1465" height="296" alt="image" src="https://github.com/user-attachments/assets/46c1a8ac-802d-4014-89ac-fd7331a15107" />
+
+ 4. Hosts attributes können wir so lassen (es wird nur piggyback data erstellt)
+ 5. Setze einen Haken bei
+
+<img width="574" height="78" alt="image" src="https://github.com/user-attachments/assets/63066d21-1de1-49df-a712-72d0b2873543" />
+
+  6. (Bei Restrict Source (ganz oben), den erstellten piggyback host auwählen (aus 10.) z.B. k8s-cluster-jmetzger
+
+<img width="462" height="126" alt="image" src="https://github.com/user-attachments/assets/100698ed-3faf-4461-8db3-e35811e4dfe7" />
+
+  7. Service Discovery -> Discover Services During Creation -> Ankreuzen (falls nicht bereits aktiv) 
+
+<img width="331" height="68" alt="image" src="https://github.com/user-attachments/assets/1175ce4c-e3b8-477b-aba3-6666ed536579" />
+
+  8. Save
+  9. **1 Change** anklicken
+  10. **Activate on selected site**
+
+## Schritt 13: Kubernetes Special Agent konfigurieren
 
 1. **Setup > Agents > VM, cloud, container > Kubernetes**
 2. Klicke **Add rule**
