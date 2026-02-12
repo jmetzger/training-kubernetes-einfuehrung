@@ -53,7 +53,7 @@ nano Chart.yaml
 ```
 
 ```
-# change dependency block
+# change or add dependency block
 # adding condition 
 dependencies:
   - name: redis
