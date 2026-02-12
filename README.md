@@ -172,6 +172,7 @@
 
   1. Datenbanken
      * [MariaDB Operatoren](https://github.com/mariadb-operator/mariadb-operator)
+     * [HA mit dem Postgres Operator -> cloudnativePG umsetzen](databases/postgresql/operator/cloudnativepg.md)
 
 ## Backlog 
 
