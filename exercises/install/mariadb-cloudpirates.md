@@ -106,7 +106,9 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 ```
 # neuer pod wird erstellt 
 kubectl get pod
-helm get values my-mariadbs
+helm get values my-mariadb
+helm list 
+helm history my-mariadb 
 ```
 
 
