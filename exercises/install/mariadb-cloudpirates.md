@@ -50,6 +50,8 @@ helm get all my-mariadb
 # Hack COMPUTED VALUES anzeigen lassen
 # Welche Werte (values) hat er zur Installation verwendet
 helm get all my-mariadb | grep -i computed -A 200
+# besser Variante von David
+helm get all my-mariadb | sed -n '/COMPUTED/, /HOOKS/p'
 
 ```
 
