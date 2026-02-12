@@ -171,7 +171,7 @@
      * [Pods bleiben im terminate-mode stehen](/tipps-tricks/pod-bleibt-in-terminate.md)
 
   1. Datenbanken
-     * [MariaDB Operatoren](https://github.com/mariadb-operator/mariadb-operator)
+     * [MariaDB Operator](https://github.com/mariadb-operator/mariadb-operator)
      * [HA mit dem Postgres Operator -> cloudnativePG umsetzen](databases/postgresql/operator/cloudnativepg.md)
      * [Graph-Datenbank neo4j installieren mit helm](/databases/neo4j/installation.md)
 
