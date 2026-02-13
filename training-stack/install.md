@@ -11,8 +11,9 @@
 ## Prerequisites 
 
 ```
+## Nothing 
 # in /tmp/.env ist die Umgebungsvariable wie folgt gesetzt
-export TF_VAR_do_token=<dein-do-token>
+export TF_VAR_do_token=HIER_MUSS_WAS_DRIN_STEHEN
 ```
    
 ## Walktrough 
