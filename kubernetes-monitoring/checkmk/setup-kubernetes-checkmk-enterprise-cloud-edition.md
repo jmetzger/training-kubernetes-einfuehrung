@@ -118,6 +118,7 @@ Erwartete Pods:
 Zertifikat pruefen:
 
 ```
+kubectl -n checkmk-monitoring get ingress
 kubectl get certificate -n checkmk-monitoring
 kubectl get secret checkmk-collector-tls -n checkmk-monitoring
 ```
