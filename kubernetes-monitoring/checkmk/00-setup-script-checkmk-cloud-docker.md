@@ -1,5 +1,12 @@
-# Umgesetzt mit digitalocean 
+# Aufsetzen checkmk auf virtueller Maschine (docker container)
 
+## Prequisites 
+
+  * Mindestens 8 GB Arbeitsspeicher
+
+## Walkthrough 
+
+  * Umgesetzt mit digitalocean 
   * Für normale Verwendung ohne digitalocean einfach diese Bereich auskommentieren
 
 ```
