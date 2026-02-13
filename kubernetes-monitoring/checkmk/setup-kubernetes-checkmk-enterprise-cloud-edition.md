@@ -293,22 +293,14 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
      - ✓ Namespaces
      - ✓ CronJobs (falls benoetigt)
 
-6. **Namespace filtering:**
-   - **Include namespaces:** Leer lassen fuer alle Namespaces
-   - **Exclude namespaces:** `kube-public,kube-node-lease` (optional)
-
-   **Hinweise:**
-   - `kube-system` wird inkludiert um System-Komponenten zu monitoren. `kube-public` und `kube-node-lease` sind meist leer bzw. nicht relevant fuer Monitoring.
-   - **Filter-Logik:** Include wird zuerst angewendet (leer = alle), danach Exclude. **Exclude hat immer Vorrang** - ein Namespace in beiden Listen wird ausgeschlossen.
-
-7. **Explicit hosts:**
+6. **Explicit hosts:**
    - Waehle `k8s-cluster-<dein-name>` (Host aus Schritt 10)
 
-8. **Save**
+7. **Save**
 
-9. Oben rechts auf **"1 change"** (oder mehr) klicken
-10. **Activate on selected sites**
-11. Warten bis Aktivierung abgeschlossen
+8. Oben rechts auf **"1 change"** (oder mehr) klicken
+9. **Activate on selected sites**
+10. Warten bis Aktivierung abgeschlossen
 
 ## Schritt 14: Service Discovery durchfuehren
 
