@@ -94,7 +94,7 @@ helm upgrade --install checkmk checkmk-chart/checkmk \
 
 **Erklärung der Flags:**
 - `--create-namespace`: Erstellt den Namespace automatisch (kein `kubectl create namespace` nötig)
-- `--version 1.8.0`: Verwendet spezifische Chart-Version (reproduzierbar)
+- `--version 1.9.0`: Verwendet spezifische Chart-Version (reproduzierbar)
 - `--reset-values`: Stellt sicher, dass keine alten Values übernommen werden
 - `-f values.yaml`: Konfigurationswerte aus values.yaml verwenden (für ingress.yaml)
 
