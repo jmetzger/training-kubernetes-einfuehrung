@@ -143,6 +143,7 @@
      * [Prometheus / Grafana Stack installieren](prometheus-grafana/install-with-helm.md)
 
   1. Kubernetes Monitoring (checkmk)
+     * [Checkmk Server mit Docker einrichten - Script (umfangreich) mit letsencrypt und ssl](/kubernetes-monitoring/checkmk/00-setup-script-checkmk-cloud-docker.md)
      * [Checkmk in Kubernetes einrichten (checkmk raw)](/kubernetes-monitoring/checkmk/setup-kubernetes-checkmk-raw.md)
      * [Checkmk in Kubernetes einrichten (checkmk enterprise/cloud edition)](/kubernetes-monitoring/checkmk/setup-kubernetes-checkmk-enterprise-cloud-edition.md)
      * [Checkmk Raw vs. Enterprise in Bezug auf Kubernetes](/kubernetes-monitoring/checkmk/02-checkmk-kubernetes-wichtig-enterprise.md)
