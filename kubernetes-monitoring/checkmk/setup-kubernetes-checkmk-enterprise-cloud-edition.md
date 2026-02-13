@@ -140,13 +140,6 @@ cat sa-token
 
 **Wichtig:** Token speichern - wird fuer CheckMK benoetigt!
 
-Alternative (wenn kein Secret existiert):
-
-```
-# Token direkt vom ServiceAccount holen
-kubectl create token checkmk -n checkmk-monitoring --duration=87600h
-```
-
 ## Schritt 6: CA-Zertifikat extrahieren
 
 ```
