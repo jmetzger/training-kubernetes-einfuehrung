@@ -143,7 +143,9 @@
      * [Prometheus / Grafana Stack installieren](#prometheus--grafana-stack-installieren)
 
   1. Kubernetes Monitoring (checkmk)
-     * [Checkmk in Kubernetes einrichten](#checkmk-in-kubernetes-einrichten)
+     * [Checkmk Server mit Docker einrichten - Script (umfangreich) mit letsencrypt und ssl](#checkmk-server-mit-docker-einrichten---script-umfangreich-mit-letsencrypt-und-ssl)
+     * [Checkmk in Kubernetes einrichten (checkmk raw)](#checkmk-in-kubernetes-einrichten-checkmk-raw)
+     * [Checkmk in Kubernetes einrichten (checkmk enterprise/cloud edition)](#checkmk-in-kubernetes-einrichten-checkmk-enterprisecloud-edition)
      * [Checkmk Raw vs. Enterprise in Bezug auf Kubernetes](#checkmk-raw-vs-enterprise-in-bezug-auf-kubernetes)
      * [Kubernetes Dashboards](#kubernetes-dashboards)
 
@@ -168,7 +170,12 @@
 
   1. Tipps & Tricks
      * [Pods bleiben im terminate-mode stehen](#pods-bleiben-im-terminate-mode-stehen)
-     
+
+  1. Datenbanken
+     * [MariaDB Operator](https://github.com/mariadb-operator/mariadb-operator)
+     * [HA mit dem Postgres Operator -> cloudnativePG umsetzen](#ha-mit-dem-postgres-operator-->-cloudnativepg-umsetzen)
+     * [Graph-Datenbank neo4j installieren mit helm](#graph-datenbank-neo4j-installieren-mit-helm)
+     * [Graph-Datenbank neo4j Cluster mit Operator installieren](https://github.com/neo4j-partners/neo4j-kubernetes-operator/blob/main/examples/clusters/multi-server-cluster.yaml)
 
 ## Backlog 
 
@@ -1125,6 +1132,14 @@ runcmd:
       1. metallb mit ips der Nodes (hacky but works)
       1. ingress mit wildcard-domain:  *.tlnx.do.t3isp.de
       1. cert-manager mit helmfile sync 
+
+### Prerequisites 
+
+```
+### Nothing 
+## in /tmp/.env ist die Umgebungsvariable wie folgt gesetzt
+export TF_VAR_do_token=HIER_MUSS_WAS_DRIN_STEHEN
+```
    
 ### Walktrough 
 
@@ -1408,7 +1423,7 @@ kubectl get pods -o wide
 
 ```
 kubectl run testpod --image=foo2
-## ImageErrPull - Image konnte nicht geladen werden 
+## ErrImagePull - Image konnte nicht geladen werden 
 kubectl get pods 
 ## Weitere status - info 
 kubectl describe pods testpod 
@@ -1633,9 +1648,7 @@ kubectl apply -f . && watch kubectl get pods
 ```
 ## Ändern des images von nginxinc/nginx-unprivileged:1.28 -> auf 1.29
 ## danach 
-kubectl apply -f .
-kubectl get all 
-kubectl get pods -w
+kubectl apply -f . && kubectl get all && kubectl get pods -w
 ```
 
 
@@ -1880,7 +1893,15 @@ nano service.yml
 
 kubectl apply -f .
 kubectl get svc svc-nginx
-kubectl describe svc svc-nginx 
+
+kubectl describe svc svc-nginx
+## hier heisst das nicht External-IP ->
+## sondern
+```
+
+<img width="775" height="63" alt="image" src="https://github.com/user-attachments/assets/3f1db219-e5d8-4bbf-a001-17fc5eaae93f" />
+
+```
 kubectl get svc svc-nginx -w 
 ## spätestens nach 5 Minuten bekommen wir eine externe ip
 ## z.B. 41.32.44.45
@@ -2538,7 +2559,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "<euername>.app.do.t3isp.de"
+  - host: "<euername>.appv2.do.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -2675,19 +2696,19 @@ kubectl get ingress example-ingress
 ### Step 5: Testing 
 
 ```
-## mit describe herausfinden, ob er die services gefundet 
+## mit describe herausfinden, ob er die services gefunden hat
 kubectl describe ingress example-ingress
 ```
 
 ```
 ## Im Browser auf:
 ## hier euer Name 
-http://jochen.app.do.t3isp.de/apple
-http://jochen.app.do.t3isp.de/apple/
-http://jochen.app.do.t3isp.de/apple/foo 
-http://jochen.app.do.t3isp.de/banana
+http://jochen.appv2.do.t3isp.de/apple
+http://jochen.appv2.do.t3isp.de/apple/
+http://jochen.appv2.do.t3isp.de/apple/foo 
+http://jochen.appv2.do.t3isp.de/banana
 ## geht nicht 
-http://jochen.app.do.t3isp.de/banana/nix
+http://jochen.appv2.do.t3isp.de/banana/nix
 ```
 
 ### ingress mit traefik, letsencrypt und cert-manager
@@ -3173,18 +3194,12 @@ http://jochen.app.do.t3isp.de/banana/nix
   * stable network identities (always the same name across restarts)  in contrast to deployments
 
 ```
-Server:    10.0.0.10
-Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
 
 Name:      web-0.nginx
 Address 1: 10.244.1.6
 
-nslookup web-1.nginx
-Server:    10.0.0.10
-Address 1: 10.0.0.10 kube-dns.kube-system.svc.cluster.local
-
 Name:      web-1.nginx
-Address 1: 10.244.2
+Address 1: 10.244.2.20
 ```
 
 ```
@@ -3338,7 +3353,8 @@ kubectl run --rm -it podtest --image=busybox
 ```
 
 ```
-## in the shell 
+## in the shell
+## gleicher namer, aber andere IP als beim letzten Ping 
 ping web-0.nginx
 exit
 ``` 
@@ -3721,7 +3737,10 @@ kubectl cluster-info
 Ein Paket für alle Komponenten
 Einfaches Installieren, Updaten und deinstallieren
 Konfigurations-Values-Files übergeben zum Konfigurieren
-Feststehende Struktur 
+Feststehende Struktur
+Versionierung (jedes Chart hat ein Version)
+In meinem Kubernetes-Cluster kann ich sehen, welche Version des Charts/der Charts installiert wurde
+Ein Chart für viele Kunden und für viele Umgebungen (Chart und passe das mit Konfigurationswerten an)
 ```
 
 ### Helm Example
@@ -3907,6 +3926,7 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 ```
 ## Geht das denn auch ?
 kubectl get pods
+helm status my-mariadb
 ```
 
 ### Schritt 2: Umschauen 
@@ -3933,7 +3953,6 @@ helm get values my-mariadb
 helm get manifest my-mariadb
 ## Zeige alle Kinds an 
 helm get manifest my-mariadb | grep -i -A 4 kind  
-## Can I see all values use -> YES
 ## Look for COMPUTED VALUES in get all ->
 helm get all my-mariadb 
 ```
@@ -3942,6 +3961,8 @@ helm get all my-mariadb
 ## Hack COMPUTED VALUES anzeigen lassen
 ## Welche Werte (values) hat er zur Installation verwendet
 helm get all my-mariadb | grep -i computed -A 200
+## besser Variante von David
+helm get all my-mariadb | sed -n '/COMPUTED/, /HOOKS/p'
 
 ```
 
@@ -3996,7 +4017,9 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 ```
 ## neuer pod wird erstellt 
 kubectl get pod
-helm get values my-mariadbs
+helm get values my-mariadb
+helm list 
+helm history my-mariadb 
 ```
 
 
@@ -4045,7 +4068,8 @@ kubectl get pvc
 <img width="891" height="82" alt="image" src="https://github.com/user-attachments/assets/849b5859-a5f2-40df-8bc6-018eaedbd146" />
 
 ```
-helm uninstall my-mariadb
+## alte revisions behalten 
+helm uninstall my-mariadb --keep-history
 kubectl get pvc 
 ## auch nach der Deinstallation ist der pvc noch da
 ## Super !! 
@@ -4664,7 +4688,7 @@ nano Chart.yaml
 ```
 
 ```
-## change dependency block
+## change or add dependency block
 ## adding condition 
 dependencies:
   - name: redis
@@ -4985,6 +5009,11 @@ kubectl get clusterrolebinding traefik-ingress -o yaml
 ### Überblick Persistant Volumes (CSI)
 
 
+### Grafik 
+
+<img width="1001" height="575" alt="image" src="https://github.com/user-attachments/assets/48a5a2f0-56a4-48f7-a4af-0154025d437a" />
+
+
 ### Überblick 
 
 #### Warum CSI ?
@@ -5033,7 +5062,7 @@ The main difference relies on the moment when you want to configure storage. For
 
 ```
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
-helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version 4.12.1 --reset-values 
+helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version 4.13.1 --reset-values 
 ```
 
 ### Step 2: Storage Class 
@@ -5491,7 +5520,688 @@ ssh -L 3000:localhost:3000 tln1@164.92.129.7
 
 ## Kubernetes Monitoring (checkmk)
 
-### Checkmk in Kubernetes einrichten
+### Checkmk Server mit Docker einrichten - Script (umfangreich) mit letsencrypt und ssl
+
+
+### Prequisites 
+
+  * Mindestens 8 GB Arbeitsspeicher
+
+### Walkthrough 
+
+  * Umgesetzt mit digitalocean 
+  * Für normale Verwendung ohne digitalocean einfach diese Bereich auskommentieren
+
+```
+##!/bin/bash
+set -e
+
+## Startzeit für Dauer-Berechnung
+START_TIME=$(date +%s)
+
+## ============================================================================
+## WICHTIG - Vor Deployment manuell setzen!
+## ============================================================================
+DO_TOKEN="ENTER_YOUR_DO_TOKEN"
+CMK_PASSWORD="ENTER_YOUR_CHECKMK_ADMIN_PASS_HERE"
+## ============================================================================
+
+## ============================================================================
+## NUTZER und ssh konfigurieren 
+## ============================================================================
+
+groupadd sshadmin
+USERS="11trainingdo"
+echo $USERS
+for USER in $USERS
+do
+  echo "Adding user $USER"
+  useradd -s /bin/bash --create-home $USER
+  usermod -aG sshadmin $USER
+  echo "$USER:YOUR_PASSWORD_HERE" | chpasswd
+done
+
+## We can sudo with 11trainingdo
+usermod -aG sudo 11trainingdo 
+
+## 20.04 and 22.04 this will be in the subfolder
+if [ -f /etc/ssh/sshd_config.d/50-cloud-init.conf ]
+then
+  sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config.d/50-cloud-init.conf
+fi
+
+## seen this in ubuntu 24.04 important here
+if [ -f /etc/ssh/sshd_config.d/60-cloudimg-settings.conf ]
+then
+  sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
+fi
+
+### both is needed 
+sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config
+
+usermod -aG sshadmin root
+
+## TBD - Delete AllowUsers Entries with sed 
+## otherwice we cannot login by group 
+echo "AllowGroups sshadmin" >> /etc/ssh/sshd_config 
+
+## Looks like it takes a while till ssh is running 
+date > /var/log/training_reload_ssh
+systemctl restart ssh 
+
+
+## ============================================================================
+## KONFIGURATION
+## ============================================================================
+BASE_DOMAIN="do.t3isp.de"
+EMAIL="j.metzger@t3company.de"
+
+## Dynamisch aus Hostname (wird in DO GUI gesetzt)
+SUBDOMAIN=$(hostname -s)
+DOMAIN="${SUBDOMAIN}.${BASE_DOMAIN}"
+
+CMK_VERSION="2.4.0p20"
+NGINX_VERSION="1.27-alpine"
+CERTBOT_VERSION="v3.0.1"
+
+INSTALL_DIR="/root/checkmk"
+STATUS_FILE="/root/install-status.txt"
+
+## Farben
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+log_info() { echo -e "${GREEN}[INFO]${NC} $1"; }
+log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+
+update_status() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> ${STATUS_FILE}
+}
+
+cleanup_on_error() {
+    log_error "Installation fehlgeschlagen. Räume auf..."
+    update_status "[FAILED] Installation fehlgeschlagen"
+    cd ${INSTALL_DIR} 2>/dev/null && docker-compose down 2>/dev/null || true
+    exit 1
+}
+
+trap cleanup_on_error ERR
+
+## Status-Datei initialisieren
+echo "=== Checkmk Installation Status ===" > ${STATUS_FILE}
+update_status "[START] Installation gestartet für ${DOMAIN}"
+
+echo "╔═══════════════════════════════════════════════════════════╗"
+echo "║     Checkmk Installation mit SSL - docker-compose only    ║"
+echo "╚═══════════════════════════════════════════════════════════╝"
+echo ""
+echo "Hostname: $(hostname)"
+echo "Subdomain: ${SUBDOMAIN}"
+echo "Domain: ${DOMAIN}"
+echo ""
+
+## ============================================================================
+## PRE-FLIGHT CHECKS
+## ============================================================================
+
+log_info "Starte Pre-Flight Checks..."
+update_status "[RUNNING] Pre-Flight Checks"
+
+## DO Token Check
+if [ -z "${DO_TOKEN}" ] || [ "${DO_TOKEN}" = "<dein-digitalocean-api-token>" ]; then
+    log_error "DO_TOKEN nicht gesetzt!"
+    echo "Bitte DO_TOKEN im Script setzen!"
+    update_status "[FAILED] DO_TOKEN nicht gesetzt"
+    exit 1
+fi
+
+## CMK Password Check
+if [ -z "${CMK_PASSWORD}" ] || [ "${CMK_PASSWORD}" = "<sicheres-passwort-fuer-checkmk>" ]; then
+    log_error "CMK_PASSWORD nicht gesetzt!"
+    echo "Bitte CMK_PASSWORD im Script setzen!"
+    update_status "[FAILED] CMK_PASSWORD nicht gesetzt"
+    exit 1
+fi
+
+## Root Check
+if [ "$EUID" -ne 0 ]; then
+    log_error "Script muss als root ausgeführt werden!"
+    exit 1
+fi
+
+update_status "[OK] Pre-Flight Checks bestanden"
+
+## ============================================================================
+## PAKETE INSTALLIEREN
+## ============================================================================
+
+log_info "Installiere Pakete..."
+update_status "[RUNNING] Pakete installieren"
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -qq
+apt-get install -y -qq docker.io docker-compose curl wget dnsutils ufw > /dev/null 2>&1
+
+systemctl enable docker > /dev/null 2>&1
+systemctl start docker
+update_status "[OK] Pakete installiert"
+
+## ============================================================================
+## DOCTL INSTALLIEREN
+## ============================================================================
+
+log_info "Installiere doctl..."
+update_status "[RUNNING] doctl installieren"
+cd /tmp
+wget -q https://github.com/digitalocean/doctl/releases/download/v1.104.0/doctl-1.104.0-linux-amd64.tar.gz
+tar xf doctl-1.104.0-linux-amd64.tar.gz > /dev/null 2>&1
+mv doctl /usr/local/bin/
+chmod +x /usr/local/bin/doctl
+rm -f doctl-*.tar.gz
+
+## on cloud-init we need to set home
+export HOME=/root
+
+doctl auth init -t ${DO_TOKEN} > /dev/null 2>&1
+
+if ! doctl compute domain list > /dev/null 2>&1; then
+    log_error "DigitalOcean API Token ungültig oder keine DNS-Berechtigung!"
+    update_status "[FAILED] DO API Token ungültig oder keine DNS-Berechtigung"
+    exit 1
+fi
+log_info "DigitalOcean DNS-Zugriff validiert ✓"
+update_status "[OK] doctl installiert und DNS-Zugriff validiert"
+
+## ============================================================================
+## IP & DNS
+## ============================================================================
+
+log_info "Ermittle Droplet IP..."
+update_status "[RUNNING] IP und DNS konfigurieren"
+DROPLET_IP=$(curl -s http://169.254.169.254/metadata/v1/interfaces/public/0/ipv4/address)
+
+if [ -z "$DROPLET_IP" ]; then
+    log_error "Konnte Droplet IP nicht ermitteln!"
+    update_status "[FAILED] Droplet IP nicht ermittelt"
+    exit 1
+fi
+log_info "Droplet IP: ${DROPLET_IP}"
+
+## Domain Check
+if ! doctl compute domain list --format Domain --no-header | grep -q "^${BASE_DOMAIN}$"; then
+    log_error "Domain ${BASE_DOMAIN} nicht in DigitalOcean!"
+    update_status "[FAILED] Base Domain nicht gefunden"
+    exit 1
+fi
+
+## A-Record erstellen/aktualisieren
+log_info "Erstelle/Aktualisiere A-Record für ${SUBDOMAIN}..."
+EXISTING_RECORD=$(doctl compute domain records list ${BASE_DOMAIN} --format Name,Type --no-header | grep "^${SUBDOMAIN}[[:space:]]" | grep "A" || true)
+
+if [ -n "$EXISTING_RECORD" ]; then
+    RECORD_ID=$(doctl compute domain records list ${BASE_DOMAIN} --format ID,Name,Type --no-header | grep "${SUBDOMAIN}[[:space:]]" | grep "A" | awk '{print $1}')
+    doctl compute domain records update ${BASE_DOMAIN} --record-id ${RECORD_ID} --record-data ${DROPLET_IP} > /dev/null 2>&1
+    log_info "A-Record aktualisiert"
+else
+    doctl compute domain records create ${BASE_DOMAIN} \
+        --record-type A \
+        --record-name ${SUBDOMAIN} \
+        --record-data ${DROPLET_IP} \
+        --record-ttl 300 > /dev/null 2>&1
+    log_info "A-Record erstellt"
+fi
+
+## DNS Propagation Check - prüft Google DNS und DO Nameserver
+log_info "Warte auf DNS Propagation (max. 5 Minuten)..."
+DNS_RESOLVED=false
+for i in {1..60}; do
+    # Prüfe zuerst Google DNS
+    RESOLVED_IP=$(dig +short ${DOMAIN} @8.8.8.8 | grep -E '^[0-9.]+$' | head -n1)
+
+    if [ "$RESOLVED_IP" = "$DROPLET_IP" ]; then
+        DNS_RESOLVED=true
+        log_info "DNS aufgelöst (Google): ${DOMAIN} → ${DROPLET_IP} ✓"
+        break
+    fi
+
+    # Nach 2 Minuten: akzeptiere auch DO Nameserver (Let's Encrypt funktioniert damit)
+    if [ $i -ge 24 ]; then
+        RESOLVED_IP_DO=$(dig +short ${DOMAIN} @ns1.digitalocean.com | grep -E '^[0-9.]+$' | head -n1)
+        if [ "$RESOLVED_IP_DO" = "$DROPLET_IP" ]; then
+            DNS_RESOLVED=true
+            log_info "DNS aufgelöst (DO NS): ${DOMAIN} → ${DROPLET_IP} ✓"
+            log_warn "Google DNS noch nicht propagiert - fahre trotzdem fort"
+            break
+        fi
+    fi
+
+    if [ $((i % 10)) -eq 0 ]; then
+        log_warn "Warte... ($((i*5))/300 Sekunden)"
+    fi
+    sleep 5
+done
+
+if [ "$DNS_RESOLVED" = false ]; then
+    log_error "DNS Propagation fehlgeschlagen!"
+    update_status "[FAILED] DNS Propagation fehlgeschlagen"
+    exit 1
+fi
+update_status "[OK] DNS konfiguriert: ${DOMAIN} → ${DROPLET_IP}"
+
+## ============================================================================
+## FIREWALL
+## ============================================================================
+
+log_info "Konfiguriere Firewall..."
+update_status "[RUNNING] Firewall konfigurieren"
+if command -v ufw > /dev/null 2>&1; then
+    # WICHTIG: Regeln ZUERST hinzufügen, DANN aktivieren!
+    ufw allow 22/tcp > /dev/null 2>&1
+    ufw allow 80/tcp > /dev/null 2>&1
+    ufw allow 443/tcp > /dev/null 2>&1
+    ufw allow 8000/tcp > /dev/null 2>&1  # Checkmk Agent Registration
+    ufw --force enable > /dev/null 2>&1
+    log_info "Firewall konfiguriert ✓"
+fi
+update_status "[OK] Firewall konfiguriert (22, 80, 443, 8000)"
+
+## ============================================================================
+## VERZEICHNISSE ERSTELLEN
+## ============================================================================
+
+log_info "Erstelle Verzeichnisstruktur..."
+update_status "[RUNNING] Verzeichnisse erstellen"
+rm -rf ${INSTALL_DIR} 2>/dev/null || true
+mkdir -p ${INSTALL_DIR}/{nginx/html,certbot/conf,certbot/www}
+cd ${INSTALL_DIR}
+update_status "[OK] Verzeichnisse erstellt"
+
+## ============================================================================
+## DOCKER-COMPOSE ERSTELLEN
+## ============================================================================
+
+log_info "Erstelle docker-compose.yml..."
+update_status "[RUNNING] docker-compose.yml erstellen"
+cat > docker-compose.yml << EOF
+version: '3.8'
+
+services:
+  checkmk:
+    image: checkmk/check-mk-cloud:${CMK_VERSION}
+    container_name: monitoring
+    restart: always
+    environment:
+      - CMK_PASSWORD=${CMK_PASSWORD}
+      - TZ=Europe/Berlin
+    volumes:
+      - monitoring:/omd/sites
+    tmpfs:
+      - /opt/omd/sites/cmk/tmp:uid=1000,gid=1000
+    ports:
+      - "127.0.0.1:5000:5000"
+      - "8000:8000"
+    networks:
+      - checkmk
+
+  nginx:
+    image: nginx:${NGINX_VERSION}
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/html:/etc/nginx/html:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    networks:
+      - checkmk
+    depends_on:
+      - checkmk
+
+  certbot:
+    image: certbot/certbot:${CERTBOT_VERSION}
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait \$\${!}; done;'"
+
+networks:
+  checkmk:
+    driver: bridge
+
+volumes:
+  monitoring:
+EOF
+update_status "[OK] docker-compose.yml erstellt"
+
+## ============================================================================
+## CUSTOM 404 ERROR PAGE
+## ============================================================================
+
+log_info "Erstelle Custom 404 Error Page..."
+cat > nginx/html/404.html << 'HTML_EOF'
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Seite nicht gefunden</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a5f2a 0%, #2d8a3e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 3rem 2rem;
+            max-width: 500px;
+            text-align: center;
+        }
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #1a5f2a 0%, #2d8a3e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        h1 { font-size: 1.5rem; color: #333; margin-bottom: 1rem; }
+        p { color: #666; line-height: 1.6; margin-bottom: 2rem; }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #1a5f2a 0%, #2d8a3e 100%);
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-code">404</div>
+        <h1>Seite nicht gefunden</h1>
+        <p>Die angeforderte Seite existiert nicht.</p>
+        <a href="/" class="btn">Zur Startseite</a>
+    </div>
+</body>
+</html>
+HTML_EOF
+
+## ============================================================================
+## PHASE 1: HTTP-ONLY NGINX CONFIG
+## ============================================================================
+
+log_info "Erstelle HTTP-only Nginx Config (Phase 1)..."
+update_status "[RUNNING] Nginx HTTP Config erstellen"
+cat > nginx/nginx.conf << NGINX_EOF
+server {
+    listen 80;
+    server_name ${DOMAIN};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    error_page 404 /404.html;
+    location = /404.html {
+        root /etc/nginx/html;
+        internal;
+    }
+
+    location / {
+        proxy_pass http://checkmk:5000/;
+        proxy_buffering off;
+        proxy_http_version 1.1;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$http_connection;
+        proxy_set_header Host \$host;
+        proxy_intercept_errors on;
+    }
+}
+NGINX_EOF
+update_status "[OK] Nginx HTTP Config erstellt"
+
+## ============================================================================
+## CONTAINER STARTEN (HTTP ONLY)
+## ============================================================================
+
+log_info "Starte Container (HTTP only)..."
+update_status "[RUNNING] Container starten"
+docker-compose up -d checkmk nginx
+
+log_info "Warte auf Container-Start (60 Sekunden für Checkmk)..."
+sleep 60
+
+## Container Health Check
+if ! docker ps | grep -q monitoring; then
+    log_error "Checkmk Container läuft nicht!"
+    docker logs monitoring
+    update_status "[FAILED] Checkmk Container läuft nicht"
+    exit 1
+fi
+
+if ! docker ps | grep -q nginx; then
+    log_error "nginx läuft nicht!"
+    docker logs nginx
+    update_status "[FAILED] Nginx Container läuft nicht"
+    exit 1
+fi
+
+log_info "Alle Container laufen ✓"
+update_status "[OK] Container gestartet"
+
+## HTTP Test
+log_info "Teste HTTP Verbindung..."
+sleep 5
+if curl -s -o /dev/null -w "%{http_code}" http://localhost/ | grep -q "200\|302"; then
+    log_info "HTTP funktioniert ✓"
+else
+    log_warn "HTTP Test fehlgeschlagen - fahre trotzdem fort"
+fi
+
+## ============================================================================
+## SSL ZERTIFIKAT HOLEN
+## ============================================================================
+
+log_info "Fordere SSL Zertifikat an..."
+update_status "[RUNNING] SSL Zertifikat anfordern"
+if docker run --rm \
+    -v ${INSTALL_DIR}/certbot/conf:/etc/letsencrypt \
+    -v ${INSTALL_DIR}/certbot/www:/var/www/certbot \
+    certbot/certbot:${CERTBOT_VERSION} certonly \
+    --webroot \
+    --webroot-path=/var/www/certbot \
+    --email ${EMAIL} \
+    --agree-tos \
+    --no-eff-email \
+    -d ${DOMAIN}; then
+    log_info "SSL Zertifikat erfolgreich erstellt ✓"
+else
+    log_error "SSL Zertifikat Erstellung fehlgeschlagen!"
+    update_status "[FAILED] SSL Zertifikat fehlgeschlagen"
+    exit 1
+fi
+
+## Zertifikat Check
+if [ ! -f "certbot/conf/live/${DOMAIN}/fullchain.pem" ]; then
+    log_error "Zertifikat nicht gefunden!"
+    ls -la certbot/conf/live/
+    update_status "[FAILED] Zertifikat nicht gefunden"
+    exit 1
+fi
+
+log_info "Zertifikat validiert ✓"
+update_status "[OK] SSL Zertifikat erstellt"
+
+## ============================================================================
+## PHASE 2: HTTPS NGINX CONFIG
+## ============================================================================
+
+log_info "Update zu HTTPS Nginx Config (Phase 2)..."
+update_status "[RUNNING] Nginx HTTPS Config erstellen"
+cat > nginx/nginx.conf << NGINX_EOF
+server {
+    listen 80;
+    server_name ${DOMAIN};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://\$host\$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    server_name ${DOMAIN};
+
+    ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-CHACHA20-POLY1305;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    error_page 404 /404.html;
+    location = /404.html {
+        root /etc/nginx/html;
+        internal;
+    }
+
+    location / {
+        proxy_pass http://checkmk:5000/;
+        proxy_buffering off;
+        proxy_http_version 1.1;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$http_connection;
+        proxy_set_header Host \$host;
+        proxy_intercept_errors on;
+    }
+}
+NGINX_EOF
+
+## Nginx restart
+log_info "Restart Nginx mit SSL Config..."
+sleep 3
+docker-compose restart nginx
+update_status "[OK] Nginx HTTPS Config aktiviert"
+
+## Certbot Renewal Service starten
+log_info "Starte Certbot Renewal Service..."
+docker-compose up -d certbot
+
+## ============================================================================
+## FINAL CHECKS
+## ============================================================================
+
+log_info "Führe finale Tests durch..."
+update_status "[RUNNING] Finale Tests"
+sleep 5
+
+HTTP_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" https://${DOMAIN}/ || echo "000")
+if [[ "$HTTP_CODE" =~ ^(200|302)$ ]]; then
+    log_info "HTTPS funktioniert ✓"
+    update_status "[OK] HTTPS funktioniert"
+else
+    log_warn "HTTPS Status: ${HTTP_CODE} - bitte manuell prüfen"
+    update_status "[WARN] HTTPS Status: ${HTTP_CODE}"
+fi
+
+## ============================================================================
+## CREDENTIALS AUSGABE
+## ============================================================================
+
+cat > credentials.txt << EOF
+═══════════════════════════════════════════════════
+         CHECKMK INSTALLATION - CREDENTIALS
+═══════════════════════════════════════════════════
+
+🌐 URL:        https://${DOMAIN}/cmk/
+🖥️  Droplet IP: ${DROPLET_IP}
+
+👤 ADMIN LOGIN:
+   Username: cmkadmin
+   Password: ${CMK_PASSWORD}
+
+📋 WORKFLOW:
+   1. Browser öffnen: https://${DOMAIN}/cmk/
+   2. Login mit cmkadmin / ${CMK_PASSWORD}
+   3. Hosts hinzufügen und monitoren
+
+🐳 DOCKER BEFEHLE:
+   Status:   cd ${INSTALL_DIR} && docker-compose ps
+   Logs:     docker-compose logs -f monitoring
+   Restart:  docker-compose restart
+   Stop:     docker-compose down
+   Start:    docker-compose up -d
+
+🔄 SSL ERNEUERUNG:
+   Automatisch alle 12h via Certbot Container
+   Manuell: docker-compose run --rm certbot renew
+
+📁 INSTALLATION:
+   Verzeichnis: ${INSTALL_DIR}
+   Nginx:       ${INSTALL_DIR}/nginx/nginx.conf
+
+🔌 AGENT REGISTRATION:
+   Port 8000 ist offen für Agent-Registrierung
+
+═══════════════════════════════════════════════════
+EOF
+
+chmod 600 credentials.txt
+
+echo ""
+echo "╔═══════════════════════════════════════════════════════════╗"
+echo "║         ✅  INSTALLATION ERFOLGREICH ABGESCHLOSSEN         ║"
+echo "╚═══════════════════════════════════════════════════════════╝"
+echo ""
+cat credentials.txt
+echo ""
+log_info "Credentials gespeichert in: ${INSTALL_DIR}/credentials.txt"
+
+## Dauer berechnen
+END_TIME=$(date +%s)
+DURATION=$((END_TIME - START_TIME))
+MINUTES=$((DURATION / 60))
+SECONDS=$((DURATION % 60))
+
+log_info "Installation abgeschlossen in ${MINUTES} Minuten und ${SECONDS} Sekunden!"
+
+update_status "[DONE] Installation erfolgreich abgeschlossen"
+update_status "Dauer: ${MINUTES} Minuten ${SECONDS} Sekunden"
+update_status "URL: https://${DOMAIN}/cmk/"
+update_status "User: cmkadmin"
+
+
+```
+
+### Checkmk in Kubernetes einrichten (checkmk raw)
 
 
 ### Hintergrund
@@ -5921,6 +6631,428 @@ In CheckMK:
 - ✗ Keine automatischen Piggyback Hosts
 - ✗ Keine vorgefertigten Dashboards
 - Manueller Aufwand hoeher als kommerzielle Editionen
+
+### Weiterführende Informationen
+
+Offizielle Dokumentation:
+https://docs.checkmk.com/latest/en/monitoring_kubernetes.html
+
+### Checkmk in Kubernetes einrichten (checkmk enterprise/cloud edition)
+
+## CheckMK Edition Enterprise / Cloud - Kubernetes Monitoring einrichten
+
+   * Wir verwenden im Training die Edition Cloud (weil diese eine 30-Tage Trial-Version bietet)
+
+### Hintergrund
+
+CheckMK kann Kubernetes-Cluster ueber die Kubernetes API monitoren. Die Integration besteht aus:
+
+| Komponente | Funktion | Deployment |
+|------------|----------|------------|
+| **Cluster Collector** | Sammelt Metriken aus dem Cluster (CPU, RAM, Netzwerk) | Helm Chart in K8s |
+| **Node Collector** | Laeuft auf jedem Node, sammelt Ressourcen-Auslastung | DaemonSet via Helm |
+| **Kubernetes Special Agent** | Fragt K8s API ab (Pods, Services, Deployments, etc.) | Laeuft auf CheckMK Server |
+| **Piggyback Hosts** | Virtuelle Hosts fuer K8s Objekte in CheckMK | Manuell in CheckMK RAW |
+
+**Wichtig:** CheckMK RAW erfordert manuelle Erstellung der Piggyback-Hosts (in kommerziellen Editionen (Enterprise und Cloud) automatisch).
+
+**Diese Anleitung verwendet:**
+- **Ingress (Traefik) mit HTTPS/TLS** statt NodePort
+- **Let's Encrypt** für automatische SSL-Zertifikate via cert-manager
+- **ClusterIP Service** für internen Zugriff
+
+### Voraussetzungen
+
+- Zugang zum Kubernetes Cluster mit kubectl
+- CheckMK RAW Site: `https://checkmk-tln<X>.do.t3isp.de/` (X = Teilnehmer-Nummer)
+- Helm installiert
+- **cert-manager installiert** (siehe `ingress/https-letsencrypt-ingress-traefik.md`)
+- **ClusterIssuer `letsencrypt-prod` konfiguriert**
+- **Traefik Ingress Controller** installiert und funktionsfähig
+
+### Schritt 1: Helm Repository hinzufuegen
+
+```
+helm repo add checkmk-chart https://checkmk.github.io/checkmk_kube_agent
+helm repo update
+```
+
+Verfuegbare Versionen anzeigen:
+
+```
+helm search repo checkmk-chart --versions | head -10
+```
+
+### Schritt 2: Cluster Collector deployen (mit Ingress) 
+
+Standard-Konfiguration anzeigen:
+
+```
+helm show values checkmk-chart/checkmk > ~/checkmk-values.yaml
+```
+
+Values für ingress setzen 
+
+```
+cd
+mkdir -p helm-charts/checkmk
+cd helm-charts/checkmk
+nano values.yaml
+```
+
+**Wichtig:** Ersetze `<X>` mit deiner Teilnehmer-Nummer!
+
+```
+clusterCollector:
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hosts:
+      - host: checkmk-collector.tln<X>.do.t3isp.de
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+        - checkmk-collector.tln<X>.do.t3isp.de
+        secretName: checkmk-collector-tls
+```
+
+
+Helm Chart installieren:
+
+```
+helm upgrade --install checkmk checkmk-chart/checkmk \
+  --namespace checkmk-monitoring \
+  --create-namespace \
+  --version 1.9.0 \
+  --reset-values \
+  -f values.yaml 
+```
+
+**Erklärung der Flags:**
+- `--create-namespace`: Erstellt den Namespace automatisch (kein `kubectl create namespace` nötig)
+- `--version 1.9.0`: Verwendet spezifische Chart-Version (reproduzierbar)
+- `--reset-values`: Stellt sicher, dass keine alten Values übernommen werden
+- `-f values.yaml`: Konfigurationswerte aus values.yaml verwenden (für ingress.yaml)
+
+### Schritt 3: Deployment pruefen
+
+```
+kubectl get pods -n checkmk-monitoring
+kubectl get svc -n checkmk-monitoring
+kubectl get daemonset -n checkmk-monitoring
+```
+
+Erwartete Pods:
+- `checkmk-cluster-collector-*` - 1 Pod
+- `checkmk-node-collector-*` - 1 Pod pro Node (DaemonSet)
+
+
+
+
+### Schritt 4: Zertifikat prüfen 
+
+Zertifikat pruefen:
+
+```
+kubectl -n checkmk-monitoring get ingress
+kubectl get certificate -n checkmk-monitoring
+kubectl get secret checkmk-collector-tls -n checkmk-monitoring
+```
+
+**Voraussetzung:** cert-manager muss installiert sein und der ClusterIssuer `letsencrypt-prod` muss existieren (siehe `ingress/https-letsencrypt-ingress-traefik.md`).
+
+### Schritt 5: Service Account Token extrahieren
+
+Der ServiceAccount wurde automatisch vom Helm Chart erstellt. Token extrahieren:
+
+```
+## Secret-Name finden
+kubectl get secrets -n checkmk-monitoring | grep checkmk
+
+## Token extrahieren und dekodieren
+kubectl get secret checkmk-checkmk -n checkmk-monitoring -o jsonpath='{.data.token}' | base64 --decode > sa-token
+cat sa-token
+```
+
+**Wichtig:** Token speichern - wird fuer CheckMK benoetigt!
+
+### Schritt 6: CA-Zertifikat extrahieren
+
+```
+kubectl config view 
+## [1] weil 1. Cluster digitalocean, index 0
+## Wenn nur 1 Eintrag, dann [0]
+
+## Testen, ob ich so ein Zertifikat sehe 
+kubectl config view --raw -o jsonpath='{.clusters[1].cluster.certificate-authority-data}' | base64 --decode 
+```
+
+<img width="1160" height="694" alt="image" src="https://github.com/user-attachments/assets/85e14f69-a728-4a40-bab7-88a435a23a80" />
+
+```
+## Abspeichern
+kubectl config view --raw -o jsonpath='{.clusters[1].cluster.certificate-authority-data}' | base64 --decode > k8s-ca.crt
+```
+
+CA-Zertifikat anzeigen:
+
+```
+cat k8s-ca.crt
+## und prüfen ob es das richtige ist:
+## muss kubernetes heissen 
+openssl x509 -in k8s-ca.crt -issuer -noout
+```
+
+### Schritt 7: Cluster Collector Endpoint ermitteln
+
+Ingress-URL verwenden:
+
+```
+kubectl get ingress -n checkmk-monitoring
+```
+
+Der Cluster Collector Endpoint ist:
+
+```
+https://checkmk-collector.tln<X>.do.t3isp.de
+```
+
+**Wichtig:**
+- Ersetze `<X>` mit deiner Teilnehmer-Nummer
+- HTTPS wird durch Let's Encrypt bereitgestellt
+- Der Endpoint ist von aussen erreichbar
+
+Testen (sollte Not authorized zurueckgeben):
+
+```
+curl https://checkmk-collector.tln<X>.do.t3isp.de
+```
+
+### Schritt 8: CheckMK konfigurieren - Token speichern
+
+1. Oeffne CheckMK: `https://checkmk-tln<X>.do.t3isp.de/`
+2. Gehe zu **Setup > General > Passwords**
+3. Klicke **Add password**
+4. Konfiguration:
+   - **Unique ID:** `k8s-token`
+   - **Title:** `Kubernetes Service Account Token`
+   - **Password:** Token aus Schritt 5 einfuegen
+5. **Save**
+6. 1 Changes (oben rechts anklicken)
+7. **Activate on selected sites**
+
+### Schritt 9: CA-Zertifikat in CheckMK importieren
+
+1. **Setup > General > Global settings > Site management (Ausklappen) **
+2. Suche nach **"Trusted certificate authorities for SSL"** -> Rechts in das Feld mit allen Zertifikateinträgen klicken
+3. ** Add new CA certificate or chain **
+4. Fuege den Inhalt von `k8s-ca.crt` hinzu
+5. **Save**
+6. 1 change (oben rechts) anklicken
+7. Activate on selected sites 
+
+### Schritt 10: Piggyback Host erstellen
+
+1. **Setup > Hosts > Add host**
+2. Konfiguration:
+   - **Hostname:** `k8s-cluster-<dein-name>` (z.B. `k8s-cluster-jmetzger`)
+   - **IP address family:** -> anklicken, dann im Select **No IP** (wichtig!)
+   - **Monitoring agents:** -> Zeile: Checkmk agent /API integrations -> anklicken -> <img width="340" height="39" alt="image" src="https://github.com/user-attachments/assets/9ffd4b87-993a-4b8d-b098-58609ab2f0ba" />
+   - ** Custom attributes ausklappen ** -> dort
+   - Labels hinzufuegen:
+     - cmk/kubernetes:yes
+3. **Save & view folder ** (NICHT "Save & run service discovery")
+4. 1 change anklicken
+5. **Activate on selected sites**
+
+**Wichtig:** Der Host bekommt keine IP, da er nur Piggyback-Daten empfaengt!
+
+### Schritt 11: Ordner für Dynamic Host Management einrichten 
+
+   * Wir brauchen nur den Ordner erstellen, sonst nichts. Alles was man dort eintragen kann, sind defaults die sich dann auf die Host vererben. 
+
+1. Setup > Hosts > Add folder (in which the dynamic host management can automatically create all hosts of a cluster. However, creating or using such a folder is optional)
+2. Title: z.B. k8s-cluster-jmetzger-data
+3. **Save**
+4. 1 change anklicken
+5. **Activate on selected sites**
+
+### Schritt 12: Dynamic Host Management einrichten 
+
+ 1. Setup > Hosts > Dynamic host management > Add connection
+ 2. Unique ID und Title eintragen
+
+<img width="828" height="322" alt="image" src="https://github.com/user-attachments/assets/b41fd0ff-0a0c-47f6-8aa3-d3eade8e666c" />
+
+ 3. Bei **Create Hosts in** den gerade erstellten Ordner aus 11 angeben
+
+ <img width="1465" height="296" alt="image" src="https://github.com/user-attachments/assets/46c1a8ac-802d-4014-89ac-fd7331a15107" />
+
+ 4. Hosts attributes können wir so lassen (es wird nur piggyback data erstellt)
+ 5. Setze einen Haken bei
+
+<img width="574" height="78" alt="image" src="https://github.com/user-attachments/assets/63066d21-1de1-49df-a712-72d0b2873543" />
+
+  6. (Bei Restrict Source (ganz oben), den erstellten piggyback host auwählen (aus 10.) z.B. k8s-cluster-jmetzger
+
+<img width="462" height="126" alt="image" src="https://github.com/user-attachments/assets/100698ed-3faf-4461-8db3-e35811e4dfe7" />
+
+  7. Service Discovery -> Discover Services During Creation -> Ankreuzen (falls nicht bereits aktiv) 
+
+<img width="331" height="68" alt="image" src="https://github.com/user-attachments/assets/1175ce4c-e3b8-477b-aba3-6666ed536579" />
+
+  8. Save
+  9. **1 Change** anklicken
+  10. **Activate on selected site**
+
+### Schritt 13: Kubernetes Special Agent konfigurieren
+
+1. **Setup > Agents > VM, cloud, container > Kubernetes**
+2. Klicke **Add rule**
+3. **Kubernetes cluster configuration:**
+   - **Cluster name:** `k8s-cluster-<dein-name>` (oder eigener Name)
+   - **Token:** Waehle `k8s-token` aus Dropdown
+   - **API server endpoint:** `https://<DEINE-K8S-API-IP>:6443`
+   - **SSL certificate verification:** Enabled (mit importiertem CA-Cert)
+
+4. **Collector: Enrich With Usage Data**
+   - **Cluster collector endpoint:** `https://checkmk-collector.tln<X>.do.t3isp.de` (Achtung https vorner ist wichtig)
+
+5. **Kubernetes API:**
+   - **Object selection:** Waehle gewuenschte Objekte:
+     - ✓ Pods
+     - ✓ Nodes
+     - ✓ Deployments
+     - ✓ DaemonSets
+     - ✓ StatefulSets
+     - ✓ Services
+     - ✓ Namespaces
+     - ✓ CronJobs (falls benoetigt)
+
+6. **Explicit hosts:**
+   - Waehle `k8s-cluster-<dein-name>` (Host aus Schritt 10)
+
+7. **Save**
+
+8. Oben rechts auf **"1 change"** (oder mehr) klicken
+9. **Activate on selected sites**
+10. Warten bis Aktivierung abgeschlossen
+
+### Schritt 14: Service Discovery durchfuehren
+
+1. **Setup > Hosts**
+2. Suche Host `k8s-cluster-<dein-name>`
+3. Klicke auf Host
+4. **Run service discovery** (Das ist eines der Symbole - gelber Kasten) <img width="36" height="34" alt="image" src="https://github.com/user-attachments/assets/9324179f-ec1c-40ca-9026-c0d428819761" />
+
+Erwartete Services:
+- `Kubernetes Cluster CPU resources`
+- `Kubernetes Cluster Memory resources`
+- `Kubernetes Node <node-name>`
+- Weitere Services je nach Objekt-Auswahl
+
+  5. Nach dem finden der Services dieses übernehmen 
+
+### Schritt 15: Periodic Service Discovery konfigurieren (optional)
+
+Automatische Discovery fuer neue Services:
+
+1. **Setup > Periodic service discovery**
+2. **Add rule**
+3. **Conditions:**
+   - **Host labels:** `cmk/kubernetes:yes`
+4. **Service discovery:**
+   - **Mode:** "Add unmonitored services and new host labels"
+   - **Interval:** 15 Minuten (kuerzer als Standard)
+5. **Save**
+
+### Schritt 16: Monitoring testen
+
+Services pruefen:
+
+1. **Monitor > All hosts**
+2. Filter: `cmk/kubernetes:yes`
+3. Services pruefen - Status sollte OK sein
+
+Dashboards (nur in kommerziellen Editionen):
+- CheckMK RAW hat keine vordefinierten K8s Dashboards
+- Manuell Views erstellen moeglich
+
+### Troubleshooting
+
+#### Problem: Keine Services gefunden
+
+**Loesung:**
+```
+## Piggyback-Daten pruefen (auf CheckMK Server)
+OMD[site]> cmk-piggyback list
+OMD[site]> cmk-piggyback show <hostname>
+```
+
+#### Problem: Connection refused zum Cluster Collector
+
+**Loesung:**
+```
+## Ingress pruefen
+kubectl get ingress -n checkmk-monitoring
+kubectl describe ingress checkmk-collector-ingress -n checkmk-monitoring
+
+## Service pruefen
+kubectl get svc -n checkmk-monitoring
+
+## Testen von lokalem Rechner
+curl https://checkmk-collector-tln<X>.app.do.t3isp.de/openmetrics
+
+## Zertifikat pruefen (sollte Ready: True sein)
+kubectl get certificate -n checkmk-monitoring
+```
+
+#### Problem: Unauthorized bei API-Zugriff
+
+**Loesung:**
+```
+## Token-Gueltigkeit pruefen
+kubectl get secrets -n checkmk-monitoring
+
+## Neues Token erstellen
+kubectl create token checkmk -n checkmk-monitoring --duration=87600h
+```
+
+### Aufraeumen
+
+Helm Release entfernen:
+
+```
+helm uninstall checkmk -n checkmk-monitoring
+```
+
+Namespace loeschen:
+
+```
+kubectl delete namespace checkmk-monitoring
+```
+
+In CheckMK:
+1. Hosts loeschen: **Setup > Hosts**
+2. Rule loeschen: **Setup > Agents > VM, cloud, container > Kubernetes**
+3. Token loeschen: **Setup > General > Passwords**
+4. **Activate changes**
+
+### Zusammenfassung
+
+| Komponente | Status |
+|------------|--------|
+| Cluster Collector | Deployed via Helm (ClusterIP Service) |
+| Ingress | Traefik mit TLS/Let's Encrypt |
+| Node Collector | DaemonSet auf allen Nodes |
+| K8s Special Agent | Konfiguriert in CheckMK |
+| Piggyback Host | Manuell erstellt (RAW) |
+| Service Discovery | Durchgefuehrt |
+| Monitoring | Aktiv via HTTPS |
 
 ### Weiterführende Informationen
 
@@ -6875,6 +8007,141 @@ kubectl get volumeattachment
 ```
 
 **Force-Delete** hilft hier nicht beim Volume-Problem, sondern man muss das VolumeAttachment-Objekt oder den Node-Status addressieren.
+
+## Datenbanken
+
+### MariaDB Operator
+
+  * https://github.com/mariadb-operator/mariadb-operator
+
+### HA mit dem Postgres Operator -> cloudnativePG umsetzen
+
+
+### Vorteile:
+
+  * Unter der Schirmherrschaft der Linux Foundation
+  * Alle Komponenten auch für HA sind bereits nativ implentiert 
+
+### Installation über Helm-Chart 
+
+  * Raussuchen aus artifacthub.io
+
+### Wie bauen wir jetzt ein HA-Cluster 
+
+```
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-ha
+spec:
+  instances: 3
+  storage:
+    size: 10Gi
+  postgresql:
+    parameters:
+      shared_buffers: "256MB"
+      max_connections: "100"
+  backup:
+    barmanObjectStore:
+      destinationPath: "s3://pg-backups/"
+```
+
+  * eine Instanz ist RW
+  * die beiden anderen Instanzen sind ro (das wird über die Service geschlüsselt)
+
+### Mit Synchronisierung zumindest auf eine Replica 
+
+  * Stichwort: minSyncReplicas (damit ist erst erfolgreich geschrieben, wenn das erfüllt ist und dann wir das auch erst an den Client gemeldet
+
+```
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-ha
+  namespace: postgres
+spec:
+  instances: 3
+
+  # Synchrone Replikation – kein Datenverlust bei Failover
+  minSyncReplicas: 1
+  maxSyncReplicas: 2
+
+  storage:
+    size: 10Gi
+    storageClass: do-block-storage
+
+  postgresql:
+    parameters:
+      shared_buffers: "256MB"
+      max_connections: "100"
+      wal_level: "replica"
+
+  # Pods auf verschiedene Nodes verteilen
+  affinity:
+    topologyKey: kubernetes.io/hostname
+```
+  
+
+### Was ist das für eine Lösung 
+
+  * Active / Standby 
+
+### Graph-Datenbank neo4j installieren mit helm
+
+
+### Community Version mit normalen Helm-Chart installieren 
+
+ * https://artifacthub.io/packages/helm/neo4j-helm-charts/neo4j
+
+#### Für den Zugriff von aussen 
+
+  *  Reverse Proxy installieren [Chart im Internet](https://artifacthub.io/packages/helm/neo4j-helm-charts/neo4j-reverse-proxy)
+
+```
+## ingress-values.yaml
+reverseProxy:
+  serviceName: "my-neo4j-admin"   # Name des Neo4j-Admin-Service
+ingress:
+  enabled: true
+  className: traefik
+  tls:
+    enabled: true
+    config:
+      - secretName: neo4j-tls
+        hosts:
+          - neo4j.example.com
+```
+
+```
+helm install neo4j-rp neo4j/neo4j-reverse-proxy -f ingress-values.yaml
+```
+
+### Enterprise Version 
+
+  * Abweichende Werte in den values, aber ansonsten wie community
+
+```
+## enterprise-values.yaml
+neo4j:
+  name: my-neo4j
+  password: "sicheres-passwort"
+  edition: "enterprise"
+  acceptLicenseAgreement: "yes"   # oder "eval" für Evaluierung
+  resources:
+    cpu: "2"
+    memory: "4Gi"
+
+volumes:
+  data:
+    mode: defaultStorageClass
+    defaultStorageClass:
+      requests:
+        storage: 20Gi
+```
+
+### Graph-Datenbank neo4j Cluster mit Operator installieren
+
+  * https://github.com/neo4j-partners/neo4j-kubernetes-operator/blob/main/examples/clusters/multi-server-cluster.yaml
 
 ## Podman
 
@@ -11538,7 +12805,7 @@ wget -q nginx -O -
 ### Schritt 4: Zugriff erlauben von pods mit dem Label run=access (alle mit run gestarteten pods mit namen access haben dieses label per default)
 
 ```
-nano ß4-access-nginx.yaml
+nano 04-access-nginx.yaml
 ```
 
 ```
@@ -14482,7 +15749,7 @@ kubectl get pods -o wide
 
 ```
 kubectl run testpod --image=foo2
-## ImageErrPull - Image konnte nicht geladen werden 
+## ErrImagePull - Image konnte nicht geladen werden 
 kubectl get pods 
 ## Weitere status - info 
 kubectl describe pods testpod 
@@ -14697,9 +15964,7 @@ kubectl apply -f . && watch kubectl get pods
 ```
 ## Ändern des images von nginxinc/nginx-unprivileged:1.28 -> auf 1.29
 ## danach 
-kubectl apply -f .
-kubectl get all 
-kubectl get pods -w
+kubectl apply -f . && kubectl get all && kubectl get pods -w
 ```
 
 
@@ -14901,7 +16166,15 @@ nano service.yml
 
 kubectl apply -f .
 kubectl get svc svc-nginx
-kubectl describe svc svc-nginx 
+
+kubectl describe svc svc-nginx
+## hier heisst das nicht External-IP ->
+## sondern
+```
+
+<img width="775" height="63" alt="image" src="https://github.com/user-attachments/assets/3f1db219-e5d8-4bbf-a001-17fc5eaae93f" />
+
+```
 kubectl get svc svc-nginx -w 
 ## spätestens nach 5 Minuten bekommen wir eine externe ip
 ## z.B. 41.32.44.45
@@ -16639,7 +17912,10 @@ kubectl delete ns policy-demo<tln>
 Ein Paket für alle Komponenten
 Einfaches Installieren, Updaten und deinstallieren
 Konfigurations-Values-Files übergeben zum Konfigurieren
-Feststehende Struktur 
+Feststehende Struktur
+Versionierung (jedes Chart hat ein Version)
+In meinem Kubernetes-Cluster kann ich sehen, welche Version des Charts/der Charts installiert wurde
+Ein Chart für viele Kunden und für viele Umgebungen (Chart und passe das mit Konfigurationswerten an)
 ```
 
 ### Grundlagen / Aufbau / Verwendung (Dev/Ops)
@@ -17497,440 +18773,6 @@ kubectl top pods
 
 ### CheckMK RAW - Kubernetes Monitoring einrichten
 
-
-### Hintergrund
-
-CheckMK kann Kubernetes-Cluster ueber die Kubernetes API monitoren. Die Integration besteht aus:
-
-| Komponente | Funktion | Deployment |
-|------------|----------|------------|
-| **Cluster Collector** | Sammelt Metriken aus dem Cluster (CPU, RAM, Netzwerk) | Helm Chart in K8s |
-| **Node Collector** | Laeuft auf jedem Node, sammelt Ressourcen-Auslastung | DaemonSet via Helm |
-| **Kubernetes Special Agent** | Fragt K8s API ab (Pods, Services, Deployments, etc.) | Laeuft auf CheckMK Server |
-| **Piggyback Hosts** | Virtuelle Hosts fuer K8s Objekte in CheckMK | Manuell in CheckMK RAW |
-
-**Wichtig:** CheckMK RAW erfordert manuelle Erstellung der Piggyback-Hosts (in kommerziellen Editionen automatisch).
-
-**Diese Anleitung verwendet:**
-- **Ingress (Traefik) mit HTTPS/TLS** statt NodePort
-- **Let's Encrypt** für automatische SSL-Zertifikate via cert-manager
-- **ClusterIP Service** für internen Zugriff
-
-### Voraussetzungen
-
-- Zugang zum Kubernetes Cluster mit kubectl
-- CheckMK RAW Site: `https://checkmk-tln<X>.do.t3isp.de/` (X = Teilnehmer-Nummer)
-- Helm installiert
-- **cert-manager installiert** (siehe `ingress/https-letsencrypt-ingress-traefik.md`)
-- **ClusterIssuer `letsencrypt-prod` konfiguriert**
-- **Traefik Ingress Controller** installiert und funktionsfähig
-
-### Schritt 1: Helm Repository hinzufuegen
-
-```
-helm repo add checkmk-chart https://checkmk.github.io/checkmk_kube_agent
-helm repo update
-```
-
-Verfuegbare Versionen anzeigen:
-
-```
-helm search repo checkmk-chart --versions | head -10
-```
-
-### Schritt 2: Cluster Collector deployen
-
-Standard-Konfiguration anzeigen:
-
-```
-helm show values checkmk-chart/checkmk > /tmp/checkmk-values.yaml
-```
-
-Helm Chart installieren:
-
-```
-helm upgrade --install checkmk checkmk-chart/checkmk \
-  --namespace checkmk-monitoring \
-  --create-namespace \
-  --version 1.9.0 \
-  --reset-values
-```
-
-**Erklärung der Flags:**
-- `--create-namespace`: Erstellt den Namespace automatisch (kein `kubectl create namespace` nötig)
-- `--version 1.8.0`: Verwendet spezifische Chart-Version (reproduzierbar)
-- `--reset-values`: Stellt sicher, dass keine alten Values übernommen werden
-
-### Schritt 3: Deployment pruefen
-
-```
-kubectl get pods -n checkmk-monitoring
-kubectl get svc -n checkmk-monitoring
-kubectl get daemonset -n checkmk-monitoring
-```
-
-Erwartete Pods:
-- `checkmk-cluster-collector-*` - 1 Pod
-- `checkmk-node-collector-*` - 1 Pod pro Node (DaemonSet)
-
-### Schritt 4: Ingress-Objekt erstellen
-
-Ingress mit TLS/HTTPS via Traefik und Let's Encrypt:
-
-```
-cd
-mkdir -p manifests
-cd manifests
-mkdir -p checkmk
-cd checkmk
-```
-
-```
-nano ingress.yaml
-```
-
-
-```
-## vi ingress.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: checkmk-collector-ingress
-  namespace: checkmk-monitoring
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-spec:
-  ingressClassName: traefik
-  tls:
-  - hosts:
-    - checkmk-collector.tln<X>.do.t3isp.de
-    secretName: checkmk-collector-tls
-  rules:
-  - host: "checkmk-collector.tln<X>.do.t3isp.de"
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: checkmk-cluster-collector
-            port:
-              number: 8080
-```
-
-**Wichtig:** Ersetze `<X>` mit deiner Teilnehmer-Nummer!
-
-Ingress erstellen:
-
-```
-kubectl apply -f ingress.yaml
-```
-
-Ingress pruefen:
-
-```
-kubectl get ingress -n checkmk-monitoring
-kubectl describe ingress checkmk-collector-ingress -n checkmk-monitoring
-```
-
-Zertifikat pruefen:
-
-```
-kubectl get certificate -n checkmk-monitoring
-kubectl get secret checkmk-collector-tls -n checkmk-monitoring
-```
-
-**Voraussetzung:** cert-manager muss installiert sein und der ClusterIssuer `letsencrypt-prod` muss existieren (siehe `ingress/https-letsencrypt-ingress-traefik.md`).
-
-### Schritt 5: Service Account Token extrahieren
-
-Der ServiceAccount wurde automatisch vom Helm Chart erstellt. Token extrahieren:
-
-```
-## Secret-Name finden
-kubectl get secrets -n checkmk-monitoring | grep checkmk
-
-## Token extrahieren und dekodieren
-kubectl get secret checkmk-checkmk -n checkmk-monitoring -o jsonpath='{.data.token}' | base64 --decode > sa-token
-```
-
-**Wichtig:** Token speichern - wird fuer CheckMK benoetigt!
-
-Alternative (wenn kein Secret existiert):
-
-```
-## Token direkt vom ServiceAccount holen
-kubectl create token checkmk -n checkmk-monitoring --duration=87600h
-```
-
-### Schritt 6: CA-Zertifikat extrahieren
-
-```
-## weil 1. Cluster digitalocean, index 0 
-kubectl config view --raw -o jsonpath='{.clusters[1].cluster.certificate-authority-data}' | base64 --decode > k8s-ca.crt
-```
-
-CA-Zertifikat anzeigen:
-
-```
-cat k8s-ca.crt
-## und prüfen ob es das richtige ist:
-## muss kubernetes heissen 
-openssl x509 -in k8s-ca.crt -issuer -noout
-```
-
-### Schritt 7: Cluster Collector Endpoint ermitteln
-
-Ingress-URL verwenden:
-
-```
-kubectl get ingress -n checkmk-monitoring
-```
-
-Der Cluster Collector Endpoint ist:
-
-```
-https://checkmk-collector.tln<X>.do.t3isp.de
-```
-
-**Wichtig:**
-- Ersetze `<X>` mit deiner Teilnehmer-Nummer
-- HTTPS wird durch Let's Encrypt bereitgestellt
-- Der Endpoint ist von aussen erreichbar
-
-Testen (sollte Metriken zurueckgeben):
-
-```
-curl https://checkmk-collector.tln<X>.do.t3isp.de/openmetrics
-```
-
-### Schritt 8: CheckMK konfigurieren - Token speichern
-
-1. Oeffne CheckMK: `https://checkmk-tln<X>.do.t3isp.de/`
-2. Gehe zu **Setup > General > Passwords**
-3. Klicke **Add password**
-4. Konfiguration:
-   - **Unique ID:** `k8s-token`
-   - **Title:** `Kubernetes Service Account Token`
-   - **Password:** Token aus Schritt 5 einfuegen
-5. **Save**
-
-### Schritt 9: CA-Zertifikat in CheckMK importieren
-
-1. **Setup > Global settings > Site management**
-2. Suche nach **"Trusted certificate authorities for SSL"**
-3. Fuege den Inhalt von `/tmp/k8s-ca.crt` hinzu
-4. **Save**
-
-### Schritt 10: Piggyback Host erstellen
-
-1. **Setup > Hosts > Add host**
-2. Konfiguration:
-   - **Hostname:** `k8s-cluster-<dein-name>` (z.B. `k8s-cluster-jmetzger`)
-   - **IP address family:** **No IP** (wichtig!)
-   - **Monitoring agents:** <img width="340" height="39" alt="image" src="https://github.com/user-attachments/assets/9ffd4b87-993a-4b8d-b098-58609ab2f0ba" />
-
-   - Labels hinzufuegen:
-     - Key: `cmk/kubernetes`
-     - Value: `yes`
-3. **Save & go to service configuration** (NICHT "Save & run service discovery")
-
-**Wichtig:** Der Host bekommt keine IP, da er nur Piggyback-Daten empfaengt!
-
-### Schritt 11: Kubernetes Special Agent konfigurieren
-
-1. **Setup > Agents > VM, cloud, container > Kubernetes**
-2. Klicke **Add rule**
-3. **Kubernetes cluster configuration:**
-   - **Cluster name:** `k8s-cluster-<dein-name>` (oder eigener Name)
-   - **Token:** Waehle `k8s-token` aus Dropdown
-   - **API server endpoint:** `https://<DEINE-K8S-API-IP>:6443`
-   - **SSL certificate verification:** Enabled (mit importiertem CA-Cert)
-
-4. **Collector: Enrich With Usage Data**
-   - **Cluster collector endpoint:** `https://checkmk-collector-tln<X>.do.t3isp.de`
-
-5. **Kubernetes API:**
-   - **Object selection:** Waehle gewuenschte Objekte:
-     - ✓ Pods
-     - ✓ Nodes
-     - ✓ Deployments
-     - ✓ DaemonSets
-     - ✓ StatefulSets
-     - ✓ Services
-     - ✓ Namespaces
-     - ✓ CronJobs (falls benoetigt)
-
-6. **Namespace filtering:**
-   - **Include namespaces:** Leer lassen fuer alle Namespaces
-   - **Exclude namespaces:** `kube-public,kube-node-lease` (optional)
-
-   **Hinweise:**
-   - `kube-system` wird inkludiert um System-Komponenten zu monitoren. `kube-public` und `kube-node-lease` sind meist leer bzw. nicht relevant fuer Monitoring.
-   - **Filter-Logik:** Include wird zuerst angewendet (leer = alle), danach Exclude. **Exclude hat immer Vorrang** - ein Namespace in beiden Listen wird ausgeschlossen.
-
-7. **Explicit hosts:**
-   - Waehle `k8s-cluster-<dein-name>` (Host aus Schritt 10)
-
-8. **Save**
-
-### Schritt 12: Aenderungen aktivieren
-
-1. Oben rechts auf **"1 change"** (oder mehr) klicken
-2. **Activate on selected sites**
-3. Warten bis Aktivierung abgeschlossen
-
-### Schritt 13: Service Discovery durchfuehren
-
-1. **Setup > Hosts**
-2. Suche Host `k8s-cluster-<dein-name>`
-3. Klicke auf Host
-4. **Run service discovery**
-5. **Accept all**
-6. **Activate changes**
-
-Erwartete Services:
-- `Kubernetes Cluster CPU resources`
-- `Kubernetes Cluster Memory resources`
-- `Kubernetes Node <node-name>`
-- Weitere Services je nach Objekt-Auswahl
-
-### Schritt 14: Piggyback Hosts fuer K8s Objekte erstellen (CheckMK RAW)
-
-In CheckMK RAW werden Hosts fuer Kubernetes-Objekte NICHT automatisch erstellt. Manuelle Erstellung:
-
-```
-## Auf dem CheckMK Server (falls SSH-Zugang)
-## Site-Kontext wechseln
-OMD[site]> cmk-piggyback list orphans
-```
-
-Alternativ in CheckMK GUI:
-1. **Setup > Hosts > Add host**
-2. Fuer jedes K8s Objekt (Pod, Deployment, etc.) einen Host erstellen:
-   - **Hostname:** Exakter Name aus Piggyback-Daten (z.B. `pod_nginx-deployment-xyz`)
-   - **IP address family:** No IP
-   - Label: `cmk/kubernetes: yes`
-3. Service Discovery durchfuehren
-
-**Tipp fuer CheckMK RAW:** Beginne mit wichtigen Objekten (Nodes, Deployments), nicht alle Pods einzeln.
-
-### Schritt 15: Periodic Service Discovery konfigurieren (optional)
-
-Automatische Discovery fuer neue Services:
-
-1. **Setup > Periodic service discovery**
-2. **Add rule**
-3. **Conditions:**
-   - **Host labels:** `cmk/kubernetes:yes`
-4. **Service discovery:**
-   - **Mode:** "Add unmonitored services and new host labels"
-   - **Interval:** 15 Minuten (kuerzer als Standard)
-5. **Save**
-
-### Schritt 16: Monitoring testen
-
-Services pruefen:
-
-1. **Monitor > All hosts**
-2. Filter: `cmk/kubernetes:yes`
-3. Services pruefen - Status sollte OK sein
-
-Dashboards (nur in kommerziellen Editionen):
-- CheckMK RAW hat keine vordefinierten K8s Dashboards
-- Manuell Views erstellen moeglich
-
-### Troubleshooting
-
-#### Problem: Keine Services gefunden
-
-**Loesung:**
-```
-## Piggyback-Daten pruefen (auf CheckMK Server)
-OMD[site]> cmk-piggyback list
-OMD[site]> cmk-piggyback show <hostname>
-```
-
-#### Problem: Connection refused zum Cluster Collector
-
-**Loesung:**
-```
-## Ingress pruefen
-kubectl get ingress -n checkmk-monitoring
-kubectl describe ingress checkmk-collector-ingress -n checkmk-monitoring
-
-## Service pruefen
-kubectl get svc -n checkmk-monitoring
-
-## Testen von lokalem Rechner
-curl https://checkmk-collector-tln<X>.app.do.t3isp.de/openmetrics
-
-## Zertifikat pruefen (sollte Ready: True sein)
-kubectl get certificate -n checkmk-monitoring
-```
-
-#### Problem: Unauthorized bei API-Zugriff
-
-**Loesung:**
-```
-## Token-Gueltigkeit pruefen
-kubectl get secrets -n checkmk-monitoring
-
-## Neues Token erstellen
-kubectl create token checkmk -n checkmk-monitoring --duration=87600h
-```
-
-#### Problem: Piggyback Hosts erstellen in RAW zu aufwaendig
-
-**Loesung:**
-- Fokus auf wichtige Hosts (Nodes, kritische Deployments)
-- Script zur automatischen Host-Erstellung schreiben
-- Oder: Upgrade zu kommerzieller Edition erwägen
-
-### Aufraeumen
-
-Helm Release entfernen:
-
-```
-helm uninstall checkmk -n checkmk-monitoring
-```
-
-Namespace loeschen:
-
-```
-kubectl delete namespace checkmk-monitoring
-```
-
-In CheckMK:
-1. Hosts loeschen: **Setup > Hosts**
-2. Rule loeschen: **Setup > Agents > VM, cloud, container > Kubernetes**
-3. Token loeschen: **Setup > General > Passwords**
-4. **Activate changes**
-
-### Zusammenfassung
-
-| Komponente | Status |
-|------------|--------|
-| Cluster Collector | Deployed via Helm (ClusterIP Service) |
-| Ingress | Traefik mit TLS/Let's Encrypt |
-| Node Collector | DaemonSet auf allen Nodes |
-| K8s Special Agent | Konfiguriert in CheckMK |
-| Piggyback Host | Manuell erstellt (RAW) |
-| Service Discovery | Durchgefuehrt |
-| Monitoring | Aktiv via HTTPS |
-
-**CheckMK RAW Besonderheiten:**
-- ✓ Vollstaendige K8s API Integration
-- ✓ Cluster Collector fuer Metriken
-- ✗ Keine automatischen Piggyback Hosts
-- ✗ Keine vorgefertigten Dashboards
-- Manueller Aufwand hoeher als kommerzielle Editionen
-
-### Weiterführende Informationen
-
-Offizielle Dokumentation:
-https://docs.checkmk.com/latest/en/monitoring_kubernetes.html
-
 ### CheckMK Enterprise Features für Kubernetes
 
 
@@ -18376,6 +19218,19 @@ kubectl get
 source <(kubectl completion bash)
 complete -F __start_kubectl k
 
+```
+
+```
+## für permanente Nutzungn
+## eintragen in ~/.bash_profile oder anlegen, wenn datei nicht vorhanden
+alias k=kubectl
+complete -o default -F __start_kubectl k
+```
+
+```
+## und danach rausgehen und entweder
+## Session neu starten
+## pder su - <benutzername>
 ```
 
 ### Reference 
