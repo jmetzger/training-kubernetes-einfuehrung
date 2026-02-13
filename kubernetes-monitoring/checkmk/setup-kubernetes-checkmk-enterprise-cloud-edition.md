@@ -224,7 +224,7 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
    - **Monitoring agents:** -> Zeile: Checkmk agent /API integrations -> anklicken -> <img width="340" height="39" alt="image" src="https://github.com/user-attachments/assets/9ffd4b87-993a-4b8d-b098-58609ab2f0ba" />
    - ** Custom attributes ausklappen ** -> dort
    - Labels hinzufuegen:
-     - `cmk/kubernetes`:yes
+     - cmk/kubernetes:yes
 3. **Save & view folder ** (NICHT "Save & run service discovery")
 4. 1 change anklicken
 5. **Activate on selected sites**
