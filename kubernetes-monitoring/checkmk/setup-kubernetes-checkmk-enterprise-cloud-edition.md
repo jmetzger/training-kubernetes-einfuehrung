@@ -135,6 +135,7 @@ kubectl get secrets -n checkmk-monitoring | grep checkmk
 
 # Token extrahieren und dekodieren
 kubectl get secret checkmk-checkmk -n checkmk-monitoring -o jsonpath='{.data.token}' | base64 --decode > sa-token
+cat sa-token
 ```
 
 **Wichtig:** Token speichern - wird fuer CheckMK benoetigt!
