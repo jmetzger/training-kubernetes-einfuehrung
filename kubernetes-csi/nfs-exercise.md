@@ -1,7 +1,11 @@
 # NFS 
 
   * Step 1 + 2 : nur Trainer
-  * ab Step 3: Trainees 
+  * ab Step 3: Trainees
+
+## Requirements:
+
+  * Ein NFS-Server oder eine Storage mit NFS muss im Netz zur Verfügung stehen. 
 
 ## Step 1: Do the same with helm - chart 
 
