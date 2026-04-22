@@ -151,6 +151,13 @@ kubectl logs -f <pod>
 kubectl logs --tail=5 <your pod>
 ```
 
+## CRD 
+
+```
+kubectl get crd
+```
+
+
 ## Referenz
 
   * https://kubernetes.io/de/docs/reference/kubectl/cheatsheet/
