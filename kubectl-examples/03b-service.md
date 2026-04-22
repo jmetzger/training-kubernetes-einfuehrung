@@ -50,7 +50,7 @@ spec:
     spec:
       containers:
       - name: cont-nginx
-        image: nginx
+        image: nginx:1.27
         ports:
         - containerPort: 80
 ```
