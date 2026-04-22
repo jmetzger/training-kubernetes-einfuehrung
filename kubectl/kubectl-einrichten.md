@@ -19,7 +19,7 @@ kubectl cluster-info
 ## Arbeitsbereich konfigurieren 
 
 ```
-NS=jochen # diesen app 
+NS=jochen # hier tragt ihr euren eigenen Namen ein z.B. NS=peter
 ```
 
 ```
