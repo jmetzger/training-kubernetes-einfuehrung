@@ -1,4 +1,4 @@
-# k3 installieren 
+# k3s installieren 
 
 ## Exercise 
 
