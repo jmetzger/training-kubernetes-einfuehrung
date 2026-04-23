@@ -189,6 +189,7 @@ kubectl apply -f .
 ## Example III: Service mit LoadBalancer (ExternalIP)
 
 ```
+cd; cd manifests/04-service 
 nano service.yml
 # in Zeile type: 
 # NodePort ersetzt durch LoadBalancer  
