@@ -190,7 +190,7 @@ kubectl apply -f .
 
 ```
 cd; cd manifests/04-service 
-nano service.yml
+nano service.yaml
 # in Zeile type: 
 # NodePort ersetzt durch LoadBalancer  
 
