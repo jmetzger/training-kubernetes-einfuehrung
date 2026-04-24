@@ -22,7 +22,7 @@
      * [Installation - Welche Komponenten from scratch](/kubernetes/installation-components-overview.md)
 
   1. Kubernetes (Use Cases)
-     [Kubernetes Use Cases](kubernetes/use-cases.md)
+     * [Kubernetes Use Cases](kubernetes/use-cases.md)
 
   1. Kubernetes Cluster ausrollen
      * [Kubernetes Cluster mit terraform und bash-scripting ausrollen](/training-stack/install.md)
