@@ -1,7 +1,3 @@
-Hier das komplette Dokument:
-
----
-
 # Secret Management mit SOPS & Age
 
 ## Warum SOPS?
