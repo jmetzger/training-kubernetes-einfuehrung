@@ -152,7 +152,7 @@ cd manifests/secrettest-sops
 ```bash
 cat > .sops.yaml <<EOF
 creation_rules:
-  - path_regex: .*\.enc\.yaml
+  - path_regex: .*secrets.*\.yaml
     age: <DEIN-PUBLIC-KEY>
 EOF
 ```
