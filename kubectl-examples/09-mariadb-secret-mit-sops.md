@@ -239,7 +239,10 @@ kubectl apply -f 02-deploy.yml
 ```bash
 kubectl get secrets
 kubectl get secrets mariadb-secret -o yaml
+kubectl get pods
+```
 
+```
 # Secret im Pod prüfen
 kubectl exec deployment/mariadb-deployment -- env | grep MARIADB
 ```
