@@ -280,10 +280,6 @@ nano ingress.yml
 ```
 
 ```
-nano ingress.yml
-```
-
-```
 # Ingress
 apiVersion: networking.k8s.io/v1
 kind: Ingress
