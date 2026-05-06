@@ -135,7 +135,7 @@ kubectl get orders
 kubectl get challenges
 ```
 
-### Verschlüsselungstiefer ehöhen
+### Verschlüsselungstiefe ehöhen
 
   * Standardmäßig 2048bit
 
