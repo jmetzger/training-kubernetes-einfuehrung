@@ -76,11 +76,11 @@ spec:
   ingressClassName: traefik
   tls:
   - hosts:
-    - <dein-name>.app.do.t3isp.de
+    - <dein-name>.appv2.do.t3isp.de
     secretName: example-tls
 
   rules:
-  - host: "<dein-name>.app.do.t3isp.de"
+  - host: "<dein-name>.appv2.do.t3isp.de"
     http:
       paths:
         - path: /apple
