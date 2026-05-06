@@ -273,13 +273,12 @@ kubectl apply -f .
 kubectl get ingress example-ingress
 ```
 
-## Step 4.5: bereits fertige Lösung 
+## Step 5: bereits fertige Lösung 
 
 ```
 nano ingress.yml
 ```
 
-```
 ```
 nano ingress.yml
 ```
@@ -318,13 +317,7 @@ kubectl apply -f ingress.yml
 kubectl describe ingress 
 ```
 
-
-
-```
-
-
-
-## Step 5: Testing 
+## Step 6: Testing 
 
 ```
 # mit describe herausfinden, ob er die services gefunden hat
