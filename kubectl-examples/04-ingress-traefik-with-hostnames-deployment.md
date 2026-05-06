@@ -273,6 +273,56 @@ kubectl apply -f .
 kubectl get ingress example-ingress
 ```
 
+## Step 4.5: bereits fertige Lösung 
+
+```
+nano ingress.yml
+```
+
+```
+```
+nano ingress.yml
+```
+
+```
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: "<euername>.appv2.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          pathType: Exact
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+        - path: /banana
+          pathType: Prefix 
+          backend:
+            service:
+              name: banana-service
+              port:
+                number: 80
+```
+
+```
+# ingress 
+kubectl apply -f ingress.yml
+kubectl describe ingress 
+```
+
+
+
+```
+
+
 
 ## Step 5: Testing 
 
@@ -291,3 +341,5 @@ http://jochen.app.do.t3isp.de/banana
 # geht nicht 
 http://jochen.app.do.t3isp.de/banana/nix
 ```
+
+
