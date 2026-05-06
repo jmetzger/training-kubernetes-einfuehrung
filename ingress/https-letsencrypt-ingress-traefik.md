@@ -135,6 +135,17 @@ kubectl get orders
 kubectl get challenges
 ```
 
+### Verschlüsselungstiefer ehöhen
+
+  * Standardmäßig 2048bit
+
+```
+    # Hier legst du die Verschlüsselungstiefe fest
+    cert-manager.io/private-key-algorithm: "RSA"
+    cert-manager.io/private-key-size: "4096"
+
+```
+
 
 ## Schritt 5: Testen
 
