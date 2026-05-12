@@ -75,6 +75,7 @@
      * [Kubernetes secrets Typen](/kubernetes/secrets/secrets.md) 
      * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md)
      * [Exercise Sealed Secret mariadb](/kubectl-examples/08-sealed-secret.md)
+     * [Overview Hashicorp Vault](/hashicorp-vault/overview.md)
      * [Alternative zu Hashicorp Vault - Fork OpenBao](https://openbao.org/)
      * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
      * [Kubernetes secrets mit sops (mariadb)](kubectl-examples/09-mariadb-secret-mit-sops.md)
