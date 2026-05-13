@@ -125,6 +125,7 @@
 
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](kubectl-examples/16-run-pod-as-unprivileged-user.md)
+     * [Übung: FE zu Backend Verbindungen debuggen mit kubectl debug und NetworkPolicy](kubectl-examples/20-debug-networkpolicy.md)
 
   1. Kubernetes RBAC
      * [Kubernetes RBAC - was darf Traefik](kubernetes-rbac/was-darf-traefik.md)
