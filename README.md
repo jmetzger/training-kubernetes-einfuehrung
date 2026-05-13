@@ -160,6 +160,7 @@
   1. Kubernetes QoS / HealthChecks / Live / Readiness
      * [Quality of Service - evict pods](kubernetes/qos-class.md)
      * [LiveNess/Readiness - Probe / HealthChecks](probes/uebung-liveness.md)
+     * [Uebung: Readiness Probe mit HTTP](kubectl-examples/03c-readiness-probe.md)
      * [Taints / Toleratioins](kubernetes/taints-tolerations.md)
     
   1. Installation mit microk8s
