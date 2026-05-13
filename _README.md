@@ -75,6 +75,7 @@
      * [Kubernetes secrets Typen](#kubernetes-secrets-typen)
      * [Sealed Secrets - bitnami](#sealed-secrets---bitnami)
      * [Exercise Sealed Secret mariadb](#exercise-sealed-secret-mariadb)
+     * [Overview Hashicorp Vault](#overview-hashicorp-vault)
      * [Alternative zu Hashicorp Vault - Fork OpenBao](https://openbao.org/)
      * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
      * [Kubernetes secrets mit sops (mariadb)](#kubernetes-secrets-mit-sops-mariadb)
@@ -124,6 +125,8 @@
 
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](#probleme-über-logs-identifiziert---zb-non-root-image)
+     * [Übung: FE zu Backend Verbindungen debuggen mit kubectl debug und NetworkPolicy](#übung-fe-zu-backend-verbindungen-debuggen-mit-kubectl-debug-und-networkpolicy)
+     * [Übung: Service-Verbindungsprobleme debuggen mit kubectl debug (ohne NetworkPolicy)](#übung-service-verbindungsprobleme-debuggen-mit-kubectl-debug-ohne-networkpolicy)
 
   1. Kubernetes RBAC
      * [Kubernetes RBAC - was darf Traefik](#kubernetes-rbac---was-darf-traefik)
@@ -159,6 +162,7 @@
   1. Kubernetes QoS / HealthChecks / Live / Readiness
      * [Quality of Service - evict pods](#quality-of-service---evict-pods)
      * [LiveNess/Readiness - Probe / HealthChecks](#livenessreadiness---probe--healthchecks)
+     * [Uebung: Readiness Probe mit HTTP](#uebung-readiness-probe-mit-http)
      * [Taints / Toleratioins](#taints--toleratioins)
     
   1. Installation mit microk8s
@@ -288,6 +292,8 @@
 
   1. Kubernetes NetworkPolicy (Firewall)
      * [Kubernetes Network Policy Beispiel](#kubernetes-network-policy-beispiel)
+     * [Übung: NetworkPolicy - Pod-Traffic absichern](#übung-networkpolicy---pod-traffic-absichern)
+     * [Übung: FE zu Backend Verbindungen debuggen mit kubectl debug und NetworkPolicy](#übung-fe-zu-backend-verbindungen-debuggen-mit-kubectl-debug-und-networkpolicy)
 
   1. Kubernetes Autoscaling 
      * [Kubernetes Autoscaling](#kubernetes-autoscaling)
@@ -2586,7 +2592,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "<euername>.app.do.t3isp.de"
+  - host: "<euername>.appv3.do.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -2719,8 +2725,47 @@ kubectl apply -f .
 kubectl get ingress example-ingress
 ```
 
+### Step 5: bereits fertige Lösung 
 
-### Step 5: Testing 
+```
+nano ingress.yml
+```
+
+```
+## Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: "<euername>.appv3.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          pathType: Exact
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+        - path: /banana
+          pathType: Prefix 
+          backend:
+            service:
+              name: banana-service
+              port:
+                number: 80
+```
+
+```
+## ingress 
+kubectl apply -f ingress.yml
+kubectl describe ingress 
+```
+
+### Step 6: Testing 
 
 ```
 ## mit describe herausfinden, ob er die services gefunden hat
@@ -2730,13 +2775,15 @@ kubectl describe ingress example-ingress
 ```
 ## Im Browser auf:
 ## hier euer Name 
-http://jochen.app.do.t3isp.de/apple
-http://jochen.app.do.t3isp.de/apple/
-http://jochen.app.do.t3isp.de/apple/foo 
-http://jochen.app.do.t3isp.de/banana
+http://jochen.appv3.do.t3isp.de/apple
+http://jochen.appv3.do.t3isp.de/apple/
+http://jochen.appv3.do.t3isp.de/apple/foo 
+http://jochen.appv3.do.t3isp.de/banana
 ## geht nicht 
-http://jochen.app.do.t3isp.de/banana/nix
+http://jochen.appv3.do.t3isp.de/banana/nix
 ```
+
+
 
 ### ingress mit traefik, letsencrypt und cert-manager
 
@@ -2817,11 +2864,11 @@ spec:
   ingressClassName: traefik
   tls:
   - hosts:
-    - <dein-name>.app.do.t3isp.de
+    - <dein-name>.appv2.do.t3isp.de
     secretName: example-tls
 
   rules:
-  - host: "<dein-name>.app.do.t3isp.de"
+  - host: "<dein-name>.appv2.do.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -2874,6 +2921,17 @@ kubectl get orders
 
 ```
 kubectl get challenges
+```
+
+#### Verschlüsselungstiefe ehöhen
+
+  * Standardmäßig 2048bit
+
+```
+    # Hier legst du die Verschlüsselungstiefe fest
+    cert-manager.io/private-key-algorithm: "RSA"
+    cert-manager.io/private-key-size: "4096"
+
 ```
 
 
@@ -3525,6 +3583,74 @@ kubectl delete -f 01-top-secret-sealed.yaml
 kubectl get secrets
 kubectl get sealedsecrets 
 ```
+
+### Overview Hashicorp Vault
+
+
+### Zentrale Externer Server mit 3 Nodes (Produktion) 
+
+
+<img width="1227" height="851" alt="image" src="https://github.com/user-attachments/assets/31044a54-3d23-4544-9fc2-d0cb9327a4e8" />
+
+
+### 3-Wege für Kubernetes Daten zu bekommen 
+
+  * VSO (Vault Secrets Operator)
+  * SideCar Injection
+  * Volumes 
+
+### VSO 
+
+  * Ich bestücke eine neue CRT mit dem Wunsch eines Credentials "Vault Static Secret"
+
+```
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultStaticSecret
+metadata:
+  name: webapp-config
+  namespace: default
+spec:
+  # Reference to VaultAuth in another namespace
+  vaultAuthRef: vault-secrets-operator-system/default
+  
+  # Vault mount path (where the secret engine is mounted)
+  mount: secret
+  
+  # Path to the secret within the mount
+  path: webapp/config
+  
+  # Type of secret engine
+  type: kv-v2
+  
+  # Destination Kubernetes secret configuration
+  destination:
+    create: true
+    name: webapp-secret
+    type: Opaque
+  
+  # How often to refresh the secret from Vault
+  refreshAfter: 30s
+```
+
+#### Nachteil 
+
+  * Das automatisch erstellte Secret wird in etc gespeichert, solange wie das VaultStaticSecret existiert
+
+
+### Vault Sidecar Injector 
+
+#### Vorteile 
+
+  * Sicherste Variante
+  * Es wird kein Secret erstellt, passwort wird direkt im Pod zur Verfügung gestellt (in einer Datei)
+
+#### Nachteile
+
+  * Relativ viele Einträge im Pod über Annotations zu machen, damit das funktioniert
+  * Overhead über SideCar (weil jeder Pod ein Sidecar bekommt)
+  * Bekommt mit, wenn sich das Passwort ändert 
+
+### Volumes 
 
 ### Alternative zu Hashicorp Vault - Fork OpenBao
 
@@ -5289,6 +5415,831 @@ kubectl apply -f .
 kubectl get pods
 ```
 
+### Übung: FE zu Backend Verbindungen debuggen mit kubectl debug und NetworkPolicy
+
+
+### Hintergrund
+
+In produktiven Umgebungen laufen Container oft als minimale Images ohne Debug-Tools
+(curl, wget, nc). `kubectl debug` schleust einen ephemeral Container mit Debug-Tools
+in einen laufenden Pod ein — ohne den Pod neu starten zu muessen.
+
+Ein **Timeout** beim Verbindungsversuch ist ein typisches Zeichen fuer eine blockierende
+NetworkPolicy:
+
+| Fehlerbild | Ursache | Diagnose-Befehl |
+|-----------|---------|-----------------|
+| `Connection timed out` | NetworkPolicy blockiert den Traffic | `kubectl describe networkpolicy` |
+
+---
+
+### Schritt 1: Vorbereitung
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir 20-debug-networkpolicy
+cd 20-debug-networkpolicy
+```
+
+Namespace anlegen:
+
+```
+kubectl create namespace debug-<dein-name>
+```
+
+---
+
+### Schritt 2: Backend Deployment und Service anlegen
+
+```
+## vi 01-backend.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 80
+    targetPort: 80
+```
+
+```
+kubectl apply -f . -n debug-<dein-name>
+```
+
+---
+
+### Schritt 3: Frontend Deployment und Service anlegen
+
+Das Frontend laeuft als minimales Python-Image (kein curl, wget, nc).
+
+```
+## vi 02-frontend.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: python:3.12-slim
+        command: ["python", "-m", "http.server", "8080"]
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-svc
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 8080
+    targetPort: 8080
+```
+
+```
+kubectl apply -f . -n debug-<dein-name>
+kubectl get pods -n debug-<dein-name>
+```
+
+Warten bis beide Pods laufen:
+
+```
+kubectl wait deployment frontend backend \
+  --for=condition=Available -n debug-<dein-name> --timeout=60s
+```
+
+---
+
+### Schritt 4: Baseline — Verbindung funktioniert
+
+Tools im Frontend-Pod pruefen — kein curl, wget, nc vorhanden:
+
+```
+FE_POD=$(kubectl get pod -n debug-<dein-name> -l app=frontend -o jsonpath='{.items[0].metadata.name}')
+echo $FE_POD
+```
+
+```
+kubectl exec -it $FE_POD -n debug-<dein-name> -- sh -c 'which curl; which wget; which nc'
+```
+
+**Erwartete Ausgabe:**
+```
+no curl
+no wget
+no nc
+```
+
+Mit `kubectl debug` einen busybox-Container einschleusen und Verbindung testen:
+
+```
+kubectl debug -it $FE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=frontend \
+  --profile=general \
+  -- sh
+```
+
+Im Debug-Container:
+
+```
+wget -qO- http://backend-svc --timeout=5
+exit
+```
+
+**Erwartete Ausgabe:** `<h1>Welcome to nginx!</h1>` — Verbindung funktioniert.
+
+---
+
+### Problem 1: NetworkPolicy blockiert FE zu Backend
+
+### Schritt 5: NetworkPolicy fuer Backend anwenden
+
+```
+## vi 03-networkpolicy-backend.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          role: api-consumer
+    ports:
+    - protocol: TCP
+      port: 80
+```
+
+```
+kubectl apply -f . -n debug-<dein-name>
+```
+
+### Schritt 6: Verbindung testen — Timeout
+
+```
+kubectl debug -it $FE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=frontend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://backend-svc --timeout=5
+exit
+```
+
+**Erwarteter Fehler:**
+```
+wget: download timed out
+```
+
+Timeout statt `Connection refused` — Endpoints existieren, die NetworkPolicy blockiert.
+
+### Schritt 7: Diagnose — NetworkPolicy und Labels pruefen
+
+```
+kubectl describe networkpolicy backend-policy -n debug-<dein-name>
+kubectl get pods -n debug-<dein-name> --show-labels
+```
+
+**Diagnose:** NetworkPolicy erlaubt nur `role=api-consumer`. Frontend-Pod hat dieses
+Label nicht.
+
+### Schritt 8: Fix — Label zum Frontend Deployment hinzufuegen
+
+```
+kubectl patch deployment frontend -n debug-<dein-name> \
+  -p '{"spec":{"template":{"metadata":{"labels":{"role":"api-consumer"}}}}}'
+```
+
+```
+kubectl get pods -n debug-<dein-name> -l role=api-consumer
+```
+
+Neuen Pod-Namen holen und erneut testen:
+
+```
+FE_POD=$(kubectl get pod -n debug-<dein-name> -l app=frontend,role=api-consumer \
+  -o jsonpath='{.items[0].metadata.name}')
+
+kubectl debug -it $FE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=frontend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://backend-svc --timeout=5
+exit
+```
+
+**Erwartete Ausgabe:** `<h1>Welcome to nginx!</h1>` — Verbindung OK.
+
+---
+
+### Problem 2: NetworkPolicy blockiert Backend zu Frontend
+
+### Schritt 9: NetworkPolicy fuer Frontend anwenden
+
+```
+## vi 04-networkpolicy-frontend.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          role: backend-consumer
+    ports:
+    - protocol: TCP
+      port: 8080
+```
+
+```
+kubectl apply -f . -n debug-<dein-name>
+```
+
+### Schritt 10: Rueckweg vom Backend debuggen
+
+```
+BE_POD=$(kubectl get pod -n debug-<dein-name> -l app=backend -o jsonpath='{.items[0].metadata.name}')
+echo $BE_POD
+```
+
+```
+kubectl debug -it $BE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=backend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://frontend-svc:8080 --timeout=5
+exit
+```
+
+**Erwarteter Fehler:**
+```
+wget: download timed out
+```
+
+### Schritt 11: Diagnose und Fix
+
+```
+kubectl describe networkpolicy frontend-policy -n debug-<dein-name>
+kubectl get pods -n debug-<dein-name> -l app=backend --show-labels
+```
+
+**Diagnose:** NetworkPolicy erlaubt nur `role=backend-consumer`. Backend-Pod hat
+dieses Label nicht.
+
+```
+kubectl patch deployment backend -n debug-<dein-name> \
+  -p '{"spec":{"template":{"metadata":{"labels":{"role":"backend-consumer"}}}}}'
+```
+
+```
+kubectl get pods -n debug-<dein-name> -l role=backend-consumer
+```
+
+### Schritt 12: Rueckweg erneut testen
+
+```
+BE_POD=$(kubectl get pod -n debug-<dein-name> -l app=backend,role=backend-consumer \
+  -o jsonpath='{.items[0].metadata.name}')
+
+kubectl debug -it $BE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=backend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://frontend-svc:8080 --timeout=5
+exit
+```
+
+**Erwartete Ausgabe:**
+```
+<title>Directory listing for /</title>
+```
+
+Rueckweg funktioniert.
+
+---
+
+### Aufraeumen
+
+```
+kubectl delete namespace debug-<dein-name>
+```
+
+---
+
+### Zusammenfassung
+
+| Problem | Fehlermeldung | Diagnose | Fix |
+|---------|--------------|----------|-----|
+| NetworkPolicy FE -> Backend | `timed out` | `kubectl describe networkpolicy` + `--show-labels` | Label `role=api-consumer` am Frontend |
+| NetworkPolicy Backend -> FE | `timed out` | `kubectl describe networkpolicy` + `--show-labels` | Label `role=backend-consumer` am Backend |
+
+### Übung: Service-Verbindungsprobleme debuggen mit kubectl debug (ohne NetworkPolicy)
+
+
+### Hintergrund
+
+Wenn Pods sich gegenseitig nicht erreichen koennen, gibt es zwei haeufige
+Ursachen - beide zeigen `Connection refused`, aber aus unterschiedlichen Gruenden:
+
+| Fehlerbild | Ursache | Erkennungsmerkmal |
+|-----------|---------|-------------------|
+| `Connection refused` | Falscher Service-Selector - keine Endpoints | `kubectl get endpoints` zeigt `<none>` |
+| `Connection refused` | Falscher targetPort - Endpoint zeigt falsche Port | `kubectl get endpoints` zeigt Endpoint mit falscher Port |
+
+`kubectl debug` schleust einen ephemeral Container mit Debug-Tools in einen laufenden
+Pod ein - ohne den Pod neu starten zu muessen.
+
+### Schritt 1: Vorbereitung
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir 21-debug-service
+cd 21-debug-service
+```
+
+### Schritt 2: Backend Deployment und Service anlegen
+
+Achtung: Im Service steckt ein Fehler - den sollt ihr selbst finden.
+
+```
+nano 01-backend.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        tier: backend
+    spec:
+      containers:
+      - name: backend
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+spec:
+  selector:
+    app: backend-api
+  ports:
+  - port: 80
+    targetPort: 80
+```
+
+```
+kubectl create ns debug-<dein-name>
+kubectl apply -f 01-backend.yml -n debug-<dein-name>
+```
+
+### Schritt 3: Frontend Deployment und Service anlegen
+
+Das Frontend laeuft als minimales Python-Image (kein curl, wget, nc) und startet
+einen einfachen HTTP-Server auf Port 8080.
+
+Achtung: Auch im Frontend-Service steckt ein Fehler.
+
+```
+nano 02-frontend.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+        tier: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: python:3.12-slim
+        command: ["python", "-m", "http.server", "8080"]
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-svc
+spec:
+  selector:
+    app: frontend-api
+  ports:
+  - port: 8080
+    targetPort: 8080
+```
+
+```
+kubectl apply -f 02-frontend.yml -n debug-<dein-name>
+```
+
+```
+kubectl get pods -n debug-<dein-name>
+kubectl get services -n debug-<dein-name>
+```
+
+**Erwartete Ausgabe:**
+```
+NAME                        READY   STATUS    RESTARTS   AGE
+backend-xxx                 1/1     Running   0          30s
+frontend-xxx                1/1     Running   0          20s
+
+NAME           TYPE        CLUSTER-IP    PORT(S)
+backend-svc    ClusterIP   10.x.x.x      80/TCP
+frontend-svc   ClusterIP   10.x.x.x      8080/TCP
+```
+
+---
+
+### Problem 1: FE zu Backend - Falscher Selector, keine Endpoints
+
+### Schritt 4: kubectl debug - Verbindung testen
+
+```
+FE_POD=$(kubectl get pod -n debug-<dein-name> -l app=frontend -o jsonpath='{.items[0].metadata.name}')
+echo $FE_POD
+```
+
+```
+kubectl debug -it $FE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=frontend \
+  --profile=general \
+  -- sh
+```
+
+Im Debug-Container:
+
+```
+nslookup backend-svc
+wget -qO- http://backend-svc --timeout=5
+```
+
+**Erwartete Ausgabe:**
+```
+Name:   backend-svc.debug-<dein-name>.svc.cluster.local
+Address: 10.x.x.x
+
+wget: can't connect to remote host (10.x.x.x): Connection refused
+```
+
+DNS loest auf - aber `Connection refused`. Kein Listener hinter dem Service.
+
+```
+exit
+```
+
+### Schritt 5: Endpoints und Selector pruefen
+
+```
+kubectl get endpoints backend-svc -n debug-<dein-name>
+kubectl describe service backend-svc -n debug-<dein-name> | grep -E 'Selector|Port|Endpoint'
+kubectl get pods -n debug-<dein-name> -l app=backend --show-labels
+```
+
+**Diagnose:** Service sucht `app=backend-api`, Pods haben `app=backend`.
+
+### Schritt 6: Fix - Selector korrigieren
+
+```
+kubectl patch service backend-svc -n debug-<dein-name> \
+  -p '{"spec":{"selector":{"app":"backend"}}}'
+```
+
+```
+kubectl get endpoints backend-svc -n debug-<dein-name>
+```
+
+Erneut testen:
+
+```
+kubectl debug -it $FE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=frontend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://backend-svc --timeout=5
+exit
+```
+
+**Erwartete Ausgabe:** `<h1>Welcome to nginx!</h1>` - Verbindung OK.
+
+---
+
+### Problem 2: FE zu Backend - Falscher targetPort
+
+### Schritt 7: targetPort kaputt konfigurieren
+
+```
+kubectl patch service backend-svc -n debug-<dein-name> \
+  -p '{"spec":{"ports":[{"port":80,"targetPort":8080}]}}'
+```
+
+### Schritt 8: kubectl debug - Verbindung testen
+
+```
+kubectl debug -it $FE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=frontend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://backend-svc --timeout=5
+```
+
+**Erwartete Ausgabe:**
+```
+wget: can't connect to remote host (10.x.x.x): Connection refused
+```
+
+Wieder `Connection refused` - aber diesmal aus anderem Grund.
+
+```
+exit
+```
+
+### Schritt 9: Diagnose - Endpoint vorhanden aber Port falsch
+
+```
+kubectl get endpoints backend-svc -n debug-<dein-name>
+kubectl describe service backend-svc -n debug-<dein-name> | grep -E 'Port|Target|Endpoint'
+kubectl get pods -n debug-<dein-name> -l app=backend -o jsonpath='{.items[0].spec.containers[0].ports}'
+```
+
+**Diagnose:** TargetPort zeigt auf 8080, Container lauscht auf 80.
+
+### Schritt 10: Fix - targetPort korrigieren
+
+```
+kubectl patch service backend-svc -n debug-<dein-name> \
+  -p '{"spec":{"ports":[{"port":80,"targetPort":80}]}}'
+```
+
+```
+kubectl debug -it $FE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=frontend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://backend-svc --timeout=5
+exit
+```
+
+**Erwartete Ausgabe:** `<h1>Welcome to nginx!</h1>` - Verbindung OK.
+
+---
+
+### Problem 3: Rueckweg Backend zu Frontend - Falscher Selector
+
+### Schritt 11: kubectl debug auf Backend-Pod - Verbindung zum Frontend testen
+
+```
+BE_POD=$(kubectl get pod -n debug-<dein-name> -l app=backend -o jsonpath='{.items[0].metadata.name}')
+echo $BE_POD
+```
+
+```
+kubectl debug -it $BE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=backend \
+  --profile=general \
+  -- sh
+```
+
+Im Debug-Container:
+
+```
+nslookup frontend-svc
+wget -qO- http://frontend-svc:8080 --timeout=5
+```
+
+**Erwartete Ausgabe:**
+```
+Name:   frontend-svc.debug-<dein-name>.svc.cluster.local
+Address: 10.x.x.x
+
+wget: can't connect to remote host (10.x.x.x): Connection refused
+```
+
+```
+exit
+```
+
+### Schritt 12: Endpoints und Selector pruefen
+
+```
+kubectl get endpoints frontend-svc -n debug-<dein-name>
+kubectl describe service frontend-svc -n debug-<dein-name> | grep -E 'Selector|Port|Endpoint'
+kubectl get pods -n debug-<dein-name> -l app=frontend --show-labels
+```
+
+**Diagnose:** Service sucht `app=frontend-api`, Pods haben `app=frontend`.
+
+### Schritt 13: Fix - Selector korrigieren
+
+```
+kubectl patch service frontend-svc -n debug-<dein-name> \
+  -p '{"spec":{"selector":{"app":"frontend"}}}'
+```
+
+```
+kubectl get endpoints frontend-svc -n debug-<dein-name>
+```
+
+Erneut testen:
+
+```
+kubectl debug -it $BE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=backend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://frontend-svc:8080 --timeout=5
+exit
+```
+
+**Erwartete Ausgabe:** `<title>Directory listing for /</title>` - Verbindung OK.
+
+---
+
+### Problem 4: Rueckweg Backend zu Frontend - Falscher targetPort
+
+### Schritt 14: targetPort kaputt konfigurieren
+
+```
+kubectl patch service frontend-svc -n debug-<dein-name> \
+  -p '{"spec":{"ports":[{"port":8080,"targetPort":9090}]}}'
+```
+
+### Schritt 15: kubectl debug - Verbindung testen
+
+```
+kubectl debug -it $BE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=backend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://frontend-svc:8080 --timeout=5
+```
+
+**Erwartete Ausgabe:**
+```
+wget: can't connect to remote host (10.x.x.x): Connection refused
+```
+
+```
+exit
+```
+
+### Schritt 16: Diagnose und Fix
+
+```
+kubectl get endpoints frontend-svc -n debug-<dein-name>
+kubectl describe service frontend-svc -n debug-<dein-name> | grep -E 'Port|Target|Endpoint'
+kubectl get pods -n debug-<dein-name> -l app=frontend -o jsonpath='{.items[0].spec.containers[0].ports}'
+```
+
+**Diagnose:** TargetPort zeigt auf 9090, Container lauscht auf 8080.
+
+```
+kubectl patch service frontend-svc -n debug-<dein-name> \
+  -p '{"spec":{"ports":[{"port":8080,"targetPort":8080}]}}'
+```
+
+```
+kubectl debug -it $BE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=backend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://frontend-svc:8080 --timeout=5
+exit
+```
+
+**Erwartete Ausgabe:** `<title>Directory listing for /</title>` - Rueckweg OK.
+
+### Aufraeumen
+
+```
+kubectl delete namespace debug-<dein-name>
+```
+
+### Zusammenfassung
+
+| Problem | Richtung | `kubectl get endpoints` | Diagnose | Fix |
+|---------|----------|------------------------|----------|-----|
+| Falscher Selector | FE → Backend | `<none>` | Selector passt nicht zu Pod-Labels | Selector anpassen |
+| Falscher targetPort | FE → Backend | Port falsch | TargetPort != ContainerPort | targetPort anpassen |
+| Falscher Selector | Backend → FE | `<none>` | Selector passt nicht zu Pod-Labels | Selector anpassen |
+| Falscher targetPort | Backend → FE | Port falsch | TargetPort != ContainerPort | targetPort anpassen |
+
+**Merkhilfe:** Endpoints leer → Selector-Problem. Endpoints vorhanden aber falsche Port → targetPort-Problem.
+
 ## Kubernetes RBAC
 
 ### Kubernetes RBAC - was darf Traefik
@@ -5416,7 +6367,7 @@ metadata:
   name: nfs-csi
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 10.135.0.9
+  server: 10.135.0.6
   share: /var/nfs
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -7760,6 +8711,278 @@ kubectl describe pod liveness-http
 ### Reference:
  
    * https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+
+### Uebung: Readiness Probe mit HTTP
+
+
+### Hintergrund
+
+Die Readiness Probe entscheidet, ob ein Pod **Traffic empfangen darf**.  
+Solange die Probe fehlschlaegt, entfernt Kubernetes den Pod aus den Service-Endpoints.
+
+| Probe | Was passiert bei Fehler? | Pod wird neu gestartet? |
+|-------|--------------------------|------------------------|
+| Readiness | Pod bekommt keinen Traffic | Nein |
+| Liveness | Pod wird neu gestartet | Ja |
+
+In dieser Uebung prueft die Readiness Probe per HTTP ob die Datei `/ready`  
+im nginx-Webroot existiert. Ist sie nicht da → 404 → Pod NotReady → kein Traffic.
+
+---
+
+### Schritt 1: Vorbereitung
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir 03c-readiness-probe
+cd 03c-readiness-probe
+```
+
+---
+
+### Schritt 2: Deployment erstellen
+
+```
+nano 01-deploy.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-readiness
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-readiness
+  template:
+    metadata:
+      labels:
+        app: nginx-readiness
+    spec:
+      securityContext:
+        fsGroup: 101
+      containers:
+      - name: nginx
+        image: nginxinc/nginx-unprivileged:1.28
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 2
+        volumeMounts:
+        - name: webroot
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: webroot
+        emptyDir: {}
+```
+
+---
+
+### Schritt 3: Service erstellen
+
+```
+nano 02-service.yml
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-readiness-svc
+spec:
+  selector:
+    app: nginx-readiness
+  ports:
+  - port: 80
+    targetPort: 8080
+```
+
+---
+
+### Schritt 4: Deployen
+
+```
+kubectl create namespace readiness-<dein-name>
+kubectl apply -f . -n readiness-<dein-name>
+```
+
+---
+
+### Schritt 5: Pods beobachten — alle sind 0/1
+
+```
+kubectl get pods -n readiness-<dein-name>
+```
+
+**Erwartete Ausgabe:**
+```
+NAME                              READY   STATUS    RESTARTS   AGE
+nginx-readiness-95cc7554d-4kvsg   0/1     Running   0          12s
+nginx-readiness-95cc7554d-89zr7   0/1     Running   0          12s
+nginx-readiness-95cc7554d-8mrf7   0/1     Running   0          12s
+```
+
+Die Pods laufen, aber sind **nicht ready** — die HTTP-Probe bekommt noch 404.
+
+---
+
+### Schritt 6: Probe-Fehler ansehen
+
+```
+kubectl describe pod -l app=nginx-readiness -n readiness-<dein-name>
+```
+
+In den Events steht:
+```
+Warning  Unhealthy  kubelet  Readiness probe failed: HTTP probe failed with statuscode: 404
+```
+
+Und in den Conditions:
+```
+Ready             False
+ContainersReady   False
+```
+
+---
+
+### Schritt 7: Service hat keine Endpoints
+
+```
+kubectl get endpoints nginx-readiness-svc -n readiness-<dein-name>
+```
+
+**Erwartete Ausgabe:**
+```
+NAME                  ENDPOINTS   AGE
+nginx-readiness-svc               30s
+```
+
+Kein Pod bekommt Traffic — das ist das Wirkprinzip der Readiness Probe.
+
+---
+
+### Schritt 8: Einen Pod "bereit machen"
+
+Einen Pod-Namen merken:
+```
+kubectl get pods -n readiness-<dein-name>
+```
+
+Die Datei `/ready` im Webroot anlegen — nginx antwortet jetzt mit 200:
+```
+kubectl exec -n readiness-<dein-name> <pod-name> -- sh -c 'echo ok > /usr/share/nginx/html/ready'
+```
+
+Nach ~10 Sekunden prueft die Probe erneut:
+```
+kubectl get pods -n readiness-<dein-name>
+```
+
+**Erwartete Ausgabe:**
+```
+NAME                              READY   STATUS    RESTARTS   AGE
+nginx-readiness-95cc7554d-4kvsg   1/1     Running   0          45s
+nginx-readiness-95cc7554d-89zr7   0/1     Running   0          45s
+nginx-readiness-95cc7554d-8mrf7   0/1     Running   0          45s
+```
+
+Und der Service hat jetzt genau einen Endpoint:
+```
+kubectl get endpoints nginx-readiness-svc -n readiness-<dein-name>
+```
+
+```
+NAME                  ENDPOINTS           AGE
+nginx-readiness-svc   10.108.0.240:8080   46s
+```
+
+---
+
+### Schritt 9: Alle Pods ready machen
+
+Fuer die anderen zwei Pods ebenfalls die Datei anlegen:
+```
+kubectl exec -n readiness-<dein-name> <pod-name-2> -- sh -c 'echo ok > /usr/share/nginx/html/ready'
+kubectl exec -n readiness-<dein-name> <pod-name-3> -- sh -c 'echo ok > /usr/share/nginx/html/ready'
+```
+
+```
+kubectl get pods -n readiness-<dein-name>
+kubectl get endpoints nginx-readiness-svc -n readiness-<dein-name>
+```
+
+**Erwartete Ausgabe:**
+```
+NAME                              READY   STATUS    RESTARTS   AGE
+nginx-readiness-95cc7554d-4kvsg   1/1     Running   0          70s
+nginx-readiness-95cc7554d-89zr7   1/1     Running   0          70s
+nginx-readiness-95cc7554d-8mrf7   1/1     Running   0          70s
+
+NAME                  ENDPOINTS                                             AGE
+nginx-readiness-svc   10.108.0.22:8080,10.108.0.240:8080,10.108.1.48:8080   71s
+```
+
+Alle 3 Pods sind ready — alle 3 sind im Service.
+
+---
+
+### Schritt 10: Pod waehrend Betrieb "krank machen"
+
+Datei aus einem laufenden Pod entfernen:
+```
+kubectl exec -n readiness-<dein-name> <pod-name> -- rm /usr/share/nginx/html/ready
+```
+
+Nach ~10 Sekunden:
+```
+kubectl get pods -n readiness-<dein-name>
+kubectl get endpoints nginx-readiness-svc -n readiness-<dein-name>
+```
+
+**Was passiert:**
+```
+NAME                              READY   STATUS    RESTARTS   AGE
+nginx-readiness-95cc7554d-4kvsg   0/1     Running   0          90s   <- NotReady
+nginx-readiness-95cc7554d-89zr7   1/1     Running   0          90s
+nginx-readiness-95cc7554d-8mrf7   1/1     Running   0          90s
+
+NAME                  ENDPOINTS                           AGE
+nginx-readiness-svc   10.108.0.22:8080,10.108.1.48:8080   91s
+```
+
+**Wichtig:** `RESTARTS: 0` — der Pod wird **nicht neu gestartet**.  
+Er bekommt nur keinen Traffic mehr, laeuft aber weiter.
+
+---
+
+### Aufraeumen
+
+```
+kubectl delete namespace readiness-<dein-name>
+```
+
+---
+
+### Zusammenfassung
+
+| Was passiert | Ergebnis |
+|-------------|---------|
+| Probe schlaegt fehl (404) | Pod = NotReady, kein Endpoint im Service |
+| Probe erfolgreich (200) | Pod = Ready, Endpoint im Service |
+| Probe schlaegt wieder fehl | Pod aus Endpoints entfernt, **kein Neustart** |
+| Service | Routet Traffic nur zu Ready-Pods |
+
+Die Readiness Probe schuetzt andere Pods und Nutzer davor, Anfragen an einen  
+Pod zu senden, der noch nicht (oder nicht mehr) bereit ist sie zu verarbeiten.
 
 ### Taints / Toleratioins
 
@@ -13216,6 +14439,766 @@ kubectl delete ns policy-demo-$KURZ
 ### Ref:
 
   * https://projectcalico.docs.tigera.io/security/tutorials/kubernetes-policy-basic
+
+### Übung: NetworkPolicy - Pod-Traffic absichern
+
+
+### Hintergrund
+
+Ohne NetworkPolicy kann **jeder Pod mit jedem anderen Pod** im Cluster
+kommunizieren — egal in welchem Namespace. Das ist der unsichere Standardzustand.
+
+NetworkPolicies wirken wie eine Firewall auf Pod-Ebene:
+
+| Konzept | Beschreibung |
+|---------|-------------|
+| `podSelector` | Fuer welche Pods gilt diese Policy |
+| `policyTypes` | `Ingress`, `Egress` oder beides |
+| `ingress.from` | Wer darf eingehenden Traffic schicken |
+| `egress.to` | Wohin darf ausgehender Traffic gehen |
+| Leere Policy | Blockiert alles (Default-Deny) |
+| Keine Policy | Alles erlaubt |
+
+**Wichtig:** NetworkPolicies werden vom CNI-Plugin durchgesetzt.
+Unser Cluster verwendet **Calico** — Standard-NetworkPolicies funktionieren
+hier vollstaendig. Mehr dazu am Ende der Uebung.
+
+---
+
+### Schritt 1: Vorbereitung
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir 21-networkpolicy
+cd 21-networkpolicy
+```
+
+Namespace anlegen:
+
+```
+kubectl create namespace networkpolicy-<dein-name>
+```
+
+---
+
+### Schritt 2: Ausgangslage — kein Schutz
+
+Frontend- und Backend-Pod anlegen:
+
+```
+## vi 00-baseline.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  containers:
+  - name: app
+    image: nginx:1.27
+    ports:
+    - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 80
+    targetPort: 80
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  containers:
+  - name: web
+    image: nginx:1.27
+    ports:
+    - containerPort: 80
+```
+
+```
+kubectl apply -f . -n networkpolicy-<dein-name>
+kubectl get pod,svc -n networkpolicy-<dein-name>
+```
+
+Warten bis beide Pods laufen:
+
+```
+kubectl wait pod frontend backend --for=condition=Ready -n networkpolicy-<dein-name> --timeout=60s
+```
+
+Frontend erreicht Backend — kein Problem:
+
+```
+kubectl exec -n networkpolicy-<dein-name> frontend -- curl -s http://backend | grep title
+```
+
+**Erwartete Ausgabe:** nginx-Titelzeile — Verbindung funktioniert ungehindert.
+
+---
+
+### Schritt 3: Default-Deny — alles blockieren
+
+Die erste und wichtigste Policy: keinen Traffic erlauben, den wir nicht
+explizit freigegeben haben.
+
+```
+## vi 01-default-deny.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+```
+
+`podSelector: {}` bedeutet: gilt fuer **alle** Pods im Namespace.
+
+```
+kubectl apply -f . -n networkpolicy-<dein-name>
+```
+
+Verbindung testen:
+
+```
+kubectl exec -n networkpolicy-<dein-name> frontend -- curl -s --max-time 5 http://backend
+```
+
+**Erwarteter Fehler:**
+```
+curl: (28) Connection timed out after 5000 milliseconds
+```
+
+Auch DNS ist jetzt geblockt:
+
+```
+kubectl exec -n networkpolicy-<dein-name> frontend -- curl -s --max-time 5 http://example.com
+```
+
+**Erwarteter Fehler:** Timeout — kein Egress, kein DNS.
+
+---
+
+### Schritt 4: DNS freigeben
+
+Ohne DNS koennen Pods keine Servicenamen aufloesen. Wir erlauben
+Egress zu kube-dns im `kube-system`-Namespace.
+
+```
+## vi 02-allow-dns.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+```
+
+```
+kubectl apply -f . -n networkpolicy-<dein-name>
+```
+
+DNS testen:
+
+```
+kubectl exec -n networkpolicy-<dein-name> frontend -- getent hosts backend
+```
+
+**Erwartete Ausgabe:** IP-Adresse wird aufgeloest (z.B. `10.96.x.x  backend.default.svc.cluster.local`).
+
+HTTP zu Backend schlaegt aber noch fehl:
+
+```
+kubectl exec -n networkpolicy-<dein-name> frontend -- curl -s --max-time 5 http://backend
+```
+
+**Erwarteter Fehler:** Timeout — HTTP-Traffic noch gesperrt.
+
+---
+
+### Schritt 5: Frontend darf Backend auf Port 80 erreichen
+
+```
+## vi 03-frontend-to-backend.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-egress-to-backend
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: backend
+    ports:
+    - protocol: TCP
+      port: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-ingress-from-frontend
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 80
+```
+
+```
+kubectl apply -f . -n networkpolicy-<dein-name>
+```
+
+Verbindung testen:
+
+```
+kubectl exec -n networkpolicy-<dein-name> frontend -- curl -s http://backend | grep title
+```
+
+**Erwartete Ausgabe:** nginx-Titelzeile — Verbindung funktioniert wieder.
+
+---
+
+### Schritt 6: Isolation verifizieren
+
+Externer Traffic bleibt gesperrt (Egress-Deny greift):
+
+```
+kubectl exec -n networkpolicy-<dein-name> frontend -- curl -s --max-time 5 http://www.google.de
+```
+
+**Erwarteter Fehler:** Timeout.
+
+Backend kann Frontend **nicht** erreichen (kein Egress vom Backend freigegeben):
+
+```
+nano 05-service-frontend.yml
+```
+
+```
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 80
+    targetPort: 80
+```
+
+```
+kubectl apply -f . -n networkpolicy-<dein-name>
+kubectl describe svc frontend -n networkpolicy-<dein-name>
+```
+
+
+```
+kubectl exec -n networkpolicy-<dein-name> backend -- curl -s --max-time 5 http://frontend
+```
+
+**Erwarteter Fehler:** Timeout.
+
+Alle aktiven NetworkPolicies anzeigen:
+
+```
+kubectl get networkpolicy -n networkpolicy-<dein-name>
+```
+
+**Erwartete Ausgabe:**
+```
+NAME                          POD-SELECTOR    AGE
+allow-dns                     <none>          ...
+backend-ingress-from-frontend app=backend     ...
+default-deny-all              <none>          ...
+frontend-egress-to-backend    app=frontend    ...
+```
+
+---
+
+### Grenzen von Standard-NetworkPolicies
+
+Standard-NetworkPolicies koennen nur nach **IP, Port und Pod/Namespace-Label**
+filtern — keine Domainnamen, keine L7-Regeln.
+
+| Anforderung | Standard-NP | Calico CRD |
+|-------------|------------|------------|
+| Pod-zu-Pod nach Label | ja | ja |
+| Namespace-Isolation | ja | ja |
+| Default-Deny cluster-weit | nein | ja (`GlobalNetworkPolicy`) |
+| Egress nach Domainname (FQDN) | nein | ja (`NetworkSet` + FQDN) |
+| HTTP-Methoden / Pfade (L7) | nein | ja (mit Istio/Cilium) |
+
+Wer Calico als CNI hat, kann mit `GlobalNetworkPolicy` eine
+**cluster-weite** Default-Deny-Policy setzen — ohne dass jeder Namespace
+seine eigene anlegen muss:
+
+```
+## Beispiel: Calico GlobalNetworkPolicy (kein Standard-Kubernetes!)
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: default-deny
+spec:
+  selector: all()
+  types:
+  - Ingress
+  - Egress
+```
+
+Referenz: https://docs.tigera.io/calico/latest/network-policy/networkpolicy-get-started
+
+---
+
+### Aufraeumen
+
+```
+kubectl delete namespace networkpolicy-<dein-name>
+```
+
+---
+
+### Zusammenfassung
+
+| Policy | Zweck |
+|--------|-------|
+| `default-deny-all` | Alles sperren — Ausgangsbasis |
+| `allow-dns` | DNS fuer alle Pods freigeben |
+| `frontend-egress-to-backend` | Frontend darf Backend ansprechen |
+| `backend-ingress-from-frontend` | Backend nimmt nur vom Frontend an |
+
+Die Kombination aus Default-Deny + gezielten Freigaben ist das
+**Zero-Trust-Prinzip** auf Netzwerkebene.
+
+### Referenzen
+
+  * https://kubernetes.io/docs/concepts/services-networking/network-policies/
+  * https://docs.tigera.io/calico/latest/network-policy/
+
+### Übung: FE zu Backend Verbindungen debuggen mit kubectl debug und NetworkPolicy
+
+
+### Hintergrund
+
+In produktiven Umgebungen laufen Container oft als minimale Images ohne Debug-Tools
+(curl, wget, nc). `kubectl debug` schleust einen ephemeral Container mit Debug-Tools
+in einen laufenden Pod ein — ohne den Pod neu starten zu muessen.
+
+Ein **Timeout** beim Verbindungsversuch ist ein typisches Zeichen fuer eine blockierende
+NetworkPolicy:
+
+| Fehlerbild | Ursache | Diagnose-Befehl |
+|-----------|---------|-----------------|
+| `Connection timed out` | NetworkPolicy blockiert den Traffic | `kubectl describe networkpolicy` |
+
+---
+
+### Schritt 1: Vorbereitung
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir 20-debug-networkpolicy
+cd 20-debug-networkpolicy
+```
+
+Namespace anlegen:
+
+```
+kubectl create namespace debug-<dein-name>
+```
+
+---
+
+### Schritt 2: Backend Deployment und Service anlegen
+
+```
+## vi 01-backend.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 80
+    targetPort: 80
+```
+
+```
+kubectl apply -f . -n debug-<dein-name>
+```
+
+---
+
+### Schritt 3: Frontend Deployment und Service anlegen
+
+Das Frontend laeuft als minimales Python-Image (kein curl, wget, nc).
+
+```
+## vi 02-frontend.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: python:3.12-slim
+        command: ["python", "-m", "http.server", "8080"]
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-svc
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 8080
+    targetPort: 8080
+```
+
+```
+kubectl apply -f . -n debug-<dein-name>
+kubectl get pods -n debug-<dein-name>
+```
+
+Warten bis beide Pods laufen:
+
+```
+kubectl wait deployment frontend backend \
+  --for=condition=Available -n debug-<dein-name> --timeout=60s
+```
+
+---
+
+### Schritt 4: Baseline — Verbindung funktioniert
+
+Tools im Frontend-Pod pruefen — kein curl, wget, nc vorhanden:
+
+```
+FE_POD=$(kubectl get pod -n debug-<dein-name> -l app=frontend -o jsonpath='{.items[0].metadata.name}')
+echo $FE_POD
+```
+
+```
+kubectl exec -it $FE_POD -n debug-<dein-name> -- sh -c 'which curl; which wget; which nc'
+```
+
+**Erwartete Ausgabe:**
+```
+no curl
+no wget
+no nc
+```
+
+Mit `kubectl debug` einen busybox-Container einschleusen und Verbindung testen:
+
+```
+kubectl debug -it $FE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=frontend \
+  --profile=general \
+  -- sh
+```
+
+Im Debug-Container:
+
+```
+wget -qO- http://backend-svc --timeout=5
+exit
+```
+
+**Erwartete Ausgabe:** `<h1>Welcome to nginx!</h1>` — Verbindung funktioniert.
+
+---
+
+### Problem 1: NetworkPolicy blockiert FE zu Backend
+
+### Schritt 5: NetworkPolicy fuer Backend anwenden
+
+```
+## vi 03-networkpolicy-backend.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          role: api-consumer
+    ports:
+    - protocol: TCP
+      port: 80
+```
+
+```
+kubectl apply -f . -n debug-<dein-name>
+```
+
+### Schritt 6: Verbindung testen — Timeout
+
+```
+kubectl debug -it $FE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=frontend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://backend-svc --timeout=5
+exit
+```
+
+**Erwarteter Fehler:**
+```
+wget: download timed out
+```
+
+Timeout statt `Connection refused` — Endpoints existieren, die NetworkPolicy blockiert.
+
+### Schritt 7: Diagnose — NetworkPolicy und Labels pruefen
+
+```
+kubectl describe networkpolicy backend-policy -n debug-<dein-name>
+kubectl get pods -n debug-<dein-name> --show-labels
+```
+
+**Diagnose:** NetworkPolicy erlaubt nur `role=api-consumer`. Frontend-Pod hat dieses
+Label nicht.
+
+### Schritt 8: Fix — Label zum Frontend Deployment hinzufuegen
+
+```
+kubectl patch deployment frontend -n debug-<dein-name> \
+  -p '{"spec":{"template":{"metadata":{"labels":{"role":"api-consumer"}}}}}'
+```
+
+```
+kubectl get pods -n debug-<dein-name> -l role=api-consumer
+```
+
+Neuen Pod-Namen holen und erneut testen:
+
+```
+FE_POD=$(kubectl get pod -n debug-<dein-name> -l app=frontend,role=api-consumer \
+  -o jsonpath='{.items[0].metadata.name}')
+
+kubectl debug -it $FE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=frontend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://backend-svc --timeout=5
+exit
+```
+
+**Erwartete Ausgabe:** `<h1>Welcome to nginx!</h1>` — Verbindung OK.
+
+---
+
+### Problem 2: NetworkPolicy blockiert Backend zu Frontend
+
+### Schritt 9: NetworkPolicy fuer Frontend anwenden
+
+```
+## vi 04-networkpolicy-frontend.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          role: backend-consumer
+    ports:
+    - protocol: TCP
+      port: 8080
+```
+
+```
+kubectl apply -f . -n debug-<dein-name>
+```
+
+### Schritt 10: Rueckweg vom Backend debuggen
+
+```
+BE_POD=$(kubectl get pod -n debug-<dein-name> -l app=backend -o jsonpath='{.items[0].metadata.name}')
+echo $BE_POD
+```
+
+```
+kubectl debug -it $BE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=backend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://frontend-svc:8080 --timeout=5
+exit
+```
+
+**Erwarteter Fehler:**
+```
+wget: download timed out
+```
+
+### Schritt 11: Diagnose und Fix
+
+```
+kubectl describe networkpolicy frontend-policy -n debug-<dein-name>
+kubectl get pods -n debug-<dein-name> -l app=backend --show-labels
+```
+
+**Diagnose:** NetworkPolicy erlaubt nur `role=backend-consumer`. Backend-Pod hat
+dieses Label nicht.
+
+```
+kubectl patch deployment backend -n debug-<dein-name> \
+  -p '{"spec":{"template":{"metadata":{"labels":{"role":"backend-consumer"}}}}}'
+```
+
+```
+kubectl get pods -n debug-<dein-name> -l role=backend-consumer
+```
+
+### Schritt 12: Rueckweg erneut testen
+
+```
+BE_POD=$(kubectl get pod -n debug-<dein-name> -l app=backend,role=backend-consumer \
+  -o jsonpath='{.items[0].metadata.name}')
+
+kubectl debug -it $BE_POD -n debug-<dein-name> \
+  --image=busybox:1.36 \
+  --target=backend \
+  --profile=general \
+  -- sh
+```
+
+```
+wget -qO- http://frontend-svc:8080 --timeout=5
+exit
+```
+
+**Erwartete Ausgabe:**
+```
+<title>Directory listing for /</title>
+```
+
+Rueckweg funktioniert.
+
+---
+
+### Aufraeumen
+
+```
+kubectl delete namespace debug-<dein-name>
+```
+
+---
+
+### Zusammenfassung
+
+| Problem | Fehlermeldung | Diagnose | Fix |
+|---------|--------------|----------|-----|
+| NetworkPolicy FE -> Backend | `timed out` | `kubectl describe networkpolicy` + `--show-labels` | Label `role=api-consumer` am Frontend |
+| NetworkPolicy Backend -> FE | `timed out` | `kubectl describe networkpolicy` + `--show-labels` | Label `role=backend-consumer` am Backend |
 
 ## Kubernetes Autoscaling 
 
