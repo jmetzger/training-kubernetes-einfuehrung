@@ -292,6 +292,7 @@
 
   1. Kubernetes NetworkPolicy (Firewall)
      * [Kubernetes Network Policy Beispiel](kubernetes-networkpolicy/00-simple-exercises-group.md)    
+     * [Übung: NetworkPolicy - Pod-Traffic absichern](kubernetes-networkpolicy/01-networkpolicy-pod-traffic.md)
      * [Übung: FE zu Backend Verbindungen debuggen mit kubectl debug und NetworkPolicy](kubectl-examples/20-debug-networkpolicy.md)
 
   1. Kubernetes Autoscaling 
