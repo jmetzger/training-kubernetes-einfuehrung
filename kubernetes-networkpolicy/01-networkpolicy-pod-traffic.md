@@ -269,6 +269,30 @@ kubectl exec -n networkpolicy-<dein-name> frontend -- curl -s --max-time 5 http:
 Backend kann Frontend **nicht** erreichen (kein Egress vom Backend freigegeben):
 
 ```
+nano 05-service-frontend.yml
+```
+
+```
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 80
+    targetPort: 80
+```
+
+```
+kubectl apply -f . -n networkpolicy-<dein-name>
+kubectl describe svc frontend -n networkpolicy-<dein-name>
+```
+
+
+```
 kubectl exec -n networkpolicy-<dein-name> backend -- curl -s --max-time 5 http://frontend
 ```
 
