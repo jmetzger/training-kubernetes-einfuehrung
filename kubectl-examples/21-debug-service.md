@@ -66,6 +66,7 @@ spec:
 ```
 
 ```
+kubectl create ns debug-<dein-name>
 kubectl apply -f 01-backend.yml -n debug-<dein-name>
 ```
 
