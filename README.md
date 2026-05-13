@@ -126,6 +126,7 @@
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](kubectl-examples/16-run-pod-as-unprivileged-user.md)
      * [Übung: FE zu Backend Verbindungen debuggen mit kubectl debug und NetworkPolicy](kubectl-examples/20-debug-networkpolicy.md)
+     * [Übung: Service-Verbindungsprobleme debuggen mit kubectl debug (ohne NetworkPolicy)](kubectl-examples/21-debug-service.md)
 
   1. Kubernetes RBAC
      * [Kubernetes RBAC - was darf Traefik](kubernetes-rbac/was-darf-traefik.md)
@@ -291,6 +292,7 @@
 
   1. Kubernetes NetworkPolicy (Firewall)
      * [Kubernetes Network Policy Beispiel](kubernetes-networkpolicy/00-simple-exercises-group.md)    
+     * [Übung: FE zu Backend Verbindungen debuggen mit kubectl debug und NetworkPolicy](kubectl-examples/20-debug-networkpolicy.md)
 
   1. Kubernetes Autoscaling 
      * [Kubernetes Autoscaling](/kubernetes/autoscaling.md)
