@@ -2,7 +2,8 @@
 
 ## Grafik 
 
-<img width="1001" height="575" alt="image" src="https://github.com/user-attachments/assets/48a5a2f0-56a4-48f7-a4af-0154025d437a" />
+<img width="1052" height="590" alt="image" src="https://github.com/user-attachments/assets/58ce725e-59b0-4a71-849e-3520a4eae7bb" />
+
 
 
 ## Überblick 
