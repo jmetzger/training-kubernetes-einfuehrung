@@ -18,3 +18,10 @@ RUN yarn install --production
 CMD ["node", "src/index.js"]
 EXPOSE 3000
 ```
+
+## Jetzt wird gebaut... 
+
+```
+cd buildtest
+docker build -t trainerimage:1.0 .
+```
