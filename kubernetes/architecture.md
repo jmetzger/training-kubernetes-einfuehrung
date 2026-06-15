@@ -44,6 +44,7 @@
  
 ### Nodes  
 
+  * Nodes sind virtuelle oder physische Maschinen auf denen die notwendigen Kubernetes-System-Komponenten (Software)
   * Worker Nodes (Knoten) sind die Arbeiter (Maschinen), die Anwendungen ausführen
   * Ref: https://kubernetes.io/de/docs/concepts/architecture/nodes/
 
