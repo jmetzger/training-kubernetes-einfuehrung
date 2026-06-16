@@ -32,7 +32,7 @@ spec:
         app: apple
     spec:
       containers:
-        - name: apple-app
+        - name: web
           image: hashicorp/http-echo
           args:
             - "-text=apple-<euer-name>"
@@ -84,7 +84,7 @@ spec:
         app: banana
     spec:
       containers:
-        - name: apple-app
+        - name: web
           image: hashicorp/http-echo
           args:
             - "-text=banana-<euer-name>"
@@ -273,11 +273,50 @@ kubectl apply -f .
 kubectl get ingress example-ingress
 ```
 
-
-## Step 5: Testing 
+## Step 5: bereits fertige Lösung 
 
 ```
-# mit describe herausfinden, ob er die services gefundet 
+nano ingress.yml
+```
+
+```
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: "<euername>.appv3.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          pathType: Exact
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+        - path: /banana
+          pathType: Prefix 
+          backend:
+            service:
+              name: banana-service
+              port:
+                number: 80
+```
+
+```
+# ingress 
+kubectl apply -f ingress.yml
+kubectl describe ingress 
+```
+
+## Step 6: Testing 
+
+```
+# mit describe herausfinden, ob er die services gefunden hat
 kubectl describe ingress example-ingress
 ```
 
@@ -291,3 +330,5 @@ http://jochen.appv2.do.t3isp.de/banana
 # geht nicht 
 http://jochen.appv2.do.t3isp.de/banana/nix
 ```
+
+

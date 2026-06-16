@@ -45,4 +45,4 @@ Quelle: https://www.devopsschool.com/
 
   * Grafana wird meist verwendet um die grafische Auswertung zu machen.
   * Mit Grafana kann ich einfach Dashboards verwenden 
-  * Ich kann sehr leicht festlegen (Durch Data Sources), so meine Daten herkommen
+  * Ich kann sehr leicht festlegen (Durch Data Sources), wo meine Daten herkommen

@@ -27,6 +27,7 @@ kind: Service
 metadata:
   name: nginx
 spec:
+  type: ClusterIP
   ports:
   - port: 80
     name: web
@@ -59,7 +60,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: registry.k8s.io/nginx-slim:0.8
+        image: registry.k8s.io/nginx-slim:0.24
         ports:
         - containerPort: 80
           name: web-nginx
@@ -92,10 +93,23 @@ kubectl get sts web
 kubectl delete sts web 
 kubectl apply -f .
 kubectl run --rm -it podtest --image=busybox 
+```
 
-ping web-0.nginx 
+```
+# in the shell
+# gleicher namer, aber andere IP als beim letzten Ping 
+ping web-0.nginx
+exit
+``` 
 
+```
 kubectl describe svc nginx 
+```
+
+## Schritt 3: Aufräumen 
+
+```
+kubectl delete -f .
 ```
 
 ## Referenz 

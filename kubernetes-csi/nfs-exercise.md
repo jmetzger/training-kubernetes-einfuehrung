@@ -1,13 +1,17 @@
 # NFS 
 
   * Step 1 + 2 : nur Trainer
-  * ab Step 3: Trainees 
+  * ab Step 3: Trainees
+
+## Requirements:
+
+  * Ein NFS-Server oder eine Storage mit NFS muss im Netz zur Verfügung stehen. 
 
 ## Step 1: Do the same with helm - chart 
 
 ```
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
-helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version 4.12.1 --reset-values 
+helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version 4.13.2 --reset-values 
 ```
 
 ## Step 2: Storage Class 
@@ -28,7 +32,7 @@ metadata:
   name: nfs-csi
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 10.135.0.5
+  server: 10.135.0.10
   share: /var/nfs
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -115,6 +119,7 @@ kubectl exec -it nginx-nfs -- bash
 cd /mnt/nfs
 ls -la
 # outfile
+head /mnt/nfs/outfile 
 tail -f /mnt/nfs/outfile
 ```
 

@@ -15,6 +15,7 @@ helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariad
 ```
 # Geht das denn auch ?
 kubectl get pods
+helm status my-mariadb
 ```
 
 ## Schritt 2: Umschauen 
@@ -41,7 +42,6 @@ helm get values my-mariadb
 helm get manifest my-mariadb
 # Zeige alle Kinds an 
 helm get manifest my-mariadb | grep -i -A 4 kind  
-# Can I see all values use -> YES
 # Look for COMPUTED VALUES in get all ->
 helm get all my-mariadb 
 ```
@@ -50,11 +50,12 @@ helm get all my-mariadb
 # Hack COMPUTED VALUES anzeigen lassen
 # Welche Werte (values) hat er zur Installation verwendet
 helm get all my-mariadb | grep -i computed -A 200
+# besser Variante von David
+helm get all my-mariadb | sed -n '/COMPUTED/, /HOOKS/p'
 
 ```
 
-
-## Schritt 4: Exercise: Upgrade to new version 
+## Schritt 4: Exercise: Upgrade with specific settings (same chart version)  
 
 ### Schritt 4.1 Default values (auf terminal) ausfindig machen 
 
@@ -64,7 +65,7 @@ helm show values oci://registry-1.docker.io/cloudpirates/mariadb
 helm show values oci://registry-1.docker.io/cloudpirates/mariadb | less
 ```
 
-### Schritt 4.2 Upgrade und resources ändern 
+### Schritt 4.2 Resources ändern 
 
 
 ```
@@ -94,6 +95,35 @@ cd ..
 
 ```
 # Testen 
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run=server -f prod/values.yaml  
+```
+
+```
+# Real Upgrade
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 -f prod/values.yaml
+```
+
+```
+# neuer pod wird erstellt 
+kubectl get pod
+helm get values my-mariadb
+helm list 
+helm history my-mariadb 
+```
+
+
+
+
+
+## Schritt 5: Exercise: Upgrade to new version 
+
+
+### Schritt 5.1. Upgrade und resources beibehalten 
+
+  * Values wurden bereits im vorherigen Schritt angelegt 
+
+```
+# Testen 
 helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.10.1 --dry-run=server -f prod/values.yaml  
 ```
 
@@ -107,10 +137,10 @@ kubectl get pods
 # kein neuer pod
 ```
 
-## Schritt 4.3 Fehlgeschlagene Installation, wie lösen ? 
+### Schritt 5.2 Fehlgeschlagene Installation, wie lösen ? 
 
 ```
-# Schlägt fehle, weil mit dem apply bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
+# Schlägt fehle, weil mit dem upgrade bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
 ```
 
 ### Lösung 
@@ -127,7 +157,8 @@ kubectl get pvc
 <img width="891" height="82" alt="image" src="https://github.com/user-attachments/assets/849b5859-a5f2-40df-8bc6-018eaedbd146" />
 
 ```
-helm uninstall my-mariadb
+# alte revisions behalten 
+helm uninstall my-mariadb --keep-history
 kubectl get pvc 
 # auch nach der Deinstallation ist der pvc noch da
 # Super !! 

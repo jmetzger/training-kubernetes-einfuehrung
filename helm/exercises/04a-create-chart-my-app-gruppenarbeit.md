@@ -26,6 +26,13 @@ helm -n my-app-<namenskuerzel> install meine-app . --create-namespace
 ```
 
 ```
+helm -n my-app-<namenskuerzel> status meine-app 
 kubectl -n my-app-<namenskuerzel> get all
 kubectl -n my-app-<namenskuerzel> get pods 
+```
+
+## Aufräumen 
+
+```
+helm -n my-app-<namenskuerzel> uninstall meine-app
 ```

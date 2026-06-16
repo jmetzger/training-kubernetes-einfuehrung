@@ -1,5 +1,11 @@
 # CSI 
 
+## Grafik 
+
+<img width="1052" height="590" alt="image" src="https://github.com/user-attachments/assets/58ce725e-59b0-4a71-849e-3520a4eae7bb" />
+
+
+
 ## Überblick 
 
 ### Warum CSI ?

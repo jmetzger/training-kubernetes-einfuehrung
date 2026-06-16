@@ -1,5 +1,10 @@
 # Setup
 
+## Please do not use 
+
+  * Use installation with helm-chart instead 
+
+
 ## Installation 
 
  * Refs: https://metallb.universe.tf/installation/

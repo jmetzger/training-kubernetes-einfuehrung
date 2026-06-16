@@ -122,6 +122,11 @@ kubectl exec -it nginx -- bash
 
 ```
 
+## Deployments 
+
+```
+kubectl -n ingress rollout restart deployment traefik                                                                                       ik
+```
 
 
 ## Alle Objekte anzeigen 
@@ -150,6 +155,13 @@ kubectl logs -f <pod>
 # letzten x Zeilen anschauen aus log anschauen
 kubectl logs --tail=5 <your pod>
 ```
+
+## CRD 
+
+```
+kubectl get crd
+```
+
 
 ## Referenz
 

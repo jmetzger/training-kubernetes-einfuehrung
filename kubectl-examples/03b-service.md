@@ -50,7 +50,7 @@ spec:
     spec:
       containers:
       - name: cont-nginx
-        image: nginx
+        image: nginx:1.27
         ports:
         - containerPort: 80
 ```
@@ -134,6 +134,10 @@ curl http://164.92.193.245:32708
 ## Example II : Service with NodePort (long version)
 
 ```
+nano deploy.yml
+```
+
+```
 # you will get port opened on every node in the range 30000+
 apiVersion: apps/v1
 kind: Deployment
@@ -154,7 +158,13 @@ spec:
         image: nginx
         ports:
         - containerPort: 80
----
+```
+
+```
+nano service.yml
+```
+
+```
 apiVersion: v1
 kind: Service
 metadata:
@@ -171,16 +181,30 @@ spec:
        
 ```        
 
+```
+kubectl apply -f .
+```
+
+
 ## Example III: Service mit LoadBalancer (ExternalIP)
 
 ```
+cd; cd manifests/04-service 
 nano service.yml
 # in Zeile type: 
 # NodePort ersetzt durch LoadBalancer  
 
 kubectl apply -f .
 kubectl get svc svc-nginx
-kubectl describe svc svc-nginx 
+
+kubectl describe svc svc-nginx
+# hier heisst das nicht External-IP ->
+# sondern
+```
+
+<img width="775" height="63" alt="image" src="https://github.com/user-attachments/assets/3f1db219-e5d8-4bbf-a001-17fc5eaae93f" />
+
+```
 kubectl get svc svc-nginx -w 
 # spätestens nach 5 Minuten bekommen wir eine externe ip
 # z.B. 41.32.44.45

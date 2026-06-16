@@ -1,4 +1,4 @@
-# Run as unpriliged user 
+# Run as unprivileged user 
 
 ## Schritt 1:
 

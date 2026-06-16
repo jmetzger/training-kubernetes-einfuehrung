@@ -18,8 +18,11 @@
 
 ## Rancherlabs Ranger (SuSE) 
 
-   * Grafische Weboberfläche
-   * kann eine oder mehrere Cluster verwaltetn
+   * Grafische Weboberfläche (Management GUI)
+     * mit Docker oder aber auch in einem cluster (z.B. helm - Chart)
+   * kann eine oder mehrere Cluster verwalten
+     * Installation: k3s
+     * Installation: RKE2 
 
 ## OpenStack (Alternative: vmware) - OpenSource 
 
@@ -31,7 +34,7 @@
 ### Schritt 2: Kubernetes ausrollen 
 
     * Ansible (leichter bestimmte zu Konfigurieren) 
-    * kubeadmin 
+    * kubeadm
 
 ## Proxmox 
 

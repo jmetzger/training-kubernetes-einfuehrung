@@ -10,15 +10,6 @@
      * [Was ist ein Dockerfile](dockerfile.md) 
      * [Dockerfile - image kleinhalten](dockerfile-image-small.md)
 
-  1. Kubernetes Installation
-     * [Kubernetes Installation mit Proxmox und kubespray](installation/proxmox-kubespray.md)
-    
-  1. Kubernetes Workloads
-     * [Welche Wege gibt es Kubernetes Workloads auszurollen](kubernetes-workloads/best-practices-fuers-ausrollen.md)
-    
-  1. Kubernetes Infrastructure (Performance)
-     * [Performance of etcd for setup](kubernetes/etcd/performance-testing.md)
-    
   1. Kubernetes - Überblick
      * [Warum Kubernetes, was macht Kubernetes](warum-kubernetes.md)
      * [Aufbau Allgemein](/kubernetes/architecture.md)
@@ -30,26 +21,19 @@
      * [Installer für grosse Cluster](/kubernetes/grosse-installation-installer.md)
      * [Installation - Welche Komponenten from scratch](/kubernetes/installation-components-overview.md)
 
-  1. Kubernetes - Überblick
-     * [Liste wichtiger/sinnvoller Client-Tools](https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/tools/liste-client-tools.md)
+  1. Kubernetes (Use Cases)
+     * [Kubernetes Use Cases](kubernetes/use-cases.md)
 
-  1. Kubernetes - Hochverfügbarkeit
-     * [Strategien für Hochverfügbarkeit](kubernetes-ha/strategien-hochverfügbarkeit-kubernetes.md)
-    
-  1. Kubernetes - Authentication
-     * [oidc mit kubectl](security/authentication/oidc/oidc-mit-kubectl.md)
-     * [traefik authentication mit oidc](security/authentication/oidc/oidc-mit-traefik-fuer-auth.md)
+  1. Kubernetes Cluster ausrollen
+     * [Kubernetes Cluster mit terraform und bash-scripting ausrollen](/training-stack/install.md)
 
-  1. Kubernetes Deployment - Internals
-     * [Strategy when creating and terminating pods in Deployment - RollingUpdate - maxSurge, maxUnavailability](/kubernetes/deployment/strategy/rollingUpdate-maxSurge-maxUnavailability.md)
+  1. Kubernetes - Upgrade
+     * [Wie Upgrade ich Kubernetes in kubeadm](https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/kubernetes-upgrade/upgrade.md)
 
   1. kubectl 
      * [kubectl einrichten mit namespace](/kubectl/kubectl-einrichten.md)
      * [kubectl cheatsheet kubernetes](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
      * [kubectl mit verschiedenen Clustern arbeiten](/kubectl/use-context.md)
-
-  1. Kubernetes Ingress (Eingehender Traffik ins Cluster)
-     * [Wann LoadBalancer, wann Ingress](ingress/ingress-vs-loadbalancer.md)
 
   1. Kubernetes Praxis API-Objekte 
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](/kubectl/spickzettel.md)
@@ -66,22 +50,13 @@
      * Services (Devs/Ops)
      * [kubectl/manifest/service](/kubectl-examples/03b-service.md)
      * DaemonSets (Devs/Ops)
-     * [ConfigMap Example](/kubectl-examples/06-configmap.md)
      * [ConfigMap Example MariaDB](/kubectl-examples/06a-configmap-mariadb.md)
+     * [ConfigMap Example nginx.conf](/kubectl-examples/06a-configmap-nginx-conf.md)
      * [Secrets Example MariaDB](/kubectl-examples/07-mariadb-secret.md)
      * [Connect to external database](/databases/connect-to-external-db.md)
 
   1. Kubernetes Ingress (Grundlagen)
      * [Hintergrund Ingress](/kubernetes/ingress.md)
-
-  1. Kubernetes Ingress (Nginx - deprecated)   
-     * [Ingress Controller auf Digitalocean (doks) mit helm installieren](/digitalocean/ingress-auf-digitalocean-mit-helm.md)
-     * [Documentation for default ingress nginx](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
-     * [Beispiel Ingress](/kubectl-examples/04-ingress-nginx.md)
-     * [Beispiel mit Hostnamen](/kubectl-examples/04-ingress-nginx-with-hostnames.md)
-     * [Beispiel Deployment mit Ingress und Hostnamen](kubectl-examples/04-ingress-nginx-with-hostnames-deployment.md)
-     * [Achtung: Ingress mit Helm - annotations](/ingress-mit-helm-class-achtung.md)
-     * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
 
   1. Kubernetes Ingress (Traefik)
      * [Install Traefik-IngressController](/ingress/traefik/install-with-helm.md)
@@ -100,7 +75,10 @@
      * [Kubernetes secrets Typen](/kubernetes/secrets/secrets.md) 
      * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md)
      * [Exercise Sealed Secret mariadb](/kubectl-examples/08-sealed-secret.md)
+     * [Overview Hashicorp Vault](/hashicorp-vault/overview.md)
+     * [Alternative zu Hashicorp Vault - Fork OpenBao](https://openbao.org/)
      * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+     * [Kubernetes secrets mit sops (mariadb)](kubectl-examples/09-mariadb-secret-mit-sops.md)
 
   1. Hashicorp Vault
      * [Uebersicht Vault in Kubernetes](/hashicorp-vault/overview.md)
@@ -135,16 +113,28 @@
   1. Helm Charts erstellen und analysieren
      * [Eigenes Helm-Chart erstellen](helm/exercises/04a-create-chart-my-app-gruppenarbeit.md)
      * [Chart zur Analyse runterladen und entpacken](helm/commands/pull.md)
+     * [Wie starte ich am besten einfach - mit eigenem Projekt](helm/exercises/09-create-helm-chart-from-scratch-deployment.md)
+
+  1. Helm Advanced
+     * [Helm Dependencies Exercise](/helm/dependencies/exercise.md)
 
   1. Helm - Fehleranalye
      * [Beispiel Cloudpirates - helm chart nginx](helm/cloudpirates-helm-chart-nginx-fehleranalyse.md)
 
+  1. Helm mit gitlab ci/cd
+     * [Helm mit gitlab ci/cd ausrollen](helm/gitlab-ci-cd/example-helm-kubernetes.md)
+    
   1. Helpful plugins
      * [Use shortnames for kubectl - commands](https://gist.github.com/doevelopper/ff4a9a211e74f8a2d44eb4afb21f0a38)
 
   1. Kubernetes Debugging
      * [Probleme über Logs identifiziert - z.B. non-root image](kubectl-examples/16-run-pod-as-unprivileged-user.md)
-   
+     * [Übung: FE zu Backend Verbindungen debuggen mit kubectl debug und NetworkPolicy](kubectl-examples/20-debug-networkpolicy.md)
+     * [Übung: Service-Verbindungsprobleme debuggen mit kubectl debug (ohne NetworkPolicy)](kubectl-examples/21-debug-service.md)
+
+  1. Kubernetes RBAC
+     * [Kubernetes RBAC - was darf Traefik](kubernetes-rbac/was-darf-traefik.md)
+     
   1. Weiter lernen 
      * [Lernumgebung](https://killercoda.com/)
      * [Kubernetes Doku - Bestimmte Tasks lernen](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/)
@@ -162,10 +152,21 @@
   1. Kubernetes Monitoring 
      * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
      * [Prometheus / Grafana Stack installieren](prometheus-grafana/install-with-helm.md)
- 
+
+  1. Kubernetes Monitoring (checkmk)
+     * [Checkmk Server mit Docker einrichten - Script (umfangreich) mit letsencrypt und ssl](/kubernetes-monitoring/checkmk/00-setup-script-checkmk-cloud-docker.md)
+     * [Checkmk in Kubernetes einrichten (checkmk raw)](/kubernetes-monitoring/checkmk/setup-kubernetes-checkmk-raw.md)
+     * [Checkmk in Kubernetes einrichten (checkmk enterprise/cloud edition)](/kubernetes-monitoring/checkmk/setup-kubernetes-checkmk-enterprise-cloud-edition.md)
+     * [Checkmk Raw vs. Enterprise in Bezug auf Kubernetes](/kubernetes-monitoring/checkmk/02-checkmk-kubernetes-wichtig-enterprise.md)
+     * [Kubernetes Dashboards](/kubernetes-monitoring/checkmk/03-kubernetes-dashboards.md)
+
+  1. Kubernetes Perfomance
+     * [Heap analyse](/kubernetes-perfomance/heap-memory-analyse.md)
+      
   1. Kubernetes QoS / HealthChecks / Live / Readiness
      * [Quality of Service - evict pods](kubernetes/qos-class.md)
      * [LiveNess/Readiness - Probe / HealthChecks](probes/uebung-liveness.md)
+     * [Uebung: Readiness Probe mit HTTP](kubectl-examples/03c-readiness-probe.md)
      * [Taints / Toleratioins](kubernetes/taints-tolerations.md)
     
   1. Installation mit microk8s
@@ -176,14 +177,57 @@
   1. Installation mit kubeadm
      * [Schritt für Schritt mit kubeadm](kubeadm/installation-cni-calico.md)
 
+  1. Kubernetes Netzwerk (Antrea / NSX)
+     * [Netzwerkspezialität bei NSX mit Antrea](/kubernetes-network/antrea/netzwerkaufbau.md)
+
   1. Tipps & Tricks
      * [Pods bleiben im terminate-mode stehen](/tipps-tricks/pod-bleibt-in-terminate.md)
-     
+
+  1. Datenbanken
+     * [MariaDB Operator](https://github.com/mariadb-operator/mariadb-operator)
+     * [HA mit dem Postgres Operator -> cloudnativePG umsetzen](databases/postgresql/operator/cloudnativepg.md)
+     * [Graph-Datenbank neo4j installieren mit helm](/databases/neo4j/installation.md)
+     * [Graph-Datenbank neo4j Cluster mit Operator installieren](https://github.com/neo4j-partners/neo4j-kubernetes-operator/blob/main/examples/clusters/multi-server-cluster.yaml)
 
 ## Backlog 
 
   1. Podman
      * [Podman vs. Docker](podman/podman-vs-docker.md) 
+
+ 1. Kubernetes Installation
+     * [Kubernetes Installation mit Proxmox und kubespray](installation/proxmox-kubespray.md)
+    
+  1. Kubernetes Workloads
+     * [Welche Wege gibt es Kubernetes Workloads auszurollen](kubernetes-workloads/best-practices-fuers-ausrollen.md)
+    
+  1. Kubernetes Infrastructure (Performance)
+     * [Performance of etcd for setup](kubernetes/etcd/performance-testing.md)
+    
+  1. Kubernetes - Überblick
+     * [Liste wichtiger/sinnvoller Client-Tools](https://github.com/jmetzger/training-kubernetes-einfuehrung/blob/main/tools/liste-client-tools.md)
+
+  1. Kubernetes - Hochverfügbarkeit
+     * [Strategien für Hochverfügbarkeit](kubernetes-ha/strategien-hochverfügbarkeit-kubernetes.md)
+    
+  1. Kubernetes - Authentication
+     * [oidc mit kubectl](security/authentication/oidc/oidc-mit-kubectl.md)
+     * [traefik authentication mit oidc](security/authentication/oidc/oidc-mit-traefik-fuer-auth.md)
+
+  1. Kubernetes Deployment - Internals
+     * [Strategy when creating and terminating pods in Deployment - RollingUpdate - maxSurge, maxUnavailability](/kubernetes/deployment/strategy/rollingUpdate-maxSurge-maxUnavailability.md)
+
+  1. Kubernetes Ingress (Eingehender Traffik ins Cluster)
+     * [Wann LoadBalancer, wann Ingress](ingress/ingress-vs-loadbalancer.md)
+    
+  1. Kubernetes Ingress (Nginx - deprecated)   
+     * [Ingress Controller auf Digitalocean (doks) mit helm installieren](/digitalocean/ingress-auf-digitalocean-mit-helm.md)
+     * [Documentation for default ingress nginx](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
+     * [Beispiel Ingress](/kubectl-examples/04-ingress-nginx.md)
+     * [Beispiel mit Hostnamen](/kubectl-examples/04-ingress-nginx-with-hostnames.md)
+     * [Beispiel Deployment mit Ingress und Hostnamen](kubectl-examples/04-ingress-nginx-with-hostnames-deployment.md)
+     * [Achtung: Ingress mit Helm - annotations](/ingress-mit-helm-class-achtung.md)
+     * [Permanente Weiterleitung mit Ingress](/kubectl-examples/05-ingress-permanent-redirect.md)
+
 
   1. ServiceMesh
      * [Why a ServiceMesh ?](istio/overview/benefits-of-a-service-mesh.md)
@@ -224,10 +268,7 @@
        
   1. LoadBalancer on Premise (metallb)
      * [Metallb](/metallb.md)
-       
-  1. Helm mit gitlab ci/cd
-     * [Helm mit gitlab ci/cd ausrollen](helm/helm/gitlab-ci-cd/example-helm-kubernetes.md)
-    
+        
   1. Kubernetes Verläßlichkeit erreichen 
      * [Keine 2 pods auf gleichem Node - PodAntinAffinity](kubectl-examples/18-pod-anti-affinity.md)
       
@@ -255,6 +296,8 @@
 
   1. Kubernetes NetworkPolicy (Firewall)
      * [Kubernetes Network Policy Beispiel](kubernetes-networkpolicy/00-simple-exercises-group.md)    
+     * [Übung: NetworkPolicy - Pod-Traffic absichern](kubernetes-networkpolicy/01-networkpolicy-pod-traffic.md)
+     * [Übung: FE zu Backend Verbindungen debuggen mit kubectl debug und NetworkPolicy](kubectl-examples/20-debug-networkpolicy.md)
 
   1. Kubernetes Autoscaling 
      * [Kubernetes Autoscaling](/kubernetes/autoscaling.md)

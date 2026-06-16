@@ -1,6 +1,10 @@
 # https - mit letsencrypt in ingress 
 
-## Schritt 1: cert-manager installieren 
+## Prerequisites 
+
+  * abi-projekt muss existieren
+
+## Trainer: Schritt 1: cert-manager installieren 
 
 ```
 helm repo add jetstack https://charts.jetstack.io
@@ -13,7 +17,7 @@ helm upgrade --install cert-manager jetstack/cert-manager \
 
   * Ref: https://artifacthub.io/packages/helm/cert-manager/cert-manager
 
-## Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
+## Trainer: Schritt 2: Create ClusterIssuer (gets certificates from Letsencrypt)
 
 ```
 cd
@@ -53,7 +57,12 @@ kubectl get clusterissuer
 ## Schritt 3: Ingress-Objekt mit TLS erstellen 
 
 ```
-nano example-ingress.yaml
+cd
+cd manifests/abi
+```
+
+```
+nano ingress.yml
 ```
 
 ```
@@ -67,11 +76,11 @@ spec:
   ingressClassName: traefik
   tls:
   - hosts:
-    - <dein-name>.app.do.t3isp.de
+    - <dein-name>.appv2.do.t3isp.de
     secretName: example-tls
 
   rules:
-  - host: "<dein-name>.app.do.t3isp.de"
+  - host: "<dein-name>.appv2.do.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -102,14 +111,45 @@ kubectl apply -f .
 
 ```
 kubectl describe certificate example-tls
+```
+```
+# muss auf True stehen 
 kubectl get cert
+```
+
+<img width="565" height="60" alt="image" src="https://github.com/user-attachments/assets/8d492fdf-a051-4b04-95cf-a62bdb3d0964" />
+
+```
 # Certificate Request 
 kubectl get cr
 # da ist das Zertfikat drin 
-kubectl get secret example-tls 
+kubectl get secret example-tls
+kubectl get orders 
 ```
 
+### Debugging 
+
+  * Solange das Zertifikat nicht bestätigt bei der ACME-Anfrage (Challenge), seht ihr das noch unter
+
+```
+kubectl get challenges
+```
+
+### Verschlüsselungstiefe ehöhen
+
+  * Standardmäßig 2048bit
+
+```
+    # Hier legst du die Verschlüsselungstiefe fest
+    cert-manager.io/private-key-algorithm: "RSA"
+    cert-manager.io/private-key-size: "4096"
+
+```
+
+
 ## Schritt 5: Testen
+
+   * Aufruf der Subdomain im Browser (mit https): z.B. https://jochen.app.do.t3isp.de/banana
 
 ## Ref: 
 
