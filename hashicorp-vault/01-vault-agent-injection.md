@@ -64,7 +64,7 @@ Vault laeuft im Dev-Modus: Root-Token `root`, kein TLS, In-Memory-Storage.
 
 ---
 
-## Schritt 1: Verzeichnis anlegen
+## Schritt 1: Verzeichnis anlegen und Namen setzen
 
 ```
 cd
@@ -74,19 +74,23 @@ mkdir vault-injection
 cd vault-injection
 ```
 
-## Schritt 2: Namespace und ServiceAccount erstellen
-
-Ersetze `<dein-name>` in allen folgenden Befehlen mit deinem Namen (z.B. `jochen`).
+Namen einmalig setzen — alle folgenden Befehle nutzen automatisch `$NAME`:
 
 ```
-kubectl create namespace vault-<dein-name>
-kubectl create serviceaccount vault-auth -n vault-<dein-name>
+NAME=jochen
+```
+
+## Schritt 2: Namespace und ServiceAccount erstellen
+
+```
+kubectl create namespace vault-$NAME
+kubectl create serviceaccount vault-auth -n vault-$NAME
 ```
 
 Pruefe:
 
 ```
-kubectl get serviceaccount vault-auth -n vault-<dein-name>
+kubectl get serviceaccount vault-auth -n vault-$NAME
 ```
 
 ## Schritt 3: Secret in Vault anlegen
@@ -94,7 +98,7 @@ kubectl get serviceaccount vault-auth -n vault-<dein-name>
 Vault laeuft als Pod im Namespace `vault`. Alle Vault-Befehle werden per `kubectl exec` ausgefuehrt.
 
 ```
-kubectl exec -n vault vault-0 -- vault kv put secret/<dein-name>/config \
+kubectl exec -n vault vault-0 -- vault kv put secret/$NAME/config \
   username="dbuser" \
   password="supersecret123"
 ```
@@ -102,7 +106,7 @@ kubectl exec -n vault vault-0 -- vault kv put secret/<dein-name>/config \
 Pruefen ob das Secret gespeichert wurde:
 
 ```
-kubectl exec -n vault vault-0 -- vault kv get secret/<dein-name>/config
+kubectl exec -n vault vault-0 -- vault kv get secret/$NAME/config
 ```
 
 Erwartete Ausgabe:
@@ -124,19 +128,19 @@ Die Policy legt fest, auf welche Pfade zugegriffen werden darf.
 
 ```
 kubectl exec -n vault vault-0 -- /bin/sh -c "
-cat > /tmp/<dein-name>-policy.hcl << 'EOF'
-path \"secret/data/<dein-name>/config\" {
+cat > /tmp/$NAME-policy.hcl << 'EOF'
+path \"secret/data/$NAME/config\" {
   capabilities = [\"read\"]
 }
 EOF
-vault policy write <dein-name>-policy /tmp/<dein-name>-policy.hcl
+vault policy write $NAME-policy /tmp/$NAME-policy.hcl
 "
 ```
 
 Policy pruefen:
 
 ```
-kubectl exec -n vault vault-0 -- vault policy read <dein-name>-policy
+kubectl exec -n vault vault-0 -- vault policy read $NAME-policy
 ```
 
 Erwartete Ausgabe:
@@ -152,17 +156,17 @@ path "secret/data/<dein-name>/config" {
 Die Role verbindet den Kubernetes ServiceAccount mit der Policy.
 
 ```
-kubectl exec -n vault vault-0 -- vault write auth/kubernetes/role/<dein-name>-role \
+kubectl exec -n vault vault-0 -- vault write auth/kubernetes/role/$NAME-role \
   bound_service_account_names=vault-auth \
-  bound_service_account_namespaces=vault-<dein-name> \
-  policies=<dein-name>-policy \
+  bound_service_account_namespaces=vault-$NAME \
+  policies=$NAME-policy \
   ttl=24h
 ```
 
 Role pruefen:
 
 ```
-kubectl exec -n vault vault-0 -- vault read auth/kubernetes/role/<dein-name>-role
+kubectl exec -n vault vault-0 -- vault read auth/kubernetes/role/$NAME-role
 ```
 
 ## Schritt 6: Deployment anlegen
@@ -175,10 +179,10 @@ kubectl exec -n vault vault-0 -- vault read auth/kubernetes/role/<dein-name>-rol
 
 ![agent-inject-secret erklärt](img/05-secret-annotation.svg)
 
-**Wichtig:** Ersetze alle drei Vorkommen von `<dein-name>` in der Datei.
+Manifest erstellen — `$NAME` wird automatisch eingesetzt:
 
 ```
-# vi 01-deployment.yml
+cat > 01-deployment.yml << EOF
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -194,10 +198,10 @@ spec:
         app: myapp
       annotations:
         vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/role: "<dein-name>-role"
-        vault.hashicorp.com/agent-inject-secret-config: "secret/data/<dein-name>/config"
+        vault.hashicorp.com/role: "$NAME-role"
+        vault.hashicorp.com/agent-inject-secret-config: "secret/data/$NAME/config"
         vault.hashicorp.com/agent-inject-template-config: |
-          {{- with secret "secret/data/<dein-name>/config" -}}
+          {{- with secret "secret/data/$NAME/config" -}}
           username={{ .Data.data.username }}
           password={{ .Data.data.password }}
           {{- end }}
@@ -206,10 +210,11 @@ spec:
       containers:
       - name: app
         image: nginx:alpine
+EOF
 ```
 
 ```
-kubectl apply -f . -n vault-<dein-name>
+kubectl apply -f . -n vault-$NAME
 ```
 
 ## Schritt 7: Ergebnis pruefen
@@ -217,7 +222,7 @@ kubectl apply -f . -n vault-<dein-name>
 Pod-Status pruefen — `2/2` bedeutet: `app` + `vault-agent` Sidecar laufen:
 
 ```
-kubectl get pods -n vault-<dein-name>
+kubectl get pods -n vault-$NAME
 ```
 
 Erwartete Ausgabe:
@@ -230,7 +235,7 @@ myapp-xxxxx             2/2     Running   0          10s
 Injiziertes Secret lesen:
 
 ```
-kubectl exec -n vault-<dein-name> deploy/myapp -c app -- cat /vault/secrets/config
+kubectl exec -n vault-$NAME deploy/myapp -c app -- cat /vault/secrets/config
 ```
 
 Erwartete Ausgabe:
@@ -243,7 +248,7 @@ password=supersecret123
 Container-Struktur des Pods ansehen (Init Container + 2 regulaere Container):
 
 ```
-kubectl describe pod -n vault-<dein-name> -l app=myapp | grep -A 2 "Init Containers:\|Containers:"
+kubectl describe pod -n vault-$NAME -l app=myapp | grep -A 2 "Init Containers:\|Containers:"
 ```
 
 ## Schritt 8: Secret aktualisieren (Bonus)
@@ -251,7 +256,7 @@ kubectl describe pod -n vault-<dein-name> -l app=myapp | grep -A 2 "Init Contain
 Das Passwort in Vault aendern:
 
 ```
-kubectl exec -n vault vault-0 -- vault kv put secret/<dein-name>/config \
+kubectl exec -n vault vault-0 -- vault kv put secret/$NAME/config \
   username="dbuser" \
   password="neuespasswort456"
 ```
@@ -259,21 +264,21 @@ kubectl exec -n vault vault-0 -- vault kv put secret/<dein-name>/config \
 Nach kurzer Zeit aktualisiert der `vault-agent` Sidecar die Datei automatisch im Pod:
 
 ```
-kubectl exec -n vault-<dein-name> deploy/myapp -c app -- cat /vault/secrets/config
+kubectl exec -n vault-$NAME deploy/myapp -c app -- cat /vault/secrets/config
 ```
 
 ## Aufraeumen
 
 ```
-kubectl delete namespace vault-<dein-name>
+kubectl delete namespace vault-$NAME
 ```
 
 Vault-Eintraege aufraeumen (optional):
 
 ```
-kubectl exec -n vault vault-0 -- vault kv delete secret/<dein-name>/config
-kubectl exec -n vault vault-0 -- vault policy delete <dein-name>-policy
-kubectl exec -n vault vault-0 -- vault delete auth/kubernetes/role/<dein-name>-role
+kubectl exec -n vault vault-0 -- vault kv delete secret/$NAME/config
+kubectl exec -n vault vault-0 -- vault policy delete $NAME-policy
+kubectl exec -n vault vault-0 -- vault delete auth/kubernetes/role/$NAME-role
 ```
 
 ## Zusammenfassung
