@@ -171,6 +171,10 @@ kubectl exec -n vault vault-0 -- vault read auth/kubernetes/role/<dein-name>-rol
 
 ![Vault Annotations erklärt](img/04-annotations.svg)
 
+### agent-inject-secret im Detail
+
+![agent-inject-secret erklärt](img/05-secret-annotation.svg)
+
 **Wichtig:** Ersetze alle drei Vorkommen von `<dein-name>` in der Datei.
 
 ```
