@@ -79,6 +79,7 @@
      * [Alternative zu Hashicorp Vault - Fork OpenBao](https://openbao.org/)
      * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
      * [Kubernetes secrets mit sops (mariadb)](kubectl-examples/09-mariadb-secret-mit-sops.md)
+     * [Vergleich: GitLab CI/CD vs. SOPS vs. Vault](/kubernetes/secrets/secret-management-vergleich.md)
 
   1. Hashicorp Vault
      * [Uebersicht Vault in Kubernetes](/hashicorp-vault/overview.md)
