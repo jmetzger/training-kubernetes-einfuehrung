@@ -8,95 +8,31 @@ Der Vault Agent Injector ist ein **Mutating Webhook** in Kubernetes.
 Das bedeutet: Jede neue Pod-Definition wird automatisch abgefangen und veraendert,
 bevor der Pod wirklich startet — ohne dass du deinen Application-Code anfassen musst.
 
-```
-                    kubectl apply
-                         |
-                         v
-              +------------------------+
-              | Kubernetes API Server  |
-              +------------------------+
-                         |
-                         | "Neuer Pod mit Annotation vault.hashicorp.com/agent-inject: true"
-                         v
-              +------------------------+
-              | Vault Injector Webhook |  <-- veraendert die Pod-Spec automatisch
-              +------------------------+
-                         |
-                         v
-              +------------------------+
-              | Pod (veraendert)       |
-              | ├── vault-agent-init  |  neu: holt Secret beim Start
-              | ├── app               |  dein Container
-              | └── vault-agent       |  neu: Sidecar, haelt Verbindung aufrecht
-              +------------------------+
-```
+![Vault Agent Injector Mutating Webhook](img/01-webhook-mutation.svg)
 
-### Wie sieht ein Pod vor und nach der Injektion aus?
+Die Annotation `vault.hashicorp.com/agent-inject: "true"` im Pod-Manifest reicht aus,
+damit der Injector zwei neue Container in jeden Pod einschleust:
 
-```
-VORHER (dein Manifest):          NACHHER (was wirklich laeuft):
-
-spec:                            spec:
-  containers:                      initContainers:
-  - name: app         ---->        - name: vault-agent-init   <- automatisch hinzugefuegt
-    image: nginx                   containers:
-                                   - name: app
-                                     image: nginx
-                                   - name: vault-agent        <- automatisch hinzugefuegt
-```
+- **vault-agent-init** (Init Container): laeuft einmalig beim Start, holt das Secret aus Vault
+- **vault-agent** (Sidecar Container): laeuft dauerhaft neben deiner App, erneuert Leases
 
 ### Wie laeuft die Authentifizierung ab?
 
 Der Pod muss sich bei Vault beweisen, dass er berechtigt ist, das Secret zu lesen.
-Das passiert ueber den **Kubernetes ServiceAccount Token** (JWT).
+Das passiert ueber den **Kubernetes ServiceAccount Token** (JWT) — vollautomatisch.
 
-```
-  Pod startet
-       |
-       | (1) vault-agent-init schickt JWT des ServiceAccount an Vault
-       v
-  +------------------+
-  |   Vault Server   |
-  +------------------+
-       |
-       | (2) Vault fragt Kubernetes: "Ist dieser JWT gueltig?"
-       v
-  +------------------+
-  | Kubernetes API   |  (TokenReview)
-  +------------------+
-       |
-       | (3) "Ja, SA=vault-auth, Namespace=vault-<dein-name>"
-       v
-  +------------------+
-  |   Vault Server   |
-  +------------------+
-       |
-       | (4) Vault prueft: passt SA + Namespace zur Role?
-       |     bound_service_account_names      = vault-auth       ✓
-       |     bound_service_account_namespaces = vault-<dein-name> ✓
-       |
-       | (5) Vault liefert das Secret
-       v
-  vault-agent-init schreibt /vault/secrets/config in den Pod
-       |
-       v
-  app Container startet — Secret liegt als Datei bereit
-```
+![Vault Kubernetes Auth Ablauf](img/02-auth-flow.svg)
 
-### Was landet am Ende im Pod?
+Vault fragt Kubernetes per **TokenReview** ob der JWT-Token gueltig ist und prueft dann,
+ob der ServiceAccount und der Namespace zur konfigurierten Role passen.
 
-```
-  Dateisystem im laufenden Pod:
+### Wo landet das Secret?
 
-  /vault/
-  └── secrets/
-      └── config        <- Datei, kein Kubernetes Secret-Objekt!
-          username=dbuser
-          password=supersecret123
-```
+![Secret Location Vergleich](img/03-secret-location.svg)
 
-Das Secret existiert **nur im Speicher des Pods** — es wird nie als Kubernetes Secret
-Objekt gespeichert und taucht nicht in `kubectl get secrets` auf.
+Das Besondere: Es wird **kein Kubernetes Secret Objekt** erstellt.
+Das Secret existiert nur als Datei im Arbeitsspeicher des Pods (`/vault/secrets/config`)
+und taucht weder in `kubectl get secrets` auf noch wird es in etcd gespeichert.
 
 ---
 

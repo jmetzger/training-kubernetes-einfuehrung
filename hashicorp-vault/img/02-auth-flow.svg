@@ -1,0 +1,92 @@
+<svg width="740" height="440" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748B"/>
+    </marker>
+    <marker id="arr-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#16A34A"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="740" height="440" fill="#F8FAFC" rx="12"/>
+
+  <!-- Title -->
+  <text x="370" y="34" text-anchor="middle" font-size="16" font-weight="bold" fill="#1E293B">Vault Kubernetes Auth — Ablauf</text>
+
+  <!-- ===== LEFT COLUMN: Pod ===== -->
+  <!-- Pod box -->
+  <rect x="30" y="60" width="190" height="76" fill="#FFF7ED" stroke="#F97316" stroke-width="2" rx="8"/>
+  <rect x="30" y="60" width="190" height="30" fill="#F97316" rx="8"/>
+  <rect x="30" y="78" width="190" height="12" fill="#F97316"/>
+  <text x="125" y="80" text-anchor="middle" font-size="13" font-weight="bold" fill="white">Pod</text>
+  <text x="125" y="110" text-anchor="middle" font-size="11" fill="#92400E">vault-agent-init startet</text>
+  <text x="125" y="126" text-anchor="middle" font-size="10" fill="#78350F">ServiceAccount: vault-auth</text>
+
+  <!-- Down arrow from Pod to (1) circle -->
+  <line x1="125" y1="136" x2="125" y2="290" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+  <!-- /vault/secrets/config box -->
+  <rect x="30" y="310" width="190" height="76" fill="#FFFBEB" stroke="#D97706" stroke-width="2" rx="8"/>
+  <rect x="30" y="310" width="190" height="30" fill="#D97706" rx="8"/>
+  <rect x="30" y="328" width="190" height="12" fill="#D97706"/>
+  <text x="125" y="330" text-anchor="middle" font-size="12" font-weight="bold" fill="white">/vault/secrets/config</text>
+  <text x="125" y="360" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#78350F">username=dbuser</text>
+  <text x="125" y="376" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#78350F">password=supersecret123</text>
+
+  <!-- ===== CENTER COLUMN: Vault Server ===== -->
+  <rect x="275" y="60" width="190" height="240" fill="#F0FDF4" stroke="#16A34A" stroke-width="2" rx="8"/>
+  <rect x="275" y="60" width="190" height="30" fill="#16A34A" rx="8"/>
+  <rect x="275" y="78" width="190" height="12" fill="#16A34A"/>
+  <text x="370" y="80" text-anchor="middle" font-size="13" font-weight="bold" fill="white">Vault Server</text>
+
+  <!-- Steps inside Vault box -->
+  <text x="370" y="118" text-anchor="middle" font-size="10" fill="#14532D" font-weight="bold">prüft Role:</text>
+  <text x="370" y="136" text-anchor="middle" font-size="10" fill="#166534">bound_service_account_</text>
+  <text x="370" y="152" text-anchor="middle" font-size="10" fill="#166534">  names = vault-auth ✓</text>
+  <text x="370" y="170" text-anchor="middle" font-size="10" fill="#166534">bound_service_account_</text>
+  <text x="370" y="186" text-anchor="middle" font-size="10" fill="#166534">  namespaces = vault-... ✓</text>
+  <line x1="285" y1="200" x2="455" y2="200" stroke="#BBF7D0" stroke-width="1"/>
+  <text x="370" y="220" text-anchor="middle" font-size="10" fill="#14532D" font-weight="bold">policies = jochen-policy</text>
+  <text x="370" y="238" text-anchor="middle" font-size="10" fill="#166534">path "secret/data/..." read ✓</text>
+  <text x="370" y="258" text-anchor="middle" font-size="10" fill="#14532D" font-weight="bold">→ Vault Token ausgestellt</text>
+  <text x="370" y="278" text-anchor="middle" font-size="10" fill="#166534">ttl=24h</text>
+
+  <!-- ===== RIGHT COLUMN: Kubernetes API ===== -->
+  <rect x="520" y="130" width="190" height="90" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2" rx="8"/>
+  <rect x="520" y="130" width="190" height="30" fill="#3B82F6" rx="8"/>
+  <rect x="520" y="148" width="190" height="12" fill="#3B82F6"/>
+  <text x="615" y="150" text-anchor="middle" font-size="13" font-weight="bold" fill="white">Kubernetes API</text>
+  <text x="615" y="182" text-anchor="middle" font-size="10" fill="#1E40AF">TokenReview:</text>
+  <text x="615" y="200" text-anchor="middle" font-size="10" fill="#1E40AF">"JWT gültig?" → Ja ✓</text>
+
+  <!-- ===== ARROWS ===== -->
+
+  <!-- (1) Pod → Vault: JWT -->
+  <line x1="220" y1="95" x2="273" y2="95" stroke="#64748B" stroke-width="2" marker-end="url(#arr)"/>
+  <circle cx="246" cy="82" r="10" fill="#3B82F6"/>
+  <text x="246" y="86" text-anchor="middle" font-size="10" font-weight="bold" fill="white">1</text>
+  <text x="246" y="112" text-anchor="middle" font-size="9" fill="#374151">JWT</text>
+
+  <!-- (2) Vault → K8s API: TokenReview -->
+  <line x1="465" y1="165" x2="518" y2="165" stroke="#64748B" stroke-width="2" marker-end="url(#arr)"/>
+  <circle cx="491" cy="152" r="10" fill="#3B82F6"/>
+  <text x="491" y="156" text-anchor="middle" font-size="10" font-weight="bold" fill="white">2</text>
+  <text x="491" y="182" text-anchor="middle" font-size="9" fill="#374151">TokenReview</text>
+
+  <!-- (3) K8s API → Vault: Valid -->
+  <line x1="518" y1="200" x2="465" y2="200" stroke="#64748B" stroke-width="2" marker-end="url(#arr)"/>
+  <circle cx="491" cy="213" r="10" fill="#3B82F6"/>
+  <text x="491" y="217" text-anchor="middle" font-size="10" font-weight="bold" fill="white">3</text>
+  <text x="491" y="232" text-anchor="middle" font-size="9" fill="#374151">"Valid!"</text>
+
+  <!-- (4) Vault → Secret (downward from Vault to pod's file) -->
+  <line x1="370" y1="300" x2="370" y2="355" stroke="#64748B" stroke-width="2"/>
+  <line x1="370" y1="355" x2="222" y2="355" stroke="#64748B" stroke-width="2" marker-end="url(#arr)"/>
+  <circle cx="282" cy="342" r="10" fill="#3B82F6"/>
+  <text x="282" y="346" text-anchor="middle" font-size="10" font-weight="bold" fill="white">4</text>
+  <text x="310" y="330" text-anchor="middle" font-size="9" fill="#374151">Secret-Inhalt</text>
+
+  <!-- Footer note -->
+  <text x="370" y="418" text-anchor="middle" font-size="11" fill="#64748B" font-style="italic">Kein Kubernetes Secret Objekt — nur eine Datei im Pod-Speicher</text>
+</svg>

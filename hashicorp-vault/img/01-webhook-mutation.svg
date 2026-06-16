@@ -1,0 +1,85 @@
+<svg width="780" height="370" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748B"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="780" height="370" fill="#F8FAFC" rx="12"/>
+
+  <!-- Title -->
+  <text x="390" y="34" text-anchor="middle" font-size="16" font-weight="bold" fill="#1E293B">Vault Agent Injector — Mutating Webhook</text>
+
+  <!-- ===== LEFT: Dein Manifest ===== -->
+  <rect x="22" y="58" width="200" height="258" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2" rx="8"/>
+  <rect x="22" y="58" width="200" height="32" fill="#3B82F6" rx="8"/>
+  <rect x="22" y="78" width="200" height="12" fill="#3B82F6"/>
+  <text x="122" y="79" text-anchor="middle" font-size="13" font-weight="bold" fill="white">Dein Manifest</text>
+
+  <text x="38" y="116" font-family="Courier New, monospace" font-size="11" fill="#1D4ED8">spec:</text>
+  <text x="38" y="133" font-family="Courier New, monospace" font-size="11" fill="#1D4ED8">  containers:</text>
+  <text x="38" y="150" font-family="Courier New, monospace" font-size="11" fill="#1D4ED8">  - name: app</text>
+  <text x="38" y="167" font-family="Courier New, monospace" font-size="11" fill="#1D4ED8">    image: nginx</text>
+
+  <line x1="32" y1="183" x2="212" y2="183" stroke="#BFDBFE" stroke-width="1"/>
+  <text x="38" y="200" font-size="10" fill="#6B7280">annotations:</text>
+  <rect x="32" y="207" width="176" height="90" fill="#DBEAFE" stroke="#93C5FD" stroke-width="1" rx="4"/>
+  <text x="42" y="223" font-family="Courier New, monospace" font-size="9" fill="#1D4ED8">agent-inject: "true"</text>
+  <text x="42" y="239" font-family="Courier New, monospace" font-size="9" fill="#1D4ED8">role: "jochen-role"</text>
+  <text x="42" y="255" font-family="Courier New, monospace" font-size="9" fill="#1D4ED8">agent-inject-secret-</text>
+  <text x="42" y="270" font-family="Courier New, monospace" font-size="9" fill="#1D4ED8">  config: "secret/..."</text>
+  <text x="42" y="288" font-family="Courier New, monospace" font-size="9" fill="#1D4ED8">agent-inject-template</text>
+
+  <!-- Arrow 1 -->
+  <line x1="224" y1="188" x2="280" y2="188" stroke="#64748B" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="252" y="182" text-anchor="middle" font-size="10" fill="#64748B">Webhook</text>
+  <text x="252" y="198" text-anchor="middle" font-size="10" fill="#64748B">prüft</text>
+
+  <!-- ===== CENTER: Vault Injector ===== -->
+  <rect x="283" y="118" width="214" height="140" fill="#F0FDF4" stroke="#16A34A" stroke-width="2" rx="8"/>
+  <rect x="283" y="118" width="214" height="32" fill="#16A34A" rx="8"/>
+  <rect x="283" y="138" width="214" height="12" fill="#16A34A"/>
+  <text x="390" y="139" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Vault Agent Injector</text>
+  <text x="390" y="168" text-anchor="middle" font-size="11" fill="#15803D">Mutating Webhook</text>
+  <text x="390" y="188" text-anchor="middle" font-size="10" fill="#166534">erkennt Annotation,</text>
+  <text x="390" y="206" text-anchor="middle" font-size="10" fill="#166534">ergänzt Pod-Spec</text>
+  <text x="390" y="224" text-anchor="middle" font-size="10" fill="#166534">automatisch</text>
+
+  <!-- Arrow 2 -->
+  <line x1="499" y1="188" x2="554" y2="188" stroke="#64748B" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="527" y="182" text-anchor="middle" font-size="10" fill="#64748B">mutiert</text>
+  <text x="527" y="198" text-anchor="middle" font-size="10" fill="#64748B">Pod-Spec</text>
+
+  <!-- ===== RIGHT: Laufender Pod ===== -->
+  <rect x="557" y="58" width="200" height="280" fill="#FFF7ED" stroke="#F97316" stroke-width="2" rx="8"/>
+  <rect x="557" y="58" width="200" height="32" fill="#F97316" rx="8"/>
+  <rect x="557" y="78" width="200" height="12" fill="#F97316"/>
+  <text x="657" y="79" text-anchor="middle" font-size="13" font-weight="bold" fill="white">Laufender Pod</text>
+
+  <!-- vault-agent-init -->
+  <rect x="572" y="104" width="170" height="56" fill="#FEF9C3" stroke="#CA8A04" stroke-width="1.5" rx="6"/>
+  <rect x="713" y="100" width="34" height="16" fill="#CA8A04" rx="3"/>
+  <text x="730" y="112" text-anchor="middle" font-size="9" font-weight="bold" fill="white">NEU</text>
+  <text x="657" y="126" text-anchor="middle" font-size="11" font-weight="bold" fill="#713F12">vault-agent-init</text>
+  <text x="657" y="146" text-anchor="middle" font-size="10" fill="#92400E">Init Container</text>
+
+  <line x1="570" y1="168" x2="734" y2="168" stroke="#FDBA74" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- app -->
+  <rect x="572" y="174" width="170" height="56" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5" rx="6"/>
+  <text x="657" y="196" text-anchor="middle" font-size="11" font-weight="bold" fill="#1E3A8A">app</text>
+  <text x="657" y="218" text-anchor="middle" font-size="10" fill="#1E40AF">dein Container</text>
+
+  <line x1="570" y1="238" x2="734" y2="238" stroke="#FDBA74" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- vault-agent sidecar -->
+  <rect x="572" y="244" width="170" height="56" fill="#F0FDF4" stroke="#16A34A" stroke-width="1.5" rx="6"/>
+  <rect x="713" y="240" width="34" height="16" fill="#16A34A" rx="3"/>
+  <text x="730" y="252" text-anchor="middle" font-size="9" font-weight="bold" fill="white">NEU</text>
+  <text x="657" y="266" text-anchor="middle" font-size="11" font-weight="bold" fill="#14532D">vault-agent</text>
+  <text x="657" y="286" text-anchor="middle" font-size="10" fill="#166534">Sidecar Container</text>
+
+  <!-- Footer -->
+  <text x="390" y="352" text-anchor="middle" font-size="11" fill="#64748B" font-style="italic">Kein Code-Änderung nötig — Annotations steuern alles</text>
+</svg>
