@@ -102,6 +102,10 @@
      * [Exercise Sealed Secret mariadb](/kubectl-examples/08-sealed-secret.md)
      * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
+  1. Hashicorp Vault
+     * [Uebersicht Vault in Kubernetes](/hashicorp-vault/overview.md)
+     * [Uebung: Vault Agent Injection](/hashicorp-vault/01-vault-agent-injection.md)
+
   1. Kubernetes API-Objekte (Teil 2)
      *  [Jobs](kubectl-examples/12-job.md)
      *  [Cronjobs](kubectl-examples/11-cronjob.md)
