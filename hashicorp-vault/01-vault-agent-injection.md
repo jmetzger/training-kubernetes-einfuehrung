@@ -2,22 +2,105 @@
 
 ## Hintergrund
 
-Der Vault Agent Injector ist ein Kubernetes Mutating Webhook, der Pods automatisch
-einen Init-Container und einen Sidecar-Container hinzufuegt. Der Init-Container holt
-das Secret beim Start, der Sidecar haelt die Verbindung aufrecht.
+### Was ist der Vault Agent Injector?
+
+Der Vault Agent Injector ist ein **Mutating Webhook** in Kubernetes.
+Das bedeutet: Jede neue Pod-Definition wird automatisch abgefangen und veraendert,
+bevor der Pod wirklich startet — ohne dass du deinen Application-Code anfassen musst.
 
 ```
-Pod (nach Injektion)
-├── vault-agent-init  (Init Container: holt Secret beim Start)
-├── app               (dein Container: liest /vault/secrets/config)
-└── vault-agent       (Sidecar: erneuert Lease, aktualisiert Secret)
+                    kubectl apply
+                         |
+                         v
+              +------------------------+
+              | Kubernetes API Server  |
+              +------------------------+
+                         |
+                         | "Neuer Pod mit Annotation vault.hashicorp.com/agent-inject: true"
+                         v
+              +------------------------+
+              | Vault Injector Webhook |  <-- veraendert die Pod-Spec automatisch
+              +------------------------+
+                         |
+                         v
+              +------------------------+
+              | Pod (veraendert)       |
+              | ├── vault-agent-init  |  neu: holt Secret beim Start
+              | ├── app               |  dein Container
+              | └── vault-agent       |  neu: Sidecar, haelt Verbindung aufrecht
+              +------------------------+
 ```
 
-Die Konfiguration erfolgt ausschliesslich ueber Pod-Annotations - kein Code-Aenderung noetig.
+### Wie sieht ein Pod vor und nach der Injektion aus?
 
-## Voraussetzung: Vault laeuft im Cluster (Trainer-Setup)
+```
+VORHER (dein Manifest):          NACHHER (was wirklich laeuft):
 
-Der Trainer fuehrt diese Schritte einmalig fuer alle Teilnehmer aus:
+spec:                            spec:
+  containers:                      initContainers:
+  - name: app         ---->        - name: vault-agent-init   <- automatisch hinzugefuegt
+    image: nginx                   containers:
+                                   - name: app
+                                     image: nginx
+                                   - name: vault-agent        <- automatisch hinzugefuegt
+```
+
+### Wie laeuft die Authentifizierung ab?
+
+Der Pod muss sich bei Vault beweisen, dass er berechtigt ist, das Secret zu lesen.
+Das passiert ueber den **Kubernetes ServiceAccount Token** (JWT).
+
+```
+  Pod startet
+       |
+       | (1) vault-agent-init schickt JWT des ServiceAccount an Vault
+       v
+  +------------------+
+  |   Vault Server   |
+  +------------------+
+       |
+       | (2) Vault fragt Kubernetes: "Ist dieser JWT gueltig?"
+       v
+  +------------------+
+  | Kubernetes API   |  (TokenReview)
+  +------------------+
+       |
+       | (3) "Ja, SA=vault-auth, Namespace=vault-<dein-name>"
+       v
+  +------------------+
+  |   Vault Server   |
+  +------------------+
+       |
+       | (4) Vault prueft: passt SA + Namespace zur Role?
+       |     bound_service_account_names      = vault-auth       ✓
+       |     bound_service_account_namespaces = vault-<dein-name> ✓
+       |
+       | (5) Vault liefert das Secret
+       v
+  vault-agent-init schreibt /vault/secrets/config in den Pod
+       |
+       v
+  app Container startet — Secret liegt als Datei bereit
+```
+
+### Was landet am Ende im Pod?
+
+```
+  Dateisystem im laufenden Pod:
+
+  /vault/
+  └── secrets/
+      └── config        <- Datei, kein Kubernetes Secret-Objekt!
+          username=dbuser
+          password=supersecret123
+```
+
+Das Secret existiert **nur im Speicher des Pods** — es wird nie als Kubernetes Secret
+Objekt gespeichert und taucht nicht in `kubectl get secrets` auf.
+
+---
+
+## Voraussetzung: Vault laeuft im Cluster (Trainer-Setup, einmalig)
 
 ```
 helm repo add hashicorp https://helm.releases.hashicorp.com
@@ -32,7 +115,7 @@ helm install vault hashicorp/vault \
   --wait
 ```
 
-Kubernetes Auth konfigurieren:
+Kubernetes Auth aktivieren:
 
 ```
 kubectl exec -n vault vault-0 -- vault auth enable kubernetes
@@ -41,7 +124,7 @@ kubectl exec -n vault vault-0 -- vault write auth/kubernetes/config \
   kubernetes_host="https://kubernetes.default.svc.cluster.local:443"
 ```
 
-Vault laeuft danach im Dev-Modus (Root-Token: `root`, kein TLS, In-Memory).
+Vault laeuft im Dev-Modus: Root-Token `root`, kein TLS, In-Memory-Storage.
 
 ---
 
@@ -57,6 +140,8 @@ cd vault-injection
 
 ## Schritt 2: Namespace und ServiceAccount erstellen
 
+Ersetze `<dein-name>` in allen folgenden Befehlen mit deinem Namen (z.B. `jochen`).
+
 ```
 kubectl create namespace vault-<dein-name>
 kubectl create serviceaccount vault-auth -n vault-<dein-name>
@@ -70,7 +155,7 @@ kubectl get serviceaccount vault-auth -n vault-<dein-name>
 
 ## Schritt 3: Secret in Vault anlegen
 
-Der Vault pod laeuft im Namespace `vault`. Alle Vault-Befehle werden per `kubectl exec` ausgefuehrt.
+Vault laeuft als Pod im Namespace `vault`. Alle Vault-Befehle werden per `kubectl exec` ausgefuehrt.
 
 ```
 kubectl exec -n vault vault-0 -- vault kv put secret/<dein-name>/config \
@@ -78,18 +163,19 @@ kubectl exec -n vault vault-0 -- vault kv put secret/<dein-name>/config \
   password="supersecret123"
 ```
 
-Gelesenes Secret pruefen:
+Pruefen ob das Secret gespeichert wurde:
 
 ```
 kubectl exec -n vault vault-0 -- vault kv get secret/<dein-name>/config
 ```
 
 Erwartete Ausgabe:
+
 ```
 ====== Secret Path ======
 secret/data/<dein-name>/config
-...
-===== Data =====
+
+====== Data ======
 Key         Value
 ---         -----
 password    supersecret123
@@ -98,7 +184,7 @@ username    dbuser
 
 ## Schritt 4: Vault Policy erstellen
 
-Die Policy legt fest, welche Pfade gelesen werden duerfen.
+Die Policy legt fest, auf welche Pfade zugegriffen werden darf.
 
 ```
 kubectl exec -n vault vault-0 -- /bin/sh -c "
@@ -115,6 +201,14 @@ Policy pruefen:
 
 ```
 kubectl exec -n vault vault-0 -- vault policy read <dein-name>-policy
+```
+
+Erwartete Ausgabe:
+
+```
+path "secret/data/<dein-name>/config" {
+  capabilities = ["read"]
+}
 ```
 
 ## Schritt 5: Vault Role erstellen
@@ -135,7 +229,9 @@ Role pruefen:
 kubectl exec -n vault vault-0 -- vault read auth/kubernetes/role/<dein-name>-role
 ```
 
-## Schritt 6: Deployment mit Vault Agent Injection
+## Schritt 6: Deployment anlegen
+
+**Wichtig:** Ersetze alle drei Vorkommen von `<dein-name>` in der Datei.
 
 ```
 # vi 01-deployment.yml
@@ -172,15 +268,16 @@ spec:
 kubectl apply -f . -n vault-<dein-name>
 ```
 
-## Schritt 7: Deployment pruefen
+## Schritt 7: Ergebnis pruefen
 
-Pod-Status pruefen (2/2 = app + vault-agent Sidecar):
+Pod-Status pruefen — `2/2` bedeutet: `app` + `vault-agent` Sidecar laufen:
 
 ```
 kubectl get pods -n vault-<dein-name>
 ```
 
 Erwartete Ausgabe:
+
 ```
 NAME                    READY   STATUS    RESTARTS   AGE
 myapp-xxxxx             2/2     Running   0          10s
@@ -193,15 +290,16 @@ kubectl exec -n vault-<dein-name> deploy/myapp -c app -- cat /vault/secrets/conf
 ```
 
 Erwartete Ausgabe:
+
 ```
 username=dbuser
 password=supersecret123
 ```
 
-Container-Struktur des Pods ansehen:
+Container-Struktur des Pods ansehen (Init Container + 2 regulaere Container):
 
 ```
-kubectl describe pod -n vault-<dein-name> -l app=myapp | grep -A 3 "Init Containers\|Containers:"
+kubectl describe pod -n vault-<dein-name> -l app=myapp | grep -A 2 "Init Containers:\|Containers:"
 ```
 
 ## Schritt 8: Secret aktualisieren (Bonus)
@@ -214,20 +312,19 @@ kubectl exec -n vault vault-0 -- vault kv put secret/<dein-name>/config \
   password="neuespasswort456"
 ```
 
-Nach einiger Zeit liest der Vault Agent Sidecar das neue Secret automatisch ein.
-Secret im Pod pruefen:
+Nach kurzer Zeit aktualisiert der `vault-agent` Sidecar die Datei automatisch im Pod:
 
 ```
 kubectl exec -n vault-<dein-name> deploy/myapp -c app -- cat /vault/secrets/config
 ```
 
-## Aufraemen
+## Aufraeumen
 
 ```
 kubectl delete namespace vault-<dein-name>
 ```
 
-Vault-Daten aufraemen (optional):
+Vault-Eintraege aufraeumen (optional):
 
 ```
 kubectl exec -n vault vault-0 -- vault kv delete secret/<dein-name>/config
@@ -237,12 +334,12 @@ kubectl exec -n vault vault-0 -- vault delete auth/kubernetes/role/<dein-name>-r
 
 ## Zusammenfassung
 
-| Komponente | Aufgabe |
+| Was | Wofuer |
 |---|---|
-| `vault-agent-init` (Init Container) | Holt Secret einmalig beim Pod-Start |
-| `vault-agent` (Sidecar Container) | Erneuert Lease, schreibt Secret-Updates |
-| Annotation `agent-inject: "true"` | Aktiviert die Injektion |
-| Annotation `role` | Bestimmt welche Policy gilt |
-| Annotation `agent-inject-secret-config` | Pfad zum Vault Secret |
-| Annotation `agent-inject-template-config` | Formatierung der Ausgabedatei |
-| `/vault/secrets/config` | Zieldatei im Container |
+| Mutating Webhook | Faengt jeden neuen Pod ab, fuegt Init-Container + Sidecar ein |
+| `vault-agent-init` | Holt das Secret einmalig beim Pod-Start, legt Datei an |
+| `vault-agent` | Laeuft als Sidecar, erneuert Token-Lease, schreibt Updates |
+| ServiceAccount `vault-auth` | Beweist gegenueber Vault, wer der Pod ist (via JWT) |
+| Vault Role | Verbindet SA + Namespace mit einer Policy |
+| Vault Policy | Legt fest, welche Secrets gelesen werden duerfen |
+| `/vault/secrets/config` | Datei im Pod — kein Kubernetes Secret Objekt |
