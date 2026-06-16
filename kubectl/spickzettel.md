@@ -122,6 +122,11 @@ kubectl exec -it nginx -- bash
 
 ```
 
+## Deployments 
+
+```
+kubectl -n ingress rollout restart deployment traefik                                                                                       ik
+```
 
 
 ## Alle Objekte anzeigen 
