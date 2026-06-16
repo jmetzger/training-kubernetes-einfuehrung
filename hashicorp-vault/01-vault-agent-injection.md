@@ -167,6 +167,10 @@ kubectl exec -n vault vault-0 -- vault read auth/kubernetes/role/<dein-name>-rol
 
 ## Schritt 6: Deployment anlegen
 
+### Annotations im Ueberblick
+
+![Vault Annotations erklärt](img/04-annotations.svg)
+
 **Wichtig:** Ersetze alle drei Vorkommen von `<dein-name>` in der Datei.
 
 ```

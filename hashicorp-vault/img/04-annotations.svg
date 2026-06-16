@@ -1,0 +1,150 @@
+<svg width="900" height="530" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="900" height="530" fill="#F8FAFC" rx="12"/>
+
+  <!-- Title -->
+  <text x="450" y="32" text-anchor="middle" font-size="16" font-weight="bold" fill="#1E293B">Vault Agent Injection — Annotations erklärt</text>
+
+  <!-- Table outer border -->
+  <rect x="12" y="48" width="876" height="460" fill="white" stroke="#CBD5E1" stroke-width="1.5" rx="6"/>
+
+  <!-- Header row background -->
+  <rect x="12" y="48" width="876" height="36" fill="#334155" rx="6"/>
+  <rect x="12" y="72" width="876" height="12" fill="#334155"/>
+
+  <!-- Header text -->
+  <text x="127" y="71" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Annotation</text>
+  <text x="328" y="71" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Beispielwert</text>
+  <text x="640" y="71" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Was es tut</text>
+
+  <!-- Column dividers -->
+  <line x1="244" y1="48" x2="244" y2="508" stroke="#CBD5E1" stroke-width="1"/>
+  <line x1="412" y1="48" x2="412" y2="508" stroke="#CBD5E1" stroke-width="1"/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- ROW 1: agent-inject                        -->
+  <!-- ══════════════════════════════════════════ -->
+  <rect x="13" y="84" width="231" height="80" fill="#F5F3FF"/>
+  <rect x="13" y="84" width="5" height="80" fill="#7C3AED"/>
+
+  <text x="25" y="103" font-family="Courier New, monospace" font-size="9" fill="#6D28D9">vault.hashicorp.com/</text>
+  <text x="25" y="119" font-family="Courier New, monospace" font-size="11" font-weight="bold" fill="#7C3AED">  agent-inject</text>
+
+  <rect x="253" y="84" width="159" height="80" fill="#F5F3FF"/>
+  <rect x="262" y="100" width="92" height="26" fill="#7C3AED" rx="4"/>
+  <text x="308" y="117" text-anchor="middle" font-family="Courier New, monospace" font-size="12" fill="white">"true"</text>
+
+  <rect x="421" y="84" width="466" height="80" fill="#F5F3FF"/>
+  <text x="432" y="103" font-size="11" font-weight="bold" fill="#3B0764">Schalter — Injektion aktivieren</text>
+  <text x="432" y="120" font-size="10" fill="#374151">Ohne diese Annotation ignoriert der Webhook den Pod.</text>
+  <text x="432" y="137" font-size="10" fill="#374151">Erst mit "true" werden Init-Container + Sidecar</text>
+  <text x="432" y="152" font-size="10" fill="#374151">automatisch in die Pod-Spec eingefügt.</text>
+
+  <line x1="12" y1="164" x2="888" y2="164" stroke="#E2E8F0" stroke-width="1"/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- ROW 2: role                                -->
+  <!-- ══════════════════════════════════════════ -->
+  <rect x="13" y="164" width="231" height="80" fill="#F0FDF4"/>
+  <rect x="13" y="164" width="5" height="80" fill="#16A34A"/>
+
+  <text x="25" y="183" font-family="Courier New, monospace" font-size="9" fill="#14532D">vault.hashicorp.com/</text>
+  <text x="25" y="199" font-family="Courier New, monospace" font-size="11" font-weight="bold" fill="#16A34A">  role</text>
+
+  <rect x="253" y="164" width="159" height="80" fill="#F0FDF4"/>
+  <rect x="259" y="180" width="140" height="26" fill="#16A34A" rx="4"/>
+  <text x="329" y="197" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="white">"jochen-role"</text>
+
+  <rect x="421" y="164" width="466" height="80" fill="#F0FDF4"/>
+  <text x="432" y="183" font-size="11" font-weight="bold" fill="#14532D">Vault Role — Wer darf welches Secret lesen</text>
+  <text x="432" y="200" font-size="10" fill="#374151">Verknüpft ServiceAccount + Namespace mit einer Vault Policy.</text>
+  <text x="432" y="217" font-size="10" fill="#374151">Muss vorher in Vault angelegt werden:</text>
+  <text x="432" y="232" font-family="Courier New, monospace" font-size="9" fill="#166534">vault write auth/kubernetes/role/jochen-role ...</text>
+
+  <line x1="12" y1="244" x2="888" y2="244" stroke="#E2E8F0" stroke-width="1"/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- ROW 3: agent-inject-secret-config          -->
+  <!-- ══════════════════════════════════════════ -->
+  <rect x="13" y="244" width="231" height="80" fill="#FFFBEB"/>
+  <rect x="13" y="244" width="5" height="80" fill="#D97706"/>
+
+  <text x="25" y="263" font-family="Courier New, monospace" font-size="9" fill="#92400E">vault.hashicorp.com/</text>
+  <text x="25" y="279" font-family="Courier New, monospace" font-size="11" font-weight="bold" fill="#D97706">  agent-inject-secret-</text>
+  <text x="25" y="295" font-family="Courier New, monospace" font-size="11" font-weight="bold" fill="#B45309">  config</text>
+
+  <rect x="253" y="244" width="159" height="80" fill="#FFFBEB"/>
+  <rect x="259" y="256" width="140" height="44" fill="#D97706" rx="4"/>
+  <text x="329" y="273" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="white">"secret/data/</text>
+  <text x="329" y="289" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="white">jochen/config"</text>
+  <text x="329" y="309" text-anchor="middle" font-size="8" fill="#92400E">KV v2 Pfad in Vault</text>
+
+  <rect x="421" y="244" width="466" height="80" fill="#FFFBEB"/>
+  <text x="432" y="263" font-size="11" font-weight="bold" fill="#78350F">Vault-Pfad + Dateiname im Pod</text>
+  <text x="432" y="280" font-size="10" fill="#374151">Das Suffix nach dem letzten "-" wird Dateiname unter /vault/secrets/:</text>
+  <!-- Highlight connection: "config" → /vault/secrets/config -->
+  <text x="432" y="300" font-size="10" fill="#374151">agent-inject-secret-</text>
+  <rect x="554" y="288" width="42" height="16" fill="#FDE68A" stroke="#D97706" stroke-width="1.5" rx="3"/>
+  <text x="575" y="300" text-anchor="middle" font-family="Courier New, monospace" font-size="10" font-weight="bold" fill="#92400E">config</text>
+  <text x="600" y="300" font-size="10" fill="#374151">  →  /vault/secrets/</text>
+  <rect x="714" y="288" width="42" height="16" fill="#FDE68A" stroke="#D97706" stroke-width="1.5" rx="3"/>
+  <text x="735" y="300" text-anchor="middle" font-family="Courier New, monospace" font-size="10" font-weight="bold" fill="#92400E">config</text>
+
+  <line x1="12" y1="324" x2="888" y2="324" stroke="#E2E8F0" stroke-width="1"/>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- ROW 4: agent-inject-template-config        -->
+  <!-- ══════════════════════════════════════════ -->
+  <rect x="13" y="324" width="231" height="183" fill="#ECFEFF"/>
+  <rect x="13" y="324" width="5" height="183" fill="#0891B2"/>
+
+  <text x="25" y="343" font-family="Courier New, monospace" font-size="9" fill="#164E63">vault.hashicorp.com/</text>
+  <text x="25" y="359" font-family="Courier New, monospace" font-size="11" font-weight="bold" fill="#0891B2">  agent-inject-</text>
+  <text x="25" y="375" font-family="Courier New, monospace" font-size="11" font-weight="bold" fill="#0891B2">  template-config</text>
+  <text x="25" y="400" font-size="9" fill="#0E7490" font-style="italic">Optional</text>
+
+  <rect x="253" y="324" width="159" height="183" fill="#ECFEFF"/>
+  <rect x="259" y="334" width="140" height="164" fill="#164E63" rx="4"/>
+  <text x="272" y="353" font-family="Courier New, monospace" font-size="8" fill="#67E8F9">{{- with secret</text>
+  <text x="272" y="367" font-family="Courier New, monospace" font-size="8" fill="#67E8F9"> "secret/data/</text>
+  <text x="272" y="381" font-family="Courier New, monospace" font-size="8" fill="#67E8F9">  jochen/config" -}}</text>
+  <text x="272" y="398" font-family="Courier New, monospace" font-size="8" fill="#A5F3FC">username=</text>
+  <text x="272" y="412" font-family="Courier New, monospace" font-size="8" fill="#A5F3FC"> {{.Data.data.username}}</text>
+  <text x="272" y="428" font-family="Courier New, monospace" font-size="8" fill="#A5F3FC">password=</text>
+  <text x="272" y="442" font-family="Courier New, monospace" font-size="8" fill="#A5F3FC"> {{.Data.data.password}}</text>
+  <text x="272" y="458" font-family="Courier New, monospace" font-size="8" fill="#67E8F9">{{- end }}</text>
+  <text x="272" y="478" font-size="8" fill="#0E7490" font-style="italic">Go Template Syntax</text>
+
+  <rect x="421" y="324" width="466" height="183" fill="#ECFEFF"/>
+  <text x="432" y="343" font-size="11" font-weight="bold" fill="#164E63">Ausgabe-Format der Secret-Datei</text>
+  <text x="432" y="360" font-size="10" fill="#374151">Optional: steuert, wie das Secret in die Datei geschrieben wird.</text>
+
+  <!-- Ohne Template box -->
+  <rect x="432" y="369" width="200" height="92" fill="white" stroke="#FCA5A5" stroke-width="1.5" rx="5"/>
+  <rect x="432" y="369" width="200" height="24" fill="#FEE2E2" rx="5"/>
+  <rect x="432" y="381" width="200" height="12" fill="#FEE2E2"/>
+  <text x="532" y="383" text-anchor="middle" font-size="10" font-weight="bold" fill="#991B1B">Ohne Template</text>
+  <text x="442" y="402" font-family="Courier New, monospace" font-size="8.5" fill="#B91C1C">data: map[password:xxx</text>
+  <text x="442" y="417" font-family="Courier New, monospace" font-size="8.5" fill="#B91C1C">username:dbuser]</text>
+  <text x="442" y="432" font-family="Courier New, monospace" font-size="8.5" fill="#B91C1C">metadata: map[created_</text>
+  <text x="442" y="447" font-family="Courier New, monospace" font-size="8.5" fill="#B91C1C">time:2026-... version:1]</text>
+  <text x="532" y="468" text-anchor="middle" font-size="8" fill="#9CA3AF">(rohe Vault JSON-Ausgabe)</text>
+
+  <!-- Arrow -->
+  <text x="648" y="418" text-anchor="middle" font-size="20" fill="#64748B">→</text>
+
+  <!-- Mit Template box -->
+  <rect x="660" y="369" width="200" height="92" fill="white" stroke="#86EFAC" stroke-width="1.5" rx="5"/>
+  <rect x="660" y="369" width="200" height="24" fill="#DCFCE7" rx="5"/>
+  <rect x="660" y="381" width="200" height="12" fill="#DCFCE7"/>
+  <text x="760" y="383" text-anchor="middle" font-size="10" font-weight="bold" fill="#14532D">Mit Template</text>
+  <text x="670" y="408" font-family="Courier New, monospace" font-size="10" fill="#15803D">username=dbuser</text>
+  <text x="670" y="426" font-family="Courier New, monospace" font-size="10" fill="#15803D">password=secret123</text>
+  <text x="760" y="458" text-anchor="middle" font-size="8" fill="#9CA3AF">(sauberes key=value Format)</text>
+
+  <!-- Footer -->
+  <text x="450" y="516" text-anchor="middle" font-size="10" fill="#64748B" font-style="italic">
+    Mehrere Secrets möglich: jede weitere Annotation agent-inject-secret-[name] erzeugt eine eigene Datei unter /vault/secrets/[name]
+  </text>
+</svg>
