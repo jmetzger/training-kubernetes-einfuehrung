@@ -3,7 +3,7 @@
 ```
 helm repo add traefik https://traefik.github.io/charts
 
-helm upgrade -n ingress --install traefik traefik/traefik --version 39.0.8 --create-namespace --skip-crds --reset-values
+helm upgrade -n ingress --install traefik traefik/traefik --version 40.3.0 --create-namespace --skip-crds --reset-values
 
 kubectl -n ingress get pods
 kubectl -n ingress get svc
