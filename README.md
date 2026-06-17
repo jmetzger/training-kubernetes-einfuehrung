@@ -116,7 +116,7 @@
      * [Chart zur Analyse runterladen und entpacken](helm/commands/pull.md)
      * [Wie starte ich am besten einfach - mit eigenem Projekt](helm/exercises/09-create-helm-chart-from-scratch-deployment.md)
 
-  1. Spezial: Umgang mit Einrückungen
+  1. Helm Spezial: Umgang mit Einrückungen
      * [Whitespaces meistern mit "-"](basics/whitespace-management.md)
      * [Exercise Whitespaces](helm/templates/spaces.md)
      * [Named Templates](helm/exercises/10-named-template.md)
