@@ -119,6 +119,7 @@
   1. Spezial: Umgang mit Einrückungen
      * [Whitespaces meistern mit "-"](basics/whitespace-management.md)
      * [Exercise Whitespaces](helm/templates/spaces.md)
+     * [Named Templates](helm/exercises/10-named-template.md)
 
   1. Helm Advanced
      * [Helm Dependencies Exercise](/helm/dependencies/exercise.md)
