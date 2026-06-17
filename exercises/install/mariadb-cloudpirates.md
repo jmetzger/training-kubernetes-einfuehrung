@@ -4,60 +4,23 @@
 
 ```
 # Mini-Step 1: Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run=server
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.1 --dry-run
 ```
 
 ```
 # Mini-Step 2: Installieren 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.1 
 ```
 
 ```
 # Geht das denn auch ?
 kubectl get pods
-helm status my-mariadb
-```
-
-## Schritt 2: Umschauen 
-
-```
-kubectl get pods
-helm status my-mariadb 
-helm list
-# alle helm charts anzeigen, die im gesamten Cluster installierst wurden 
-helm list -A
-helm history my-mariadb 
-```
-
-## Schritt 3: Umschauen get 
-
-```
-# Wo speichert er Information, die er später mit helm get abruft
-kubectl get secrets
 ```
 
 
-```
-helm get values my-mariadb
-helm get manifest my-mariadb
-# Zeige alle Kinds an 
-helm get manifest my-mariadb | grep -i -A 4 kind  
-# Look for COMPUTED VALUES in get all ->
-helm get all my-mariadb 
-```
+## Schritt 2: Exercise: Upgrade to new version 
 
-```
-# Hack COMPUTED VALUES anzeigen lassen
-# Welche Werte (values) hat er zur Installation verwendet
-helm get all my-mariadb | grep -i computed -A 200
-# besser Variante von David
-helm get all my-mariadb | sed -n '/COMPUTED/, /HOOKS/p'
-
-```
-
-## Schritt 4: Exercise: Upgrade with specific settings (same chart version)  
-
-### Schritt 4.1 Default values (auf terminal) ausfindig machen 
+### Schritt 2.1 Default values (auf terminal) ausfindig machen 
 
 ```
 # Recherchiere wie die Werte gesetzt werden (artifacthub.io) oder verwende die folgenden Befehle:
@@ -65,7 +28,7 @@ helm show values oci://registry-1.docker.io/cloudpirates/mariadb
 helm show values oci://registry-1.docker.io/cloudpirates/mariadb | less
 ```
 
-### Schritt 4.2 Resources ändern 
+### Schritt 2.2 Upgrade und resources ändern 
 
 
 ```
@@ -95,30 +58,67 @@ cd ..
 
 ```
 # Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run=server -f prod/values.yaml  
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.3 --dry-run -f prod/values.yaml  
 ```
 
 ```
 # Real Upgrade
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 -f prod/values.yaml
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.3 -f prod/values.yaml
 ```
 
 ```
-# neuer pod wird erstellt 
-kubectl get pod
-helm get values my-mariadb
-helm list 
+kubectl get pods
+```
+
+### Umschauen 
+
+```
+kubectl get pods
+# Ab Version 4 (helm) sinnvoll
+helm status my-mariadb 
+helm list
+# alle helm charts anzeigen, die im gesamten Cluster installierst wurden 
+helm list -A
 helm history my-mariadb 
 ```
 
+### Umschauen get 
+
+```
+# Wo speichert er Information, die er später mit helm get abruft
+kubectl get secrets
+```
 
 
+```
+helm get values my-mariadb
+helm get manifest my-mariadb
+# Zeile ausgeben und 4 Zeilen danach und 4 Zeilen davor
+helm get manifest my-mariadb | grep "300Mi" -A4 -B4 
+# alles was ich ausgeben kann an Daten aus secrets .
+helm get all my-mariadb 
+```
+
+```
+# Hack COMPUTED VALUES anzeigen lassen
+# Welche Werte (values) hat er zur Installation verwendet
+helm get all my-mariadb | grep -i computed -A 200
+# besser Variante von David
+helm get all my-mariadb | sed -n '/COMPUTED/, /HOOKS/p'
+
+```
+
+## Tipp: values aus alter revision anzeigen 
+
+```
+# Beispiel: 
+helm get values  my-mariadb --revision 1
+```
+
+## Schritt 3: Exercise: Upgrade to new version 
 
 
-## Schritt 5: Exercise: Upgrade to new version 
-
-
-### Schritt 5.1. Upgrade und resources beibehalten 
+### Schritt 3.1. Upgrade und resources beibehalten 
 
   * Values wurden bereits im vorherigen Schritt angelegt 
 
@@ -137,7 +137,7 @@ kubectl get pods
 # kein neuer pod
 ```
 
-### Schritt 5.2 Fehlgeschlagene Installation, wie lösen ? 
+### Schritt 3.2 Fehlgeschlagene Installation, wie lösen ? 
 
 ```
 # Schlägt fehle, weil mit dem upgrade bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
@@ -175,12 +175,6 @@ helm get values my-mariadb
 ```
 
 
-## Tipp: values aus alter revision anzeigen 
-
-```
-# Beispiel: 
-helm get values  my-mariadb --revision 1
-```
 
 ### Uninstall 
 
@@ -188,9 +182,8 @@ helm get values  my-mariadb --revision 1
 helm uninstall my-mariadb 
 # namespace wird nicht gelöscht
 # händisch löschen
-kubectl delete ns <namenskuerzel>
-# crd's werden auch nicht gelöscht
-kubectl create ns <namenskuerzel>
+kubectl delete ns app-<namenskuerzel>
+# crd's werden auch nicht gelöscht 
 ```
 
 ## Problem: OutOfMemory (OOM-Killer) if container passes limit in memory 
