@@ -261,7 +261,7 @@ kubectl exec -n vault vault-0 -- vault kv put secret/$NAME/config \
   password="neuespasswort456"
 ```
 
-Nach kurzer Zeit aktualisiert der `vault-agent` Sidecar die Datei automatisch im Pod:
+Nach einiger Zeit (ca. 5 min) aktualisiert der `vault-agent` Sidecar die Datei automatisch im Pod:
 
 ```
 kubectl exec -n vault-$NAME deploy/myapp -c app -- cat /vault/secrets/config
