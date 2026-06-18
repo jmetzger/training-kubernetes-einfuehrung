@@ -119,7 +119,7 @@ Passwort: vom Trainer
 ## Schritt 3: Pipeline auf main-Branch pruefen
 
 ```
-1. Im geforkten Repo: CI/CD -> Pipelines
+1. Im geforkten Repo: Build -> Pipelines
 
 2. Es laeuft automatisch eine Pipeline auf main
 
