@@ -116,14 +116,16 @@ Passwort: vom Trainer
 4. "Fork project" klicken
 ```
 
-## Schritt 3: Pipeline auf main-Branch pruefen
+## Schritt 3: Pipeline auf main-Branch manuell starten
 
 ```
 1. Im geforkten Repo: Build -> Pipelines
 
-2. Es laeuft automatisch eine Pipeline auf main
+2. Oben rechts: "Run pipeline" klicken
 
-3. Job "unit-tests" anklicken
+3. Branch: main, dann "Run pipeline" bestaetigen
+
+4. Job "unit-tests" anklicken
 ```
 
 Erwartete Ausgabe im Job-Log:
