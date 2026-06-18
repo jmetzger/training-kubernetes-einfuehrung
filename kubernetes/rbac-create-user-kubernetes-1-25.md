@@ -106,18 +106,16 @@ kubectl config set-context training-ctx --cluster do-fra1-bka-training --user tr
 TOKEN=`kubectl get secret trainingtoken<nr> -o jsonpath='{.data.token}' | base64 --decode`
 echo $TOKEN
 kubectl config set-credentials training --token=$TOKEN
+kubectl config view
 kubectl config use-context training-ctx
 
 # Hier reichen die Rechte nicht aus 
 kubectl get deploy
 # Error from server (Forbidden): pods is forbidden: User "system:serviceaccount:kube-system:training" cannot list # resource "pods" in API group "" in the namespace "default"
+# das funktioniert 
+kubectl get pods
 ```
 
-### Mini-Schritt 2:
-```
-kubectl config use-context training-ctx
-kubectl get pods 
-```
 
 ### Mini-Schritt 3: Zurück zum alten Default-Context 
 
@@ -127,12 +125,12 @@ kubectl config get-contexts
 
 ```
 CURRENT   NAME           CLUSTER            AUTHINFO    NAMESPACE
-          microk8s       microk8s-cluster   admin2
-*         training-ctx   microk8s-cluster   training2
+          cluster-user   cluster1           admin2
+*         training-ctx   cluster1           training2
 ```
 
 ```
-kubectl config use-context microk8s  
+kubectl config use-context cluster-user 
 ```
 
 
