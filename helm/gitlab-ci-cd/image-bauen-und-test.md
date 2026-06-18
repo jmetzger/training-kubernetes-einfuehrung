@@ -24,19 +24,22 @@ https://gitlab.com/jmetzger/training-build-test-ci-cd-gitlab.git
 
 ## Schritt 2: Pipeline anschauen
 
-  * Im Projekt: **CI/CD -> Pipeline editor** öffnen
+  * Im Projekt: **Build -> Pipeline editor** öffnen
   * Die Datei `.gitlab-ci.yml` enthält den Build-Job
 
 ## Schritt 3: Pipeline ausführen
 
-  * Unter **CI/CD -> Pipelines** die laufende Pipeline beobachten
+  * Unter **Build -> Pipelines** -> **Run pipeline** -> Branch: **master** -> **Run pipeline**
+  * Die Pipeline beobachten (3 Jobs: build, test, code_quality)
   * Nach erfolgreichem Lauf: **Deploy -> Container Registry** prüfen
-  * Das gebaute Image ist dort sichtbar
+  * Das gebaute Image ist dort sichtbar (Tag = Commit-Hash)
 
 ## Schritt 4: Eigene Änderung triggern
 
 ```
-# Eine kleine Änderung an einer Datei vornehmen (z.B. index.html)
+# Hinweis: Das Repo verwendet "master" als default Branch (nicht "main")
+
+# Eine kleine Änderung an einer Datei vornehmen (z.B. index.js)
 # und committen -> Pipeline startet automatisch
 ```
 
