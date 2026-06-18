@@ -19,6 +19,38 @@ und hebt neu fehlgeschlagene oder geloeste Tests hervor.
 
 Funktioniert auf allen GitLab-Tiers (Free, Premium, Ultimate).
 
+## Wie weiss GitLab, dass es ein Unit-Test-Report ist?
+
+Der entscheidende Schluessel ist `reports: junit:` — das ist kein frei waehlbarer Name,
+sondern ein **fest definiertes GitLab-Keyword**.
+
+Damit sagst du GitLab explizit:
+
+```
+"Diese Datei ist ein JUnit-XML-Report —
+ parse sie und zeige das Ergebnis im MR-Dashboard an."
+```
+
+Ohne `reports: junit:` waere `report.xml` nur eine normale Datei zum Herunterladen —
+kein Test-Widget, kein Branch-Vergleich.
+
+Das Format der Datei muss zum Keyword passen: fuer `junit:` erwartet GitLab
+valides JUnit-XML. `pytest --junitxml=report.xml` liefert genau das.
+
+### Weitere reports-Keywords
+
+GitLab kennt noch andere solche Keywords — jedes aktiviert ein eigenes Widget im MR:
+
+| Keyword | Widget im MR | Tier |
+|---------|-------------|------|
+| `reports: junit:` | Test summary (passed/failed/neu) | Free |
+| `reports: coverage_report:` | Code-Coverage-Badge und Diff | Free |
+| `reports: codequality:` | Code-Quality-Findings | Free |
+| `reports: sast:` | Security-Findings (SAST) | Free* |
+| `reports: dependency_scanning:` | Abhaengigkeiten mit CVEs | Ultimate |
+
+*SAST-Report wird hochgeladen auf Free, aber das inline MR-Widget nur auf Ultimate.
+
 ## Schritt 1: Auf GitLab einloggen
 
 ```
