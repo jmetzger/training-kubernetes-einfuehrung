@@ -99,7 +99,7 @@ kubectl auth can-i get pods -n default --as system:serviceaccount:default:traini
 ### Mini-Schritt 1: kubeconfig setzen 
 
 ```
-kubectl config set-context training-ctx --cluster microk8s-cluster --user training
+kubectl config set-context training-ctx --cluster do-fra1-bka-training --user training
 
 # extract name of the token from here 
 
