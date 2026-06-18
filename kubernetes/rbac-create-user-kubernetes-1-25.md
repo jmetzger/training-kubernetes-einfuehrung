@@ -103,7 +103,7 @@ kubectl config set-context training-ctx --cluster do-fra1-bka-training --user tr
 
 # extract name of the token from here 
 
-TOKEN=`kubectl get secret trainingtoken<nr> -o jsonpath='{.data.token}' | base64 --decode`
+TOKEN=`kubectl -n default get secret trainingtoken<nr> -o jsonpath='{.data.token}' | base64 --decode`
 echo $TOKEN
 kubectl config set-credentials training --token=$TOKEN
 kubectl config view
