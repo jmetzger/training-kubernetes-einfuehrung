@@ -128,7 +128,7 @@
   1. Helm - Fehleranalye
      * [Beispiel Cloudpirates - helm chart nginx](helm/cloudpirates-helm-chart-nginx-fehleranalyse.md)
 
-  1. Helm mit gitlab ci/cd
+  1. Gitlab ci/cd (auch mit helm)
      * [Helm mit gitlab ci/cd ausrollen](helm/gitlab-ci-cd/example-helm-kubernetes.md)
      * [Uebung: Unit Tests im Merge Request Dashboard](helm/gitlab-ci-cd/gitlab-ci-unit-tests-mr.md)
      * [Exercise: Docker Image bauen und in Registry pushen](helm/gitlab-ci-cd/image-bauen-und-test.md)
