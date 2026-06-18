@@ -34,6 +34,7 @@
      * [kubectl einrichten mit namespace](/kubectl/kubectl-einrichten.md)
      * [kubectl cheatsheet kubernetes](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
      * [kubectl mit verschiedenen Clustern arbeiten](/kubectl/use-context.md)
+     * [2 kubeconfig - Dateien zusammenführen](/kubectl/kubectl-flatten.md)
 
   1. Kubernetes Praxis API-Objekte 
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](/kubectl/spickzettel.md)
