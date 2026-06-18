@@ -51,6 +51,46 @@ GitLab kennt noch andere solche Keywords — jedes aktiviert ein eigenes Widget 
 
 *SAST-Report wird hochgeladen auf Free, aber das inline MR-Widget nur auf Ultimate.
 
+## Was ist im Demo-Repo drin?
+
+```
+calculator.py         <- Python-Funktionen (add, subtract, multiply, divide, is_even)
+test_calculator.py    <- 10 pytest-Tests
+requirements.txt      <- pytest, pytest-cov
+.gitlab-ci.yml        <- Pipeline mit JUnit- und Coverage-Artifact
+```
+
+Die komplette Pipeline auf einen Blick:
+
+```
+stages:
+  - test
+
+unit-tests:
+  stage: test
+  image: python:3.11-slim
+  script:
+    - pip install -r requirements.txt --quiet
+    - pytest test_calculator.py -v
+        --junitxml=report.xml
+        --cov=calculator --cov-report=term --cov-report=xml:coverage.xml
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+```
+
+Zwei Reports gleichzeitig:
+
+| Report | Keyword | Was im MR erscheint |
+|--------|---------|---------------------|
+| `report.xml` | `reports: junit:` | Test summary (passed/failed/neu) |
+| `coverage.xml` | `reports: coverage_report:` | Coverage-Badge + Zeilen im Diff |
+
 ## Schritt 1: Auf GitLab einloggen
 
 ```
@@ -90,9 +130,21 @@ Erwartete Ausgabe im Job-Log:
 
 ```
 10 passed in 0.03s
+
+Name            Stmts   Miss  Cover
+-----------------------------------
+calculator.py      12      0   100%
+-----------------------------------
+TOTAL              12      0   100%
 ```
 
-Alle Tests gruen — der Ausgangszustand ist sauber.
+Alle Tests gruen, Coverage 100% — der Ausgangszustand ist sauber.
+
+Im MR (nach dem Forken, wenn eine Pipeline laeuft) erscheint ausserdem:
+
+```
+Coverage: 100%
+```
 
 ## Schritt 4: Feature-Branch mit Bug erstellen
 
@@ -161,6 +213,10 @@ assert False is True
  +  where False = is_even(4)
 ```
 
+Im "Changes"-Tab des MR sind die geaenderten Zeilen in `calculator.py`
+mit dem Coverage-Status annotiert — Zeile 16 ist rot markiert, da der Bug
+dazu fuehrt dass ein Code-Pfad nicht korrekt durchlaufen wird.
+
 ## Schritt 7: Bug fixen
 
 ```
@@ -205,9 +261,10 @@ Pipeline-Status: gruen.
 
 | Schritt | Was im MR-Dashboard erscheint |
 |---------|-------------------------------|
+| Pipeline auf main | 10 passed, Coverage 100% |
 | Feature-Branch mit Bug | 2 newly failed tests (rot) |
-| Bug gefixt, neuer Commit | 2 fixed tests (gruen) |
-| Alle Tests gruен | Pipeline gruen, Merge moeglich |
+| Bug gefixt, neuer Commit | 2 fixed tests (gruen), Coverage 100% |
+| Alle Tests gruen | Pipeline gruen, Merge moeglich |
 
 ## Aufraeumen
 
