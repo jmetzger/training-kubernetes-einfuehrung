@@ -130,6 +130,7 @@
   1. Helm mit gitlab ci/cd
      * [Helm mit gitlab ci/cd ausrollen](helm/gitlab-ci-cd/example-helm-kubernetes.md)
      * [Uebung: Unit Tests im Merge Request Dashboard](helm/gitlab-ci-cd/gitlab-ci-unit-tests-mr.md)
+     * [Exercise: Docker Image bauen und in Registry pushen](helm/gitlab-ci-cd/image-bauen-und-test.md)
     
   1. Helpful plugins
      * [Use shortnames for kubectl - commands](https://gist.github.com/doevelopper/ff4a9a211e74f8a2d44eb4afb21f0a38)
