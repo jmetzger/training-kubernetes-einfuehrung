@@ -39,7 +39,7 @@ Passwort: vom Trainer
    - Namespace: training.tn<X>   (euer gemeinsamer Account)
    - Project name: training-ci-tests-<dein-name>
      (z.B. training-ci-tests-anna — eindeutig, da ihr den Account teilt!)
-   - Visibility: Private
+   - Visibility: Public
 
 4. "Fork project" klicken
 ```
