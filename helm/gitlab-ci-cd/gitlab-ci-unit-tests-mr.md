@@ -38,17 +38,16 @@ unit-tests:
 `when: always` ist wichtig — das Artifact wird auch bei fehlgeschlagenen Tests hochgeladen,
 damit GitLab die Fehler im MR-Dashboard anzeigen kann.
 
-## Schritt 1: Demo-Repo nach GitLab importieren
+## Schritt 1: Demo-Repo nach GitLab forken
 
 ```
-1. https://gitlab.com -> New project -> Import project -> Repository by URL
+1. https://gitlab.com/jmetzger/training-gitlab-ci-tests aufrufen
 
-2. Git repository URL:
-   https://github.com/jmetzger/training-gitlab-ci-tests.git
+2. "Fork" klicken (oben rechts)
 
-3. Project name: training-gitlab-ci-tests
+3. Namespace: eigener GitLab-Account
 4. Visibility: Private (oder Public)
-5. Create project
+5. Fork project
 ```
 
 ## Schritt 2: Pipeline auf main-Branch pruefen
