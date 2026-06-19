@@ -143,19 +143,15 @@ cat sa-token
 ## Schritt 6: CA-Zertifikat extrahieren
 
 ```
-kubectl config view 
-# [1] weil 1. Cluster digitalocean, index 0
-# Wenn nur 1 Eintrag, dann [0]
-
 # Testen, ob ich so ein Zertifikat sehe 
-kubectl config view --raw -o jsonpath='{.clusters[1].cluster.certificate-authority-data}' | base64 --decode 
+kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 --decode 
 ```
 
 <img width="1160" height="694" alt="image" src="https://github.com/user-attachments/assets/85e14f69-a728-4a40-bab7-88a435a23a80" />
 
 ```
 # Abspeichern
-kubectl config view --raw -o jsonpath='{.clusters[1].cluster.certificate-authority-data}' | base64 --decode > k8s-ca.crt
+kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 --decode > k8s-ca.crt
 ```
 
 CA-Zertifikat anzeigen:
