@@ -274,14 +274,17 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
 2. Klicke **Add rule**
 3. **Kubernetes cluster configuration:**
    - **Cluster name:** `k8s-cluster-<dein-name>` (oder eigener Name)
-   - **Token:** Waehle `k8s-token` aus Dropdown
+   - **Token:** Waehle `k8s-token` aus Dropdown (erst from Password Store)
+
+<img width="246" height="115" alt="image" src="https://github.com/user-attachments/assets/c0b7a992-ce2e-48a4-8fac-aa2676d8f1dc" />
+
    - **API server endpoint:** `https://<DEINE-K8S-API-IP>:6443`
    - **SSL certificate verification:** Enabled (mit importiertem CA-Cert)
 
-4. **Collector: Enrich With Usage Data**
+5. **Collector: Enrich With Usage Data**
    - **Cluster collector endpoint:** `https://checkmk-collector.tln<X>.do.t3isp.de` (Achtung https vorner ist wichtig)
 
-5. **Kubernetes API:**
+6. **Kubernetes API:**
    - **Object selection:** Waehle gewuenschte Objekte:
      - ✓ Pods
      - ✓ Nodes
@@ -292,14 +295,14 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
      - ✓ Namespaces
      - ✓ CronJobs (falls benoetigt)
 
-6. **Explicit hosts:**
+7. **Explicit hosts:**
    - Waehle `k8s-cluster-<dein-name>` (Host aus Schritt 10)
 
-7. **Save**
+8. **Save**
 
-8. Oben rechts auf **"1 change"** (oder mehr) klicken
-9. **Activate on selected sites**
-10. Warten bis Aktivierung abgeschlossen
+9. Oben rechts auf **"1 change"** (oder mehr) klicken
+10. **Activate on selected sites**
+11. Warten bis Aktivierung abgeschlossen
 
 ## Schritt 14: Service Discovery durchfuehren
 
