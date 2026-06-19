@@ -24,25 +24,14 @@ rohe Metriken → Prometheus Targets → PromQL-Abfragen.
 
 ## Voraussetzung
 
-Der kube-prometheus-stack ist installiert (siehe install-with-helm.md).
-Prometheus laeuft im Namespace `monitoring`.
+Der kube-prometheus-stack ist installiert mit Ingress und BasicAuth
+(siehe install-with-helm-ingress.md).
 
-Port-Forward starten (falls kein Ingress vorhanden):
-
-```
-kubectl -n monitoring port-forward svc/prometheus-prometheus 9090 &
-```
-
-SSH-Tunnel vom lokalen Rechner (in separatem Terminal):
+Prometheus im Browser aufrufen:
 
 ```
-ssh -L 9090:localhost:9090 tln1@<server-ip>
-```
-
-Dann im Browser:
-
-```
-http://localhost:9090
+https://prometheus.<dein-name>.do.t3isp.de
+# Login: admin / DEIN-PASSWORT
 ```
 
 ## Schritt 1: Targets - was scrapt Prometheus?
@@ -69,20 +58,14 @@ Wichtige Targets im kube-prometheus-stack:
 
 ## Schritt 2: /metrics direkt ansehen
 
-Prometheus zieht Metriken von HTTP-Endpunkten. Wir koennen uns dieselben
-Rohdaten direkt anschauen.
-
-Den node-exporter Service anschauen:
+Prometheus zieht Metriken von HTTP-Endpunkten im Raw-Format.
+Wir koennen uns diese Rohdaten direkt mit einem curl-Pod anschauen:
 
 ```
-kubectl -n monitoring get svc | grep node
-kubectl -n monitoring port-forward svc/node-exporter 9100 &
-```
-
-Im Browser:
-
-```
-http://localhost:9100/metrics
+kubectl run metrics-check -it --rm --image=curlimages/curl \
+  --restart=Never -n monitoring -- \
+  curl -s http://node-exporter.monitoring.svc.cluster.local:9100/metrics \
+  | head -40
 ```
 
 Hier sieht man das Rohformat:
@@ -100,15 +83,11 @@ Jede Zeile hat das Format:
 metrik_name{label1="wert1", label2="wert2"} zahlenwert
 ```
 
-Port-Forward wieder stoppen:
-
-```
-kill %2
-```
+Genau diese Zeilen empfaengt Prometheus bei jedem Scrape-Intervall.
 
 ## Schritt 3: Erste PromQL-Abfragen im Prometheus UI
 
-Zurueck im Prometheus UI auf den Tab **Graph** wechseln.
+Im Prometheus UI den Tab **Graph** oeffnen.
 
 Im Suchfeld die folgenden Abfragen einzeln eingeben und auf **Execute** klicken.
 
@@ -232,21 +211,8 @@ Dieselben PromQL-Abfragen aus dieser Uebung kann man direkt in Grafana
 als Dashboard-Panel verwenden:
 
 ```
-kubectl -n monitoring get pods | grep grafana
-kubectl -n monitoring port-forward <grafana-pod-name> 3000 &
-```
-
-SSH-Tunnel:
-
-```
-ssh -L 3000:localhost:3000 tln1@<server-ip>
-```
-
-Browser:
-
-```
-http://localhost:3000
-# Login: admin / prom-operator
+https://grafana.<dein-name>.do.t3isp.de
+# Login: admin / DEIN-PASSWORT
 ```
 
 **Connections → Data Sources** zeigt, dass Grafana bereits mit Prometheus
