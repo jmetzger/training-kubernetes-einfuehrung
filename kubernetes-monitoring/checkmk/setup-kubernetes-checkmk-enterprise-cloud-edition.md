@@ -182,7 +182,7 @@ https://checkmk-collector.tln<X>.do.t3isp.de
 - HTTPS wird durch Let's Encrypt bereitgestellt
 - Der Endpoint ist von aussen erreichbar
 
-Testen (sollte Not authorized zurueckgeben):
+Testen (sollte Not authenticated zurueckgeben):
 
 ```
 curl https://checkmk-collector.tln<X>.do.t3isp.de
