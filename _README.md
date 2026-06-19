@@ -34,6 +34,7 @@
      * [kubectl einrichten mit namespace](#kubectl-einrichten-mit-namespace)
      * [kubectl cheatsheet kubernetes](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
      * [kubectl mit verschiedenen Clustern arbeiten](#kubectl-mit-verschiedenen-clustern-arbeiten)
+     * [2 kubeconfig - Dateien zusammenführen](#2-kubeconfig---dateien-zusammenführen)
 
   1. Kubernetes Praxis API-Objekte 
      * [Das Tool kubectl (Devs/Ops) - Spickzettel](#das-tool-kubectl-devsops---spickzettel)
@@ -79,6 +80,11 @@
      * [Alternative zu Hashicorp Vault - Fork OpenBao](https://openbao.org/)
      * [registry mit secret auth](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
      * [Kubernetes secrets mit sops (mariadb)](#kubernetes-secrets-mit-sops-mariadb)
+     * [Vergleich: GitLab CI/CD vs. SOPS vs. Vault](#vergleich-gitlab-cicd-vs-sops-vs-vault)
+
+  1. Hashicorp Vault
+     * [Uebersicht Vault in Kubernetes](#uebersicht-vault-in-kubernetes)
+     * [Uebung: Vault Agent Injection](#uebung-vault-agent-injection)
 
   1. Kubernetes API-Objekte (Teil 2)
      *  [Jobs](kubectl-examples/12-job.md)
@@ -111,14 +117,21 @@
      * [Chart zur Analyse runterladen und entpacken](#chart-zur-analyse-runterladen-und-entpacken)
      * [Wie starte ich am besten einfach - mit eigenem Projekt](#wie-starte-ich-am-besten-einfach---mit-eigenem-projekt)
 
+  1. Helm Spezial: Umgang mit Einrückungen
+     * [Whitespaces meistern mit "-"](#whitespaces-meistern-mit-"-")
+     * [Exercise Whitespaces](#exercise-whitespaces)
+     * [Named Templates](#named-templates)
+
   1. Helm Advanced
      * [Helm Dependencies Exercise](#helm-dependencies-exercise)
 
   1. Helm - Fehleranalye
      * [Beispiel Cloudpirates - helm chart nginx](#beispiel-cloudpirates---helm-chart-nginx)
 
-  1. Helm mit gitlab ci/cd
+  1. Gitlab ci/cd (auch mit helm)
      * [Helm mit gitlab ci/cd ausrollen](#helm-mit-gitlab-cicd-ausrollen)
+     * [Uebung: Unit Tests im Merge Request Dashboard](#uebung-unit-tests-im-merge-request-dashboard)
+     * [Exercise: Docker Image bauen und in Registry pushen](#exercise-docker-image-bauen-und-in-registry-pushen)
     
   1. Helpful plugins
      * [Use shortnames for kubectl - commands](https://gist.github.com/doevelopper/ff4a9a211e74f8a2d44eb4afb21f0a38)
@@ -148,6 +161,12 @@
   1. Kubernetes Monitoring 
      * [Prometheus Monitoring Server (Overview)](#prometheus-monitoring-server-overview)
      * [Prometheus / Grafana Stack installieren](#prometheus--grafana-stack-installieren)
+     * [Uebung: Prometheus UI und PromQL](#uebung-prometheus-ui-und-promql)
+     * [Uebung: Custom Metriken mit eigener Demo-App](#uebung-custom-metriken-mit-eigener-demo-app)
+     * [Demo-App Source Code: app.py](#demo-app-source-code-apppy)
+     * [Demo-App Source Code: Dockerfile](#demo-app-source-code-dockerfile)
+     * [Demo-App Source Code: requirements.txt](#demo-app-source-code-requirementstxt)
+     * [Vergleich: Splunk vs. CheckMK vs. Prometheus/Grafana](#vergleich-splunk-vs-checkmk-vs-prometheusgrafana)
 
   1. Kubernetes Monitoring (checkmk)
      * [Checkmk Server mit Docker einrichten - Script (umfangreich) mit letsencrypt und ssl](#checkmk-server-mit-docker-einrichten---script-umfangreich-mit-letsencrypt-und-ssl)
@@ -155,6 +174,8 @@
      * [Checkmk in Kubernetes einrichten (checkmk enterprise/cloud edition)](#checkmk-in-kubernetes-einrichten-checkmk-enterprisecloud-edition)
      * [Checkmk Raw vs. Enterprise in Bezug auf Kubernetes](#checkmk-raw-vs-enterprise-in-bezug-auf-kubernetes)
      * [Kubernetes Dashboards](#kubernetes-dashboards)
+     * [Prometheus-Metriken in Checkmk integrieren](#prometheus-metriken-in-checkmk-integrieren)
+     * [Uebung: Kubernetes API Health als HTTP Active Check](#uebung-kubernetes-api-health-als-http-active-check)
 
   1. Kubernetes Perfomance
      * [Heap analyse](#heap-analyse)
@@ -535,6 +556,13 @@
   o Unverträglichkeiten von Bibliotheken, Tools oder Datenbank können umgangen werden, wenn diese von den Applikationen in unterschiedlichen Versionen benötigt werden.
 ```
 
+
+### Anwendungsfälle 
+
+  * Unterschiedliche Versionen einer Applikation (z.B. MariaDB-Server) auf einem Linux-System betreiben
+  * Gute Skalieren zu können (Beispiel: Bestellanzahl steigt (wir brauchen bei Ressourchen für Shop-Katalog und Warenkorb), aber nicht für Registrierung
+    * Sprachagnostik /ein Service in python, einer in Rust 
+
 ### Was sind container images
 
 
@@ -573,6 +601,13 @@ RUN yarn install --production
 ## übersetzt: node src/index.js 
 CMD ["node", "src/index.js"]
 EXPOSE 3000
+```
+
+### Jetzt wird gebaut... 
+
+```
+cd buildtest
+docker build -t trainerimage:1.0 .
 ```
 
 ### Dockerfile - image kleinhalten
@@ -673,6 +708,7 @@ RUN apt-get update && \
  
 #### Nodes  
 
+  * Nodes sind virtuelle oder physische Maschinen auf denen die notwendigen Kubernetes-System-Komponenten (Software)
   * Worker Nodes (Knoten) sind die Arbeiter (Maschinen), die Anwendungen ausführen
   * Ref: https://kubernetes.io/de/docs/concepts/architecture/nodes/
 
@@ -1268,6 +1304,26 @@ kubectl cluster-info
 kubectl get nodes 
 ```
 
+### 2 kubeconfig - Dateien zusammenführen
+
+
+```
+cp ~/.kube/config ~/.kube/config.bak
+
+## Merge (KUBECONFIG mit beiden Dateien setzen)
+KUBECONFIG=~/.kube/config1:~/.kube/config2 kubectl config view --flatten > ~/.kube/config-merged
+
+## Als neue config verwenden
+mv ~/.kube/config-merged ~/.kube/config
+```
+
+### Jetzt context anzeigen und auswählen
+
+```
+kubectl config get-contexts
+kubectl config use-context <context-name>
+```
+
 ## Kubernetes Praxis API-Objekte 
 
 ### Das Tool kubectl (Devs/Ops) - Spickzettel
@@ -1395,6 +1451,11 @@ kubectl exec -it nginx -- bash
 
 ```
 
+### Deployments 
+
+```
+kubectl -n ingress rollout restart deployment traefik                                                                                       ik
+```
 
 
 ### Alle Objekte anzeigen 
@@ -2438,7 +2499,7 @@ nano 02-external-endpoint.yml
 ```
 helm repo add traefik https://traefik.github.io/charts
 
-helm upgrade -n ingress --install traefik traefik/traefik --version 39.0.8 --create-namespace --skip-crds --reset-values
+helm upgrade -n ingress --install traefik traefik/traefik --version 40.3.0 --create-namespace --skip-crds --reset-values
 
 kubectl -n ingress get pods
 kubectl -n ingress get svc
@@ -2446,7 +2507,10 @@ helm -n ingress status traefik
 
 ## Use special crds helm chart instead, because it does not deploy crds for gateway-api by default
 ## We get an error on digitalocean doks
-helm -n ingress upgrade --install traefik-crds traefik/traefik-crds --version 1.16.0 --reset-values 
+## Das funktioniert in neuen version nicht mehr weil last-applied zu gross waere
+## helm -n ingress upgrade --install traefik-crds traefik/traefik-crds --version 1.18.0 --reset-values
+## Workaround
+helm template traefik-crds traefik/traefik-crds | kubectl -n ingress apply --server-side -f -
 ```
 
 ### Ingress mit traefik
@@ -2592,7 +2656,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "<euername>.appv3.do.t3isp.de"
+  - host: "<euername>.appv2.do.t3isp.de"
     http:
       paths:
         - path: /apple
@@ -2775,12 +2839,12 @@ kubectl describe ingress example-ingress
 ```
 ## Im Browser auf:
 ## hier euer Name 
-http://jochen.appv3.do.t3isp.de/apple
-http://jochen.appv3.do.t3isp.de/apple/
-http://jochen.appv3.do.t3isp.de/apple/foo 
-http://jochen.appv3.do.t3isp.de/banana
+http://jochen.appv2.do.t3isp.de/apple
+http://jochen.appv2.do.t3isp.de/apple/
+http://jochen.appv2.do.t3isp.de/apple/foo 
+http://jochen.appv2.do.t3isp.de/banana
 ## geht nicht 
-http://jochen.appv3.do.t3isp.de/banana/nix
+http://jochen.appv2.do.t3isp.de/banana/nix
 ```
 
 
@@ -3402,7 +3466,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: registry.k8s.io/nginx-slim:0.8
+        image: registry.k8s.io/nginx-slim:0.24
         ports:
         - containerPort: 80
           name: web-nginx
@@ -3962,6 +4026,521 @@ kubectl delete secret mariadb-secret
 - Der Age Private Key ist das einzige was zur Entschlüsselung nötig ist – sicher aufbewahren!
 - In CI/CD: Private Key als masked Variable (`SOPS_AGE_KEY` in GitLab)
 
+### Vergleich: GitLab CI/CD vs. SOPS vs. Vault
+
+
+### Überblick: Drei Ansätze im Vergleich
+
+| Kriterium | GitLab CI/CD Secrets | SOPS + Age/KMS | HashiCorp Vault |
+|-----------|---------------------|----------------|-----------------|
+| **Zweck** | Pipeline-Variablen | Secrets in Git verschlüsseln | Zentrales Secret-Management |
+| **Speicherort** | GitLab-Datenbank | Git (verschlüsselt) | Vault-Server |
+| **Verschlüsselung** | AES-256 in DB | AES-256-GCM pro Datei | AES-256-GCM + Shamir's Secret Sharing |
+| **Audit-Trail** | Nein | Nein | Ja – jeder Zugriff wird geloggt |
+| **Dynamic Secrets** | Nein | Nein | Ja (z.B. DB-Passwörter mit TTL) |
+| **Secret Rotation** | Manuell | Manuell | Automatisch |
+| **Zugriffskontrolle** | Grob (Projekt/Branch) | Wer den privaten Key hat | Feingranular per Policy |
+| **Kubernetes-Integration** | Nur via env vars | Via SOPS-Operator / Flux | VSO, Sidecar-Injector, Volumes |
+| **GitOps-fähig** | Schlecht | Sehr gut | Gut |
+| **Compliance** | Schwach | Mittel | Stark (SOC2, PCI-DSS) |
+| **Betriebskomplexität** | Minimal | Gering | Hoch |
+
+---
+
+### Sind GitLab CI/CD Secrets sicher?
+
+**Technisch:** GitLab verschlüsselt Variablen mit AES-256-GCM in PostgreSQL.
+
+**Aber:** Encryption Key und verschlüsselte Daten liegen auf **demselben Server**:
+
+```
+┌─────────────────────────────────┐
+│         GitLab-Server           │
+│                                 │
+│  /etc/gitlab/gitlab.rb          │
+│  → secret_key_base = "abc..."   │  ← Encryption Key
+│                                 │
+│  PostgreSQL                     │
+│  → encrypted_value = "xyz..."   │  ← Verschlüsselte Secrets
+└─────────────────────────────────┘
+
+  Root-Zugriff auf den Server = Zugriff auf alles
+```
+
+#### Was "masked" und "protected" wirklich bedeuten
+
+| Option | Was es tut | Was es NICHT schützt |
+|--------|-----------|----------------------|
+| **Masked** | Wert in Logs → `[MASKED]` | Nicht gegen `echo $VAR \| base64` |
+| **Protected** | Nur auf protected Branches | Nicht gegen Maintainer-Zugriff |
+| **File-Type** | Secret als Datei statt Env-Var | Liegt trotzdem im Runner-Filesystem |
+
+#### Angriffsvektoren in der Pipeline
+
+```bash
+## Masking lässt sich leicht umgehen:
+- echo $SECRET                   # [MASKED] - geblockt
+- echo $SECRET | base64          # Klartext sichtbar!
+- env | grep SECRET              # alle Secrets sichtbar
+- cat /proc/self/environ         # Env-Vars aus Prozess-Speicher
+```
+
+---
+
+### Nachteile im Detail
+
+#### GitLab CI/CD Secrets
+
+| Nachteil | Warum problematisch |
+|----------|---------------------|
+| Secrets landen als Env-Vars im Prozess | Jede Library kann `env` lesen |
+| Kein Audit-Trail | Kein Nachweis wer wann welches Secret verwendet hat |
+| GitLab-Admin = God Mode | Sieht alle Secrets aller Projekte |
+| Keine Rotation | Abgelaufene Secrets müssen manuell getauscht werden |
+| Nicht GitOps-fähig | Secrets außerhalb von Git → Drift möglich |
+| Scope nur grob | Kein "Job A darf nur Secret X" |
+
+#### SOPS + Age/KMS
+
+| Nachteil | Warum problematisch |
+|----------|---------------------|
+| Private Key = Single Point of Failure | Verloren → Datenverlust, gestohlen → Totalverlust |
+| Kein Audit-Trail | SOPS loggt nicht wer wann entschlüsselt hat |
+| Keine Dynamic Secrets | Passwörter sind statisch, kein automatisches Ablaufen |
+| Key-Rotation aufwändig | Alle Dateien müssen re-verschlüsselt werden (`sops updatekeys`) |
+| Decrypted Secret muss irgendwo hin | Am Ende landet es doch als Kubernetes-Secret (base64) |
+| Fehleranfällig | `secrets.yaml` versehentlich committen → Plaintext in Git-History für immer |
+
+#### HashiCorp Vault
+
+| Nachteil | Warum problematisch |
+|----------|---------------------|
+| Hohe Betriebskomplexität | HA-Cluster, Unsealing, TLS, Backup – braucht dediziertes Ops-Team |
+| Unsealing ist kritisch | Nach Neustart: Vault versiegelt → alle abhängigen Services down |
+| Single Point of Failure | Vault down → keine neuen Secrets abrufbar |
+| Lizenzkosten (Enterprise) | Namespaces, HSM, DR → kostenpflichtig |
+| Steile Lernkurve | Auth-Methoden, Policies, Secret Engines, Leases |
+| Netzwerkabhängigkeit | Pod wartet auf Vault beim Start → Startup-Reihenfolge kritisch |
+| Vault selbst = Angriffsziel | Speichert alle Secrets → hochattraktiv für Angreifer |
+
+---
+
+### Wann welches Tool?
+
+```
+GitLab CI/CD Secrets
+├── ✅ Einfache Projekte, Dev-Umgebungen
+├── ✅ Nicht-kritische Credentials (z.B. Test-Tokens)
+└── ❌ Produktions-DBs, API-Keys mit hohem Impact, Multi-Team
+
+SOPS + Age/KMS
+├── ✅ GitOps-Workflows (Flux, ArgoCD)
+├── ✅ Secrets sicher in Git versionieren
+├── ✅ Self-hosted ohne Vault-Infrastruktur
+└── ❌ Dynamic Secrets, Audit-Trail, viele Teams
+
+HashiCorp Vault
+├── ✅ Enterprise, Compliance (SOC2, PCI-DSS)
+├── ✅ Viele Services und Teams
+├── ✅ Dynamic Secrets mit TTL (z.B. DB-Credentials)
+├── ✅ Vollständiger Audit-Trail
+└── ❌ Kleines Team ohne dediziertes Infra-Team
+```
+
+---
+
+### Typische Kombination in der Praxis
+
+```
+GitLab CI/CD Variable:  SOPS_AGE_KEY  (masked + protected)
+         │
+         ▼
+     SOPS entschlüsselt Secrets aus Git
+         │
+         ▼
+     kubectl apply → Kubernetes Secret (base64)
+         │
+         ▼
+     Pod nutzt Secret als Env-Variable oder Volume
+```
+
+> Vault ergänzt dieses Setup wenn **dynamische Secrets** oder **Compliance-Anforderungen** hinzukommen.
+
+---
+
+### Diskussionsfragen
+
+1. Warum schützt "masked" in GitLab nicht vollständig vor Secret-Leaks?
+2. Was passiert wenn der Age Private Key verloren geht?
+3. In welchem Szenario würdet ihr Vault trotz der hohen Komplexität einsetzen?
+4. Was ist der Unterschied zwischen einem statischen und einem dynamischen Secret?
+
+## Hashicorp Vault
+
+### Uebersicht Vault in Kubernetes
+
+
+### Zentrale Externer Server mit 3 Nodes (Produktion) 
+
+
+<img width="1227" height="851" alt="image" src="https://github.com/user-attachments/assets/31044a54-3d23-4544-9fc2-d0cb9327a4e8" />
+
+
+### 3-Wege für Kubernetes Daten zu bekommen 
+
+  * VSO (Vault Secrets Operator)
+  * SideCar Injection
+  * Volumes 
+
+### VSO 
+
+  * Ich bestücke eine neue CRT mit dem Wunsch eines Credentials "Vault Static Secret"
+
+```
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultStaticSecret
+metadata:
+  name: webapp-config
+  namespace: default
+spec:
+  # Reference to VaultAuth in another namespace
+  vaultAuthRef: vault-secrets-operator-system/default
+  
+  # Vault mount path (where the secret engine is mounted)
+  mount: secret
+  
+  # Path to the secret within the mount
+  path: webapp/config
+  
+  # Type of secret engine
+  type: kv-v2
+  
+  # Destination Kubernetes secret configuration
+  destination:
+    create: true
+    name: webapp-secret
+    type: Opaque
+  
+  # How often to refresh the secret from Vault
+  refreshAfter: 30s
+```
+
+#### Nachteil 
+
+  * Das automatisch erstellte Secret wird in etc gespeichert, solange wie das VaultStaticSecret existiert
+
+
+### Vault Sidecar Injector 
+
+#### Vorteile 
+
+  * Sicherste Variante
+  * Es wird kein Secret erstellt, passwort wird direkt im Pod zur Verfügung gestellt (in einer Datei)
+
+#### Nachteile
+
+  * Relativ viele Einträge im Pod über Annotations zu machen, damit das funktioniert
+  * Overhead über SideCar (weil jeder Pod ein Sidecar bekommt)
+  * Bekommt mit, wenn sich das Passwort ändert 
+
+### Volumes 
+
+### Uebung: Vault Agent Injection
+
+
+### Hintergrund
+
+#### Was ist der Vault Agent Injector?
+
+Der Vault Agent Injector ist ein **Mutating Webhook** in Kubernetes.
+Das bedeutet: Jede neue Pod-Definition wird automatisch abgefangen und veraendert,
+bevor der Pod wirklich startet — ohne dass du deinen Application-Code anfassen musst.
+
+![Vault Agent Injector Mutating Webhook](img/01-webhook-mutation.svg)
+
+Die Annotation `vault.hashicorp.com/agent-inject: "true"` im Pod-Manifest reicht aus,
+damit der Injector zwei neue Container in jeden Pod einschleust:
+
+- **vault-agent-init** (Init Container): laeuft einmalig beim Start, holt das Secret aus Vault
+- **vault-agent** (Sidecar Container): laeuft dauerhaft neben deiner App, erneuert Leases
+
+#### Wie laeuft die Authentifizierung ab?
+
+Der Pod muss sich bei Vault beweisen, dass er berechtigt ist, das Secret zu lesen.
+Das passiert ueber den **Kubernetes ServiceAccount Token** (JWT) — vollautomatisch.
+
+![Vault Kubernetes Auth Ablauf](img/02-auth-flow.svg)
+
+Vault fragt Kubernetes per **TokenReview** ob der JWT-Token gueltig ist und prueft dann,
+ob der ServiceAccount und der Namespace zur konfigurierten Role passen.
+
+#### Wo landet das Secret?
+
+![Secret Location Vergleich](img/03-secret-location.svg)
+
+Das Besondere: Es wird **kein Kubernetes Secret Objekt** erstellt.
+Das Secret existiert nur als Datei im Arbeitsspeicher des Pods (`/vault/secrets/config`)
+und taucht weder in `kubectl get secrets` auf noch wird es in etcd gespeichert.
+
+---
+
+### Voraussetzung: Vault laeuft im Cluster (Trainer-Setup, einmalig)
+
+```
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update
+
+helm install vault hashicorp/vault \
+  --namespace vault \
+  --create-namespace \
+  --set "server.dev.enabled=true" \
+  --set "server.dev.devRootToken=root" \
+  --set "injector.enabled=true" \
+  --wait
+```
+
+Kubernetes Auth aktivieren:
+
+```
+kubectl exec -n vault vault-0 -- vault auth enable kubernetes
+
+kubectl exec -n vault vault-0 -- vault write auth/kubernetes/config \
+  kubernetes_host="https://kubernetes.default.svc.cluster.local:443"
+```
+
+Vault laeuft im Dev-Modus: Root-Token `root`, kein TLS, In-Memory-Storage.
+
+---
+
+### Schritt 1: Verzeichnis anlegen und Namen setzen
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir vault-injection
+cd vault-injection
+```
+
+Namen einmalig setzen — alle folgenden Befehle nutzen automatisch `$NAME`:
+
+```
+NAME=jochen
+```
+
+### Schritt 2: Namespace und ServiceAccount erstellen
+
+```
+kubectl create namespace vault-$NAME
+kubectl create serviceaccount vault-auth -n vault-$NAME
+```
+
+Pruefe:
+
+```
+kubectl get serviceaccount vault-auth -n vault-$NAME
+```
+
+### Schritt 3: Secret in Vault anlegen
+
+Vault laeuft als Pod im Namespace `vault`. Alle Vault-Befehle werden per `kubectl exec` ausgefuehrt.
+
+```
+kubectl exec -n vault vault-0 -- vault kv put secret/$NAME/config \
+  username="dbuser" \
+  password="supersecret123"
+```
+
+Pruefen ob das Secret gespeichert wurde:
+
+```
+kubectl exec -n vault vault-0 -- vault kv get secret/$NAME/config
+```
+
+Erwartete Ausgabe:
+
+```
+====== Secret Path ======
+secret/data/<dein-name>/config
+
+====== Data ======
+Key         Value
+---         -----
+password    supersecret123
+username    dbuser
+```
+
+### Schritt 4: Vault Policy erstellen
+
+Die Policy legt fest, auf welche Pfade zugegriffen werden darf.
+
+```
+kubectl exec -n vault vault-0 -- /bin/sh -c "
+cat > /tmp/$NAME-policy.hcl << 'EOF'
+path \"secret/data/$NAME/config\" {
+  capabilities = [\"read\"]
+}
+EOF
+vault policy write $NAME-policy /tmp/$NAME-policy.hcl
+"
+```
+
+Policy pruefen:
+
+```
+kubectl exec -n vault vault-0 -- vault policy read $NAME-policy
+```
+
+Erwartete Ausgabe:
+
+```
+path "secret/data/<dein-name>/config" {
+  capabilities = ["read"]
+}
+```
+
+### Schritt 5: Vault Role erstellen
+
+Die Role verbindet den Kubernetes ServiceAccount mit der Policy.
+
+```
+kubectl exec -n vault vault-0 -- vault write auth/kubernetes/role/$NAME-role \
+  bound_service_account_names=vault-auth \
+  bound_service_account_namespaces=vault-$NAME \
+  policies=$NAME-policy \
+  ttl=24h
+```
+
+Role pruefen:
+
+```
+kubectl exec -n vault vault-0 -- vault read auth/kubernetes/role/$NAME-role
+```
+
+### Schritt 6: Deployment anlegen
+
+#### Annotations im Ueberblick
+
+![Vault Annotations erklärt](img/04-annotations.svg)
+
+#### agent-inject-secret im Detail
+
+![agent-inject-secret erklärt](img/05-secret-annotation.svg)
+
+Manifest erstellen — `$NAME` wird automatisch eingesetzt:
+
+```
+cat > 01-deployment.yml << EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "$NAME-role"
+        vault.hashicorp.com/agent-inject-secret-config: "secret/data/$NAME/config"
+        vault.hashicorp.com/agent-inject-template-config: |
+          {{- with secret "secret/data/$NAME/config" -}}
+          username={{ .Data.data.username }}
+          password={{ .Data.data.password }}
+          {{- end }}
+    spec:
+      serviceAccountName: vault-auth
+      containers:
+      - name: app
+        image: nginx:alpine
+EOF
+```
+
+```
+kubectl apply -f . -n vault-$NAME
+```
+
+### Schritt 7: Ergebnis pruefen
+
+Pod-Status pruefen — `2/2` bedeutet: `app` + `vault-agent` Sidecar laufen:
+
+```
+kubectl get pods -n vault-$NAME
+```
+
+Erwartete Ausgabe:
+
+```
+NAME                    READY   STATUS    RESTARTS   AGE
+myapp-xxxxx             2/2     Running   0          10s
+```
+
+Injiziertes Secret lesen:
+
+```
+kubectl exec -n vault-$NAME deploy/myapp -c app -- cat /vault/secrets/config
+```
+
+Erwartete Ausgabe:
+
+```
+username=dbuser
+password=supersecret123
+```
+
+Container-Struktur des Pods ansehen (Init Container + 2 regulaere Container):
+
+```
+kubectl describe pod -n vault-$NAME -l app=myapp | grep -A 2 "Init Containers:\|Containers:"
+```
+
+### Schritt 8: Secret aktualisieren (Bonus)
+
+Das Passwort in Vault aendern:
+
+```
+kubectl exec -n vault vault-0 -- vault kv put secret/$NAME/config \
+  username="dbuser" \
+  password="neuespasswort456"
+```
+
+Nach einiger Zeit (ca. 5 min) aktualisiert der `vault-agent` Sidecar die Datei automatisch im Pod:
+
+```
+kubectl exec -n vault-$NAME deploy/myapp -c app -- cat /vault/secrets/config
+```
+
+### Aufraeumen
+
+```
+kubectl delete namespace vault-$NAME
+```
+
+Vault-Eintraege aufraeumen (optional):
+
+```
+kubectl exec -n vault vault-0 -- vault kv delete secret/$NAME/config
+kubectl exec -n vault vault-0 -- vault policy delete $NAME-policy
+kubectl exec -n vault vault-0 -- vault delete auth/kubernetes/role/$NAME-role
+```
+
+### Zusammenfassung
+
+| Was | Wofuer |
+|---|---|
+| Mutating Webhook | Faengt jeden neuen Pod ab, fuegt Init-Container + Sidecar ein |
+| `vault-agent-init` | Holt das Secret einmalig beim Pod-Start, legt Datei an |
+| `vault-agent` | Laeuft als Sidecar, erneuert Token-Lease, schreibt Updates |
+| ServiceAccount `vault-auth` | Beweist gegenueber Vault, wer der Pod ist (via JWT) |
+| Vault Role | Verbindet SA + Namespace mit einer Policy |
+| Vault Policy | Legt fest, welche Secrets gelesen werden duerfen |
+| `/vault/secrets/config` | Datei im Pod — kein Kubernetes Secret Objekt |
+
 ## Kubernetes API-Objekte (Teil 2)
 
 ## Kubernetes Praxis
@@ -4370,60 +4949,25 @@ helm install my-wordpress -f values.yml bitnami/wordpress
 
 ```
 ## Mini-Step 1: Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run=server
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.1 --dry-run=server
 ```
 
 ```
 ## Mini-Step 2: Installieren 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.1 
 ```
 
 ```
 ## Geht das denn auch ?
 kubectl get pods
-helm status my-mariadb
-```
-
-### Schritt 2: Umschauen 
-
-```
-kubectl get pods
+## sehr gut in helm v4
 helm status my-mariadb 
-helm list
-## alle helm charts anzeigen, die im gesamten Cluster installierst wurden 
-helm list -A
-helm history my-mariadb 
-```
-
-### Schritt 3: Umschauen get 
-
-```
-## Wo speichert er Information, die er später mit helm get abruft
-kubectl get secrets
 ```
 
 
-```
-helm get values my-mariadb
-helm get manifest my-mariadb
-## Zeige alle Kinds an 
-helm get manifest my-mariadb | grep -i -A 4 kind  
-## Look for COMPUTED VALUES in get all ->
-helm get all my-mariadb 
-```
+### Schritt 2: Exercise: Upgrade to new version 
 
-```
-## Hack COMPUTED VALUES anzeigen lassen
-## Welche Werte (values) hat er zur Installation verwendet
-helm get all my-mariadb | grep -i computed -A 200
-## besser Variante von David
-helm get all my-mariadb | sed -n '/COMPUTED/, /HOOKS/p'
-
-```
-
-### Schritt 4: Exercise: Upgrade with specific settings (same chart version)  
-
-#### Schritt 4.1 Default values (auf terminal) ausfindig machen 
+#### Schritt 2.1 Default values (auf terminal) ausfindig machen 
 
 ```
 ## Recherchiere wie die Werte gesetzt werden (artifacthub.io) oder verwende die folgenden Befehle:
@@ -4431,7 +4975,7 @@ helm show values oci://registry-1.docker.io/cloudpirates/mariadb
 helm show values oci://registry-1.docker.io/cloudpirates/mariadb | less
 ```
 
-#### Schritt 4.2 Resources ändern 
+#### Schritt 2.2 Upgrade und resources ändern 
 
 
 ```
@@ -4461,30 +5005,67 @@ cd ..
 
 ```
 ## Testen 
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 --dry-run=server -f prod/values.yaml  
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.3 --dry-run -f prod/values.yaml  
 ```
 
 ```
 ## Real Upgrade
-helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.8.1 -f prod/values.yaml
+helm upgrade --install my-mariadb oci://registry-1.docker.io/cloudpirates/mariadb --reset-values --version 0.5.3 -f prod/values.yaml
 ```
 
 ```
-## neuer pod wird erstellt 
-kubectl get pod
-helm get values my-mariadb
-helm list 
+kubectl get pods
+```
+
+#### Umschauen 
+
+```
+kubectl get pods
+## Ab Version 4 (helm) sinnvoll
+helm status my-mariadb 
+helm list
+## alle helm charts anzeigen, die im gesamten Cluster installierst wurden 
+helm list -A
 helm history my-mariadb 
 ```
 
+#### Umschauen get 
+
+```
+## Wo speichert er Information, die er später mit helm get abruft
+kubectl get secrets
+```
 
 
+```
+helm get values my-mariadb
+helm get manifest my-mariadb
+## Zeile ausgeben und 4 Zeilen danach und 4 Zeilen davor
+helm get manifest my-mariadb | grep "300Mi" -A4 -B4 
+## alles was ich ausgeben kann an Daten aus secrets .
+helm get all my-mariadb 
+```
+
+```
+## Hack COMPUTED VALUES anzeigen lassen
+## Welche Werte (values) hat er zur Installation verwendet
+helm get all my-mariadb | grep -i computed -A 200
+## besser Variante von David
+helm get all my-mariadb | sed -n '/COMPUTED/, /HOOKS/p'
+
+```
+
+### Tipp: values aus alter revision anzeigen 
+
+```
+## Beispiel: 
+helm get values  my-mariadb --revision 1
+```
+
+### Schritt 3: Exercise: Upgrade to new version 
 
 
-### Schritt 5: Exercise: Upgrade to new version 
-
-
-#### Schritt 5.1. Upgrade und resources beibehalten 
+#### Schritt 3.1. Upgrade und resources beibehalten 
 
   * Values wurden bereits im vorherigen Schritt angelegt 
 
@@ -4503,7 +5084,7 @@ kubectl get pods
 ## kein neuer pod
 ```
 
-#### Schritt 5.2 Fehlgeschlagene Installation, wie lösen ? 
+#### Schritt 3.2 Fehlgeschlagene Installation, wie lösen ? 
 
 ```
 ## Schlägt fehle, weil mit dem upgrade bestimmte Felder nicht überschrieben dürfen, die geändert wurden im Template
@@ -4541,12 +5122,6 @@ helm get values my-mariadb
 ```
 
 
-### Tipp: values aus alter revision anzeigen 
-
-```
-## Beispiel: 
-helm get values  my-mariadb --revision 1
-```
 
 #### Uninstall 
 
@@ -4554,9 +5129,9 @@ helm get values  my-mariadb --revision 1
 helm uninstall my-mariadb 
 ## namespace wird nicht gelöscht
 ## händisch löschen
-kubectl delete ns <namenskuerzel>
+kubectl delete ns <dein-name>
 ## crd's werden auch nicht gelöscht
-kubectl create ns <namenskuerzel>
+kubectl create ns <dein-name> 
 ```
 
 ### Problem: OutOfMemory (OOM-Killer) if container passes limit in memory 
@@ -5085,6 +5660,183 @@ helm pull oci://registry-1.docker.io/cloudpirates/mariadb --version 0.9.0 --unta
 
 ### Wie starte ich am besten einfach - mit eigenem Projekt
 
+## Helm Spezial: Umgang mit Einrückungen
+
+### Whitespaces meistern mit "-"
+
+
+### Grundlagen 
+
+  * In Helm (bzw. in Go-Templates) hast du verschiedene Möglichkeiten, den Umgang mit Whitespace (z. B. Leerzeichen, Zeilenumbrüche) zu steuern:
+
+- `{{ ... }}`:  
+  Standardvariante. Lässt den Whitespace außerhalb der geschweiften Klammern unverändert.
+
+- `{{- ... }}`:  
+  Entfernt den Whitespace links (vor) dem Ausdruck und AUCH die Zeilenmbrüche davor 
+
+- `{{ ... -}}`:  
+  Entfernt den Whitespace rechts (nach) dem Ausdruck, aber AUCH Zeilenumbrüche 
+
+- `{{- ... -}}`:  
+  Entfernt Whitespace sowohl links als auch rechts des Ausdrucks, aber AUCH Zeilenumbrüche 
+
+
+### Exercise Whitespaces
+
+
+### Explanation 
+
+  * {{- -> trim on left side / INCLUDING new lines 
+  * -}} -> trim on right side / ALSO: new lines 
+  * trim tabs, whitespaces a.s.o. (see ref)
+
+### Walkthrough 
+
+```
+cd
+mkdir -p helm-exercises
+cd helm-exercises
+```
+
+```
+## When ever we encounter error while parsing yaml, we can use comment !!!
+helm create testenv
+cd testenv/templates
+rm -fR *.yaml
+rm -fR tests
+```
+
+```
+nano test.yaml
+```
+
+```
+## "{{23 -}} < {{- 45}}"
+```
+
+```
+helm template .. 
+helm template --debug ..
+```
+
+```
+## now with new lines
+nano test2.yaml
+```
+
+```
+## {{23 -}}
+newline here
+```
+
+```
+helm template ..
+helm template --debug ..
+```
+
+
+### Reference:
+
+  * https://pkg.go.dev/text/template#hdr-Text_and_spaces
+
+### Named Templates
+
+
+### Prerequisites range-example 
+
+  * helm-exercises/range chart exists 
+
+### Step 0: start in project 
+
+```
+cd
+cd helm-exercises/range
+```
+
+
+### Step 1: Put in file starting _helpers.tpl 
+
+```
+cd templates
+nano _helpers.tpl
+```
+
+  * Das am Ende einfügen -> 
+
+```
+{{/* Definiere ein named template namens "mychart.containerPort" */}}
+{{- define "range.containerPort" -}}
+- name: http
+  containerPort: 80
+  protocol: TCP
+{{- end }}
+```
+
+### Step 2: templates/deployment.yaml 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx 
+    spec:
+      containers:
+        - name: web
+          image: "nginx:latest"
+          ports:
+            {{ include "range.containerPort" . }}
+```
+
+```
+helm template ..
+```
+
+```
+## Problem, Zeile 1 o.k., nächste Zeile nicht richtig eingerückt
+```
+
+![image](https://github.com/user-attachments/assets/8bfe07d5-59f9-4fc6-87d0-3aeff93c2acb)
+
+
+
+### Step 3: Einrückung richtig setzen 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx 
+    spec:
+      containers:
+        - name: web
+          image: "nginx:latest"
+          ports:
+            {{- include "range.containerPort" . | nindent 12 }}
+```
+
+```
+helm template ..
+```
+
 ## Helm Advanced
 
 ### Helm Dependencies Exercise
@@ -5286,7 +6038,7 @@ id
 ``` 
 
 
-## Helm mit gitlab ci/cd
+## Gitlab ci/cd (auch mit helm)
 
 ### Helm mit gitlab ci/cd ausrollen
 
@@ -5341,6 +6093,333 @@ deploy:
 ### Reference: Example Project (Public)
 
   * https://gitlab.com/jmetzger/training-helm-chart-kubernetes-gitlab-ci-cd
+
+### Uebung: Unit Tests im Merge Request Dashboard
+
+
+### Hintergrund
+
+GitLab kann Test-Ergebnisse direkt im **Merge Request Dashboard** anzeigen —
+ohne in die Job-Logs schauen zu muessen.
+
+Dazu speichert der CI-Job einen JUnit-XML-Report als Artifact:
+
+```
+artifacts:
+  when: always          # auch bei fehlgeschlagenen Tests hochladen!
+  reports:
+    junit: report.xml
+```
+
+GitLab vergleicht automatisch den Test-Status von Feature-Branch und Ziel-Branch
+und hebt neu fehlgeschlagene oder geloeste Tests hervor.
+
+Funktioniert auf allen GitLab-Tiers (Free, Premium, Ultimate).
+
+### Wie weiss GitLab, dass es ein Unit-Test-Report ist?
+
+Der entscheidende Schluessel ist `reports: junit:` — das ist kein frei waehlbarer Name,
+sondern ein **fest definiertes GitLab-Keyword**.
+
+Damit sagst du GitLab explizit:
+
+```
+"Diese Datei ist ein JUnit-XML-Report —
+ parse sie und zeige das Ergebnis im MR-Dashboard an."
+```
+
+Ohne `reports: junit:` waere `report.xml` nur eine normale Datei zum Herunterladen —
+kein Test-Widget, kein Branch-Vergleich.
+
+Das Format der Datei muss zum Keyword passen: fuer `junit:` erwartet GitLab
+valides JUnit-XML. `pytest --junitxml=report.xml` liefert genau das.
+
+#### Weitere reports-Keywords
+
+GitLab kennt noch andere solche Keywords — jedes aktiviert ein eigenes Widget im MR:
+
+| Keyword | Widget im MR | Tier |
+|---------|-------------|------|
+| `reports: junit:` | Test summary (passed/failed/neu) | Free |
+| `reports: coverage_report:` | Code-Coverage-Badge und Diff | Free |
+| `reports: codequality:` | Code-Quality-Findings | Free |
+| `reports: sast:` | Security-Findings (SAST) | Free* |
+| `reports: dependency_scanning:` | Abhaengigkeiten mit CVEs | Ultimate |
+
+*SAST-Report wird hochgeladen auf Free, aber das inline MR-Widget nur auf Ultimate.
+
+### Was ist im Demo-Repo drin?
+
+```
+calculator.py         <- Python-Funktionen (add, subtract, multiply, divide, is_even)
+test_calculator.py    <- 10 pytest-Tests
+requirements.txt      <- pytest, pytest-cov
+.gitlab-ci.yml        <- Pipeline mit JUnit- und Coverage-Artifact
+```
+
+Die komplette Pipeline auf einen Blick:
+
+```
+stages:
+  - test
+
+unit-tests:
+  stage: test
+  image: python:3.11-slim
+  script:
+    - pip install -r requirements.txt --quiet
+    - pytest test_calculator.py -v
+        --junitxml=report.xml
+        --cov=calculator --cov-report=term --cov-report=xml:coverage.xml
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+```
+
+Zwei Reports gleichzeitig:
+
+| Report | Keyword | Was im MR erscheint |
+|--------|---------|---------------------|
+| `report.xml` | `reports: junit:` | Test summary (passed/failed/neu) |
+| `coverage.xml` | `reports: coverage_report:` | Coverage-Badge + Zeilen im Diff |
+
+### Schritt 1: Auf GitLab einloggen
+
+```
+https://gitlab.com
+
+Account:  training.tn<X>     (X = deine Teilnehmernummer, z.B. training.tn2)
+Passwort: vom Trainer
+```
+
+### Schritt 2: Demo-Repo forken
+
+```
+1. https://gitlab.com/jmetzger/training-gitlab-ci-tests aufrufen
+
+2. Oben rechts: "Fork" klicken
+
+3. Im Fork-Dialog:
+   - Namespace: training.tn<X>   (euer gemeinsamer Account)
+   - Project name: training-ci-tests-<dein-name>
+     (z.B. training-ci-tests-anna — eindeutig, da ihr den Account teilt!)
+   - Visibility: Public
+
+4. "Fork project" klicken
+```
+
+### Schritt 3: Pipeline auf main-Branch manuell starten
+
+```
+1. Im geforkten Repo: Build -> Pipelines
+
+2. Oben rechts: "Run pipeline" klicken
+
+3. Branch: main, dann "Run pipeline" bestaetigen
+
+4. Job "unit-tests" anklicken
+```
+
+Erwartete Ausgabe im Job-Log:
+
+```
+10 passed in 0.03s
+
+Name            Stmts   Miss  Cover
+-----------------------------------
+calculator.py      12      0   100%
+-----------------------------------
+TOTAL              12      0   100%
+```
+
+Alle Tests gruen, Coverage 100% — der Ausgangszustand ist sauber.
+
+Im MR (nach dem Forken, wenn eine Pipeline laeuft) erscheint ausserdem:
+
+```
+Coverage: 100%
+```
+
+### Schritt 4: Feature-Branch mit Bug erstellen
+
+Im Web-Editor (kein lokales Git noetig):
+
+```
+1. Im Repo links: "Code" -> "<> Repository"
+
+2. Datei "calculator.py" anklicken
+
+3. Oben rechts: "Edit" -> "Edit single file"
+
+4. Zeile 15 aendern:
+
+   VORHER:
+   def is_even(n):
+       return n % 2 == 0
+
+   NACHHER (Bug einbauen):
+   def is_even(n):
+       return n % 2 != 0  # BUG
+
+5. Unten bei "Commit changes":
+   - Commit message: "Add is_even feature - WIP"
+   - Haekchen bei "Create a new branch"
+   - Branch name: feature/is-even-<dein-name>
+     (z.B. feature/is-even-anna)
+   - "Commit changes" klicken
+```
+
+### Schritt 5: Merge Request erstellen
+
+```
+1. GitLab zeigt oben einen blauen Banner:
+   "Create merge request"
+
+2. Klick darauf
+
+3. Im MR-Formular:
+   - Title: "Fix is_even - <dein-name>"
+   - Source branch: feature/is-even-<dein-name>
+   - Target branch: main
+
+4. "Create merge request" klicken
+```
+
+### Schritt 6: Test-Ergebnisse im MR Dashboard beobachten
+
+Die Pipeline laeuft jetzt auf dem Feature-Branch.
+Sobald sie fertig ist (ca. 1-2 Minuten), erscheint im MR:
+
+```
+Test summary
+  2 newly failed tests
+
+  test_calculator > test_is_even_true
+  test_calculator > test_is_even_false
+```
+
+**Erwartetes Verhalten:** Pipeline-Status rot, 2 neu fehlgeschlagene Tests sichtbar.
+
+Auf einen Test klicken zeigt den genauen Fehler:
+
+```
+assert False is True
+ +  where False = is_even(4)
+```
+
+Im "Changes"-Tab des MR sind die geaenderten Zeilen in `calculator.py`
+mit dem Coverage-Status annotiert — Zeile 16 ist rot markiert, da der Bug
+dazu fuehrt dass ein Code-Pfad nicht korrekt durchlaufen wird.
+
+### Schritt 7: Bug fixen
+
+```
+1. Im MR oben: "Code" -> "Open in Web IDE"
+   (oder zurueck zur Datei: Code -> calculator.py -> Edit)
+
+2. Zeile 15 zurueck auf:
+
+   def is_even(n):
+       return n % 2 == 0
+
+3. Commit message: "Fix is_even: correct comparison operator"
+
+4. Commit auf denselben Feature-Branch
+```
+
+### Schritt 8: Tests werden gruen
+
+Pipeline laeuft erneut. Im MR erscheint jetzt:
+
+```
+Test summary
+  2 fixed tests
+
+  test_calculator > test_is_even_true   (fixed)
+  test_calculator > test_is_even_false  (fixed)
+```
+
+Pipeline-Status: gruen.
+
+### Schritt 9: Merge Request mergen
+
+```
+1. "Merge" klicken
+
+2. "Delete source branch" anhaeken (optional)
+
+3. Bestaetigen
+```
+
+### Zusammenfassung
+
+| Schritt | Was im MR-Dashboard erscheint |
+|---------|-------------------------------|
+| Pipeline auf main | 10 passed, Coverage 100% |
+| Feature-Branch mit Bug | 2 newly failed tests (rot) |
+| Bug gefixt, neuer Commit | 2 fixed tests (gruen), Coverage 100% |
+| Alle Tests gruen | Pipeline gruen, Merge moeglich |
+
+### Aufraeumen
+
+```
+Settings -> General -> Advanced -> Delete project
+```
+
+### Exercise: Docker Image bauen und in Registry pushen
+
+
+### Ziel
+
+  * Ein Docker-Image mit GitLab CI/CD automatisch bauen
+  * Das Image in die GitLab Container Registry pushen
+
+### Schritt 1: Referenzprojekt importieren
+
+```
+## In GitLab einloggen, dann:
+https://gitlab.com/projects/new#import_project
+```
+
+```
+## Folgende URL als Import-Quelle angeben:
+https://gitlab.com/jmetzger/training-build-test-ci-cd-gitlab.git
+```
+
+```
+## Einen eigenen Projektnamen vergeben
+## Visibility: public
+```
+
+### Schritt 2: Pipeline anschauen
+
+  * Im Projekt: **Build -> Pipeline editor** öffnen
+  * Die Datei `.gitlab-ci.yml` enthält den Build-Job
+
+### Schritt 3: Pipeline ausführen
+
+  * Unter **Build -> Pipelines** -> **Run pipeline** -> Branch: **master** -> **Run pipeline**
+  * Die Pipeline beobachten (3 Jobs: build, test, code_quality)
+  * Nach erfolgreichem Lauf: **Deploy -> Container Registry** prüfen
+  * Das gebaute Image ist dort sichtbar (Tag = Commit-Hash)
+
+### Schritt 4: Eigene Änderung triggern
+
+```
+## Hinweis: Das Repo verwendet "master" als default Branch (nicht "main")
+
+## Eine kleine Änderung an einer Datei vornehmen (z.B. index.js)
+## und committen -> Pipeline startet automatisch
+```
+
+### Referenz
+
+  * Beispielprojekt (public): https://gitlab.com/jmetzger/training-build-test-ci-cd-gitlab
 
 ## Helpful plugins
 
@@ -6291,7 +7370,8 @@ kubectl get clusterrolebinding traefik-ingress -o yaml
 
 ### Grafik 
 
-<img width="1001" height="575" alt="image" src="https://github.com/user-attachments/assets/48a5a2f0-56a4-48f7-a4af-0154025d437a" />
+<img width="1052" height="590" alt="image" src="https://github.com/user-attachments/assets/58ce725e-59b0-4a71-849e-3520a4eae7bb" />
+
 
 
 ### Überblick 
@@ -6367,7 +7447,7 @@ metadata:
   name: nfs-csi
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 10.135.0.6
+  server: 10.135.0.3
   share: /var/nfs
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -6726,6 +7806,10 @@ Quelle: https://www.devopsschool.com/
 ### Prometheus / Grafana Stack installieren
 
 
+> **Hinweis:** Es gibt eine neuere Anleitung mit Ingress, TLS und BasicAuth-Schutz fuer Prometheus:
+> [install-with-helm-ingress.md](install-with-helm-ingress.md)
+> Diese Variante (mit port-forward) eignet sich zum schnellen Ausprobieren.
+
   * using the kube-prometheus-stack (recommended !: includes important metrics)
 
 ### Step 1: Prepare values-file  
@@ -6820,6 +7904,820 @@ ssh -L 3000:localhost:3000 tln1@164.92.129.7
   * https://artifacthub.io/packages/helm/prometheus-community/prometheus
 
   
+
+### Uebung: Prometheus UI und PromQL
+
+
+### Hintergrund
+
+Prometheus sammelt Metriken per Pull-Modell: alle 15 Sekunden ruft es
+bei jedem bekannten Target den Endpunkt `/metrics` ab und speichert die
+Werte in seiner Time-Series-Datenbank (TSDB).
+
+```
+App/Service
+  └─ /metrics (HTTP)
+       │
+       │  Prometheus scraped alle 15s
+       ▼
+  Prometheus TSDB
+       │
+       │  PromQL-Query
+       ▼
+  Grafana / Browser-UI
+```
+
+In dieser Uebung schauen wir uns diesen Weg von innen an:
+rohe Metriken → Prometheus Targets → PromQL-Abfragen.
+
+### Voraussetzung
+
+Der kube-prometheus-stack ist installiert mit Ingress und BasicAuth
+(siehe install-with-helm-ingress.md).
+
+Prometheus im Browser aufrufen:
+
+```
+https://prometheus.<dein-name>.do.t3isp.de
+## Login: admin / DEIN-PASSWORT
+```
+
+### Schritt 1: Targets - was scrapt Prometheus?
+
+Im Prometheus-Browser-UI oben auf **Status → Targets** klicken.
+
+Hier sieht man alle Endpoints, die Prometheus aktiv abfragt:
+
+- **State UP** (gruen) = Prometheus erreicht den Endpoint und bekommt Metriken
+- **State DOWN** (rot) = Endpoint nicht erreichbar
+
+Wichtige Targets im kube-prometheus-stack:
+
+| Target | Was es liefert |
+|--------|----------------|
+| `node-exporter` | CPU, RAM, Disk, Netzwerk pro Node |
+| `kube-state-metrics` | Zustand von Pods, Deployments, ReplicaSets |
+| `kubelet` / `cAdvisor` | Container-Ressourcen (CPU/RAM pro Container) |
+| `prometheus` selbst | Interne Prometheus-Metriken |
+| `alertmanager` | Alertmanager-Metriken |
+
+**Frage zum Nachdenken:** Wie weiss Prometheus, welche Pods es scrapen soll?
+→ Antwort: ServiceMonitor CRDs (dazu spaeter mehr)
+
+### Schritt 2: /metrics direkt ansehen
+
+Prometheus zieht Metriken von HTTP-Endpunkten im Raw-Format.
+Wir koennen uns diese Rohdaten direkt mit einem curl-Pod anschauen:
+
+```
+kubectl run metrics-check -it --rm --image=curlimages/curl \
+  --restart=Never -n monitoring -- \
+  curl -s http://node-exporter.monitoring.svc.cluster.local:9100/metrics \
+  | head -40
+```
+
+Hier sieht man das Rohformat:
+
+```
+## HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
+## TYPE node_cpu_seconds_total counter
+node_cpu_seconds_total{cpu="0",mode="idle"} 12345.67
+node_cpu_seconds_total{cpu="0",mode="system"} 234.56
+node_cpu_seconds_total{cpu="0",mode="user"} 567.89
+```
+
+Jede Zeile hat das Format:
+```
+metrik_name{label1="wert1", label2="wert2"} zahlenwert
+```
+
+Genau diese Zeilen empfaengt Prometheus bei jedem Scrape-Intervall.
+
+### Schritt 3: Erste PromQL-Abfragen im Prometheus UI
+
+Im Prometheus UI den Tab **Graph** oeffnen.
+
+Im Suchfeld die folgenden Abfragen einzeln eingeben und auf **Execute** klicken.
+
+#### 3.1 Welche Targets sind erreichbar?
+
+```
+up
+```
+
+Ergebnis: Eine 1 = erreichbar, eine 0 = nicht erreichbar.
+Labels zeigen welcher Job und welcher Instance-Endpoint gemeint ist.
+
+#### 3.2 Alle laufenden Pods im Cluster
+
+```
+kube_pod_info
+```
+
+Jede Zeile steht fuer einen Pod. Labels enthalten Namespace, Pod-Name, Node.
+
+#### 3.3 Wieviele Pods laufen pro Namespace?
+
+```
+count by (namespace) (kube_pod_info)
+```
+
+`count by (namespace)` gruppiert die Ergebnisse und zaehlt.
+
+#### 3.4 CPU-Verbrauch pro Container (letzte 5 Minuten)
+
+```
+rate(container_cpu_usage_seconds_total{container!=""}[5m])
+```
+
+`rate()` berechnet den Durchschnitt pro Sekunde ueber 5 Minuten.
+Container mit leerem Namen sind Infrastruktur-Container, deshalb der Filter.
+
+#### 3.5 RAM-Verbrauch pro Container in MB
+
+```
+container_memory_usage_bytes{container!=""} / 1024 / 1024
+```
+
+Ergebnis direkt in Megabyte.
+
+#### 3.6 Wieviele Replicas eines Deployments sind verfuegbar?
+
+```
+kube_deployment_status_replicas_available
+```
+
+Sieht man sofort, wenn ein Deployment nicht alle Replicas hat.
+
+#### 3.7 Pods die neu gestartet wurden (Restarts)
+
+```
+kube_pod_container_status_restarts_total > 0
+```
+
+Zeigt alle Container, die mindestens einmal neu gestartet wurden.
+Sehr nuetzlich fuer CrashLoopBackOff-Diagnose.
+
+### Schritt 4: Graph-Ansicht verwenden
+
+Eine Abfrage eingeben, dann auf den Tab **Graph** (neben "Table") klicken:
+
+```
+rate(container_cpu_usage_seconds_total{container!=""}[5m])
+```
+
+Zeitraum oben rechts einstellen (z.B. **15m** fuer die letzten 15 Minuten).
+
+Der Graph zeigt den zeitlichen Verlauf - genau diese Daten fragt Grafana
+per PromQL ab und stellt sie als Dashboard dar.
+
+### Schritt 5: Labels verstehen
+
+Labels sind das Herzstuck von Prometheus. Jede Metrik kann beliebig viele
+Labels haben, nach denen gefiltert und gruppiert werden kann.
+
+Gezielt nach einem Namespace filtern:
+
+```
+kube_pod_info{namespace="monitoring"}
+```
+
+Nach mehreren Werten filtern (OR mit Regex):
+
+```
+kube_pod_info{namespace=~"monitoring|default"}
+```
+
+Label aus dem Ergebnis herauslassen:
+
+```
+sum by (node) (kube_pod_info)
+```
+
+Zaehlt Pods pro Node (alles ausser Node-Label wird zusammengefasst).
+
+### PromQL Spickzettel
+
+| Anwendungsfall | Abfrage |
+|----------------|---------|
+| Alle Targets erreichbar? | `up` |
+| CPU-Rate pro Container | `rate(container_cpu_usage_seconds_total{container!=""}[5m])` |
+| RAM pro Container (MB) | `container_memory_usage_bytes{container!=""} / 1024 / 1024` |
+| Pods pro Namespace | `count by (namespace) (kube_pod_info)` |
+| Deployment-Replicas OK? | `kube_deployment_status_replicas_available` |
+| Container-Restarts | `kube_pod_container_status_restarts_total > 0` |
+| Node-Auslastung CPU % | `100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)` |
+| Freier RAM pro Node (GB) | `node_memory_MemAvailable_bytes / 1024 / 1024 / 1024` |
+| HTTP-Requests pro Sekunde | `rate(http_requests_total[5m])` |
+
+Die letzte Zeile (http_requests_total) erscheint nur, wenn eine eigene App
+diese Metrik exposed - dazu spaeter mehr in der Uebung zu Custom Metriken.
+
+→ [Uebung: Custom Metriken mit eigener Demo-App](uebung-custom-metriken.md)
+
+### Naechster Schritt: Grafana
+
+Dieselben PromQL-Abfragen aus dieser Uebung kann man direkt in Grafana
+als Dashboard-Panel verwenden:
+
+```
+https://grafana.<dein-name>.do.t3isp.de
+## Login: admin / DEIN-PASSWORT
+```
+
+**Connections → Data Sources** zeigt, dass Grafana bereits mit Prometheus
+verbunden ist. Unter **Dashboards** sind fertige Kubernetes-Dashboards
+bereits importiert.
+
+### Uebung: Custom Metriken mit eigener Demo-App
+
+
+### Hintergrund
+
+Kubernetes-Standard-Metriken (CPU, RAM, Restarts) kennen wir bereits.
+In dieser Uebung deployen wir eine eigene App, die **fachliche Metriken**
+bereitstellt - zum Beispiel aktive Nutzer oder verarbeitete Bestellungen.
+
+Prometheus scrapt diese Metriken genauso wie alle anderen - der Unterschied
+ist nur, dass wir sie selbst in der App definieren.
+
+### Die Demo-App
+
+Der vollstaendige Source-Code liegt im Repository:
+
+- [app.py](demo-app/app.py) - Flask-App mit drei Metriken
+- [Dockerfile](demo-app/Dockerfile) - wie das Image gebaut wird
+- [requirements.txt](demo-app/requirements.txt) - Python-Abhaengigkeiten
+
+Das fertige Image: `dockertrainereu/k8s-prometheus-demo:latest`
+
+#### Metriken der App (Port 8080)
+
+| Metrik | Typ | Beschreibung |
+|--------|-----|--------------|
+| `http_requests_total` | Counter | Anzahl HTTP-Requests, nach Methode und Endpoint |
+| `active_users` | Gauge | Aktuell aktive Nutzer (simuliert, 10-200) |
+| `orders_processed_total` | Counter | Verarbeitete Bestellungen, nach Status (success/error) |
+
+**Endpoints der App:**
+
+| Endpoint | Beschreibung |
+|----------|--------------|
+| `/` | Startseite |
+| `/buy` | Loest eine Bestellung aus (erhoet orders_processed_total) |
+| `/metrics` | Prometheus-Metriken im Textformat (Port 8080) |
+
+### Schritt 1: Vorbereitung
+
+```
+cd
+mkdir -p manifests/custom-metriken
+cd manifests/custom-metriken
+```
+
+### Schritt 2: Deployment
+
+```
+vi 01-deployment.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-app
+  template:
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      containers:
+      - name: demo-app
+        image: dockertrainereu/k8s-prometheus-demo:latest
+        ports:
+        - name: metrics
+          containerPort: 8080
+```
+
+### Schritt 3: Service
+
+```
+vi 02-service.yml
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app
+  labels:
+    app: demo-app
+spec:
+  selector:
+    app: demo-app
+  ports:
+  - name: metrics
+    port: 8080
+    targetPort: 8080
+```
+
+### Schritt 4: ServiceMonitor
+
+Der ServiceMonitor sagt Prometheus: "Scrape alle Services mit diesem Label."
+
+```
+vi 03-servicemonitor.yml
+```
+
+```
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: demo-app
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: demo-app
+  namespaceSelector:
+    matchNames:
+    - default
+  endpoints:
+  - port: metrics
+    interval: 15s
+    path: /metrics
+```
+
+### Schritt 5: Alles anwenden
+
+```
+kubectl apply -f 01-deployment.yml -f 02-service.yml
+kubectl apply -f 03-servicemonitor.yml -n monitoring
+```
+
+```
+kubectl get pods
+kubectl get svc
+kubectl -n monitoring get servicemonitor demo-app
+```
+
+### Schritt 6: Metriken direkt pruefen
+
+Bevor wir Prometheus befragen, pruefen wir ob die App selbst Metriken liefert:
+
+```
+kubectl run metrics-check -it --rm --image=curlimages/curl \
+  --restart=Never -- \
+  curl -s http://demo-app.default.svc.cluster.local:8080/metrics
+```
+
+Erwartete Ausgabe (Auszug):
+
+```
+## HELP http_requests_total Total number of HTTP requests
+## TYPE http_requests_total counter
+http_requests_total{endpoint="/metrics",method="GET"} 1.0
+## HELP active_users Number of currently active users in the system
+## TYPE active_users gauge
+active_users 42.0
+## HELP orders_processed_total Total number of processed orders
+## TYPE orders_processed_total counter
+orders_processed_total{status="success"} 3.0
+```
+
+### Schritt 7: In Prometheus pruefen
+
+```
+https://prometheus.<dein-name>.do.t3isp.de
+```
+
+Unter **Status → Targets** sollte nach ca. 30 Sekunden ein neues Target
+`demo-app` mit State **UP** erscheinen.
+
+Im **Graph**-Tab diese Abfragen ausprobieren:
+
+```
+active_users
+```
+
+```
+rate(http_requests_total[5m])
+```
+
+```
+rate(orders_processed_total{status="success"}[5m])
+```
+
+### Schritt 8: Last erzeugen und beobachten
+
+In einem zweiten Terminal etwas Traffic erzeugen:
+
+```
+kubectl run load -it --rm --image=curlimages/curl --restart=Never -- \
+  sh -c 'for i in $(seq 1 20); do curl -s http://demo-app.default.svc.cluster.local:8080/buy; done'
+```
+
+Dann in Prometheus erneut abfragen:
+
+```
+orders_processed_total
+```
+
+Der Counter sollte gestiegen sein.
+
+### Schritt 9: In Grafana visualisieren
+
+```
+https://grafana.<dein-name>.do.t3isp.de
+```
+
+1. Links **Dashboards → New → New Dashboard**
+2. **Add visualization**
+3. Datasource: **Prometheus**
+4. Metric: `active_users` eingeben
+5. **Run queries** → Graph erscheint
+6. Titel: "Aktive Nutzer" → **Apply**
+
+Ein zweites Panel mit `rate(orders_processed_total{status="success"}[5m])`
+zeigt die Bestellrate pro Sekunde.
+
+### Aufraeumen
+
+```
+kubectl delete -f 01-deployment.yml -f 02-service.yml
+kubectl delete -f 03-servicemonitor.yml -n monitoring
+```
+
+### Demo-App Source Code: app.py
+
+from prometheus_client import Counter, Gauge, generate_latest, CONTENT_TYPE_LATEST
+import random
+import threading
+import time
+
+## App laeuft auf Port 8080
+## Metriken werden bereitgestellt unter: http://<pod-ip>:8080/metrics
+## Prometheus scrapt genau diesen Endpoint alle 15s (konfiguriert per ServiceMonitor)
+
+app = Flask(__name__)
+
+http_requests_total = Counter(
+    'http_requests_total',
+    'Total number of HTTP requests',
+    ['method', 'endpoint']
+)
+
+active_users_gauge = Gauge(
+    'active_users',
+    'Number of currently active users in the system'
+)
+
+orders_processed_total = Counter(
+    'orders_processed_total',
+    'Total number of processed orders',
+    ['status']
+)
+
+
+def simulate_background_activity():
+    while True:
+        active_users_gauge.set(random.randint(10, 200))
+        if random.random() > 0.2:
+            orders_processed_total.labels(status='success').inc()
+        else:
+            orders_processed_total.labels(status='error').inc()
+        time.sleep(5)
+
+
+@app.route('/')
+def index():
+    http_requests_total.labels(method='GET', endpoint='/').inc()
+    return '<h1>Demo App</h1><p>Metriken: <a href="/metrics">/metrics</a></p>'
+
+
+@app.route('/buy')
+def buy():
+    http_requests_total.labels(method='GET', endpoint='/buy').inc()
+    orders_processed_total.labels(status='success').inc()
+    return 'Order placed!'
+
+
+@app.route('/metrics')
+def metrics():
+    http_requests_total.labels(method='GET', endpoint='/metrics').inc()
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
+
+
+if __name__ == '__main__':
+    t = threading.Thread(target=simulate_background_activity, daemon=True)
+    t.start()
+    app.run(host='0.0.0.0', port=8080)
+
+### Demo-App Source Code: Dockerfile
+
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app.py .
+
+EXPOSE 8080
+
+CMD ["python", "app.py"]
+
+### Demo-App Source Code: requirements.txt
+
+prometheus-client==0.20.0
+
+### Vergleich: Splunk vs. CheckMK vs. Prometheus/Grafana
+
+
+### Tool-Vergleich auf einen Blick
+
+<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" style="max-width:700px">
+  <!-- Hintergrund -->
+  <rect width="700" height="320" fill="#1e1e2e" rx="12"/>
+
+  <!-- Titel -->
+  <text x="350" y="32" text-anchor="middle" fill="#cdd6f4" font-size="15" font-family="sans-serif" font-weight="bold">Monitoring Tools — Domain-Abdeckung</text>
+
+  <!-- Spalten-Header -->
+  <text x="140" y="60" text-anchor="middle" fill="#a6adc8" font-size="11" font-family="sans-serif">Logs</text>
+  <text x="270" y="60" text-anchor="middle" fill="#a6adc8" font-size="11" font-family="sans-serif">Metriken</text>
+  <text x="400" y="60" text-anchor="middle" fill="#a6adc8" font-size="11" font-family="sans-serif">Infra-Checks</text>
+  <text x="530" y="60" text-anchor="middle" fill="#a6adc8" font-size="11" font-family="sans-serif">SIEM / Security</text>
+  <text x="650" y="60" text-anchor="middle" fill="#a6adc8" font-size="11" font-family="sans-serif">APM</text>
+
+  <!-- Trennlinie -->
+  <line x1="20" y1="68" x2="680" y2="68" stroke="#313244" stroke-width="1"/>
+
+  <!-- === SPLUNK === -->
+  <text x="70" y="105" text-anchor="middle" fill="#65ba44" font-size="13" font-family="sans-serif" font-weight="bold">Splunk</text>
+  <text x="70" y="120" text-anchor="middle" fill="#a6adc8" font-size="9" font-family="sans-serif">Enterprise</text>
+  <!-- Logs: Kernkompetenz -->
+  <rect x="90" y="88" width="100" height="36" rx="6" fill="#65ba44"/>
+  <text x="140" y="111" text-anchor="middle" fill="#1e1e2e" font-size="11" font-family="sans-serif" font-weight="bold">Kernkompetenz</text>
+  <!-- Metriken: moeglich -->
+  <rect x="220" y="88" width="100" height="36" rx="6" fill="#65ba44" opacity="0.4"/>
+  <text x="270" y="111" text-anchor="middle" fill="#cdd6f4" font-size="11" font-family="sans-serif">moeglich</text>
+  <!-- Infra: nein -->
+  <rect x="350" y="88" width="100" height="36" rx="6" fill="#313244"/>
+  <text x="400" y="111" text-anchor="middle" fill="#585b70" font-size="11" font-family="sans-serif">—</text>
+  <!-- SIEM: Kernkompetenz -->
+  <rect x="480" y="88" width="100" height="36" rx="6" fill="#65ba44"/>
+  <text x="530" y="111" text-anchor="middle" fill="#1e1e2e" font-size="11" font-family="sans-serif" font-weight="bold">Kernkompetenz</text>
+  <!-- APM: ja -->
+  <rect x="610" y="88" width="60" height="36" rx="6" fill="#65ba44" opacity="0.4"/>
+  <text x="640" y="111" text-anchor="middle" fill="#cdd6f4" font-size="11" font-family="sans-serif">ja*</text>
+
+  <!-- === PROMETHEUS/GRAFANA === -->
+  <text x="70" y="155" text-anchor="middle" fill="#f5871f" font-size="12" font-family="sans-serif" font-weight="bold">Prometheus</text>
+  <text x="70" y="169" text-anchor="middle" fill="#a6adc8" font-size="9" font-family="sans-serif">+ Grafana</text>
+  <!-- Logs: mit Loki -->
+  <rect x="90" y="143" width="100" height="36" rx="6" fill="#f5871f" opacity="0.4"/>
+  <text x="140" y="166" text-anchor="middle" fill="#cdd6f4" font-size="11" font-family="sans-serif">mit Loki</text>
+  <!-- Metriken: Kernkompetenz -->
+  <rect x="220" y="143" width="100" height="36" rx="6" fill="#f5871f"/>
+  <text x="270" y="166" text-anchor="middle" fill="#1e1e2e" font-size="11" font-family="sans-serif" font-weight="bold">Kernkompetenz</text>
+  <!-- Infra: begrenzt -->
+  <rect x="350" y="143" width="100" height="36" rx="6" fill="#f5871f" opacity="0.4"/>
+  <text x="400" y="166" text-anchor="middle" fill="#cdd6f4" font-size="11" font-family="sans-serif">begrenzt</text>
+  <!-- SIEM: nein -->
+  <rect x="480" y="143" width="100" height="36" rx="6" fill="#313244"/>
+  <text x="530" y="166" text-anchor="middle" fill="#585b70" font-size="11" font-family="sans-serif">—</text>
+  <!-- APM: mit Tempo -->
+  <rect x="610" y="143" width="60" height="36" rx="6" fill="#f5871f" opacity="0.4"/>
+  <text x="640" y="166" text-anchor="middle" fill="#cdd6f4" font-size="11" font-family="sans-serif">Tempo</text>
+
+  <!-- === CHECKMK === -->
+  <text x="70" y="205" text-anchor="middle" fill="#00b4aa" font-size="13" font-family="sans-serif" font-weight="bold">CheckMK</text>
+  <!-- Logs: nein -->
+  <rect x="90" y="198" width="100" height="36" rx="6" fill="#313244"/>
+  <text x="140" y="221" text-anchor="middle" fill="#585b70" font-size="11" font-family="sans-serif">—</text>
+  <!-- Metriken: ja -->
+  <rect x="220" y="198" width="100" height="36" rx="6" fill="#00b4aa" opacity="0.4"/>
+  <text x="270" y="221" text-anchor="middle" fill="#cdd6f4" font-size="11" font-family="sans-serif">ja</text>
+  <!-- Infra: Kernkompetenz -->
+  <rect x="350" y="198" width="100" height="36" rx="6" fill="#00b4aa"/>
+  <text x="400" y="221" text-anchor="middle" fill="#1e1e2e" font-size="11" font-family="sans-serif" font-weight="bold">Kernkompetenz</text>
+  <!-- SIEM: nein -->
+  <rect x="480" y="198" width="100" height="36" rx="6" fill="#313244"/>
+  <text x="530" y="221" text-anchor="middle" fill="#585b70" font-size="11" font-family="sans-serif">—</text>
+  <!-- APM: nein -->
+  <rect x="610" y="198" width="60" height="36" rx="6" fill="#313244"/>
+  <text x="640" y="221" text-anchor="middle" fill="#585b70" font-size="11" font-family="sans-serif">—</text>
+
+  <!-- Legende -->
+  <rect x="20" y="262" width="14" height="14" rx="3" fill="#65ba44"/>
+  <text x="40" y="274" fill="#a6adc8" font-size="10" font-family="sans-serif">Kernkompetenz</text>
+  <rect x="150" y="262" width="14" height="14" rx="3" fill="#65ba44" opacity="0.4"/>
+  <text x="170" y="274" fill="#a6adc8" font-size="10" font-family="sans-serif">moeglich / teilweise</text>
+  <rect x="310" y="262" width="14" height="14" rx="3" fill="#313244"/>
+  <text x="330" y="274" fill="#a6adc8" font-size="10" font-family="sans-serif">nicht vorgesehen</text>
+  <text x="20" y="300" fill="#585b70" font-size="9" font-family="sans-serif">* Splunk APM = zugekauftes Produkt (SignalFx)</text>
+</svg>
+
+---
+
+### Splunk-Architektur
+
+<svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" style="max-width:700px">
+  <rect width="700" height="280" fill="#1e1e2e" rx="12"/>
+  <text x="350" y="30" text-anchor="middle" fill="#cdd6f4" font-size="15" font-family="sans-serif" font-weight="bold">Splunk — Datenfluss</text>
+
+  <!-- Datenquellen -->
+  <text x="80" y="58" text-anchor="middle" fill="#a6adc8" font-size="11" font-family="sans-serif">Datenquellen</text>
+
+  <rect x="20" y="66" width="120" height="28" rx="5" fill="#313244"/>
+  <text x="80" y="85" text-anchor="middle" fill="#cdd6f4" font-size="10" font-family="sans-serif">Kubernetes Logs</text>
+
+  <rect x="20" y="102" width="120" height="28" rx="5" fill="#313244"/>
+  <text x="80" y="121" text-anchor="middle" fill="#cdd6f4" font-size="10" font-family="sans-serif">App-Server</text>
+
+  <rect x="20" y="138" width="120" height="28" rx="5" fill="#313244"/>
+  <text x="80" y="157" text-anchor="middle" fill="#cdd6f4" font-size="10" font-family="sans-serif">Firewall / Network</text>
+
+  <rect x="20" y="174" width="120" height="28" rx="5" fill="#313244"/>
+  <text x="80" y="193" text-anchor="middle" fill="#cdd6f4" font-size="10" font-family="sans-serif">Windows / AD</text>
+
+  <!-- Pfeile zu Forwarder -->
+  <line x1="140" y1="80" x2="190" y2="130" stroke="#585b70" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="140" y1="116" x2="190" y2="133" stroke="#585b70" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="140" y1="152" x2="190" y2="138" stroke="#585b70" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="140" y1="188" x2="190" y2="142" stroke="#585b70" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Forwarder -->
+  <rect x="190" y="110" width="110" height="50" rx="7" fill="#45475a"/>
+  <text x="245" y="131" text-anchor="middle" fill="#cdd6f4" font-size="11" font-family="sans-serif" font-weight="bold">Universal</text>
+  <text x="245" y="148" text-anchor="middle" fill="#cdd6f4" font-size="11" font-family="sans-serif" font-weight="bold">Forwarder</text>
+  <text x="245" y="175" text-anchor="middle" fill="#585b70" font-size="9" font-family="sans-serif">(Agent auf Host)</text>
+
+  <!-- Pfeil zu Indexer -->
+  <line x1="300" y1="135" x2="340" y2="135" stroke="#65ba44" stroke-width="2" marker-end="url(#arrg)"/>
+
+  <!-- Indexer -->
+  <rect x="340" y="100" width="110" height="70" rx="7" fill="#65ba44" opacity="0.2"/>
+  <rect x="340" y="100" width="110" height="70" rx="7" fill="none" stroke="#65ba44" stroke-width="1.5"/>
+  <text x="395" y="126" text-anchor="middle" fill="#65ba44" font-size="12" font-family="sans-serif" font-weight="bold">Indexer</text>
+  <text x="395" y="143" text-anchor="middle" fill="#a6adc8" font-size="9" font-family="sans-serif">komprimiert +</text>
+  <text x="395" y="156" text-anchor="middle" fill="#a6adc8" font-size="9" font-family="sans-serif">indiziert Daten</text>
+
+  <!-- Pfeil zu Search Head -->
+  <line x1="450" y1="135" x2="490" y2="135" stroke="#65ba44" stroke-width="2" marker-end="url(#arrg)"/>
+
+  <!-- Search Head -->
+  <rect x="490" y="100" width="110" height="70" rx="7" fill="#65ba44" opacity="0.2"/>
+  <rect x="490" y="100" width="110" height="70" rx="7" fill="none" stroke="#65ba44" stroke-width="1.5"/>
+  <text x="545" y="126" text-anchor="middle" fill="#65ba44" font-size="12" font-family="sans-serif" font-weight="bold">Search Head</text>
+  <text x="545" y="143" text-anchor="middle" fill="#a6adc8" font-size="9" font-family="sans-serif">SPL-Queries</text>
+  <text x="545" y="156" text-anchor="middle" fill="#a6adc8" font-size="9" font-family="sans-serif">Web UI</text>
+
+  <!-- Ausgaben -->
+  <text x="630" y="58" text-anchor="middle" fill="#a6adc8" font-size="11" font-family="sans-serif">Ausgabe</text>
+
+  <line x1="600" y1="115" x2="615" y2="75" stroke="#65ba44" stroke-width="1.5" marker-end="url(#arrg)"/>
+  <rect x="615" y="62" width="75" height="24" rx="4" fill="#313244"/>
+  <text x="652" y="78" text-anchor="middle" fill="#cdd6f4" font-size="10" font-family="sans-serif">Dashboards</text>
+
+  <line x1="600" y1="135" x2="615" y2="135" stroke="#65ba44" stroke-width="1.5" marker-end="url(#arrg)"/>
+  <rect x="615" y="123" width="75" height="24" rx="4" fill="#313244"/>
+  <text x="652" y="139" text-anchor="middle" fill="#cdd6f4" font-size="10" font-family="sans-serif">Alerts</text>
+
+  <line x1="600" y1="155" x2="615" y2="192" stroke="#65ba44" stroke-width="1.5" marker-end="url(#arrg)"/>
+  <rect x="615" y="185" width="75" height="24" rx="4" fill="#313244"/>
+  <text x="652" y="201" text-anchor="middle" fill="#cdd6f4" font-size="10" font-family="sans-serif">SIEM / SOC</text>
+
+  <!-- SPL Label -->
+  <text x="350" y="240" fill="#585b70" font-size="10" font-family="sans-serif">SPL = Search Processing Language  |  SOC = Security Operations Center</text>
+
+  <!-- Pfeilmarker -->
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#585b70"/>
+    </marker>
+    <marker id="arrg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#65ba44"/>
+    </marker>
+  </defs>
+</svg>
+
+---
+
+### Welches Tool fuer welche Frage?
+
+<svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg" style="max-width:700px">
+  <rect width="700" height="340" fill="#1e1e2e" rx="12"/>
+  <text x="350" y="30" text-anchor="middle" fill="#cdd6f4" font-size="15" font-family="sans-serif" font-weight="bold">Entscheidungshilfe</text>
+
+  <!-- Fragen (links) -->
+  <rect x="20" y="50" width="320" height="32" rx="6" fill="#313244"/>
+  <text x="30" y="71" fill="#cdd6f4" font-size="11" font-family="sans-serif">Ist mein Server / Service up?</text>
+
+  <rect x="20" y="95" width="320" height="32" rx="6" fill="#313244"/>
+  <text x="30" y="116" fill="#cdd6f4" font-size="11" font-family="sans-serif">Wie hoch ist CPU / Memory / Request-Rate?</text>
+
+  <rect x="20" y="140" width="320" height="32" rx="6" fill="#313244"/>
+  <text x="30" y="161" fill="#cdd6f4" font-size="11" font-family="sans-serif">Was steht in den Logs bei Fehler X?</text>
+
+  <rect x="20" y="185" width="320" height="32" rx="6" fill="#313244"/>
+  <text x="30" y="206" fill="#cdd6f4" font-size="11" font-family="sans-serif">Wer hat wann was auf dem System gemacht?</text>
+
+  <rect x="20" y="230" width="320" height="32" rx="6" fill="#313244"/>
+  <text x="30" y="251" fill="#cdd6f4" font-size="11" font-family="sans-serif">Wurde ein Angriff durchgefuehrt? (SIEM)</text>
+
+  <rect x="20" y="275" width="320" height="32" rx="6" fill="#313244"/>
+  <text x="30" y="296" fill="#cdd6f4" font-size="11" font-family="sans-serif">Kubernetes Metriken + Autoscaling?</text>
+
+  <!-- Pfeile -->
+  <line x1="340" y1="66" x2="370" y2="66" stroke="#585b70" stroke-width="1.5" marker-end="url(#a2)"/>
+  <line x1="340" y1="111" x2="370" y2="111" stroke="#585b70" stroke-width="1.5" marker-end="url(#a2)"/>
+  <line x1="340" y1="156" x2="370" y2="156" stroke="#585b70" stroke-width="1.5" marker-end="url(#a2)"/>
+  <line x1="340" y1="201" x2="370" y2="201" stroke="#585b70" stroke-width="1.5" marker-end="url(#a2)"/>
+  <line x1="340" y1="246" x2="370" y2="246" stroke="#585b70" stroke-width="1.5" marker-end="url(#a2)"/>
+  <line x1="340" y1="291" x2="370" y2="291" stroke="#585b70" stroke-width="1.5" marker-end="url(#a2)"/>
+
+  <!-- Antworten (rechts) -->
+  <rect x="370" y="50" width="310" height="32" rx="6" fill="#00b4aa" opacity="0.25"/>
+  <rect x="370" y="50" width="6" height="32" rx="3" fill="#00b4aa"/>
+  <text x="386" y="71" fill="#00b4aa" font-size="12" font-family="sans-serif" font-weight="bold">CheckMK</text>
+
+  <rect x="370" y="95" width="310" height="32" rx="6" fill="#f5871f" opacity="0.2"/>
+  <rect x="370" y="95" width="6" height="32" rx="3" fill="#f5871f"/>
+  <text x="386" y="116" fill="#f5871f" font-size="12" font-family="sans-serif" font-weight="bold">Prometheus / Grafana</text>
+
+  <rect x="370" y="140" width="310" height="32" rx="6" fill="#65ba44" opacity="0.2"/>
+  <rect x="370" y="140" width="6" height="32" rx="3" fill="#65ba44"/>
+  <text x="386" y="161" fill="#65ba44" font-size="12" font-family="sans-serif" font-weight="bold">Splunk  oder  Grafana Loki</text>
+
+  <rect x="370" y="185" width="310" height="32" rx="6" fill="#65ba44" opacity="0.2"/>
+  <rect x="370" y="185" width="6" height="32" rx="3" fill="#65ba44"/>
+  <text x="386" y="206" fill="#65ba44" font-size="12" font-family="sans-serif" font-weight="bold">Splunk  (Audit Log)</text>
+
+  <rect x="370" y="230" width="310" height="32" rx="6" fill="#65ba44" opacity="0.2"/>
+  <rect x="370" y="230" width="6" height="32" rx="3" fill="#65ba44"/>
+  <text x="386" y="251" fill="#65ba44" font-size="12" font-family="sans-serif" font-weight="bold">Splunk  (SIEM / SOC)</text>
+
+  <rect x="370" y="275" width="310" height="32" rx="6" fill="#f5871f" opacity="0.2"/>
+  <rect x="370" y="275" width="6" height="32" rx="3" fill="#f5871f"/>
+  <text x="386" y="296" fill="#f5871f" font-size="12" font-family="sans-serif" font-weight="bold">Prometheus / Grafana</text>
+
+  <defs>
+    <marker id="a2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#585b70"/>
+    </marker>
+  </defs>
+</svg>
+
+---
+
+### Splunk im Detail
+
+#### Was Splunk kann
+
+**Log-Aggregation** — alle Logs zentral sammeln und in Echtzeit durchsuchen:
+
+```
+index=kubernetes namespace=production | stats count by pod_name | sort -count
+```
+
+**SIEM** (Security Information and Event Management):
+- Korreliert Events aus verschiedenen Quellen (Firewall, AD, Kubernetes, App)
+- Erkennt Angriffsmuster automatisch (Brute-Force, Lateral Movement)
+- Compliance-Reporting (PCI-DSS, SOC2, ISO 27001)
+- Incident Response — Timeline eines Angriffs rekonstruieren
+
+**Splunk heute — mehr als Logs:**
+- Splunk APM (Application Performance Monitoring, zugekauft via SignalFx)
+- Splunk Infrastructure Monitoring
+- Splunk Synthetic Monitoring
+
+#### Open-Source-Alternative: Grafana Loki
+
+Fuer reines Log-Management in Kubernetes ist **Grafana Loki** oft ausreichend:
+- Kostenlos, direkt in Grafana integriert
+- Gleiche Idee wie Splunk (Logs sammeln + durchsuchen)
+- Kein SIEM, aber fuer Entwickler-Use-Cases ideal
+
+#### Kosten
+
+Splunk lizenziert nach **Datenvolumen pro Tag** — in grossen Umgebungen
+einer der teuersten Posten im Monitoring-Budget.
+
+| Einsatzbereich | Empfehlung |
+|---|---|
+| Kubernetes Dev/Staging | Grafana Loki (kostenlos) |
+| Kubernetes Production | Grafana Loki oder Splunk |
+| Enterprise + Compliance | Splunk |
+| Security / SOC | Splunk |
 
 ## Kubernetes Monitoring (checkmk)
 
@@ -7967,7 +9865,7 @@ CheckMK kann Kubernetes-Cluster ueber die Kubernetes API monitoren. Die Integrat
 ### Voraussetzungen
 
 - Zugang zum Kubernetes Cluster mit kubectl
-- CheckMK RAW Site: `https://checkmk-tln<X>.do.t3isp.de/` (X = Teilnehmer-Nummer)
+- CheckMK RAW Site: `https://tln<X>.do.t3isp.de/` (X = Teilnehmer-Nummer)
 - Helm installiert
 - **cert-manager installiert** (siehe `ingress/https-letsencrypt-ingress-traefik.md`)
 - **ClusterIssuer `letsencrypt-prod` konfiguriert**
@@ -8030,14 +9928,14 @@ Helm Chart installieren:
 helm upgrade --install checkmk checkmk-chart/checkmk \
   --namespace checkmk-monitoring \
   --create-namespace \
-  --version 1.9.0 \
+  --version 1.11.0 \
   --reset-values \
   -f values.yaml 
 ```
 
 **Erklärung der Flags:**
 - `--create-namespace`: Erstellt den Namespace automatisch (kein `kubectl create namespace` nötig)
-- `--version 1.9.0`: Verwendet spezifische Chart-Version (reproduzierbar)
+- `--version 1.11.0`: Verwendet spezifische Chart-Version (reproduzierbar)
 - `--reset-values`: Stellt sicher, dass keine alten Values übernommen werden
 - `-f values.yaml`: Konfigurationswerte aus values.yaml verwenden (für ingress.yaml)
 
@@ -8086,19 +9984,15 @@ cat sa-token
 ### Schritt 6: CA-Zertifikat extrahieren
 
 ```
-kubectl config view 
-## [1] weil 1. Cluster digitalocean, index 0
-## Wenn nur 1 Eintrag, dann [0]
-
 ## Testen, ob ich so ein Zertifikat sehe 
-kubectl config view --raw -o jsonpath='{.clusters[1].cluster.certificate-authority-data}' | base64 --decode 
+kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 --decode 
 ```
 
 <img width="1160" height="694" alt="image" src="https://github.com/user-attachments/assets/85e14f69-a728-4a40-bab7-88a435a23a80" />
 
 ```
 ## Abspeichern
-kubectl config view --raw -o jsonpath='{.clusters[1].cluster.certificate-authority-data}' | base64 --decode > k8s-ca.crt
+kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 --decode > k8s-ca.crt
 ```
 
 CA-Zertifikat anzeigen:
@@ -8129,15 +10023,18 @@ https://checkmk-collector.tln<X>.do.t3isp.de
 - HTTPS wird durch Let's Encrypt bereitgestellt
 - Der Endpoint ist von aussen erreichbar
 
-Testen (sollte Not authorized zurueckgeben):
+Testen (sollte Not authenticated zurueckgeben):
 
 ```
 curl https://checkmk-collector.tln<X>.do.t3isp.de
 ```
 
+<img width="323" height="25" alt="image" src="https://github.com/user-attachments/assets/8b5dcfd7-4aef-4629-ae59-0aa77d0d901f" />
+
+
 ### Schritt 8: CheckMK konfigurieren - Token speichern
 
-1. Oeffne CheckMK: `https://checkmk-tln<X>.do.t3isp.de/`
+1. Oeffne CheckMK: `https://tln<X>.do.t3isp.de/`
 2. Gehe zu **Setup > General > Passwords**
 3. Klicke **Add password**
 4. Konfiguration:
@@ -8218,14 +10115,17 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
 2. Klicke **Add rule**
 3. **Kubernetes cluster configuration:**
    - **Cluster name:** `k8s-cluster-<dein-name>` (oder eigener Name)
-   - **Token:** Waehle `k8s-token` aus Dropdown
+   - **Token:** Waehle `k8s-token` aus Dropdown (erst from Password Store)
+
+<img width="246" height="115" alt="image" src="https://github.com/user-attachments/assets/c0b7a992-ce2e-48a4-8fac-aa2676d8f1dc" />
+
    - **API server endpoint:** `https://<DEINE-K8S-API-IP>:6443`
    - **SSL certificate verification:** Enabled (mit importiertem CA-Cert)
 
-4. **Collector: Enrich With Usage Data**
+5. **Collector: Enrich With Usage Data**
    - **Cluster collector endpoint:** `https://checkmk-collector.tln<X>.do.t3isp.de` (Achtung https vorner ist wichtig)
 
-5. **Kubernetes API:**
+6. **Kubernetes API:**
    - **Object selection:** Waehle gewuenschte Objekte:
      - ✓ Pods
      - ✓ Nodes
@@ -8236,14 +10136,14 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
      - ✓ Namespaces
      - ✓ CronJobs (falls benoetigt)
 
-6. **Explicit hosts:**
+7. **Explicit hosts:**
    - Waehle `k8s-cluster-<dein-name>` (Host aus Schritt 10)
 
-7. **Save**
+8. **Save**
 
-8. Oben rechts auf **"1 change"** (oder mehr) klicken
-9. **Activate on selected sites**
-10. Warten bis Aktivierung abgeschlossen
+9. Oben rechts auf **"1 change"** (oder mehr) klicken
+10. **Activate on selected sites**
+11. Warten bis Aktivierung abgeschlossen
 
 ### Schritt 14: Service Discovery durchfuehren
 
@@ -8271,7 +10171,9 @@ Automatische Discovery fuer neue Services:
 4. **Service discovery:**
    - **Mode:** "Add unmonitored services and new host labels"
    - **Interval:** 15 Minuten (kuerzer als Standard)
-5. **Save**
+5. **Rescan**
+6. **Save**
+
 
 ### Schritt 16: Monitoring testen
 
@@ -8416,6 +10318,434 @@ https://docs.checkmk.com/latest/en/monitoring_kubernetes.html
 ### References:
 
 * [Checkmk about new Kubernetes Integration (since 2022)](https://www.youtube.com/watch?v=PpKAp14fXQI)
+
+### Prometheus-Metriken in Checkmk integrieren
+
+
+### Warum integrieren?
+
+Checkmk und Prometheus haben unterschiedliche Staerken und ergaenzen sich:
+
+| | Checkmk | Prometheus |
+|---|---|---|
+| **Kernstaerke** | Infrastructure-Checks, Service-Status, Alerting | Metriken, Time-Series, Dashboards |
+| **Kubernetes** | Host/Service-Inventur, Piggyback-Objekte | CPU/Memory/Request-Rate, HPA |
+| **Alerting** | Zentrale Notification-Engine | Alertmanager (eher technical) |
+
+---
+
+### Teil 1: Prometheus-Metriken in Checkmk einbinden
+
+#### Moeglichkeit 1: Checkmk Prometheus Special Agent (empfohlen)
+
+Checkmk bringt einen eingebauten Special Agent mit, der direkt gegen die Prometheus HTTP-API
+scraped und daraus native Checkmk-Checks erzeugt.
+
+```
+Setup -> Special Agents -> Prometheus -> Add rule
+```
+
+Parameter:
+
+```
+URL:          http://prometheus:9090
+Auth:         optional (Basic/Bearer)
+PromQL-Queries:
+  - Service name: "pod_cpu_usage"
+    PromQL:       rate(container_cpu_usage_seconds_total[5m])
+    Unit:         1/s
+    Levels:       warn=0.8, crit=0.9
+```
+
+Intern ruft Checkmk folgende Prometheus-Endpunkte ab:
+
+```
+GET /api/v1/query?query=<promql>
+GET /api/v1/targets
+```
+
+Checkmk erzeugt aus jeder PromQL-Query einen eigenen Check-Service mit OK/WARN/CRIT-Status,
+Performance-Daten (Graphen) und Einbindung in Checkmk-Notifications.
+
+**Geeignet fuer:** Bestehende Prometheus-Infrastruktur, bei der Checkmk als zentrale
+Alerting-Plattform genutzt werden soll.
+
+---
+
+#### Moeglichkeit 2: OpenMetrics direkt scrapen (ohne Prometheus-Server)
+
+Checkmk kann Prometheus-Exposition-Format direkt von Exportern lesen — ohne Prometheus-Server
+als Mittelstufe.
+
+```
+Setup -> Services -> OpenMetrics Exporter -> Add rule
+```
+
+```
+URL:      http://node-exporter:9100/metrics
+Metriken:
+  - node_cpu_seconds_total
+  - node_memory_MemAvailable_bytes
+```
+
+**Vorteil:** Kein Prometheus noetig — Checkmk scraped Exporter direkt.
+
+**Nachteil:** Kein PromQL, keine Aggregation ueber mehrere Targets.
+
+---
+
+#### Moeglichkeit 3: Prometheus Alertmanager -> Checkmk Event Console
+
+Prometheus-Alerts werden in die Checkmk Event Console weitergeleitet — Checkmk uebernimmt
+dann Notification und Eskalation.
+
+`alertmanager.yml`:
+
+```
+receivers:
+  - name: checkmk
+    webhook_configs:
+      - url: http://checkmk/cmk/api/1.0/domain-types/event_console/actions/send_event/invoke
+        http_config:
+          bearer_token: <checkmk-api-token>
+```
+
+Checkmk-Seite:
+
+```
+Setup -> Event Console -> Rules -> New rule
+  Match: source "alertmanager"
+  Action: Create alert / Notification
+```
+
+**Geeignet fuer:** Teams, die Prometheus-Alerting behalten wollen, aber Checkmk fuer zentrale
+Notifications (PagerDuty, Mail, Slack) nutzen.
+
+---
+
+#### Moeglichkeit 4: Checkmk Enterprise — natives Kubernetes-Monitoring
+
+In Checkmk Enterprise/Cloud gibt es keinen Umweg ueber Prometheus — Checkmk liest direkt
+aus der Kubernetes-API und einem eigenen Cluster Collector:
+
+```
+Kubernetes API (:6443)            -> Checkmk Special Agent
+Cluster Collector (/openmetrics)  -> Checkmk Special Agent
+```
+
+Der Cluster Collector (Helm-Deployment im Cluster) stellt einen OpenMetrics-Endpunkt bereit,
+den Checkmk selbst scraped. Kein Prometheus involviert.
+
+```
+helm repo add checkmk https://checkmk.github.io/checkmk_kube_agent
+helm install checkmk-cluster-collector checkmk/checkmk \
+  --set clusterCollector.enabled=true \
+  --set nodeCollector.enabled=true
+```
+
+---
+
+### Teil 2: Anwendungsseitige Metriken einbinden
+
+Fuer Metriken aus eigenen Applikationen, die nicht ueber den Cluster Collector kommen,
+gibt es folgende Wege:
+
+---
+
+#### Weg 1: OpenMetrics Special Agent — Checkmk scraped /metrics direkt
+
+Wenn die App einen Prometheus-Exposition-Endpunkt hat (`/metrics`), kann Checkmk diesen
+ohne Prometheus-Server direkt abfragen.
+
+```
+Setup -> Services -> Add rule -> OpenMetrics Exporter
+```
+
+```
+URL:           http://<service-name>.<namespace>:8080/metrics
+Metriken:
+  - http_requests_total
+  - orders_processed_total
+  - active_users
+Scrape-Interval: 60s
+```
+
+In Kubernetes erreicht Checkmk den App-Service ueber den cluster-internen DNS oder einen Ingress.
+
+**Einschraenkung:** Keine PromQL-Aggregation — Checkmk verarbeitet die Metriken 1:1.
+
+---
+
+#### Weg 2: Checkmk REST API — App pusht Metriken aktiv
+
+Die App oder ein Sidecar/Adapter pusht Metriken via Checkmk REST API (Push-Modell statt Pull).
+
+```
+curl -X PUT \
+  "https://checkmk/cmk/api/1.0/domain-types/metric/collections/all" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "host_name": "my-app-pod",
+    "service_name": "orders_processed",
+    "metrics": [
+      {"name": "orders_total", "value": 4200, "unit": "count"}
+    ]
+  }'
+```
+
+**Geeignet fuer:** Apps ohne Pull-Endpunkt, z.B. nach einem Batch-Job oder einer
+asynchronen Verarbeitung.
+
+---
+
+#### Weg 3: Custom Active Check Plugin — Checkmk fragt App-API ab
+
+Ein eigenes Plugin auf dem Checkmk-Server fragt die App direkt ab (REST-API,
+proprietaeres Format) und gibt das Ergebnis als Checkmk-Check aus.
+
+`/omd/sites/<site>/lib/nagios/plugins/check_myapp_metrics`:
+
+```
+##!/usr/bin/env python3
+import requests, sys
+
+resp = requests.get("http://my-app:8080/api/metrics")
+data = resp.json()
+
+orders = data["orders_per_minute"]
+if orders < 10:
+    print(f"CRIT - Orders/min: {orders} | orders={orders}")
+    sys.exit(2)
+elif orders < 50:
+    print(f"WARN - Orders/min: {orders} | orders={orders}")
+    sys.exit(1)
+else:
+    print(f"OK - Orders/min: {orders} | orders={orders}")
+    sys.exit(0)
+```
+
+```
+Setup -> Integrations -> Monitoring Agents -> Add rule -> Active checks (Custom)
+  Command: check_myapp_metrics --host $HOSTNAME$
+```
+
+**Geeignet fuer:** Apps mit eigenem API-Format oder komplexer Logik
+(mehrere Endpunkte kombinieren, Schwellwerte berechnen).
+
+---
+
+#### Weg 4: Piggyback — CronJob im Cluster erzeugt Checkmk-Daten
+
+Ein Kubernetes CronJob sammelt Metriken aus mehreren Pods/Apps und schickt sie als
+Piggyback-Sektion an Checkmk. Jeder Pod erscheint als eigener virtueller Host.
+
+```
+## CronJob-Script: Metriken -> Checkmk-Piggyback-Format -> REST API push
+piggyback_data = """
+<<<<my-app-pod-1>>>>
+<<<local>>>
+0 orders_processed orders=4200;1000;500 Orders processed: 4200
+<<<<>>>>
+"""
+requests.put("https://checkmk/.../piggyback", data=piggyback_data, ...)
+```
+
+**Geeignet fuer:** Dynamische Pod-Landschaften, wo fuer jeden Pod ein eigener
+virtueller Host in Checkmk erscheinen soll.
+
+---
+
+### Empfehlung je nach Szenario
+
+#### Architektur-Entscheidung
+
+**Szenario A: Nur Checkmk (Enterprise)**
+
+```
+K8s API + Cluster Collector -> Checkmk Special Agent
+-> Checkmk hat Inventory, Checks, Notifications
+-> Prometheus nicht noetig
+```
+
+**Szenario B: Nur Prometheus/Grafana**
+
+```
+kube-state-metrics + node-exporter -> Prometheus -> Grafana
+-> Optimal fuer Dashboards, HPA, Custom-Metriken
+-> Kein zentrales IT-Monitoring
+```
+
+**Szenario C: Hybrid (empfohlen fuer Enterprise-Umgebungen)**
+
+```
+Prometheus/Grafana   -> Metriken, Dashboards, HPA
+Checkmk              -> Service-Status, IT-Monitoring, Notifications
+Alertmanager         -> leitet kritische Alerts -> Checkmk Event Console
+```
+
+#### Welches Tool fuer welche Frage?
+
+| Frage | Tool |
+|---|---|
+| Ist mein Pod/Service up? | Checkmk |
+| Wie ist die Request-Rate? | Prometheus |
+| CPU/Memory-Trend ueber 30 Tage? | Prometheus / Grafana |
+| Wer bekommt den Alert um 3 Uhr? | Checkmk (Notification Routing) |
+| HPA skalieren nach Custom-Metrik? | Prometheus (KEDA/HPA) |
+
+#### Anwendungsmetriken: Welcher Weg?
+
+| Situation | Empfehlung |
+|---|---|
+| App hat `/metrics` (Prometheus-Format) | Weg 1 — OpenMetrics Special Agent |
+| App hat eigene REST-API | Weg 3 — Custom Active Check Plugin |
+| App hat kein Pull-Endpoint (Batch, Jobs) | Weg 2 — REST API Push nach Job-Ende |
+| Viele dynamische Pods, einzeln sichtbar | Weg 4 — Piggyback via CronJob |
+| Prometheus bereits vorhanden | Prometheus Special Agent mit PromQL (Teil 1, Moeglichkeit 1) |
+
+### Uebung: Kubernetes API Health als HTTP Active Check
+
+
+### Hintergrund
+
+Jeder Kubernetes-Cluster stellt drei Health-Endpunkte bereit, die **ohne Authentifizierung** erreichbar sind:
+
+| Endpunkt | Inhalt | Antwort |
+|----------|--------|---------|
+| `/healthz` | Allgemeiner Cluster-Health | `ok` |
+| `/livez`   | API-Server am Leben?      | `ok` |
+| `/readyz`  | API-Server bereit?        | `ok` |
+
+Diese Endpunkte sind in **jedem vanilla Kubernetes-Cluster** immer vorhanden –
+kein Prometheus, kein extra Deployment noetig.
+
+**Ziel:** Den `/healthz`-Endpunkt als **HTTP Active Check** in Checkmk einrichten.
+Checkmk misst dann die Antwortzeit als Metrik und schlaegt Alarm,
+wenn der Endpunkt nicht mehr erreichbar ist.
+
+**Active Check vs. Passive Check:**
+
+| Typ | Wo laeuft er? | Typische Plugins |
+|-----|---------------|-----------------|
+| Passive Check | Auf dem ueberwachten Host | CPU, RAM, Disk |
+| **Active Check** | **Auf dem Checkmk-Server** | check_httpv2, check_tcp |
+
+### Schritt 1: API-Server URL ermitteln
+
+```
+kubectl cluster-info
+```
+
+Erwartete Ausgabe:
+
+```
+Kubernetes control plane is running at https://<uuid>.k8s.ondigitalocean.com
+```
+
+Die URL notieren (ohne `/` am Ende) – sie wird in Schritt 3 benoetigt.
+
+### Schritt 2: Endpunkt manuell testen
+
+Vom Checkmk-Server aus (z.B. via SSH oder im Docker-Container):
+
+```
+curl -sk https://<uuid>.k8s.ondigitalocean.com/healthz
+```
+
+Erwartete Ausgabe:
+
+```
+ok
+```
+
+HTTP 200 + `ok` = API-Server gesund. Der Parameter `-k` ist noetig, weil
+DigitalOcean Managed Kubernetes ein eigenes CA-Zertifikat verwendet.
+
+### Schritt 3: Active Check in Checkmk einrichten (GUI)
+
+1. **Setup** aufrufen → oben in der Suchleiste `HTTP` eintippen
+
+2. **"Check HTTP web service"** auswaehlen
+
+   > Hinweis: Es gibt noch das aeltere "Check HTTP service (deprecated)".
+   > Bitte das **neue** ohne "(deprecated)" verwenden.
+
+3. **"Add rule"** klicken
+
+4. Einstellungen befuellen:
+
+   **Abschnitt "General properties":**
+   - Description: `Kubernetes API Health Check`
+
+   **Abschnitt "Check HTTP web service" → "HTTP web service endpoints to monitor"** → `Add entry`:
+   - **Service name → Name**: `Kubernetes API Health`
+   - **Service name → Prefix**: `Use "HTTP(S)" as service name prefix` (Standard)
+   - **URL**: `https://<uuid>.k8s.ondigitalocean.com/healthz`
+
+   Weiter unten im gleichen Entry-Bereich oder unter **"Standard settings for all endpoints"**:
+   - **Certificate validity**: `Ignore certificate` auswaehlen
+
+   Optional (fuer Inhaltspruefung):
+   - **Search for strings → Search in body**: `ok` eintragen
+
+5. **Abschnitt "Conditions":**
+   - **Explicit hosts**: `k8s-cluster-<dein-name>` eintragen
+     (z.B. `k8s-cluster-tln1` fuer Teilnehmer 1)
+
+6. **Save** klicken
+
+### Schritt 4: Changes aktivieren und Service Discovery
+
+```
+## Im Checkmk-Menue oben rechts:
+## "Activate pending changes" klicken (gelbes Banner)
+```
+
+Danach unter **Monitoring → Hosts → k8s-cluster-<dein-name>**:
+- **"Service discovery"** aufrufen
+- Den neuen Service `HTTPS Kubernetes API Health` auf **"Monitor"** setzen
+- Erneut **"Activate pending changes"**
+
+### Ergebnis
+
+Nach der Aktivierung erscheint der Service in der Host-Ansicht:
+
+```
+HTTPS Kubernetes API Health    OK    Version: HTTP/2.0, Status: 200 OK
+```
+
+Die **Metriken** des Services:
+
+| Metrik | Beispielwert | Bedeutung |
+|--------|-------------|-----------|
+| `response_time` | 0.031s | Gesamte Antwortzeit |
+| `time_http_headers` | 0.031s | Zeit bis Header empfangen |
+| `time_http_body` | 0.0001s | Zeit fuer Body-Uebertragung |
+| `response_size` | 2 B | Groesse der Antwort (`ok` = 2 Bytes) |
+
+Auf den Service klicken → **"Service metrics"** zeigt die Antwortzeit als Zeitreihen-Graph.
+
+### Schwellenwerte konfigurieren (optional)
+
+In der gleichen Regel unter **"Standard settings for all endpoints"**:
+- **Response time → Warn**: z.B. `1.0 s`
+- **Response time → Crit**: z.B. `5.0 s`
+
+### Was passiert bei einem Fehler?
+
+| Situation | Checkmk-Status |
+|-----------|---------------|
+| HTTP 200 + Body `ok` | OK (gruen) |
+| HTTP 200 + Body passt nicht | CRIT (rot) |
+| HTTP != 200 | CRIT (rot) |
+| Timeout / nicht erreichbar | CRIT (rot) |
+
+### Aufraeumen
+
+Die Regel wieder loeschen:
+
+**Setup → Check HTTP web service** → Regel loeschen → Activate changes
 
 ## Kubernetes Perfomance
 
@@ -14712,30 +17042,6 @@ kubectl exec -n networkpolicy-<dein-name> frontend -- curl -s --max-time 5 http:
 Backend kann Frontend **nicht** erreichen (kein Egress vom Backend freigegeben):
 
 ```
-nano 05-service-frontend.yml
-```
-
-```
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend
-spec:
-  selector:
-    app: frontend
-  ports:
-  - port: 80
-    targetPort: 80
-```
-
-```
-kubectl apply -f . -n networkpolicy-<dein-name>
-kubectl describe svc frontend -n networkpolicy-<dein-name>
-```
-
-
-```
 kubectl exec -n networkpolicy-<dein-name> backend -- curl -s --max-time 5 http://frontend
 ```
 
@@ -15618,13 +17924,6 @@ kubectl exec -it print-envs-complete -- bash
 ### RBAC Übung kubectl
 
 
-### Enable RBAC in microk8s 
-
-```
-## This is important, if not enable every user on the system is allowed to do everything 
-microk8s enable rbac 
-```
-
 ### Schritt 1: Nutzer-Account auf Server anlegen und secret anlegen / in Client 
 
 ```
@@ -15724,25 +18023,23 @@ kubectl auth can-i get pods -n default --as system:serviceaccount:default:traini
 #### Mini-Schritt 1: kubeconfig setzen 
 
 ```
-kubectl config set-context training-ctx --cluster microk8s-cluster --user training
+kubectl config set-context training-ctx --cluster do-fra1-bka-training --user training
 
 ## extract name of the token from here 
 
-TOKEN=`kubectl get secret trainingtoken<nr> -o jsonpath='{.data.token}' | base64 --decode`
+TOKEN=`kubectl -n default get secret trainingtoken<nr> -o jsonpath='{.data.token}' | base64 --decode`
 echo $TOKEN
 kubectl config set-credentials training --token=$TOKEN
+kubectl config view
 kubectl config use-context training-ctx
 
 ## Hier reichen die Rechte nicht aus 
 kubectl get deploy
 ## Error from server (Forbidden): pods is forbidden: User "system:serviceaccount:kube-system:training" cannot list # resource "pods" in API group "" in the namespace "default"
+## das funktioniert 
+kubectl get pods
 ```
 
-#### Mini-Schritt 2:
-```
-kubectl config use-context training-ctx
-kubectl get pods 
-```
 
 #### Mini-Schritt 3: Zurück zum alten Default-Context 
 
@@ -15752,12 +18049,12 @@ kubectl config get-contexts
 
 ```
 CURRENT   NAME           CLUSTER            AUTHINFO    NAMESPACE
-          microk8s       microk8s-cluster   admin2
-*         training-ctx   microk8s-cluster   training2
+          cluster-user   cluster1           admin2
+*         training-ctx   cluster1           training2
 ```
 
 ```
-kubectl config use-context microk8s  
+kubectl config use-context cluster-user 
 ```
 
 
@@ -17390,6 +19687,7 @@ Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität
  
 #### Nodes  
 
+  * Nodes sind virtuelle oder physische Maschinen auf denen die notwendigen Kubernetes-System-Komponenten (Software)
   * Worker Nodes (Knoten) sind die Arbeiter (Maschinen), die Anwendungen ausführen
   * Ref: https://kubernetes.io/de/docs/concepts/architecture/nodes/
 
@@ -18031,6 +20329,11 @@ kubectl exec -it nginx -- bash
 
 ```
 
+### Deployments 
+
+```
+kubectl -n ingress rollout restart deployment traefik                                                                                       ik
+```
 
 
 ### Alle Objekte anzeigen 
@@ -21737,6 +24040,11 @@ kubectl exec -it nginx -- bash
 
 ```
 
+### Deployments 
+
+```
+kubectl -n ingress rollout restart deployment traefik                                                                                       ik
+```
 
 
 ### Alle Objekte anzeigen 
