@@ -330,7 +330,9 @@ Automatische Discovery fuer neue Services:
 4. **Service discovery:**
    - **Mode:** "Add unmonitored services and new host labels"
    - **Interval:** 15 Minuten (kuerzer als Standard)
-5. **Save**
+5. **Rescan**
+6. **Save**
+
 
 ## Schritt 16: Monitoring testen
 
