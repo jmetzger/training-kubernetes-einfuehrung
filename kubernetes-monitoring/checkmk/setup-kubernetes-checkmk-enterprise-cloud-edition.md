@@ -24,7 +24,7 @@ CheckMK kann Kubernetes-Cluster ueber die Kubernetes API monitoren. Die Integrat
 ## Voraussetzungen
 
 - Zugang zum Kubernetes Cluster mit kubectl
-- CheckMK RAW Site: `https://checkmk-tln<X>.do.t3isp.de/` (X = Teilnehmer-Nummer)
+- CheckMK RAW Site: `https://tln<X>.do.t3isp.de/` (X = Teilnehmer-Nummer)
 - Helm installiert
 - **cert-manager installiert** (siehe `ingress/https-letsencrypt-ingress-traefik.md`)
 - **ClusterIssuer `letsencrypt-prod` konfiguriert**
@@ -194,7 +194,7 @@ curl https://checkmk-collector.tln<X>.do.t3isp.de
 
 ## Schritt 8: CheckMK konfigurieren - Token speichern
 
-1. Oeffne CheckMK: `https://checkmk-tln<X>.do.t3isp.de/`
+1. Oeffne CheckMK: `https://tln<X>.do.t3isp.de/`
 2. Gehe zu **Setup > General > Passwords**
 3. Klicke **Add password**
 4. Konfiguration:
