@@ -108,6 +108,8 @@ kind: ServiceMonitor
 metadata:
   name: demo-app
   namespace: monitoring
+  labels:
+    release: prometheus
 spec:
   selector:
     matchLabels:
