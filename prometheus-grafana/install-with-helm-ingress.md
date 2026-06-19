@@ -53,8 +53,7 @@ prometheus-node-exporter:
 ```
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm install prometheus prometheus-community/kube-prometheus-stack \
-  -f values.yml --namespace monitoring --create-namespace --version 61.3.1
-```
+  -f values.yml --namespace monitoring --create-namespace --version 86.3.1
 
 ```
 kubectl -n monitoring get pods
