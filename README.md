@@ -162,6 +162,7 @@
      * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
      * [Prometheus / Grafana Stack installieren](prometheus-grafana/install-with-helm.md)
      * [Uebung: Prometheus UI und PromQL](prometheus-grafana/uebung-prometheus-ui-promql.md)
+     * [Uebung: Custom Metriken mit eigener Demo-App](prometheus-grafana/uebung-custom-metriken.md)
      * [Vergleich: Splunk vs. CheckMK vs. Prometheus/Grafana](kubernetes-monitoring/splunk-checkmk-prometheus-vergleich.md)
 
   1. Kubernetes Monitoring (checkmk)

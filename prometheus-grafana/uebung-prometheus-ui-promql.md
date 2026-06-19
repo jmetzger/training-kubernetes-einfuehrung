@@ -205,6 +205,8 @@ Zaehlt Pods pro Node (alles ausser Node-Label wird zusammengefasst).
 Die letzte Zeile (http_requests_total) erscheint nur, wenn eine eigene App
 diese Metrik exposed - dazu spaeter mehr in der Uebung zu Custom Metriken.
 
+→ [Uebung: Custom Metriken mit eigener Demo-App](uebung-custom-metriken.md)
+
 ## Naechster Schritt: Grafana
 
 Dieselben PromQL-Abfragen aus dieser Uebung kann man direkt in Grafana
