@@ -1,5 +1,9 @@
 # Prometheus with Grafana (Install with helm)
 
+> **Hinweis:** Es gibt eine neuere Anleitung mit Ingress, TLS und BasicAuth-Schutz fuer Prometheus:
+> [install-with-helm-ingress.md](install-with-helm-ingress.md)
+> Diese Variante (mit port-forward) eignet sich zum schnellen Ausprobieren.
+
   * using the kube-prometheus-stack (recommended !: includes important metrics)
 
 ## Step 1: Prepare values-file  
