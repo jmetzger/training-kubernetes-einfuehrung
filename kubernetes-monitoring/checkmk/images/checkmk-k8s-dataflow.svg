@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 480" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#444"/>
+    </marker>
+    <marker id="arr-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#326CE5"/>
+    </marker>
+    <marker id="arr-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#E25B0E"/>
+    </marker>
+    <marker id="arr-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2E7D32"/>
+    </marker>
+    <filter id="sh">
+      <feDropShadow dx="1" dy="1" stdDeviation="2" flood-color="#00000020"/>
+    </filter>
+  </defs>
+
+  <rect width="860" height="480" fill="#F8F9FA" rx="8"/>
+  <text x="430" y="30" text-anchor="middle" font-size="17" font-weight="bold" fill="#1a1a2e">Checkmk + Kubernetes — Datenfluss</text>
+
+  <!-- ── Participant Headers ── -->
+  <!-- NC -->
+  <rect x="30" y="50" width="130" height="46" rx="8" fill="#4A90D9" filter="url(#sh)"/>
+  <text x="95" y="68" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Node Collector</text>
+  <text x="95" y="84" text-anchor="middle" font-size="9" fill="#dde">(DaemonSet)</text>
+
+  <!-- CC -->
+  <rect x="200" y="50" width="130" height="46" rx="8" fill="#1A6DC0" filter="url(#sh)"/>
+  <text x="265" y="68" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Cluster Collector</text>
+  <text x="265" y="84" text-anchor="middle" font-size="9" fill="#dde">(Deployment)</text>
+
+  <!-- SA -->
+  <rect x="370" y="50" width="130" height="46" rx="8" fill="#E25B0E" filter="url(#sh)"/>
+  <text x="435" y="68" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Special Agent</text>
+  <text x="435" y="84" text-anchor="middle" font-size="9" fill="#ffe">(auf Checkmk)</text>
+
+  <!-- K8s API -->
+  <rect x="540" y="50" width="130" height="46" rx="8" fill="#326CE5" filter="url(#sh)"/>
+  <text x="605" y="68" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Kubernetes API</text>
+  <text x="605" y="84" text-anchor="middle" font-size="9" fill="#dde">:6443</text>
+
+  <!-- CMK -->
+  <rect x="710" y="50" width="130" height="46" rx="8" fill="#7A2D00" filter="url(#sh)"/>
+  <text x="775" y="68" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Checkmk</text>
+  <text x="775" y="84" text-anchor="middle" font-size="9" fill="#ffe">Monitoring</text>
+
+  <!-- ── Lifelines ── -->
+  <line x1="95"  y1="96" x2="95"  y2="465" stroke="#4A90D9" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="265" y1="96" x2="265" y2="465" stroke="#1A6DC0" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="435" y1="96" x2="435" y2="465" stroke="#E25B0E" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="605" y1="96" x2="605" y2="465" stroke="#326CE5" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="775" y1="96" x2="775" y2="465" stroke="#7A2D00" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- ── Step labels (left) ── -->
+  <!-- Step 1 -->
+  <rect x="0" y="116" width="22" height="18" rx="3" fill="#4A90D9"/>
+  <text x="11" y="129" text-anchor="middle" font-size="10" font-weight="bold" fill="white">1</text>
+  <!-- Note background -->
+  <rect x="25" y="108" width="240" height="34" rx="4" fill="#EBF3FF" stroke="#4A90D9" stroke-width="1"/>
+  <text x="145" y="122" text-anchor="middle" font-size="10" fill="#333" font-weight="bold">Node Collector → Cluster Collector</text>
+  <text x="145" y="135" text-anchor="middle" font-size="9" fill="#555">kontinuierlich: CPU · RAM · Netzwerk pro Node</text>
+  <!-- Arrow -->
+  <line x1="95" y1="148" x2="255" y2="148" stroke="#4A90D9" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="175" y="143" text-anchor="middle" font-size="9" fill="#4A90D9">Metriken (/openmetrics)</text>
+
+  <!-- Step 2 -->
+  <rect x="0" y="186" width="22" height="18" rx="3" fill="#326CE5"/>
+  <text x="11" y="199" text-anchor="middle" font-size="10" font-weight="bold" fill="white">2</text>
+  <rect x="25" y="178" width="240" height="34" rx="4" fill="#EBF3FF" stroke="#326CE5" stroke-width="1"/>
+  <text x="145" y="192" text-anchor="middle" font-size="10" fill="#333" font-weight="bold">Special Agent → K8s API</text>
+  <text x="145" y="205" text-anchor="middle" font-size="9" fill="#555">GET Pods · Services · Deployments · Nodes</text>
+  <!-- Arrow -->
+  <line x1="445" y1="216" x2="595" y2="216" stroke="#326CE5" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <text x="520" y="211" text-anchor="middle" font-size="9" fill="#326CE5">Token + CA-Cert</text>
+
+  <!-- Step 3 (return) -->
+  <rect x="0" y="246" width="22" height="18" rx="3" fill="#326CE5"/>
+  <text x="11" y="259" text-anchor="middle" font-size="10" font-weight="bold" fill="white">3</text>
+  <rect x="25" y="238" width="240" height="34" rx="4" fill="#EBF3FF" stroke="#326CE5" stroke-width="1"/>
+  <text x="145" y="252" text-anchor="middle" font-size="10" fill="#333" font-weight="bold">K8s API → Special Agent</text>
+  <text x="145" y="265" text-anchor="middle" font-size="9" fill="#555">Objekt-Status · Labels · Events · Conditions</text>
+  <!-- Arrow (return) -->
+  <line x1="595" y1="276" x2="445" y2="276" stroke="#326CE5" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-blue)"/>
+  <text x="520" y="271" text-anchor="middle" font-size="9" fill="#326CE5">Objekt-Daten</text>
+
+  <!-- Step 4 -->
+  <rect x="0" y="306" width="22" height="18" rx="3" fill="#E25B0E"/>
+  <text x="11" y="319" text-anchor="middle" font-size="10" font-weight="bold" fill="white">4</text>
+  <rect x="25" y="298" width="240" height="34" rx="4" fill="#FFF3EE" stroke="#E25B0E" stroke-width="1"/>
+  <text x="145" y="312" text-anchor="middle" font-size="10" fill="#333" font-weight="bold">Special Agent → Cluster Collector</text>
+  <text x="145" y="325" text-anchor="middle" font-size="9" fill="#555">GET /openmetrics  (via Ingress HTTPS)</text>
+  <!-- Arrow -->
+  <line x1="425" y1="344" x2="275" y2="344" stroke="#E25B0E" stroke-width="2" marker-end="url(#arr-orange)"/>
+  <text x="350" y="339" text-anchor="middle" font-size="9" fill="#E25B0E">HTTPS-Anfrage</text>
+
+  <!-- Step 5 (return) -->
+  <rect x="0" y="366" width="22" height="18" rx="3" fill="#E25B0E"/>
+  <text x="11" y="379" text-anchor="middle" font-size="10" font-weight="bold" fill="white">5</text>
+  <rect x="25" y="358" width="240" height="34" rx="4" fill="#FFF3EE" stroke="#E25B0E" stroke-width="1"/>
+  <text x="145" y="372" text-anchor="middle" font-size="10" fill="#333" font-weight="bold">Cluster Collector → Special Agent</text>
+  <text x="145" y="385" text-anchor="middle" font-size="9" fill="#555">CPU/RAM pro Pod + Node (enriched)</text>
+  <!-- Arrow (return) -->
+  <line x1="275" y1="404" x2="425" y2="404" stroke="#E25B0E" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-orange)"/>
+  <text x="350" y="399" text-anchor="middle" font-size="9" fill="#E25B0E">Usage-Metriken</text>
+
+  <!-- Step 6 -->
+  <rect x="0" y="426" width="22" height="18" rx="3" fill="#2E7D32"/>
+  <text x="11" y="439" text-anchor="middle" font-size="10" font-weight="bold" fill="white">6</text>
+  <rect x="25" y="418" width="240" height="34" rx="4" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1"/>
+  <text x="145" y="432" text-anchor="middle" font-size="10" fill="#333" font-weight="bold">Special Agent → Checkmk</text>
+  <text x="145" y="445" text-anchor="middle" font-size="9" fill="#555">Piggyback Data · Dynamic Host Mgmt</text>
+  <!-- Arrow -->
+  <line x1="445" y1="456" x2="765" y2="456" stroke="#2E7D32" stroke-width="2" marker-end="url(#arr-green)"/>
+  <text x="605" y="451" text-anchor="middle" font-size="9" fill="#2E7D32">1 Host pro K8s-Objekt</text>
+</svg>

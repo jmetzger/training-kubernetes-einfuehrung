@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 420" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#555"/>
+    </marker>
+    <marker id="arr-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#E25B0E"/>
+    </marker>
+    <marker id="arr-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#c62828"/>
+    </marker>
+    <filter id="sh">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#00000025"/>
+    </filter>
+  </defs>
+
+  <rect width="780" height="420" fill="#F8F9FA" rx="8"/>
+  <text x="390" y="28" text-anchor="middle" font-size="17" font-weight="bold" fill="#1a1a2e">Piggyback-Konzept in Checkmk</text>
+
+  <!-- ── Special Agent (links) ── -->
+  <rect x="30" y="160" width="160" height="80" rx="8" fill="white" stroke="#E25B0E" stroke-width="2" filter="url(#sh)"/>
+  <rect x="30" y="160" width="160" height="28" rx="8" fill="#E25B0E"/>
+  <rect x="30" y="176" width="160" height="12" fill="#E25B0E"/>
+  <text x="110" y="179" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Special Agent</text>
+  <text x="110" y="204" text-anchor="middle" font-size="10" fill="#333">fragt K8s API ab</text>
+  <text x="110" y="219" text-anchor="middle" font-size="9" fill="#666">+ Cluster Collector</text>
+  <text x="110" y="233" text-anchor="middle" font-size="9" fill="#666">liefert Piggyback Data</text>
+
+  <!-- Arrow SA → Piggyback -->
+  <line x1="190" y1="200" x2="258" y2="200" stroke="#E25B0E" stroke-width="2" marker-end="url(#arr-orange)"/>
+  <text x="224" y="194" text-anchor="middle" font-size="9" fill="#E25B0E">Piggyback</text>
+  <text x="224" y="206" text-anchor="middle" font-size="9" fill="#E25B0E">Data</text>
+
+  <!-- ── Piggyback Data Box ── -->
+  <rect x="260" y="60" width="180" height="280" rx="8" fill="#FFF3EE" stroke="#E25B0E" stroke-width="1.5" filter="url(#sh)"/>
+  <rect x="260" y="60" width="180" height="28" rx="8" fill="#C94A00"/>
+  <rect x="260" y="76" width="180" height="12" fill="#C94A00"/>
+  <text x="350" y="79" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Piggyback Data</text>
+
+  <!-- Piggyback entries -->
+  <rect x="275" y="100" width="150" height="28" rx="4" fill="#FFE0CC" stroke="#E25B0E" stroke-width="1"/>
+  <text x="350" y="112" text-anchor="middle" font-size="10" fill="#333">k8s-cluster</text>
+  <text x="350" y="124" text-anchor="middle" font-size="9" fill="#666">Cluster-Übersicht</text>
+
+  <rect x="275" y="138" width="150" height="28" rx="4" fill="#FFE0CC" stroke="#E25B0E" stroke-width="1"/>
+  <text x="350" y="150" text-anchor="middle" font-size="10" fill="#333">node/worker-1</text>
+  <text x="350" y="162" text-anchor="middle" font-size="9" fill="#666">CPU · RAM · Disk</text>
+
+  <rect x="275" y="176" width="150" height="28" rx="4" fill="#FFE0CC" stroke="#E25B0E" stroke-width="1"/>
+  <text x="350" y="188" text-anchor="middle" font-size="10" fill="#333">node/worker-2</text>
+  <text x="350" y="200" text-anchor="middle" font-size="9" fill="#666">CPU · RAM · Disk</text>
+
+  <rect x="275" y="214" width="150" height="28" rx="4" fill="#FFE0CC" stroke="#E25B0E" stroke-width="1"/>
+  <text x="350" y="226" text-anchor="middle" font-size="10" fill="#333">pod/nginx-abc-1</text>
+  <text x="350" y="238" text-anchor="middle" font-size="9" fill="#666">Status · CPU · RAM</text>
+
+  <rect x="275" y="252" width="150" height="28" rx="4" fill="#FFE0CC" stroke="#E25B0E" stroke-width="1"/>
+  <text x="350" y="264" text-anchor="middle" font-size="10" fill="#333">deployment/nginx</text>
+  <text x="350" y="276" text-anchor="middle" font-size="9" fill="#666">Replicas · Conditions</text>
+
+  <rect x="275" y="290" width="150" height="28" rx="4" fill="#FFE0CC" stroke="#E25B0E" stroke-width="1"/>
+  <text x="350" y="302" text-anchor="middle" font-size="10" fill="#333">namespace/prod</text>
+  <text x="350" y="314" text-anchor="middle" font-size="9" fill="#666">Ressourcen-Limits</text>
+
+  <!-- ── Dynamic Host Management (Mitte) ── -->
+  <rect x="490" y="160" width="170" height="80" rx="8" fill="white" stroke="#A33C00" stroke-width="2" filter="url(#sh)"/>
+  <rect x="490" y="160" width="170" height="28" rx="8" fill="#A33C00"/>
+  <rect x="490" y="176" width="170" height="12" fill="#A33C00"/>
+  <text x="575" y="179" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Dynamic Host Mgmt</text>
+  <text x="575" y="204" text-anchor="middle" font-size="10" fill="#333">neue Hosts → anlegen</text>
+  <text x="575" y="219" text-anchor="middle" font-size="9" fill="#555">alte Hosts → löschen</text>
+  <text x="575" y="233" text-anchor="middle" font-size="9" fill="#888">nur Enterprise/Cloud</text>
+
+  <!-- Arrow Piggyback → DHM -->
+  <line x1="440" y1="200" x2="488" y2="200" stroke="#A33C00" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- ── Checkmk Hosts (rechts) ── -->
+  <text x="700" y="70" text-anchor="middle" font-size="11" fill="#333" font-weight="bold">Checkmk Hosts</text>
+
+  <!-- Host boxes (right) -->
+  <rect x="670" y="82" width="98" height="30" rx="5" fill="white" stroke="#2E7D32" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="719" y="97" text-anchor="middle" font-size="9" fill="#2E7D32" font-weight="bold">k8s-cluster</text>
+  <text x="719" y="108" text-anchor="middle" font-size="8" fill="#555">🟢 OK</text>
+
+  <rect x="670" y="124" width="98" height="30" rx="5" fill="white" stroke="#2E7D32" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="719" y="138" text-anchor="middle" font-size="9" fill="#2E7D32" font-weight="bold">node/worker-1</text>
+  <text x="719" y="150" text-anchor="middle" font-size="8" fill="#555">🟢 OK</text>
+
+  <rect x="670" y="166" width="98" height="30" rx="5" fill="white" stroke="#2E7D32" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="719" y="180" text-anchor="middle" font-size="9" fill="#2E7D32" font-weight="bold">node/worker-2</text>
+  <text x="719" y="192" text-anchor="middle" font-size="8" fill="#555">🟢 OK</text>
+
+  <rect x="670" y="208" width="98" height="30" rx="5" fill="white" stroke="#2E7D32" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="719" y="222" text-anchor="middle" font-size="9" fill="#2E7D32" font-weight="bold">pod/nginx-abc-1</text>
+  <text x="719" y="234" text-anchor="middle" font-size="8" fill="#555">🟢 OK</text>
+
+  <rect x="670" y="250" width="98" height="30" rx="5" fill="white" stroke="#F57F17" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="719" y="264" text-anchor="middle" font-size="9" fill="#E65100" font-weight="bold">deployment/nginx</text>
+  <text x="719" y="276" text-anchor="middle" font-size="8" fill="#E65100">🟡 WARN</text>
+
+  <rect x="670" y="292" width="98" height="30" rx="5" fill="white" stroke="#2E7D32" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="719" y="306" text-anchor="middle" font-size="9" fill="#2E7D32" font-weight="bold">namespace/prod</text>
+  <text x="719" y="318" text-anchor="middle" font-size="8" fill="#555">🟢 OK</text>
+
+  <!-- Arrows DHM → Hosts -->
+  <line x1="660" y1="190" x2="668" y2="97" stroke="#2E7D32" stroke-width="1.5" marker-end="url(#arr-green)" stroke-dasharray="4,2"/>
+  <line x1="660" y1="195" x2="668" y2="139" stroke="#2E7D32" stroke-width="1.5" marker-end="url(#arr-green)" stroke-dasharray="4,2"/>
+  <line x1="660" y1="200" x2="668" y2="181" stroke="#2E7D32" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <line x1="660" y1="205" x2="668" y2="223" stroke="#2E7D32" stroke-width="1.5" marker-end="url(#arr-green)" stroke-dasharray="4,2"/>
+  <line x1="660" y1="210" x2="668" y2="265" stroke="#F57F17" stroke-width="1.5" marker-end="url(#arr-green)" stroke-dasharray="4,2"/>
+  <line x1="660" y1="215" x2="668" y2="307" stroke="#2E7D32" stroke-width="1.5" marker-end="url(#arr-green)" stroke-dasharray="4,2"/>
+
+  <!-- DHM → Hosts connecting line -->
+  <line x1="660" y1="190" x2="660" y2="215" stroke="#A33C00" stroke-width="2"/>
+  <line x1="660" y1="190" x2="662" y2="190" stroke="#A33C00" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Marker: green arrows (define separate) -->
+  <defs>
+    <marker id="arr-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2E7D32"/>
+    </marker>
+  </defs>
+
+  <!-- Legend -->
+  <rect x="30" y="360" width="700" height="46" rx="6" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="50" y="378" font-size="10" fill="#333" font-weight="bold">Hinweis:</text>
+  <text x="110" y="378" font-size="10" fill="#555">Jedes K8s-Objekt (Pod, Node, Deployment...) wird in Checkmk zu einem eigenen virtuellen Host (Piggyback Host).</text>
+  <text x="50" y="396" font-size="10" fill="#555">Dynamic Host Management (Enterprise/Cloud) legt diese Hosts automatisch an und löscht sie, wenn das Objekt nicht mehr existiert.</text>
+</svg>

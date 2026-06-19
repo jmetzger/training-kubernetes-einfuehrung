@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 560" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#555"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#326CE5"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#E25B0E"/>
+    </marker>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#00000022"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="920" height="560" fill="#F8F9FA" rx="8"/>
+
+  <!-- Title -->
+  <text x="460" y="32" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a1a2e">Checkmk + Kubernetes — Architektur</text>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- KUBERNETES CLUSTER BOX -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <rect x="20" y="50" width="520" height="480" rx="12" fill="#EBF3FF" stroke="#326CE5" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="20" y="50" width="520" height="36" rx="12" fill="#326CE5"/>
+  <rect x="20" y="68" width="520" height="18" fill="#326CE5"/>
+  <text x="280" y="73" text-anchor="middle" font-size="14" font-weight="bold" fill="white">☸  Kubernetes Cluster</text>
+
+  <!-- K8s API Server -->
+  <rect x="160" y="100" width="200" height="52" rx="8" fill="white" stroke="#326CE5" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="260" y="121" text-anchor="middle" font-size="12" font-weight="bold" fill="#326CE5">K8s API Server</text>
+  <text x="260" y="138" text-anchor="middle" font-size="10" fill="#555">:6443  ·  RBAC</text>
+
+  <!-- Nodes box -->
+  <rect x="35" y="185" width="490" height="130" rx="8" fill="#D6E8FF" stroke="#326CE5" stroke-width="1" stroke-dasharray="6,3"/>
+  <text x="55" y="202" font-size="11" fill="#326CE5" font-weight="bold">Nodes (DaemonSet)</text>
+
+  <!-- Node Collector 1 -->
+  <rect x="50" y="210" width="140" height="90" rx="8" fill="white" stroke="#4A90D9" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="50" y="210" width="140" height="26" rx="8" fill="#4A90D9"/>
+  <rect x="50" y="224" width="140" height="12" fill="#4A90D9"/>
+  <text x="120" y="227" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Node Collector</text>
+  <text x="120" y="248" text-anchor="middle" font-size="10" fill="#333">Node 1</text>
+  <text x="120" y="263" text-anchor="middle" font-size="9" fill="#666">CPU · RAM · Netz</text>
+  <text x="120" y="277" text-anchor="middle" font-size="9" fill="#666">Filesystem</text>
+
+  <!-- Node Collector 2 -->
+  <rect x="210" y="210" width="140" height="90" rx="8" fill="white" stroke="#4A90D9" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="210" y="210" width="140" height="26" rx="8" fill="#4A90D9"/>
+  <rect x="210" y="224" width="140" height="12" fill="#4A90D9"/>
+  <text x="280" y="227" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Node Collector</text>
+  <text x="280" y="248" text-anchor="middle" font-size="10" fill="#333">Node 2</text>
+  <text x="280" y="263" text-anchor="middle" font-size="9" fill="#666">CPU · RAM · Netz</text>
+  <text x="280" y="277" text-anchor="middle" font-size="9" fill="#666">Filesystem</text>
+
+  <!-- Node Collector 3 -->
+  <rect x="370" y="210" width="140" height="90" rx="8" fill="white" stroke="#4A90D9" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="370" y="210" width="140" height="26" rx="8" fill="#4A90D9"/>
+  <rect x="370" y="224" width="140" height="12" fill="#4A90D9"/>
+  <text x="440" y="227" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Node Collector</text>
+  <text x="440" y="248" text-anchor="middle" font-size="10" fill="#333">Node 3</text>
+  <text x="440" y="263" text-anchor="middle" font-size="9" fill="#666">CPU · RAM · Netz</text>
+  <text x="440" y="277" text-anchor="middle" font-size="9" fill="#666">Filesystem</text>
+
+  <!-- Arrows Node Collectors → Cluster Collector -->
+  <line x1="120" y1="300" x2="220" y2="358" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+  <line x1="280" y1="300" x2="280" y2="356" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+  <line x1="440" y1="300" x2="340" y2="358" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+  <!-- Cluster Collector -->
+  <rect x="160" y="358" width="200" height="60" rx="8" fill="white" stroke="#1A6DC0" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="160" y="358" width="200" height="26" rx="8" fill="#1A6DC0"/>
+  <rect x="160" y="372" width="200" height="12" fill="#1A6DC0"/>
+  <text x="260" y="375" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Cluster Collector</text>
+  <text x="260" y="398" text-anchor="middle" font-size="10" fill="#333">Deployment  ·  /openmetrics</text>
+  <text x="260" y="411" text-anchor="middle" font-size="9" fill="#666">aggregiert alle Node-Metriken</text>
+
+  <!-- Arrow Cluster Collector → Ingress -->
+  <line x1="260" y1="418" x2="260" y2="454" stroke="#1A6DC0" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+  <!-- Ingress -->
+  <rect x="160" y="454" width="200" height="60" rx="8" fill="white" stroke="#0D47A1" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="160" y="454" width="200" height="26" rx="8" fill="#0D47A1"/>
+  <rect x="160" y="468" width="200" height="12" fill="#0D47A1"/>
+  <text x="260" y="471" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Ingress (Traefik)</text>
+  <text x="260" y="494" text-anchor="middle" font-size="10" fill="#333">HTTPS · TLS / Let's Encrypt</text>
+  <text x="260" y="507" text-anchor="middle" font-size="9" fill="#666">checkmk-collector.tln1.do.t3isp.de</text>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- CHECKMK SERVER BOX -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <rect x="580" y="50" width="320" height="480" rx="12" fill="#FFF3EE" stroke="#E25B0E" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="580" y="50" width="320" height="36" rx="12" fill="#E25B0E"/>
+  <rect x="580" y="68" width="320" height="18" fill="#E25B0E"/>
+  <text x="740" y="73" text-anchor="middle" font-size="14" font-weight="bold" fill="white">🔍  Checkmk Server (Docker)</text>
+
+  <!-- Special Agent -->
+  <rect x="610" y="100" width="260" height="72" rx="8" fill="white" stroke="#E25B0E" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="610" y="100" width="260" height="26" rx="8" fill="#E25B0E"/>
+  <rect x="610" y="114" width="260" height="12" fill="#E25B0E"/>
+  <text x="740" y="117" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Kubernetes Special Agent</text>
+  <text x="740" y="140" text-anchor="middle" font-size="10" fill="#333">fragt K8s API + Cluster Collector ab</text>
+  <text x="740" y="155" text-anchor="middle" font-size="9" fill="#666">läuft auf Checkmk, nicht im Cluster</text>
+  <text x="740" y="168" text-anchor="middle" font-size="9" fill="#666">ServiceAccount Token · CA-Zertifikat</text>
+
+  <!-- Arrow SA → Piggyback -->
+  <line x1="740" y1="172" x2="740" y2="218" stroke="#E25B0E" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
+
+  <!-- Piggyback Data -->
+  <rect x="610" y="218" width="260" height="72" rx="8" fill="white" stroke="#C94A00" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="610" y="218" width="260" height="26" rx="8" fill="#C94A00"/>
+  <rect x="610" y="232" width="260" height="12" fill="#C94A00"/>
+  <text x="740" y="235" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Piggyback Data</text>
+  <text x="740" y="258" text-anchor="middle" font-size="10" fill="#333">1 virtueller Host pro K8s-Objekt</text>
+  <text x="740" y="273" text-anchor="middle" font-size="9" fill="#555">Pod · Node · Deployment · Service</text>
+  <text x="740" y="286" text-anchor="middle" font-size="9" fill="#555">DaemonSet · StatefulSet · Namespace</text>
+
+  <!-- Arrow Piggyback → Dynamic Host Mgmt -->
+  <line x1="740" y1="290" x2="740" y2="336" stroke="#C94A00" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
+
+  <!-- Dynamic Host Management -->
+  <rect x="610" y="336" width="260" height="72" rx="8" fill="white" stroke="#A33C00" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="610" y="336" width="260" height="26" rx="8" fill="#A33C00"/>
+  <rect x="610" y="350" width="260" height="12" fill="#A33C00"/>
+  <text x="740" y="353" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Dynamic Host Management</text>
+  <text x="740" y="376" text-anchor="middle" font-size="10" fill="#333">neue Hosts automatisch anlegen</text>
+  <text x="740" y="391" text-anchor="middle" font-size="9" fill="#555">gelöschte Hosts automatisch entfernen</text>
+  <text x="740" y="404" text-anchor="middle" font-size="9" fill="#888">nur Enterprise / Cloud Edition</text>
+
+  <!-- Arrow Dynamic Host Mgmt → Monitoring -->
+  <line x1="740" y1="408" x2="740" y2="454" stroke="#A33C00" stroke-width="1.5" marker-end="url(#arrow-orange)"/>
+
+  <!-- Monitoring -->
+  <rect x="610" y="454" width="260" height="60" rx="8" fill="white" stroke="#7A2D00" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="610" y="454" width="260" height="26" rx="8" fill="#7A2D00"/>
+  <rect x="610" y="468" width="260" height="12" fill="#7A2D00"/>
+  <text x="740" y="471" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Monitoring</text>
+  <text x="740" y="494" text-anchor="middle" font-size="10" fill="#333">Services · Dashboards · Alerts</text>
+  <text x="740" y="507" text-anchor="middle" font-size="9" fill="#666">Kubernetes Cluster Overview</text>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- CROSS ARROWS (K8s ↔ Checkmk) -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- Arrow 1: Special Agent → K8s API (oben) -->
+  <path d="M 610 126 Q 560 90 540 126" stroke="#326CE5" stroke-width="2" fill="none" marker-end="url(#arrow-blue)" stroke-dasharray="6,3"/>
+  <text x="558" y="103" text-anchor="middle" font-size="9" fill="#326CE5" font-weight="bold">① K8s API</text>
+  <text x="558" y="115" text-anchor="middle" font-size="9" fill="#326CE5">Token + CA-Cert</text>
+
+  <!-- Arrow 2: K8s API → Special Agent (return) -->
+  <path d="M 540 152 Q 560 175 610 152" stroke="#326CE5" stroke-width="1.5" fill="none" marker-end="url(#arrow-blue)" stroke-dasharray="4,2"/>
+  <text x="563" y="173" text-anchor="middle" font-size="9" fill="#326CE5">Pods · Nodes</text>
+  <text x="563" y="184" text-anchor="middle" font-size="9" fill="#326CE5">Deployments...</text>
+
+  <!-- Arrow 3: Special Agent → Ingress (unten) -->
+  <path d="M 610 155 Q 560 480 540 480" stroke="#E25B0E" stroke-width="2" fill="none" marker-end="url(#arrow)" stroke-dasharray="6,3"/>
+
+  <!-- Arrow 4: Ingress → Special Agent (return) -->
+  <path d="M 540 505 Q 580 530 610 160" stroke="#E25B0E" stroke-width="1.5" fill="none" marker-end="url(#arrow-orange)" stroke-dasharray="4,2"/>
+
+  <!-- Label for arrows 3+4 -->
+  <rect x="548" y="448" width="68" height="38" rx="4" fill="#FFF3EE" stroke="#E25B0E" stroke-width="1"/>
+  <text x="582" y="463" text-anchor="middle" font-size="9" fill="#E25B0E" font-weight="bold">② Metrics</text>
+  <text x="582" y="475" text-anchor="middle" font-size="9" fill="#E25B0E">HTTPS</text>
+  <text x="582" y="483" text-anchor="middle" font-size="9" fill="#888">/openmetrics</text>
+</svg>
