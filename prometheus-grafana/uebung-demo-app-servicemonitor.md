@@ -68,7 +68,7 @@ spec:
         image: dockertrainereu/k8s-prometheus-demo:latest
         ports:
         - containerPort: 8080
-          name: metrics
+          name: http
 ---
 apiVersion: v1
 kind: Service
@@ -81,7 +81,7 @@ spec:
   selector:
     app: demo-app
   ports:
-  - name: metrics
+  - name: http
     port: 8080
     targetPort: 8080
 ```
@@ -145,10 +145,17 @@ spec:
     matchNames:
     - demo-app
   endpoints:
-  - port: metrics
+  - port: http
     interval: 15s
     path: /metrics
+    honorLabels: true
 ```
+
+> **Hinweis zu `honorLabels: true`:** Die App verwendet selbst ein Label
+> namens `endpoint` (z.B. `endpoint="/buy"`). Prometheus wuerde dieses
+> normalerweise in `exported_endpoint` umbenennen, weil es intern auch ein
+> `endpoint`-Label fuer den Port-Namen vergibt. Mit `honorLabels: true`
+> gewinnen die App-Labels — die PromQL-Abfragen funktionieren dann wie erwartet.
 
 ```
 kubectl apply -f servicemonitor.yml
