@@ -87,7 +87,7 @@ Helm Chart installieren:
 helm upgrade --install checkmk checkmk-chart/checkmk \
   --namespace checkmk-monitoring \
   --create-namespace \
-  --version 1.9.0 \
+  --version 1.11.0 \
   --reset-values \
   -f values.yaml 
 ```
