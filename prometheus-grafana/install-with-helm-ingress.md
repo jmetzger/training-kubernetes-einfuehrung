@@ -122,7 +122,21 @@ kubectl apply -f prometheus-ingress.yml -n monitoring
 kubectl -n monitoring get cert
 ```
 
-## Schritt 7: Testen
+## Schritt 7: Credentials nachschlagen (falls vergessen)
+
+```
+# Grafana-Passwort aus dem Kubernetes Secret auslesen:
+kubectl -n monitoring get secret grafana -o jsonpath="{.data.admin-password}" | base64 -d
+echo ""
+```
+
+```
+# Prometheus BasicAuth: Benutzername ist immer "admin",
+# Passwort ist das, das du in Schritt 4 mit htpasswd gesetzt hast.
+# Zur Erinnerung: es steht auch in deiner values.yml unter adminPassword
+```
+
+## Schritt 8: Testen
 
 ```
 # Ohne Credentials -> 401 (Zugang verweigert)
