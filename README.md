@@ -171,6 +171,7 @@
      * [Checkmk in Kubernetes einrichten (checkmk enterprise/cloud edition)](/kubernetes-monitoring/checkmk/setup-kubernetes-checkmk-enterprise-cloud-edition.md)
      * [Checkmk Raw vs. Enterprise in Bezug auf Kubernetes](/kubernetes-monitoring/checkmk/02-checkmk-kubernetes-wichtig-enterprise.md)
      * [Kubernetes Dashboards](/kubernetes-monitoring/checkmk/03-kubernetes-dashboards.md)
+     * [Prometheus-Metriken in Checkmk integrieren](/kubernetes-monitoring/checkmk/prometheus-metriken-in-checkmk.md)
 
   1. Kubernetes Perfomance
      * [Heap analyse](/kubernetes-perfomance/heap-memory-analyse.md)
