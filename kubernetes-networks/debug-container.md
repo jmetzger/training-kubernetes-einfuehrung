@@ -49,6 +49,10 @@ kubectl exec -it newapple-app -- sh
 
 ```
 kubectl debug -it newapple-app --image=ubuntu
+
+# Kann ich von hier aus google erreichen
+wget -O - http://www.google.de 
+
 # Durch --target=apple-app sehe ich dann auch die Prozesse des anderen containers
 kubectl debug -it newapple-app --image=ubuntu --target=apple-app
 ```
