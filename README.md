@@ -382,6 +382,7 @@
     
   1. AWS
      * [ECS (managed containers) vs. Kubernetes](aws/ecs-vs-kubernetes.md)
+     * [AWS KMS - Überblick (vereinfacht)](aws/kms-overview.md)
  
   1. Documentation for Settings right resources/limits
      * [Goldilocks](https://www.fairwinds.com/blog/introducing-goldilocks-a-tool-for-recommending-resource-requests)
