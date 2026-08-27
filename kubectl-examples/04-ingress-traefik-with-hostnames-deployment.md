@@ -292,14 +292,14 @@ spec:
     http:
       paths:
         - path: /apple
-          pathType: Exact
+          pathType: Prefix
           backend:
             service:
               name: apple-service
               port:
                 number: 80
         - path: /banana
-          pathType: Prefix 
+          pathType: Exact 
           backend:
             service:
               name: banana-service
