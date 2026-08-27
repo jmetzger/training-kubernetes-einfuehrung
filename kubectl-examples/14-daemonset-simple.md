@@ -1,6 +1,6 @@
-# Daemonset (einfacher Variante)
+# Daemonset (einfache Variante)
 
-## Exercise mit HostPort
+## Exercise
 
 ```
 cd
