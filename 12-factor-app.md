@@ -32,5 +32,4 @@ Hier ist die Tabelle der Twelve-Factor App Principles:
 | 9 | Disposability | Schneller Start und einfaches Herunterfahren |
 | 10 | DEV/PROD Parity | Entwicklungumgebung und Produktion möglichst ähnlich |
 | 11 | Logs | Logs als Event-Streams behandeln (wie bei docker / kubernetes) |
-| 12 | Admin Processes | Admin-Aufgaben als One-off-Prozesse <br/> Einmalige Aktion möglichst gescriptet und versioniert und sie sollten in der gleichen Umgebung 
-umgesetzt werden. <br/> Job/Cronjob/initContainer |
+| 12 | Admin Processes | Admin-Aufgaben als One-off-Prozesse <br/> Einmalige Aktion möglichst gescriptet und versioniert und sie sollten in der gleichen Umgebung umgesetzt werden. <br/> Job/Cronjob/initContainer |
