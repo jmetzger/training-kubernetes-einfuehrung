@@ -16,6 +16,23 @@ Die im Git-Manifest sichtbaren Ressourcen (`SecretStore`, `ExternalSecret`) enth
 
 ## 1. AWS-Seite (einmalig, i.d.R. vom Cluster-Admin)
 
+### Abkürzungen kurz erklärt
+
+| Kürzel | Bedeutung | Einfach gesagt |
+|---|---|---|
+| **IAM** | Identity and Access Management | AWS-Bereich, der regelt: wer darf was |
+| **Policy** | — | Ein Zettel mit genau einer Erlaubnis ("darf X lesen") |
+| **Role** (Rolle) | — | Ein "Ausweis", den man sich vorübergehend ausleihen kann |
+| **ARN** | Amazon Resource Name | Die eindeutige "Adresse" einer AWS-Ressource (wie eine IBAN) |
+| **OIDC** | OpenID Connect | Standard, mit dem sich der Kubernetes-Cluster bei AWS ausweisen kann |
+| **IRSA** | IAM Roles for Service Accounts | Verfahren: ein Kubernetes-ServiceAccount bekommt eine IAM-Rolle geliehen |
+| **STS** | Security Token Service | AWS-Dienst, der kurzlebige "Eintrittskarten" (Tokens) ausstellt |
+| **JWT** | JSON Web Token | Ein digital signierter, fälschungssicherer "Ausweis" als Text |
+
+Die kurze Version: **Policy = was darf man**, **Role = wer darf es sich ausleihen**,
+**IRSA/OIDC/STS/JWT = wie das Ausleihen technisch funktioniert**, ohne dass irgendwo
+ein Passwort oder Access-Key gespeichert werden muss.
+
 ### 1.1 Secret in Secrets Manager anlegen
 
 ```
@@ -25,6 +42,23 @@ aws secretsmanager create-secret \
 ```
 
 ### 1.2 IAM Policy — Zugriff nur auf genau dieses Secret
+
+**Warum überhaupt eine Policy?** Ohne Erlaubnis darf niemand in AWS irgendetwas lesen —
+auch ESO nicht. Die Policy ist die Erlaubnis, aber bewusst so eng wie möglich geschnitten:
+Sie erlaubt **nur** `GetSecretValue` (lesen, nicht ändern) und **nur** für die ARN
+(die "Adresse") von genau diesem einen Secret. Geht die Policy verloren oder wird sie
+missbraucht, ist der Schaden auf dieses eine Secret begrenzt — nicht auf ganz AWS.
+
+**Warum der Name `eso-prod-db-credentials`?** Reine Konvention, aber eine hilfreiche:
+`eso-` zeigt, wer die Policy nutzt (der External Secrets Operator), `prod-db-credentials`
+zeigt, für welches Secret sie gilt. Wer in der AWS-Konsole später 50 Policies sieht,
+findet die richtige auf einen Blick — der Name selbst hat keine technische Funktion.
+
+**Was ist die ARN in der `Resource`-Zeile?** Die eindeutige "Adresse" des Secrets in AWS —
+siehe Aufbau unten. Wichtig: AWS hängt beim Anlegen automatisch 6 Zufallszeichen an den
+Namen an, deshalb steht am Ende ein Wildcard (`-*`).
+
+![Aufbau einer Secrets-Manager-ARN](img/05-secret-arn-aufbau.svg)
 
 ```
 # vi 01-eso-iam-policy.json
@@ -48,8 +82,26 @@ aws iam create-policy \
 
 ### 1.3 IAM-Rolle für IRSA (IAM Roles for Service Accounts)
 
-Die Trust Policy bindet die Rolle an den OIDC-Provider des EKS-Clusters und an genau
-den ServiceAccount, den ESO später nutzt (Namespace + Name müssen exakt passen):
+**Warum reicht die Policy allein nicht?** Eine Policy ist nur der Erlaubnis-Zettel —
+irgendjemand muss ihn sich aber "anziehen" können. Das ist die **Rolle**: Sie bekommt
+die Policy angeheftet und kann dann von jemandem zeitweise übernommen ("assumed")
+werden. Der ESO-Pod im Cluster bekommt so, ohne je ein Passwort zu besitzen, für kurze
+Zeit genau diese eine Berechtigung geliehen.
+
+**Warum eine eigene Rolle statt eines gespeicherten Access Keys?** Ein Access Key ist
+ein dauerhaftes Geheimnis, das irgendwo liegt und gestohlen werden kann. Die Rolle
+dagegen wird über **IRSA** genutzt: Der ServiceAccount im Cluster weist sich über den
+**OIDC**-Provider des Clusters bei AWS aus, AWS fragt seinen **STS**-Dienst, der ein
+kurzlebiges **JWT** ("digitaler Ausweis mit Ablaufdatum") ausstellt. Kein Passwort,
+keine Datei, nichts, was dauerhaft irgendwo liegt und geklaut werden könnte.
+
+**Warum genau dieser Name/Bedingung in der Trust Policy?** Die Trust Policy regelt
+**wer** die Rolle überhaupt anziehen darf. Die `Condition` unten schränkt das auf
+**genau einen** ServiceAccount ein (`system:serviceaccount:<namespace>:<name>`).
+Ohne diese Einschränkung könnte theoretisch jeder Pod im Cluster versuchen, sich diese
+Rolle zu leihen — die Bedingung ist also die eigentliche Absicherung, nicht nur Formsache.
+Namespace und Name müssen dabei exakt zum ServiceAccount aus Schritt 2.2 passen, sonst
+schlägt das Ausleihen fehl.
 
 ```
 # vi 02-eso-trust-policy.json
@@ -81,6 +133,25 @@ aws iam attach-role-policy \
   --role-name eso-prod-db-credentials \
   --policy-arn arn:aws:iam::123456789012:policy/eso-prod-db-credentials
 ```
+
+### FAQ: Brauche ich eine eigene Rolle pro Pod?
+
+**Nein.** Die Rolle hängt am **ServiceAccount**, nicht am einzelnen Pod. Alle Replicas
+eines Deployments teilen sich denselben ServiceAccount — 100 Pod-Replicas brauchen also
+nicht 100 Rollen, sondern genau eine.
+
+Wichtig: In diesem Setup hängt die Rolle sogar am ServiceAccount des **ESO-Controllers**
+selbst — ESO ruft AWS auf, nicht die Anwendungs-Pods direkt.
+
+Bei mehreren Anwendungen/Teams mit unterschiedlichen Secrets gibt es zwei Muster:
+
+| Muster | Vorteil | Nachteil |
+|---|---|---|
+| Eine gemeinsame Rolle für ESO, Policy erlaubt mehrere Secret-ARNs | Einfach aufzusetzen | Weniger strenge Trennung zwischen Teams |
+| Eine Rolle pro Team/Namespace, jeweils eigener `SecretStore` + eigener ServiceAccount | Team A kommt nicht an Secrets von Team B | Mehr Rollen/Policies zu pflegen |
+
+Faustregel: Die Granularität richtet sich nach **wer darf was sehen**, nicht nach der
+Anzahl der Pods.
 
 ---
 
@@ -176,6 +247,16 @@ kubectl apply -f 05-eso-externalsecret.yml
 kubectl get externalsecret -n external-secrets
 kubectl get secret db-credentials -n external-secrets -o yaml
 ```
+
+### Was passiert dabei genau? (Laufzeit-Ablauf)
+
+Der `kubectl apply` oben stößt im Hintergrund mehrere Schritte an, bis das
+Kubernetes-`Secret` tatsächlich existiert:
+
+![Ablauf ExternalSecret bis Kubernetes Secret](img/06-externalsecret-laufzeit-ablauf.svg)
+
+Kurz gesagt: ESO merkt sich nichts dauerhaft selbst — bei jedem `refreshInterval`
+holt es sich den Wert frisch aus AWS und gleicht das Kubernetes-`Secret` ab.
 
 ---
 

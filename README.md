@@ -382,8 +382,8 @@
      * [Tasks Documentation - Good one !](https://kubernetes.io/docs/tasks)
     
   1. AWS
-     * [ECS (managed containers) vs. Kubernetes](aws/ecs-vs-kubernetes.md)
      * [External Secrets Operator (ESO) mit AWS Secrets Manager + KMS einrichten](aws/eso-secrets-manager-setup.md)
+     * [ESO mit AWS Secrets Manager - Secret als Volume-Mount](aws/eso-secrets-manager-volume-setup.md)
  
   1. Documentation for Settings right resources/limits
      * [Goldilocks](https://www.fairwinds.com/blog/introducing-goldilocks-a-tool-for-recommending-resource-requests)
