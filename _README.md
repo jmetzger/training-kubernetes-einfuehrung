@@ -4792,7 +4792,37 @@ kubectl get pods
 ### Pod ohne capabilities starten. Funktioniert !
 
 
-### Walkthrough 
+### Walkthrough (nginx)
+
+```
+cd
+mkdir -p manifests/nocap
+cd manifests/nocap
+nano nocap-pod-nginx.yaml
+```
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nocap-nginx 
+spec:
+  containers:
+    - name: web
+      image: nginx 
+      securityContext:
+        capabilities:
+          drop:
+          - all
+```
+
+```
+kubectl apply -f . 
+kubectl get pods
+```
+
+
+### Walkthrough  (nginxinc/nginx-unprivileges) 
 
 ```
 cd
