@@ -11,6 +11,7 @@
      * [Dockerfile - image kleinhalten](dockerfile-image-small.md)
 
   1. Kubernetes - Überblick
+     * [12-Factor-App - Design Prinzipien fuer Cloud Native Anwendungen](12-factor-app.md)
      * [Warum Kubernetes, was macht Kubernetes](warum-kubernetes.md)
      * [Aufbau Allgemein](/kubernetes/architecture.md)
      * [Kubernetes Architektur Deep-Dive](https://github.com/jmetzger/training-kubernetes-advanced/assets/1933318/1ca0d174-f354-43b2-81cc-67af8498b56c)
