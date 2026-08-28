@@ -9,12 +9,6 @@ cd manifests/nocap
 nano nocap-pod-nginx.yaml
 ```
 
-cd
-mkdir -p manifests/nocap
-cd manifests/nocap
-nano nocap-pod.yaml
-```
-
 ```
 apiVersion: v1
 kind: Pod
@@ -23,7 +17,7 @@ metadata:
 spec:
   containers:
     - name: web
-      image: nginxinc/nginx-unprivileged:1.25 
+      image: nginx 
       securityContext:
         capabilities:
           drop:
