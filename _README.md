@@ -11,6 +11,7 @@
      * [Dockerfile - image kleinhalten](#dockerfile---image-kleinhalten)
 
   1. Kubernetes - Überblick
+     * [12-Factor-App - Design Prinzipien fuer Cloud Native Anwendungen](#12-factor-app---design-prinzipien-fuer-cloud-native-anwendungen)
      * [Warum Kubernetes, was macht Kubernetes](#warum-kubernetes-was-macht-kubernetes)
      * [Aufbau Allgemein](#aufbau-allgemein)
      * [Kubernetes Architektur Deep-Dive](https://github.com/jmetzger/training-kubernetes-advanced/assets/1933318/1ca0d174-f354-43b2-81cc-67af8498b56c)
@@ -73,6 +74,7 @@
      * [Example stateful set](#example-stateful-set)
 
   1. Kubernetes Secrets und Encrypting von z.B. Credentials 
+     * [Credentials in Kubernetes verwenden - welche Moeglichkeiten gibt es?](#credentials-in-kubernetes-verwenden---welche-moeglichkeiten-gibt-es)
      * [Kubernetes secrets Typen](#kubernetes-secrets-typen)
      * [Sealed Secrets - bitnami](#sealed-secrets---bitnami)
      * [Exercise Sealed Secret mariadb](#exercise-sealed-secret-mariadb)
@@ -381,7 +383,8 @@
      * [Tasks Documentation - Good one !](https://kubernetes.io/docs/tasks)
     
   1. AWS
-     * [ECS (managed containers) vs. Kubernetes](#ecs-managed-containers-vs-kubernetes)
+     * [External Secrets Operator (ESO) mit AWS Secrets Manager + KMS einrichten](#external-secrets-operator-eso-mit-aws-secrets-manager-+-kms-einrichten)
+     * [ESO mit AWS Secrets Manager - Secret als Volume-Mount](#eso-mit-aws-secrets-manager---secret-als-volume-mount)
  
   1. Documentation for Settings right resources/limits
      * [Goldilocks](https://www.fairwinds.com/blog/introducing-goldilocks-a-tool-for-recommending-resource-requests)
@@ -636,6 +639,43 @@ RUN apt-get update && \
 
 
 ## Kubernetes - Überblick
+
+### 12-Factor-App - Design Prinzipien fuer Cloud Native Anwendungen
+
+
+  * Das sind best-practices 
+
+```
+Die 12-Factors stammen von Heroku 
+und beschreiben, wie eine App aussehen muss, 
+damit sie sich problemlos in einer Cloud-Plattform betreiben lässt 
+— also genau das, was Kubernetes heute von einem Workload erwartet.
+```
+
+  * Ursprünglich entwickelt von heroku 2011
+  * Ursprünglich gedacht für cloud-native apps
+  * Auch gut für microservices anwendbar
+
+### Anwendung 
+
+  * Checkliste: Gilt das für meinen Service ? 
+
+Hier ist die Tabelle der Twelve-Factor App Principles:
+
+| # | Prinzip | Beschreibung |
+|---|---------|--------------|
+| 1 | Codebase | Versionsverwaltetes Code-Repository |
+| 2 | Dependencies | Abhängigkeiten sollten extern verwaltet werden. <br/> (spielte zur Zeit von heroku eine Rolle, weil Software auf dem Host ausgeführt wurde. Man soll sich also nicht darauf verlassen, was auf dem Host existiert. Bei Docker/Kubernetes ist das bereits im Container-Image selbst geregelt. Man könnte also sagen, die Regel ist bei Docker-Images ohnehin erfüllt.|
+| 3 | Config | Konfiguration als Umgebungsvariablen |
+| 4 | Backing Services | Datenbanken, Messaging etc. als externe Ressourcen |
+| 5 | Build, Release, Run | Drei unabhängige Deployment-Schritte |
+| 6 | Stateless Processes | Zustandslose, unabhängige Prozesse zum guten Skalieren |
+| 7 | Port Binding | App bindet direkt an Port |
+| 8 | Concurrency | Apps sollten in Module aufgeteillt werden zur einfachen Skalierung |
+| 9 | Disposability | Schneller Start und einfaches Herunterfahren |
+| 10 | DEV/PROD Parity | Entwicklungumgebung und Produktion möglichst ähnlich |
+| 11 | Logs | Logs als Event-Streams behandeln (wie bei docker / kubernetes) |
+| 12 | Admin Processes | Admin-Aufgaben als One-off-Prozesse <br/> Einmalige Aktion möglichst gescriptet und versioniert und sie sollten in der gleichen Umgebung umgesetzt werden. <br/> Job/Cronjob/initContainer |
 
 ### Warum Kubernetes, was macht Kubernetes
 
@@ -2804,18 +2844,18 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "<euername>.appv3.do.t3isp.de"
+  - host: "<euername>.appv2.do.t3isp.de"
     http:
       paths:
         - path: /apple
-          pathType: Exact
+          pathType: Prefix
           backend:
             service:
               name: apple-service
               port:
                 number: 80
         - path: /banana
-          pathType: Prefix 
+          pathType: Exact 
           backend:
             service:
               name: banana-service
@@ -3523,6 +3563,81 @@ kubectl delete -f .
   * https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/
 
 ## Kubernetes Secrets und Encrypting von z.B. Credentials 
+
+### Credentials in Kubernetes verwenden - welche Moeglichkeiten gibt es?
+
+
+Ein Passwort, API-Key oder Token muss irgendwie in den Container. Kubernetes bietet dafür
+mehrere Wege — nicht alle sind gleich sicher. Diese Seite gibt den groben Überblick,
+bevor es an die Details (Secret-Typen, Sealed Secrets, SOPS, Vault) geht.
+
+### 1. Die vier Grundwege
+
+![Wege für Credentials in einen Container](img/01-credential-wege.svg)
+
+| Weg | Beispiel | Wann sinnvoll |
+|---|---|---|
+| `env` mit festem `value` | `value: "s3cret"` | **Nie für echte Secrets** — landet im Manifest/Git |
+| `env` mit `valueFrom.secretKeyRef` | einzelner Key aus einem Secret als eine ENV-Variable | Wenn nur 1-2 Variablen gebraucht werden |
+| `envFrom.secretRef` | alle Keys eines Secrets werden zu ENV-Variablen | Viele Variablen auf einmal (siehe [Beispiel](#secrets-example-mariadb)) |
+| `volumeMounts` (Secret als Datei) | Secret wird unter `/etc/secret/...` gemountet | Sicherer, wenn die App auch Dateien lesen kann |
+
+Praktisches Beispiel für `valueFrom.secretKeyRef` und `envFrom.secretRef`:
+siehe [Übung: ENV-Variablen aus Secrets](uebung-secrets.md).
+
+### 2. ENV-Variable vs. Datei (Volume Mount) — der Sicherheitsunterschied
+
+ENV-Variablen sind bequem, aber sie "kleben" am Prozess: jeder Sub-Prozess erbt sie,
+und sie sind leicht auslesbar. Ein Secret als Volume-Mount ist die etwas sicherere Wahl.
+
+![ENV-Variable vs. Volume Mount](img/02-env-vs-volume.svg)
+
+### 3. Und wo kommt das Secret-Objekt selbst her?
+
+Beide Wege (ENV oder Volume) setzen voraus, dass es bereits ein Kubernetes-`Secret`-Objekt
+gibt. Wie dieses sicher **erzeugt und verwaltet** wird, ist eine eigene Frage:
+
+- [Kubernetes Secret-Typen](secrets.md) — was ein natives `Secret`-Objekt überhaupt ist (nur base64, nicht verschlüsselt!)
+- [Sealed Secrets (Bitnami)](sealed-secrets.md) — Secret verschlüsselt in Git ablegen, Controller entschlüsselt im Cluster
+- [SOPS + Age/KMS](#kubernetes-secrets-mit-sops-mariadb) — Secret-Datei lokal/CI entschlüsseln, dann `kubectl apply`
+- [HashiCorp Vault](#uebersicht-vault-in-kubernetes) — zentrales Secret-Management, Injection direkt in den Pod (ganz ohne natives `Secret`-Objekt möglich)
+- [Vergleich der Ansätze](secret-management-vergleich.md) — GitLab CI/CD vs. SOPS vs. Vault
+- **AWS Secrets Manager + KMS** — siehe Schaubild unten
+
+### 4. AWS Secrets Manager + KMS an Kubernetes anbinden
+
+Wenn die Secrets bereits in AWS Secrets Manager liegen (dort per KMS verschlüsselt),
+ist der gängige Weg der **External Secrets Operator (ESO)**: er läuft im Cluster, holt
+sich über eine eng begrenzte IAM-Rolle (IRSA) periodisch den aktuellen Wert aus Secrets
+Manager und legt daraus ein ganz normales Kubernetes-`Secret` an — das dann wie in
+Abschnitt 1 per `env`/`envFrom`/Volume genutzt wird.
+
+![AWS Secrets Manager + KMS via External Secrets Operator](img/03-aws-secrets-manager-eso.svg)
+
+**Warum ESO die bevorzugte Wahl ist:**
+
+| Kriterium | External Secrets Operator (ESO) | AWS Secrets Store CSI Driver |
+|---|---|---|
+| Verbreitung / Doku | Sehr weit verbreitet, viele Backends (nicht nur AWS) | AWS-spezifisch, weniger verbreitet |
+| GitOps-fähig | Ja — Manifest referenziert nur die ARN | Ja — ähnliches Prinzip |
+| Erzeugt natives `Secret`-Objekt | Ja → funktioniert mit `env`/`envFrom` | Optional (Sync-Feature), Standard ist reiner Volume-Mount |
+| Ohne persistentes `Secret`-Objekt | Nein, per Design | Ja — etwas kleinere Angriffsfläche |
+
+Für die meisten Fälle (v.a. wenn ENV-Variablen gebraucht werden) ist ESO der pragmatischste
+Weg. Nur wenn bewusst **kein** Kubernetes-`Secret`-Objekt im Cluster persistiert werden soll,
+lohnt sich der CSI Driver.
+
+Konkretes Setup Schritt für Schritt (Helm-Installation, IAM-Rolle, `SecretStore`,
+`ExternalSecret`): [External Secrets Operator mit AWS Secrets Manager + KMS einrichten](#external-secrets-operator-eso-mit-aws-secrets-manager-+-kms-einrichten).
+
+### Kurz zusammengefasst
+
+| Frage | Antwort |
+|---|---|
+| Darf ein Secret-Wert im Manifest stehen (`value: "..."`)? | Nein — landet im Klartext in Git/kubectl-Historie |
+| Ist ein Kubernetes-`Secret` an sich schon "sicher"? | Nein — nur base64-kodiert, nicht verschlüsselt |
+| ENV-Variable oder Volume-Mount? | Volume-Mount ist sicherer (kein Leak via `env`/`/proc`) |
+| Wie bekomme ich das Secret sicher ins Cluster? | Sealed Secrets, SOPS oder Vault — je nach Anforderung |
 
 ### Kubernetes secrets Typen
 
@@ -7447,7 +7562,7 @@ metadata:
   name: nfs-csi
 provisioner: nfs.csi.k8s.io
 parameters:
-  server: 10.135.0.3
+  server: 10.135.0.14
   share: /var/nfs
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
@@ -18564,6 +18679,10 @@ kubectl exec -it newapple-app -- sh
 
 ```
 kubectl debug -it newapple-app --image=ubuntu
+
+## Kann ich von hier aus google erreichen
+wget -O - http://www.google.de 
+
 ## Durch --target=apple-app sehe ich dann auch die Prozesse des anderen containers
 kubectl debug -it newapple-app --image=ubuntu --target=apple-app
 ```
@@ -19454,40 +19573,406 @@ docker container ls
 
 ## AWS
 
-### ECS (managed containers) vs. Kubernetes
+### External Secrets Operator (ESO) mit AWS Secrets Manager + KMS einrichten
 
 
+### Hintergrund
 
-Perfekt – bei **wenigen Containern ohne Skalierungsbedarf** und wenn du **ausschließlich in AWS arbeitest**, ist **Amazon ECS mit Fargate** in der Regel die beste Wahl.
+Secrets liegen zentral in **AWS Secrets Manager** (dort automatisch durch **AWS KMS**
+verschlüsselt). Der **External Secrets Operator (ESO)**
+läuft als Controller im Cluster, holt sich die aktuellen Werte über eine eng begrenzte
+IAM-Rolle und legt daraus ein ganz normales Kubernetes-`Secret` an.
 
-#### ✅ **Warum ECS mit Fargate passt:**
+![Setup-Ablauf ESO + AWS Secrets Manager](img/04-eso-setup-ablauf.svg)
 
-* Du brauchst **keine Cluster-Infrastruktur verwalten** (Fargate = serverless).
-* **Automatisches Provisioning** der Ressourcen.
-* Du zahlst nur für das, was du nutzt (CPU/RAM).
-* **Einfaches Deployment** via AWS CLI, CDK oder Console.
-* Ideal für kleine oder mittlere Workloads mit stabiler Last.
-
-#### Beispielhafte Einsatzfälle:
-
-* Kleiner Webservice (z. B. Flask, Express, Spring Boot)
-* Cronjobs oder Hintergrundprozesse
-* API-Gateways oder Backend-Komponenten
-
-#### Wann **doch Kubernetes (EKS)** in Betracht kommt:
-
-* Du hast **bereits Know-how oder Tools auf K8s-Basis** (z. B. Helm, ArgoCD).
-* Bestimmte Komponenten nutzen (Ingress, Gateway API, SideCar) - helm
-* Operatoren nutzen (z.B. mariadb) 
-* Du planst **zukünftig Komplexität oder Wachstum** (z. B. mehrere Teams, Multi-Tenants, CI/CD-Integration).
-* Du willst dich **nicht an AWS binden**.
+Die im Git-Manifest sichtbaren Ressourcen (`SecretStore`, `ExternalSecret`) enthalten
+**nie** den Secret-Wert selbst — nur den Namen/ARN des AWS-Secrets.
 
 ---
 
-**Fazit:**
+### 1. AWS-Seite (einmalig, i.d.R. vom Cluster-Admin)
 
-> Für dein Szenario: **Amazon ECS mit Fargate** – einfach, günstig, minimaler Wartungsaufwand.
+#### Abkürzungen kurz erklärt
 
+| Kürzel | Bedeutung | Einfach gesagt |
+|---|---|---|
+| **IAM** | Identity and Access Management | AWS-Bereich, der regelt: wer darf was |
+| **Policy** | — | Ein Zettel mit genau einer Erlaubnis ("darf X lesen") |
+| **Role** (Rolle) | — | Ein "Ausweis", den man sich vorübergehend ausleihen kann |
+| **ARN** | Amazon Resource Name | Die eindeutige "Adresse" einer AWS-Ressource (wie eine IBAN) |
+| **OIDC** | OpenID Connect | Standard, mit dem sich der Kubernetes-Cluster bei AWS ausweisen kann |
+| **IRSA** | IAM Roles for Service Accounts | Verfahren: ein Kubernetes-ServiceAccount bekommt eine IAM-Rolle geliehen |
+| **STS** | Security Token Service | AWS-Dienst, der kurzlebige "Eintrittskarten" (Tokens) ausstellt |
+| **JWT** | JSON Web Token | Ein digital signierter, fälschungssicherer "Ausweis" als Text |
+
+Die kurze Version: **Policy = was darf man**, **Role = wer darf es sich ausleihen**,
+**IRSA/OIDC/STS/JWT = wie das Ausleihen technisch funktioniert**, ohne dass irgendwo
+ein Passwort oder Access-Key gespeichert werden muss.
+
+#### 1.1 Secret in Secrets Manager anlegen
+
+```
+aws secretsmanager create-secret \
+  --name prod/db-credentials \
+  --secret-string '{"username":"app","password":"s3cr3t"}'
+```
+
+#### 1.2 IAM Policy — Zugriff nur auf genau dieses Secret
+
+**Warum überhaupt eine Policy?** Ohne Erlaubnis darf niemand in AWS irgendetwas lesen —
+auch ESO nicht. Die Policy ist die Erlaubnis, aber bewusst so eng wie möglich geschnitten:
+Sie erlaubt **nur** `GetSecretValue` (lesen, nicht ändern) und **nur** für die ARN
+(die "Adresse") von genau diesem einen Secret. Geht die Policy verloren oder wird sie
+missbraucht, ist der Schaden auf dieses eine Secret begrenzt — nicht auf ganz AWS.
+
+**Warum der Name `eso-prod-db-credentials`?** Reine Konvention, aber eine hilfreiche:
+`eso-` zeigt, wer die Policy nutzt (der External Secrets Operator), `prod-db-credentials`
+zeigt, für welches Secret sie gilt. Wer in der AWS-Konsole später 50 Policies sieht,
+findet die richtige auf einen Blick — der Name selbst hat keine technische Funktion.
+
+**Was ist die ARN in der `Resource`-Zeile?** Die eindeutige "Adresse" des Secrets in AWS —
+siehe Aufbau unten. Wichtig: AWS hängt beim Anlegen automatisch 6 Zufallszeichen an den
+Namen an, deshalb steht am Ende ein Wildcard (`-*`).
+
+![Aufbau einer Secrets-Manager-ARN](img/05-secret-arn-aufbau.svg)
+
+```
+## vi 01-eso-iam-policy.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["secretsmanager:GetSecretValue"],
+      "Resource": "arn:aws:secretsmanager:eu-central-1:123456789012:secret:prod/db-credentials-*"
+    }
+  ]
+}
+```
+
+```
+aws iam create-policy \
+  --policy-name eso-prod-db-credentials \
+  --policy-document file://01-eso-iam-policy.json
+```
+
+#### 1.3 IAM-Rolle für IRSA (IAM Roles for Service Accounts)
+
+**Warum reicht die Policy allein nicht?** Eine Policy ist nur der Erlaubnis-Zettel —
+irgendjemand muss ihn sich aber "anziehen" können. Das ist die **Rolle**: Sie bekommt
+die Policy angeheftet und kann dann von jemandem zeitweise übernommen ("assumed")
+werden. Der ESO-Pod im Cluster bekommt so, ohne je ein Passwort zu besitzen, für kurze
+Zeit genau diese eine Berechtigung geliehen.
+
+**Warum eine eigene Rolle statt eines gespeicherten Access Keys?** Ein Access Key ist
+ein dauerhaftes Geheimnis, das irgendwo liegt und gestohlen werden kann. Die Rolle
+dagegen wird über **IRSA** genutzt: Der ServiceAccount im Cluster weist sich über den
+**OIDC**-Provider des Clusters bei AWS aus, AWS fragt seinen **STS**-Dienst, der ein
+kurzlebiges **JWT** ("digitaler Ausweis mit Ablaufdatum") ausstellt. Kein Passwort,
+keine Datei, nichts, was dauerhaft irgendwo liegt und geklaut werden könnte.
+
+**Warum genau dieser Name/Bedingung in der Trust Policy?** Die Trust Policy regelt
+**wer** die Rolle überhaupt anziehen darf. Die `Condition` unten schränkt das auf
+**genau einen** ServiceAccount ein (`system:serviceaccount:<namespace>:<name>`).
+Ohne diese Einschränkung könnte theoretisch jeder Pod im Cluster versuchen, sich diese
+Rolle zu leihen — die Bedingung ist also die eigentliche Absicherung, nicht nur Formsache.
+Namespace und Name müssen dabei exakt zum ServiceAccount aus Schritt 2.2 passen, sonst
+schlägt das Ausleihen fehl.
+
+```
+## vi 02-eso-trust-policy.json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::123456789012:oidc-provider/oidc.eks.eu-central-1.amazonaws.com/id/EXAMPLE1234"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "oidc.eks.eu-central-1.amazonaws.com/id/EXAMPLE1234:sub": "system:serviceaccount:external-secrets:eso-aws-sa"
+        }
+      }
+    }
+  ]
+}
+```
+
+```
+aws iam create-role \
+  --role-name eso-prod-db-credentials \
+  --assume-role-policy-document file://02-eso-trust-policy.json
+
+aws iam attach-role-policy \
+  --role-name eso-prod-db-credentials \
+  --policy-arn arn:aws:iam::123456789012:policy/eso-prod-db-credentials
+```
+
+#### FAQ: Brauche ich eine eigene Rolle pro Pod?
+
+**Nein.** Die Rolle hängt am **ServiceAccount**, nicht am einzelnen Pod. Alle Replicas
+eines Deployments teilen sich denselben ServiceAccount — 100 Pod-Replicas brauchen also
+nicht 100 Rollen, sondern genau eine.
+
+Wichtig: In diesem Setup hängt die Rolle sogar am ServiceAccount des **ESO-Controllers**
+selbst — ESO ruft AWS auf, nicht die Anwendungs-Pods direkt.
+
+Bei mehreren Anwendungen/Teams mit unterschiedlichen Secrets gibt es zwei Muster:
+
+| Muster | Vorteil | Nachteil |
+|---|---|---|
+| Eine gemeinsame Rolle für ESO, Policy erlaubt mehrere Secret-ARNs | Einfach aufzusetzen | Weniger strenge Trennung zwischen Teams |
+| Eine Rolle pro Team/Namespace, jeweils eigener `SecretStore` + eigener ServiceAccount | Team A kommt nicht an Secrets von Team B | Mehr Rollen/Policies zu pflegen |
+
+Faustregel: Die Granularität richtet sich nach **wer darf was sehen**, nicht nach der
+Anzahl der Pods.
+
+---
+
+### 2. Kubernetes-Seite
+
+#### 2.1 External Secrets Operator per Helm installieren
+
+```
+helm repo add external-secrets https://charts.external-secrets.io
+helm repo update
+
+helm install external-secrets external-secrets/external-secrets \
+  --namespace external-secrets \
+  --create-namespace \
+  --wait
+```
+
+Das installiert den Operator **und** die CRDs `SecretStore`, `ClusterSecretStore` und
+`ExternalSecret` (`apiVersion: external-secrets.io/v1`).
+
+#### 2.2 ServiceAccount mit IRSA-Annotation
+
+```
+## vi 03-eso-serviceaccount.yml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: eso-aws-sa
+  namespace: external-secrets
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/eso-prod-db-credentials
+```
+
+```
+kubectl apply -f 03-eso-serviceaccount.yml
+```
+
+#### 2.3 SecretStore — Verbindung zu AWS Secrets Manager
+
+```
+## vi 04-eso-secretstore.yml
+apiVersion: external-secrets.io/v1
+kind: SecretStore
+metadata:
+  name: aws-secretsmanager
+  namespace: external-secrets
+spec:
+  provider:
+    aws:
+      service: SecretsManager
+      region: eu-central-1
+      auth:
+        jwt:
+          serviceAccountRef:
+            name: eso-aws-sa
+```
+
+```
+kubectl apply -f 04-eso-secretstore.yml
+kubectl get secretstore -n external-secrets
+```
+
+#### 2.4 ExternalSecret — welches Secret, wie oft, wohin
+
+```
+## vi 05-eso-externalsecret.yml
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: db-credentials
+  namespace: external-secrets
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: aws-secretsmanager
+    kind: SecretStore
+  target:
+    name: db-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: DB_USERNAME
+      remoteRef:
+        key: prod/db-credentials
+        property: username
+    - secretKey: DB_PASSWORD
+      remoteRef:
+        key: prod/db-credentials
+        property: password
+```
+
+```
+kubectl apply -f 05-eso-externalsecret.yml
+kubectl get externalsecret -n external-secrets
+kubectl get secret db-credentials -n external-secrets -o yaml
+```
+
+#### Was passiert dabei genau? (Laufzeit-Ablauf)
+
+Der `kubectl apply` oben stößt im Hintergrund mehrere Schritte an, bis das
+Kubernetes-`Secret` tatsächlich existiert:
+
+![Ablauf ExternalSecret bis Kubernetes Secret](img/06-externalsecret-laufzeit-ablauf.svg)
+
+Kurz gesagt: ESO merkt sich nichts dauerhaft selbst — bei jedem `refreshInterval`
+holt es sich den Wert frisch aus AWS und gleicht das Kubernetes-`Secret` ab.
+
+---
+
+### 3. Im Pod nutzen (env / envFrom)
+
+Ab hier ist es ein ganz normales Kubernetes-`Secret` — die Wege aus der
+[Credentials-Übersicht](#credentials-in-kubernetes-verwenden---welche-moeglichkeiten-gibt-es) gelten unverändert:
+
+```
+## vi 06-eso-demo-pod.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: eso-demo
+  namespace: external-secrets
+spec:
+  containers:
+  - name: demo
+    image: nginx
+    envFrom:
+    - secretRef:
+        name: db-credentials
+```
+
+```
+kubectl apply -f 06-eso-demo-pod.yml
+kubectl exec eso-demo -n external-secrets -- env | grep DB_
+```
+
+---
+
+### Aufräumen
+
+```
+kubectl delete namespace external-secrets
+aws iam detach-role-policy --role-name eso-prod-db-credentials --policy-arn arn:aws:iam::123456789012:policy/eso-prod-db-credentials
+aws iam delete-role --role-name eso-prod-db-credentials
+aws iam delete-policy --policy-arn arn:aws:iam::123456789012:policy/eso-prod-db-credentials
+aws secretsmanager delete-secret --secret-id prod/db-credentials --force-delete-without-recovery
+```
+
+### Kurz zusammengefasst
+
+| Ressource | apiVersion / Tool | Zweck |
+|---|---|---|
+| Helm Chart `external-secrets/external-secrets` | Helm Repo `https://charts.external-secrets.io` | Installiert Operator + CRDs |
+| `ServiceAccount` mit `eks.amazonaws.com/role-arn` | Kubernetes | IRSA-Bindung an IAM-Rolle |
+| `SecretStore` | `external-secrets.io/v1` | Verbindung zu AWS Secrets Manager |
+| `ExternalSecret` | `external-secrets.io/v1` | Welches AWS-Secret → welches K8s-Secret |
+
+### ESO mit AWS Secrets Manager - Secret als Volume-Mount
+
+
+Dieses Dokument baut auf [ESO mit AWS Secrets Manager + KMS einrichten](eso-secrets-manager-setup.md)
+auf. Die komplette AWS-Seite (KMS, Secrets Manager, IAM-Policy, IAM-Rolle/IRSA) und die
+Kubernetes-Ressourcen `SecretStore`/`ExternalSecret` sind **identisch** — ESO erzeugt
+in beiden Fällen einfach ein normales Kubernetes-`Secret`. Der einzige Unterschied ist,
+**wie der Pod dieses Secret konsumiert**.
+
+Warum überhaupt Volume statt ENV-Variable? Siehe
+[Credentials-Übersicht, Abschnitt "ENV-Variable vs. Datei"](#credentials-in-kubernetes-verwenden---welche-moeglichkeiten-gibt-es):
+kurz gesagt, ein Volume-Mount taucht nicht in `kubectl exec -- env` auf und wird nicht an
+Kindprozesse vererbt.
+
+### Voraussetzung
+
+Schritte 1 (AWS-Seite komplett) und 2.1–2.4 (Helm-Installation, ServiceAccount,
+`SecretStore`, `ExternalSecret`) aus
+[ESO mit AWS Secrets Manager + KMS einrichten](eso-secrets-manager-setup.md) sind bereits
+durchgeführt — es existiert also schon ein Kubernetes-`Secret` namens `db-credentials`
+im Namespace `external-secrets`.
+
+### Pod mit Secret als Volume-Mount
+
+```
+## vi 07-eso-demo-pod-volume.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: eso-demo-volume
+  namespace: external-secrets
+spec:
+  containers:
+  - name: demo
+    image: nginx
+    volumeMounts:
+    - name: db-credentials-volume
+      mountPath: /etc/secrets/db
+      readOnly: true
+  volumes:
+  - name: db-credentials-volume
+    secret:
+      secretName: db-credentials
+      defaultMode: 0440
+```
+
+```
+kubectl apply -f 07-eso-demo-pod-volume.yml
+```
+
+### Was bedeuten die Felder?
+
+| Feld | Bedeutung |
+|---|---|
+| `volumeMounts.mountPath` | Ordner **im Container**, unter dem die Secret-Keys als Dateien auftauchen (hier: `/etc/secrets/db/username`, `/etc/secrets/db/password`) |
+| `volumeMounts.readOnly` | Container kann die Dateien nur lesen, nicht verändern |
+| `volumes.secret.secretName` | Name des Kubernetes-`Secret`, das ESO angelegt hat |
+| `volumes.secret.defaultMode` | Datei-Rechte in oktal (z.B. `0440` = nur Owner + Gruppe dürfen lesen, niemand schreiben) |
+
+### Testen
+
+```
+kubectl exec eso-demo-volume -n external-secrets -- ls -l /etc/secrets/db
+kubectl exec eso-demo-volume -n external-secrets -- cat /etc/secrets/db/username
+kubectl exec eso-demo-volume -n external-secrets -- env | grep -i db
+## -> zeigt nichts, das Secret taucht bewusst NICHT in den ENV-Variablen auf
+```
+
+### Aktualisiert sich das automatisch?
+
+Ja — ändert ESO das Kubernetes-`Secret` (weil sich der Wert in AWS Secrets Manager
+geändert hat), aktualisiert Kubernetes die gemounteten Dateien im Pod **automatisch**,
+meist innerhalb von ca. 1 Minute (kubelet-Sync-Intervall) — ganz ohne Pod-Neustart.
+Bei ENV-Variablen ist das **nicht** der Fall: ein bereits laufender Prozess bekommt eine
+geänderte ENV-Variable nie mehr mit, dafür ist ein Pod-Neustart nötig (siehe
+[Stakater Reloader](https://github.com/stakater/Reloader)).
+
+### Aufräumen
+
+```
+kubectl delete -f 07-eso-demo-pod-volume.yml
+```
+
+### Kurz zusammengefasst
+
+| | ENV-Variable | Volume-Mount |
+|---|---|---|
+| Sichtbar via `kubectl exec -- env` | Ja | Nein |
+| Automatisches Update bei Secret-Änderung | Nein (Neustart nötig) | Ja (~1 Min., kein Neustart) |
+| Passendes Dokument | [eso-secrets-manager-setup.md](eso-secrets-manager-setup.md) | dieses Dokument |
 
 ## Documentation for Settings right resources/limits
 
