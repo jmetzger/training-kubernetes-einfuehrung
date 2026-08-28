@@ -73,6 +73,7 @@
      * [Example stateful set](/kubectl-examples/10-statefulset.md)
 
   1. Kubernetes Secrets und Encrypting von z.B. Credentials 
+     * [Credentials in Kubernetes verwenden - welche Moeglichkeiten gibt es?](/kubernetes/secrets/credentials-overview.md)
      * [Kubernetes secrets Typen](/kubernetes/secrets/secrets.md) 
      * [Sealed Secrets - bitnami](/kubernetes/secrets/sealed-secrets.md)
      * [Exercise Sealed Secret mariadb](/kubectl-examples/08-sealed-secret.md)
@@ -382,7 +383,7 @@
     
   1. AWS
      * [ECS (managed containers) vs. Kubernetes](aws/ecs-vs-kubernetes.md)
-     * [AWS KMS - Überblick (vereinfacht)](aws/kms-overview.md)
+     * [External Secrets Operator (ESO) mit AWS Secrets Manager + KMS einrichten](aws/eso-secrets-manager-setup.md)
  
   1. Documentation for Settings right resources/limits
      * [Goldilocks](https://www.fairwinds.com/blog/introducing-goldilocks-a-tool-for-recommending-resource-requests)
