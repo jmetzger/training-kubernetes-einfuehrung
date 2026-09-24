@@ -137,6 +137,7 @@ kubectl get challenges
 
 ### Verschlüsselungstiefe ehöhen
 
+  * Eintragen in die ingress - resource (z.B. manifests/abi/ingress.yaml)
   * Standardmäßig 2048bit
 
 ```
