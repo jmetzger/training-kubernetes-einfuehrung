@@ -66,6 +66,7 @@
      * [pathType ImplementationSpecific vs. Prefix bei traefik](/ingress/traefik/pathtype-implementationspecific.md)
      * [ingress mit traefik, letsencrypt und cert-manager](/ingress/https-letsencrypt-ingress-traefik.md)
      * [cert-manager HTTP-01 Solver: Wo landet die well-known-Datei?](/ingress/traefik/http01-solver-cert-manager.md)
+     * [Traefik errors-Middleware: eigenen HTTP-Code/Body bei Backend-Fehlern liefern](/ingress/traefik/errors-middleware-custom-response.md)
 
   1. Kubernetes Ingress (HA Proxy)
      * [Install HA Proxy-IngressController](/ingress/ha-proxy/install-with-helm.md)
