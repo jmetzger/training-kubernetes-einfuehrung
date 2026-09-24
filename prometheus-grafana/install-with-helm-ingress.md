@@ -1,13 +1,21 @@
 # Prometheus + Grafana mit Ingress und BasicAuth (Helm)
 
 **Hinweis:** Der Alertmanager-Teil (Schritt 6) ist aus dem Q3-Advanced-Training uebernommen und an
-unser DOKS-Setup angepasst (kein MetalLB, kein Wildcard-DNS-Script), aber noch nicht live auf
-diesem Cluster nachgetestet - insbesondere den tatsaechlichen Alertmanager-Service-Namen vor dem
-Training einmal per `kubectl get svc` verifizieren.
+unser DOKS-Setup angepasst (kein MetalLB, kein Wildcard-DNS-Script). Komplett live auf einem
+laufenden Trainings-Cluster (kube-prometheus-stack 86.3.1) nachgetestet - Prometheus (401/302),
+Alertmanager (401/200) und Grafana (302 Login-Redirect) funktionieren wie beschrieben.
 
 ## Voraussetzungen
 
   * Traefik installiert (Namespace `ingress`)
+  * **Traefik-CRDs vorhanden** - nicht selbstverstaendlich! Pruefen mit `kubectl get crd | grep traefik.io`.
+    Fehlen sie (kein `middlewares.traefik.io` in der Liste), muss Traefik entweder mit
+    `crds.enabled: true` (Default bei einer sauberen Neuinstallation) neu ausgerollt, oder die CRDs
+    separat nachinstalliert werden - additiv, ohne den laufenden Traefik-Pod anzufassen:
+    ```
+    kubectl apply -f https://raw.githubusercontent.com/traefik/traefik-helm-chart/v40.3.0/traefik/crds/traefik.io_middlewares.yaml
+    ```
+    (Versionsnummer an die installierte Traefik-Chart-Version anpassen, siehe `helm -n ingress list`)
   * cert-manager installiert + ClusterIssuer `letsencrypt-prod` vorhanden (aus Uebung: https-letsencrypt-ingress-traefik)
   * `htpasswd` installiert: `apt install apache2-utils`
 
@@ -155,7 +163,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: alertmanager-alertmanager   # ggf. an den Namen aus obigem kubectl get svc anpassen
+            name: prometheus-alertmanager   # Name kommt vom TOP-LEVEL fullnameOverride, nicht vom alertmanager.fullnameOverride
             port:
               number: 9093
 ```
