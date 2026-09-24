@@ -176,6 +176,14 @@ kubectl get pods
 helm get values my-mariadb 
 ```
 
+### Änderung zwischen versionen (Warum trat der Fehler auf) 
+
+```
+helm get manifest my-mariadb --revision 2 > rev2.yaml
+helm get manifest my-mariadb --revision 3 > rev3.yaml
+# schaut nach serviceaccount
+diff rev2.yaml rev3.yaml
+```
 
 
 ### Uninstall 
