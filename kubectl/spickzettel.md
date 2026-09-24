@@ -75,6 +75,9 @@ kubectl delete -f . -R
 kubectl get pods -o wide # weitere informationen 
 # im json format
 kubectl get pods -o json 
+# eine Werte rausziehen
+# key ist tls.crt (wichtig escapen => \.), sonst funktioniert das nicht
+kubectl get secrets example-tls -o jsonpath='{.data.tls\.crt}' | base64 -d
 
 # gilt natürluch auch für andere kommandos
 kubectl get deploy -o json 
