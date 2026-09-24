@@ -166,8 +166,14 @@
     
   1. Kubernetes Monitoring 
      * [Prometheus Monitoring Server (Overview)](prometheus/overview.md)
+     * [Prometheus Metriktypen (Counter, Gauge, Histogram, Summary)](prometheus/metrics/overview.md)
+     * [Achtung: Bitte kein Prometheus-Agent verwenden](prometheus/achtung-bitte-kein-prometheus-agent.md)
      * [Prometheus / Grafana Stack installieren](prometheus-grafana/install-with-helm.md)
+     * [Prometheus / Grafana mit Ingress, Letsencrypt und BasicAuth (inkl. Alertmanager)](prometheus-grafana/install-with-helm-ingress.md)
      * [Uebung: Prometheus UI und PromQL](prometheus-grafana/uebung-prometheus-ui-promql.md)
+     * [PromQL: rate()](prometheus/promql/functions/rate.md)
+     * [PromQL: irate()](prometheus/promql/functions/irate.md)
+     * [PromQL: rate() vs. irate()](prometheus/promql/functions/rate-vs-irate.md)
      * [Uebung: Custom Metriken mit eigener Demo-App](prometheus-grafana/uebung-custom-metriken.md)
      * [Demo-App Source Code: app.py](prometheus-grafana/demo-app/app.py)
      * [Demo-App Source Code: Dockerfile](prometheus-grafana/demo-app/Dockerfile)

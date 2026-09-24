@@ -1,5 +1,10 @@
 # Prometheus + Grafana mit Ingress und BasicAuth (Helm)
 
+**Hinweis:** Der Alertmanager-Teil (Schritt 6) ist aus dem Q3-Advanced-Training uebernommen und an
+unser DOKS-Setup angepasst (kein MetalLB, kein Wildcard-DNS-Script), aber noch nicht live auf
+diesem Cluster nachgetestet - insbesondere den tatsaechlichen Alertmanager-Service-Namen vor dem
+Training einmal per `kubectl get svc` verifizieren.
+
 ## Voraussetzungen
 
   * Traefik installiert (Namespace `ingress`)
@@ -112,14 +117,66 @@ spec:
 kubectl apply -f prometheus-ingress.yml -n monitoring
 ```
 
-## Schritt 6: Zertifikate pruefen
+## Schritt 6: Alertmanager Ingress (gleiche Middleware wiederverwenden)
+
+Die `Middleware` aus Schritt 5 ist nicht an einen Service gebunden - sie laesst sich 1:1 auch am
+Alertmanager-Ingress referenzieren.
+
+Erst den tatsaechlichen Service-Namen pruefen (haengt vom `fullnameOverride` in der values.yml ab):
 
 ```
-# Beide Zertifikate muessen READY=True sein
+kubectl -n monitoring get svc | grep alertmanager
+```
+
+```
+vi alertmanager-ingress.yml
+```
+
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alertmanager-ingress
+  namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    traefik.ingress.kubernetes.io/router.middlewares: monitoring-prometheus-auth@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - alertmanager.<dein-name>.do.t3isp.de
+    secretName: alertmanager-tls
+  rules:
+  - host: alertmanager.<dein-name>.do.t3isp.de
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: alertmanager-alertmanager   # ggf. an den Namen aus obigem kubectl get svc anpassen
+            port:
+              number: 9093
+```
+
+```
+kubectl apply -f alertmanager-ingress.yml -n monitoring
+```
+
+Der kube-prometheus-stack legt automatisch eine `Watchdog`-Alert an, die dauerhaft feuert - guter
+Beweis dafuer, dass die Alerting-Pipeline lebt:
+
+![Alertmanager mit der staendig aktiven Watchdog-Alert](screenshots/06-alertmanager.png)
+
+## Schritt 7: Zertifikate pruefen
+
+```
+# Alle drei Zertifikate muessen READY=True sein
 kubectl -n monitoring get cert
 ```
 
-## Schritt 7: Credentials nachschlagen (falls vergessen)
+## Schritt 8: Credentials nachschlagen (falls vergessen)
 
 ```
 # Grafana-Passwort aus dem Kubernetes Secret auslesen:
@@ -133,7 +190,7 @@ echo ""
 # Zur Erinnerung: es steht auch in deiner values.yml unter adminPassword
 ```
 
-## Schritt 8: Testen
+## Schritt 10: Testen
 
 ```
 # Ohne Credentials -> 401 (Zugang verweigert)
@@ -143,11 +200,23 @@ curl -s -o /dev/null -w "%{http_code}" https://prometheus.<dein-name>.do.t3isp.d
 curl -u admin:DEIN-PASSWORT -s -o /dev/null -w "%{http_code}" https://prometheus.<dein-name>.do.t3isp.de
 ```
 
+Ohne Auth kommt ein sauberes 401 direkt von der Traefik-Middleware (nicht von Prometheus selbst):
+
+![Prometheus ohne Basic-Auth: 401 Unauthorized von Traefik](screenshots/04-prometheus-401.png)
+
+```
+# Alertmanager genauso testen:
+curl -s -o /dev/null -w "%{http_code}" https://alertmanager.<dein-name>.do.t3isp.de
+curl -u admin:DEIN-PASSWORT -s -o /dev/null -w "%{http_code}" https://alertmanager.<dein-name>.do.t3isp.de
+```
+
 ```
 # Grafana im Browser aufrufen:
 https://grafana.<dein-name>.do.t3isp.de
 # Login: admin / DEIN-PASSWORT
 ```
+
+![Grafana Login](screenshots/01-grafana-login.png)
 
 ## Hintergrund: Warum BasicAuth fuer Prometheus?
 

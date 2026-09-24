@@ -56,6 +56,8 @@ Wichtige Targets im kube-prometheus-stack:
 **Frage zum Nachdenken:** Wie weiss Prometheus, welche Pods es scrapen soll?
 → Antwort: ServiceMonitor CRDs (dazu spaeter mehr)
 
+![Prometheus Target health: alle Targets UP](screenshots/05-prometheus-targets.png)
+
 ## Schritt 2: /metrics direkt ansehen
 
 Prometheus zieht Metriken von HTTP-Endpunkten im Raw-Format.
@@ -162,6 +164,8 @@ Zeitraum oben rechts einstellen (z.B. **15m** fuer die letzten 15 Minuten).
 
 Der Graph zeigt den zeitlichen Verlauf - genau diese Daten fragt Grafana
 per PromQL ab und stellt sie als Dashboard dar.
+
+![Prometheus: PromQL-Query mit Graph-Ansicht](screenshots/08-prometheus-query-graph.png)
 
 ## Schritt 5: Labels verstehen
 
