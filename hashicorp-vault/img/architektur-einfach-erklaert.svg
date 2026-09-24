@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 545" font-family="Arial, Helvetica, sans-serif">
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#57606a"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a7f37"/>
+    </marker>
+  </defs>
+
+  <!-- Hintergrund -->
+  <rect x="1" y="1" width="938" height="543" rx="14" fill="#ffffff" stroke="#d0d7de"/>
+
+  <!-- Titel -->
+  <text x="470" y="45" text-anchor="middle" font-size="22" font-weight="bold" fill="#24292f">So funktioniert HashiCorp Vault</text>
+  <text x="470" y="70" text-anchor="middle" font-size="14" fill="#57606a">Ein Tresorraum fuer Passwoerter und andere Geheimnisse</text>
+
+  <!-- Tresorraum -->
+  <rect x="340" y="95" width="560" height="375" rx="12" fill="#f6f8fa" stroke="#57606a" stroke-width="2"/>
+  <text x="620" y="125" text-anchor="middle" font-size="16" font-weight="bold" fill="#24292f">VAULT - der digitale Tresorraum</text>
+
+  <!-- App -->
+  <rect x="40" y="140" width="180" height="140" rx="10" fill="#ddf4ff" stroke="#0969da" stroke-width="2"/>
+  <text x="130" y="175" text-anchor="middle" font-size="16" font-weight="bold" fill="#0a3069">Deine App</text>
+  <text x="130" y="197" text-anchor="middle" font-size="13" fill="#0a3069">(z.B. ein Web-Shop)</text>
+  <text x="130" y="230" text-anchor="middle" font-size="13" font-style="italic" fill="#57606a">"Ich brauche das</text>
+  <text x="130" y="248" text-anchor="middle" font-size="13" font-style="italic" fill="#57606a">Datenbank-Passwort!"</text>
+
+  <!-- Pfeil Anfrage -->
+  <line x1="226" y1="185" x2="332" y2="185" stroke="#57606a" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="279" y="172" text-anchor="middle" font-size="12" fill="#57606a">Anfrage</text>
+
+  <!-- Schritt 1: Ausweis-Kontrolle -->
+  <rect x="365" y="150" width="150" height="110" rx="10" fill="#fff8c5" stroke="#9a6700" stroke-width="2"/>
+  <text x="440" y="180" text-anchor="middle" font-size="15" font-weight="bold" fill="#24292f">1) Ausweis-</text>
+  <text x="440" y="199" text-anchor="middle" font-size="15" font-weight="bold" fill="#24292f">Kontrolle</text>
+  <text x="440" y="221" text-anchor="middle" font-size="12" fill="#57606a">Login, dann Token</text>
+  <text x="440" y="243" text-anchor="middle" font-size="13" font-style="italic" fill="#57606a">"Wer bist du?"</text>
+
+  <!-- Pfeil 1 -> 2 -->
+  <line x1="521" y1="205" x2="554" y2="205" stroke="#57606a" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Schritt 2: Regel-Check -->
+  <rect x="560" y="150" width="150" height="110" rx="10" fill="#fff8c5" stroke="#9a6700" stroke-width="2"/>
+  <text x="635" y="180" text-anchor="middle" font-size="15" font-weight="bold" fill="#24292f">2) Regel-Check</text>
+  <text x="635" y="202" text-anchor="middle" font-size="12" fill="#57606a">(Policy)</text>
+  <text x="635" y="230" text-anchor="middle" font-size="13" font-style="italic" fill="#57606a">"Was darfst du</text>
+  <text x="635" y="248" text-anchor="middle" font-size="13" font-style="italic" fill="#57606a">sehen?"</text>
+
+  <!-- Pfeil 2 -> 3 -->
+  <line x1="716" y1="205" x2="749" y2="205" stroke="#57606a" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Schritt 3: Schubladen (Secret Engines) -->
+  <text x="817" y="160" text-anchor="middle" font-size="15" font-weight="bold" fill="#24292f">3) Schubladen</text>
+  <text x="817" y="178" text-anchor="middle" font-size="12" fill="#57606a">(Secret Engines)</text>
+
+  <rect x="757" y="190" width="120" height="46" rx="6" fill="#ffffff" stroke="#57606a" stroke-width="2"/>
+  <circle cx="769" cy="213" r="4" fill="#57606a"/>
+  <text x="823" y="218" text-anchor="middle" font-size="12" fill="#24292f">Passwoerter</text>
+
+  <rect x="757" y="242" width="120" height="46" rx="6" fill="#ffffff" stroke="#57606a" stroke-width="2"/>
+  <circle cx="769" cy="265" r="4" fill="#57606a"/>
+  <text x="823" y="270" text-anchor="middle" font-size="12" fill="#24292f">DB-Zugaenge</text>
+
+  <rect x="757" y="294" width="120" height="46" rx="6" fill="#ffffff" stroke="#57606a" stroke-width="2"/>
+  <circle cx="769" cy="317" r="4" fill="#57606a"/>
+  <text x="823" y="322" text-anchor="middle" font-size="12" fill="#24292f">Zertifikate</text>
+
+  <!-- Pfeil Antwort -->
+  <line x1="360" y1="310" x2="226" y2="310" stroke="#1a7f37" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <text x="293" y="297" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a7f37">4) Antwort:</text>
+  <text x="293" y="328" text-anchor="middle" font-size="12" fill="#1a7f37">dein Geheimnis</text>
+
+  <!-- Verschluesselter Speicher -->
+  <rect x="365" y="380" width="510" height="66" rx="10" fill="#eaeef2" stroke="#57606a" stroke-dasharray="6 4"/>
+  <!-- Vorhaengeschloss -->
+  <path d="M 395 407 v -6 a 9 9 0 0 1 18 0 v 6" fill="none" stroke="#57606a" stroke-width="3"/>
+  <rect x="390" y="407" width="28" height="22" rx="4" fill="#57606a"/>
+  <text x="640" y="406" text-anchor="middle" font-size="13" fill="#24292f">Alle Geheimnisse werden verschluesselt gespeichert.</text>
+  <text x="640" y="426" text-anchor="middle" font-size="13" fill="#24292f">Wer die Festplatte klaut, sieht nur Zeichensalat.</text>
+
+  <!-- Sealed-Hinweis -->
+  <text x="470" y="505" text-anchor="middle" font-size="13" font-style="italic" fill="#57606a">Beim Start ist der Tresor komplett verriegelt ("sealed") - erst nach dem Aufschliessen ("unseal") gibt er Geheimnisse heraus.</text>
+</svg>

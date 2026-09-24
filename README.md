@@ -87,6 +87,7 @@
      * [Vergleich: GitLab CI/CD vs. SOPS vs. Vault](/kubernetes/secrets/secret-management-vergleich.md)
 
   1. Hashicorp Vault
+     * [Architektur einfach erklaert](/hashicorp-vault/architektur-einfach-erklaert.md)
      * [Uebersicht Vault in Kubernetes](/hashicorp-vault/overview.md)
      * [Uebung: Vault Agent Injection](/hashicorp-vault/01-vault-agent-injection.md)
 
