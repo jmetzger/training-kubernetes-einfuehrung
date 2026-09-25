@@ -63,7 +63,10 @@
   1. Kubernetes Ingress (Traefik)
      * [Install Traefik-IngressController](#install-traefik-ingresscontroller)
      * [Ingress mit traefik](#ingress-mit-traefik)
+     * [pathType ImplementationSpecific vs. Prefix bei traefik](#pathtype-implementationspecific-vs-prefix-bei-traefik)
      * [ingress mit traefik, letsencrypt und cert-manager](#ingress-mit-traefik-letsencrypt-und-cert-manager)
+     * [cert-manager HTTP-01 Solver: Wo landet die well-known-Datei?](#cert-manager-http-01-solver-wo-landet-die-well-known-datei)
+     * [Traefik errors-Middleware: eigenen HTTP-Code/Body bei Backend-Fehlern liefern](#traefik-errors-middleware-eigenen-http-codebody-bei-backend-fehlern-liefern)
 
   1. Kubernetes Ingress (HA Proxy)
      * [Install HA Proxy-IngressController](#install-ha-proxy-ingresscontroller)
@@ -85,6 +88,7 @@
      * [Vergleich: GitLab CI/CD vs. SOPS vs. Vault](#vergleich-gitlab-cicd-vs-sops-vs-vault)
 
   1. Hashicorp Vault
+     * [Architektur einfach erklaert](#architektur-einfach-erklaert)
      * [Uebersicht Vault in Kubernetes](#uebersicht-vault-in-kubernetes)
      * [Uebung: Vault Agent Injection](#uebung-vault-agent-injection)
 
@@ -117,6 +121,7 @@
   1. Helm Charts erstellen und analysieren
      * [Eigenes Helm-Chart erstellen](#eigenes-helm-chart-erstellen)
      * [Chart zur Analyse runterladen und entpacken](#chart-zur-analyse-runterladen-und-entpacken)
+     * [Eigenes Chart in eine Registry pushen (helm push)](#eigenes-chart-in-eine-registry-pushen-helm-push)
      * [Wie starte ich am besten einfach - mit eigenem Projekt](#wie-starte-ich-am-besten-einfach---mit-eigenem-projekt)
 
   1. Helm Spezial: Umgang mit Einrückungen
@@ -142,6 +147,9 @@
      * [Probleme über Logs identifiziert - z.B. non-root image](#probleme-über-logs-identifiziert---zb-non-root-image)
      * [Übung: FE zu Backend Verbindungen debuggen mit kubectl debug und NetworkPolicy](#übung-fe-zu-backend-verbindungen-debuggen-mit-kubectl-debug-und-networkpolicy)
      * [Übung: Service-Verbindungsprobleme debuggen mit kubectl debug (ohne NetworkPolicy)](#übung-service-verbindungsprobleme-debuggen-mit-kubectl-debug-ohne-networkpolicy)
+     * [Übung: nginx als Nicht-Root-User startet nicht - CrashLoopBackOff mit describe/logs/exec debuggen](#übung-nginx-als-nicht-root-user-startet-nicht---crashloopbackoff-mit-describelogsexec-debuggen)
+     * [Übung: Pod laeuft, Anwendung kaputt - Fehler nur in den Logs sichtbar (403/502)](#übung-pod-laeuft-anwendung-kaputt---fehler-nur-in-den-logs-sichtbar-403502)
+     * [Übung: CrashLoopBackOff, aber die Logs sind sauber - OOMKilled (137) und Completed (0) ueber Exit Codes finden](#übung-crashloopbackoff-aber-die-logs-sind-sauber---oomkilled-137-und-completed-0-ueber-exit-codes-finden)
 
   1. Kubernetes RBAC
      * [Kubernetes RBAC - was darf Traefik](#kubernetes-rbac---was-darf-traefik)
@@ -162,8 +170,14 @@
     
   1. Kubernetes Monitoring 
      * [Prometheus Monitoring Server (Overview)](#prometheus-monitoring-server-overview)
+     * [Prometheus Metriktypen (Counter, Gauge, Histogram, Summary)](#prometheus-metriktypen-counter-gauge-histogram-summary)
+     * [Achtung: Bitte kein Prometheus-Agent verwenden](#achtung-bitte-kein-prometheus-agent-verwenden)
      * [Prometheus / Grafana Stack installieren](#prometheus--grafana-stack-installieren)
+     * [Prometheus / Grafana mit Ingress, Letsencrypt und BasicAuth (inkl. Alertmanager)](#prometheus--grafana-mit-ingress-letsencrypt-und-basicauth-inkl-alertmanager)
      * [Uebung: Prometheus UI und PromQL](#uebung-prometheus-ui-und-promql)
+     * [PromQL: rate()](#promql-rate)
+     * [PromQL: irate()](#promql-irate)
+     * [PromQL: rate() vs. irate()](#promql-rate-vs-irate)
      * [Uebung: Custom Metriken mit eigener Demo-App](#uebung-custom-metriken-mit-eigener-demo-app)
      * [Demo-App Source Code: app.py](#demo-app-source-code-apppy)
      * [Demo-App Source Code: Dockerfile](#demo-app-source-code-dockerfile)
@@ -757,7 +771,7 @@ Hier ist die Tabelle der Twelve-Factor App Principles:
   * Pods sind die kleinste verwaltbare Einheit, die in Kubernetes erstellt und verwaltet werden können.
   * Ein Pod (übersetzt Gruppe) ist eine Gruppe von einem oder mehreren Containern
     * gemeinsam genutzter Speicher- und Netzwerkressourcen   
-    * Befinden sich immer auf dem gleich virtuellen Server 
+    * Befinden sich immer auf dem gleichen virtuellen Server 
    
 
 ### Node (Minion) - components 
@@ -985,7 +999,10 @@ it is not suitable for production.
     * Ansible (leichter bestimmte zu Konfigurieren) 
     * kubeadm
 
+### Talos 
 
+    * Installation mit iso 
+    * immutable 
     
 
 
@@ -1444,6 +1461,9 @@ kubectl delete -f . -R
 kubectl get pods -o wide # weitere informationen 
 ## im json format
 kubectl get pods -o json 
+## eine Werte rausziehen
+## key ist tls.crt (wichtig escapen => \.), sonst funktioniert das nicht
+kubectl get secrets example-tls -o jsonpath='{.data.tls\.crt}' | base64 -d
 
 ## gilt natürluch auch für andere kommandos
 kubectl get deploy -o json 
@@ -2889,6 +2909,205 @@ http://jochen.appv2.do.t3isp.de/banana/nix
 
 
 
+### pathType ImplementationSpecific vs. Prefix bei traefik
+
+
+Frage aus dem Training: Wie verhält sich `pathType: ImplementationSpecific` bei Traefik konkret,
+im Unterschied zu `Prefix` und `Exact`?
+
+Kurze Antwort vorab (Details und Beleg weiter unten):
+
+* Laut Kubernetes-Spec ist `ImplementationSpecific` **nicht spezifiziert** — jeder
+  Ingress-Controller darf hier selbst entscheiden, wie er matcht.
+* `Prefix` ist dagegen spezifiziert: Kubernetes verlangt Pfadsegment-Grenzen
+  (`/apple` matcht `/apple`, `/apple/`, `/apple/foo`, aber **nicht** `/applebee`).
+* Traefik übersetzt intern **beide** pathTypes (`Prefix` UND `ImplementationSpecific`) auf
+  denselben Router-Matcher `PathPrefix(...)`. Und dieser Matcher macht standardmäßig einen
+  reinen String-Präfix-Vergleich **ohne** Segmentgrenze — d.h. `/apple` matcht auch `/applebee`.
+  In der Praxis verhalten sich `Prefix` und `ImplementationSpecific` bei Traefik also **identisch**,
+  und keiner von beiden folgt standardmäßig der Kubernetes-Spec für `Prefix`.
+
+Das testen wir jetzt live.
+
+### Step 1: Walkthrough - Deployment und Service
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir pathtype
+cd pathtype
+```
+
+```
+nano apple-deploy.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apple-app
+  labels:
+    app: apple
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apple
+  template:
+    metadata:
+      labels:
+        app: apple
+    spec:
+      containers:
+        - name: web
+          image: hashicorp/http-echo
+          args:
+            - "-text=apple-<euer-name>"
+```
+
+```
+nano apple-svc.yaml
+```
+
+```
+kind: Service
+apiVersion: v1
+metadata:
+  name: apple-service
+spec:
+  type: ClusterIP
+  selector:
+    app: apple
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5678 # Default port for image
+```
+
+```
+kubectl apply -f .
+```
+
+### Step 2: Walkthrough - Ingress mit Prefix und ImplementationSpecific nebeneinander
+
+Damit wir die beiden pathTypes direkt vergleichen können, bauen wir zwei Hosts auf
+demselben Ingress, die auf denselben Pfad `/apple` und denselben Service zeigen -
+einmal mit `pathType: Prefix`, einmal mit `pathType: ImplementationSpecific`.
+
+```
+nano ingress.yml
+```
+
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pathtype-ingress
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: "prefix-<euername>.apppathtype.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          pathType: Prefix
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+  - host: "implspec-<euername>.apppathtype.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+```
+
+```
+kubectl apply -f ingress.yml
+kubectl describe ingress pathtype-ingress
+```
+
+### Step 3: Testing - matcht /applebee bei Prefix wirklich anders als bei ImplementationSpecific?
+
+Wir testen für beide Hosts dieselben vier Pfade: `/apple`, `/apple/`, `/apple/foo` (sollten laut
+Spec bei `Prefix` alle matchen) und `/applebee` (sollte laut Spec bei `Prefix` **nicht** matchen,
+weil `bee` kein eigenes Pfadsegment ist, sondern einfach an `apple` drangehängt).
+
+```
+## Host mit pathType: Prefix
+curl http://prefix-<euername>.apppathtype.do.t3isp.de/apple
+curl http://prefix-<euername>.apppathtype.do.t3isp.de/apple/
+curl http://prefix-<euername>.apppathtype.do.t3isp.de/apple/foo
+curl http://prefix-<euername>.apppathtype.do.t3isp.de/applebee
+```
+
+```
+## Host mit pathType: ImplementationSpecific
+curl http://implspec-<euername>.apppathtype.do.t3isp.de/apple
+curl http://implspec-<euername>.apppathtype.do.t3isp.de/apple/
+curl http://implspec-<euername>.apppathtype.do.t3isp.de/apple/foo
+curl http://implspec-<euername>.apppathtype.do.t3isp.de/applebee
+```
+
+Ergebnis: **Alle acht curls liefern `apple-<euer-name>` zurück** - inklusive `/applebee` bei
+beiden Hosts. Traefik unterscheidet hier standardmäßig gar nicht zwischen `Prefix` und
+`ImplementationSpecific`. Das ist kein Trainingsfehler, sondern dokumentiertes Traefik-Verhalten
+(siehe Referenzen unten): Traefik matcht `PathPrefix` per einfachem String-Vergleich
+(`strings.HasPrefix`), ohne auf Pfadsegment-Grenzen zu achten.
+
+### Step 4: Bonus - echtes Kubernetes-konformes Prefix-Matching aktivieren
+
+Seit Traefik v3.5 gibt es dafür die Provider-Option `strictPrefixMatching` (per Default `false`).
+Aktiviert man sie in den Helm-Values des Traefik-Providers, matcht `PathPrefix` dann
+Kubernetes-konform pfadsegmentweise - und zwar für **beide** pathTypes gleichermaßen, weil Traefik
+intern weiterhin nicht zwischen `Prefix` und `ImplementationSpecific` unterscheidet:
+
+```yaml
+## traefik helm values.yaml (Auszug)
+additionalArguments:
+  - "--providers.kubernetesingress.strictprefixmatching=true"
+```
+
+```
+helm upgrade -n ingress traefik traefik/traefik --version 40.3.0 --reuse-values -f values.yaml
+```
+
+Mit aktiviertem `strictPrefixMatching` würde `/applebee` bei beiden Hosts aus Step 3 **nicht**
+mehr matchen (404), `/apple`, `/apple/` und `/apple/foo` weiterhin schon.
+
+### Fazit
+
+* `pathType: Exact` -> Traefik-Matcher `Path(...)` (exakter Treffer, siehe
+  [04-ingress-traefik-with-hostnames-deployment.md](#ingress-mit-traefik)).
+* `pathType: Prefix` **und** `pathType: ImplementationSpecific` -> beide landen bei Traefik auf
+  demselben Matcher `PathPrefix(...)`, der standardmäßig ein reiner String-Präfix-Vergleich ohne
+  Segmentgrenze ist. Kubernetes-konformes Verhalten für `Prefix` gibt es bei Traefik nur als Opt-in
+  über `strictPrefixMatching`.
+* Für Teilnehmer heißt das praktisch: Verlasst euch bei Traefik nicht darauf, dass `pathType: Prefix`
+  automatisch an Pfadsegmenten stoppt - testet es wie in Step 3, oder aktiviert `strictPrefixMatching`
+  wenn ihr euch auf die Kubernetes-Spec verlassen wollt.
+
+### Referenzen
+
+* [Kubernetes Ingress: Path types (Exact, Prefix, ImplementationSpecific)](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types)
+* [Traefik Doku: Kubernetes Ingress Provider - `strictPrefixMatching`](https://doc.traefik.io/traefik/reference/install-configuration/providers/kubernetes/kubernetes-ingress/)
+* [Traefik Doku: Kubernetes Ingress Routing Configuration](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/)
+* [GitHub Issue traefik/traefik #11200: Prefix-Matching entsprach nicht der Kubernetes-Spec](https://github.com/traefik/traefik/issues/11200)
+* [GitHub PR traefik/traefik #11203: Einführung von `strictPrefixMatching`](https://github.com/traefik/traefik/pull/11203)
+* Quellcode zum Nachvollziehen (Version dieses Trainings, Chart 40.3.0 = Traefik v3.7.4):
+  [`pkg/provider/kubernetes/ingress/kubernetes.go`](https://github.com/traefik/traefik/blob/v3.7.4/pkg/provider/kubernetes/ingress/kubernetes.go)
+  (Funktionen `loadRouter` und `buildRule`) und
+  [`pkg/muxer/http/matcher.go`](https://github.com/traefik/traefik/blob/v3.7.4/pkg/muxer/http/matcher.go)
+  (Funktion `pathPrefix`, macht `strings.HasPrefix(req.URL.Path, path)`).
+
 ### ingress mit traefik, letsencrypt und cert-manager
 
 
@@ -3029,6 +3248,7 @@ kubectl get challenges
 
 #### Verschlüsselungstiefe ehöhen
 
+  * Eintragen in die ingress - resource (z.B. manifests/abi/ingress.yaml)
   * Standardmäßig 2048bit
 
 ```
@@ -3046,6 +3266,510 @@ kubectl get challenges
 ### Ref: 
 
   * https://hbayraktar.medium.com/installing-cert-manager-and-nginx-ingress-with-lets-encrypt-on-kubernetes-fe0dff4b1924
+
+### cert-manager HTTP-01 Solver: Wo landet die well-known-Datei?
+
+
+Frage aus dem Training: Beim `http-01`-Check erstellt cert-manager kurz ein eigenes
+Ingress-Objekt (siehe Screenshot in
+[https-letsencrypt-ingress-traefik.md](#ingress-mit-traefik-letsencrypt-und-cert-manager)). Wo genau
+liegt die Datei unter `/.well-known/acme-challenge/<token>`, und wie kommt der Traffic über
+Traefik dahin?
+
+**Hinweis:** Diese Übung ist noch nicht live auf einem Cluster verifiziert (siehe TEST-PFLICHT im
+Skill `workshop-training`). Bevor sie im Training als "fertig getestet" verwendet wird, einmal mit
+einem laufenden Trainings-Cluster (Traefik + cert-manager + echte Subdomain unter `do.t3isp.de`)
+durchgehen und Step 3/4 mit echtem Output ergänzen.
+
+### Vorwissen (Kurzfassung)
+
+Es gibt **keine Datei auf einem Volume**. cert-manager baut für die Dauer der Challenge (meist nur
+wenige Sekunden) drei temporäre Objekte im **Namespace des Certificates**:
+
+1. Einen **Solver-Pod** (`quay.io/jetstack/cert-manager-acmesolver`) - ein kleiner Go-HTTP-Server,
+   der auf Port `8089` genau eine Route beantwortet: `GET /.well-known/acme-challenge/<token>`.
+   Die Antwort (Token + Fingerprint des ACME-Account-Keys) wird zur Laufzeit aus den
+   Challenge-Parametern berechnet, nicht aus einer Datei gelesen.
+2. Einen **Service** (ClusterIP), der auf diesen Pod zeigt.
+3. Ein **Ingress** (Name `cm-acme-http-solver-<hash>`) mit genau einer Pfad-Regel auf
+   `/.well-known/acme-challenge/<token>` -> Service.
+
+Traefik sieht dieses Ingress ganz normal über seinen Watch auf die Ingress-API und baut daraus
+einen Router mit dem Matcher `PathPrefix(...)` - denselben Mechanismus, den wir in
+[pathtype-implementationspecific.md](pathtype-implementationspecific.md) schon für
+`Prefix`/`ImplementationSpecific` angeschaut haben.
+
+Das prüfen wir jetzt live nach - Voraussetzung ist die abgeschlossene Übung
+[https-letsencrypt-ingress-traefik.md](#ingress-mit-traefik-letsencrypt-und-cert-manager) (cert-manager
++ ClusterIssuer laufen bereits, ein Ingress mit
+`cert-manager.io/cluster-issuer: "letsencrypt-prod"` existiert).
+
+### Step 1: Vorbereitung - Watch-Fenster aufmachen
+
+Der Solver läuft nur für den Zeitraum der Challenge (Sekunden bis wenige Minuten). Damit man ihn
+überhaupt sieht, muss man **parallel zum Auslösen** der Challenge schon einen Watch laufen haben.
+
+```
+cd
+mkdir -p manifests/http01-solver-watch
+cd manifests/http01-solver-watch
+```
+
+In einem eigenen Terminal (oder `tmux`-Split) parallel laufen lassen, im Namespace, in dem euer
+`Certificate`/`Ingress` mit dem `cert-manager.io/cluster-issuer`-Annotation liegt:
+
+```
+kubectl get pod,svc,ingress -w
+```
+
+In einem zweiten Terminal parallel:
+
+```
+kubectl get challenges -w
+```
+
+### Step 2: Challenge auslösen
+
+Am einfachsten: Ein neues `Certificate` (oder ein Ingress mit `cert-manager.io/cluster-issuer`)
+anlegen, für das noch kein gültiges Secret existiert - z.B. mit einer neuen Subdomain aus der
+vorherigen Übung:
+
+```
+nano ingress.yml
+```
+
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: solver-test-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - solvertest-<dein-name>.appv2.do.t3isp.de
+    secretName: solver-test-tls
+  rules:
+  - host: "solvertest-<dein-name>.appv2.do.t3isp.de"
+    http:
+      paths:
+        - path: /apple
+          pathType: Prefix
+          backend:
+            service:
+              name: apple-service
+              port:
+                number: 80
+```
+
+```
+kubectl apply -f ingress.yml
+```
+
+### Step 3: Beobachten, was cert-manager anlegt
+
+Im Watch-Fenster aus Step 1 sollte kurz aufblitzen (Reihenfolge: Pod -> Service -> Ingress):
+
+```
+NAME                                    READY   STATUS    RESTARTS   AGE
+pod/cm-acme-http-solver-xxxxx           1/1     Running   0          3s
+
+NAME                                    TYPE        CLUSTER-IP     PORT(S)
+service/cm-acme-http-solver-xxxxx       ClusterIP   10.x.x.x       8089/TCP
+
+NAME                                              CLASS     HOSTS
+ingress.networking.k8s.io/cm-acme-http-solver-xxxxx   traefik   solvertest-<dein-name>.appv2.do.t3isp.de
+```
+
+Solange die Objekte existieren, direkt reinschauen:
+
+```
+kubectl get ingress cm-acme-http-solver-xxxxx -o yaml
+```
+
+Wichtig zu sehen: `spec.rules[0].http.paths[0].path` ist exakt
+`/.well-known/acme-challenge/<token>` - derselbe Token wie in
+
+```
+kubectl get challenges -o yaml
+```
+
+unter `spec.token` / `spec.key`.
+
+Von außen (falls schnell genug) lässt sich der Pfad sogar direkt abrufen:
+
+```
+curl http://solvertest-<dein-name>.appv2.do.t3isp.de/.well-known/acme-challenge/<token-aus-challenge>
+```
+
+Antwort ist der `key`-Wert aus der Challenge (Token + Fingerprint des Account-Keys), **nicht**
+Inhalt einer Datei.
+
+### Step 4: Aufräumen durch cert-manager selbst beobachten
+
+Nach erfolgreicher Validierung (Status der Challenge wechselt auf `valid`) räumt cert-manager Pod,
+Service und Ingress automatisch wieder ab - kein manuelles Löschen nötig:
+
+```
+kubectl get challenges
+kubectl get pod,svc,ingress
+## cm-acme-http-solver-* sollte nach kurzer Zeit weg sein
+kubectl get certificate solver-test-tls
+## READY: True
+```
+
+### Aufräumen (eigene Testobjekte)
+
+```
+kubectl delete ingress solver-test-ingress
+kubectl delete secret solver-test-tls
+```
+
+### Zusammenfassung
+
+| Frage | Antwort |
+|-------|---------|
+| Wo liegt `/.well-known/acme-challenge/<token>` physisch? | Nirgends als Datei - wird vom Solver-Pod zur Laufzeit aus Token+Key berechnet und per HTTP-Handler ausgeliefert. |
+| In welchem Namespace laufen Solver-Pod/Service/Ingress? | Im selben Namespace wie das `Certificate`, nicht im `cert-manager`-Namespace. |
+| Wer routet den Traffic dahin? | Ein von cert-manager temporär erzeugtes Ingress-Objekt, das Traefik ganz normal über seinen Ingress-Watch aufnimmt und als `PathPrefix`-Router einrichtet. |
+| Wie lange existieren die Objekte? | Nur für die Dauer der Challenge (typ. Sekunden bis wenige Minuten), danach automatisches Cleanup. |
+| Kann cert-manager statt eines neuen Ingress ein bestehendes patchen? | Ja, über `solvers[].http01.ingress.name` im Issuer/ClusterIssuer statt eines neu erzeugten Ingress. |
+
+### Wichtige Fallstricke
+
+* Der `http-01`-Check läuft immer über Port 80/HTTP, unabhängig davon, dass am Ende ein
+  HTTPS-Zertifikat rauskommt - Traefik-EntryPoint für Port 80 muss von außen erreichbar sein.
+* DNS muss extern auflösen, da Let's Encrypt von außen validiert.
+* Das Zeitfenster zum Beobachten ist kurz - ohne laufenden `-w`-Watch verpasst man die Objekte
+  meistens.
+
+### Referenzen
+
+* [cert-manager Doku: HTTP-01 Challenges](https://cert-manager.io/docs/configuration/acme/http01/)
+* [cert-manager Doku: ACME Issuer](https://cert-manager.io/docs/configuration/acme/)
+* Quellcode acmesolver: [`cmd/acmesolver`](https://github.com/cert-manager/cert-manager/tree/master/cmd/acmesolver)
+  und [`pkg/util/solver`](https://github.com/cert-manager/cert-manager/tree/master/pkg/acme/http)
+* [pathtype-implementationspecific.md](pathtype-implementationspecific.md) - wie Traefik das von
+  cert-manager erzeugte Ingress intern routet.
+
+### Traefik errors-Middleware: eigenen HTTP-Code/Body bei Backend-Fehlern liefern
+
+
+Frage aus dem Training: Kann man bei Traefik festlegen, mit welcher HTTP-Message/welchem
+Statuscode geantwortet wird, wenn ein Service bzw. dessen Endpunkte nicht erreichbar sind - und
+kann die Antwort dabei auch einen **anderen** Code liefern als der ursprüngliche Fehler?
+
+**Hinweis:** Diese Übung ist noch nicht live auf einem Cluster verifiziert (siehe TEST-PFLICHT im
+Skill `workshop-training`). Vor dem Einsatz im Training einmal real durchspielen und den
+Beispiel-Output ersetzen.
+
+### Wichtiger Hintergrund zuerst: 404 vs. 503 bei Traefik
+
+Bevor man mit der `errors`-Middleware arbeitet, muss man verstehen, **wann Traefik welchen Code
+liefert** - sonst testet man am falschen Fall vorbei (siehe Zusammenfassung unten, das war ein
+echter Stolperstein im Training):
+
+| Situation | Was Traefik macht | Code |
+|---|---|---|
+| Service-Selektor matcht **von Anfang an keine Pods** (0 Endpoints) | Traefik baut für Host/Pfad **gar keinen Router** | **404** ("no router matched" - derselbe Fall wie unbekannter Host) |
+| Router existiert (Service hatte/hat Endpoints), Verbindung zum Pod schlägt fehl | Router+Service existieren, Backend nicht erreichbar | **502/503 von Traefik** |
+| Pod läuft und ist erreichbar, antwortet aber selbst mit einem Fehlercode (z.B. Wartungsmodus) | Ganz normale Anfrage, Antwort kommt vom Pod | **Code vom Pod, nicht von Traefik** |
+
+Für die `errors`-Middleware ist nur Fall 2 und 3 relevant: Die Middleware hängt an einem Router,
+der tatsächlich existiert. Beim reinen 404-Fall (Zeile 1) gibt es keinen Router, an den man eine
+Middleware hängen könnte - dafür bräuchte man einen separaten Catch-all-Router, der ist nicht Teil
+dieser Übung.
+
+### Step 1: Vorbereitung
+
+```
+cd
+mkdir -p manifests/errors-middleware
+cd manifests/errors-middleware
+```
+
+### Step 2: Backend, das erreichbar ist, aber bewusst mit 503 antwortet
+
+Damit der Router wirklich existiert (siehe Hintergrund oben), braucht das Backend einen laufenden,
+erreichbaren Pod - der antwortet einfach selbst mit 503:
+
+```
+nano broken-app.yml
+```
+
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: broken-nginx-conf
+data:
+  default.conf: |
+    server {
+      listen 80;
+      location / {
+        return 503 "Simulierter Ausfall\n";
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: broken-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: broken-app
+  template:
+    metadata:
+      labels:
+        app: broken-app
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/nginx/conf.d
+      volumes:
+        - name: conf
+          configMap:
+            name: broken-nginx-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: broken-service
+spec:
+  selector:
+    app: broken-app
+  ports:
+    - port: 80
+      targetPort: 80
+```
+
+### Step 3: Ingress, der auf den Service zeigt
+
+```
+nano broken-ingress.yml
+```
+
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: broken-ingress
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: broken-<dein-name>.appv2.do.t3isp.de
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: broken-service
+                port:
+                  number: 80
+```
+
+```
+kubectl apply -f .
+```
+
+### Step 4: Vorher testen - noch ohne Middleware
+
+```
+kubectl get endpoints broken-service
+## sollte eine IP zeigen - Pod ist erreichbar
+
+curl -i http://broken-<dein-name>.appv2.do.t3isp.de/
+```
+
+Erwartete Antwort:
+
+```
+HTTP/1.1 503 Service Unavailable
+Simulierter Ausfall
+```
+
+Das ist jetzt tatsächlich der 503-Fall (Router existiert, Pod antwortet selbst mit 503) - im
+Unterschied zum 404-Fall aus der Hintergrund-Tabelle.
+
+### Step 5: Ersatz-Service bauen, der bewusst einen anderen Code liefert
+
+```
+nano fallback-page.yml
+```
+
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fallback-nginx-conf
+data:
+  default.conf: |
+    server {
+      listen 80;
+      location / {
+        return 200 "Kein Backend verfuegbar - Ersatzantwort mit Code 200 statt 503\n";
+        add_header Content-Type text/plain;
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fallback-page
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fallback-page
+  template:
+    metadata:
+      labels:
+        app: fallback-page
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/nginx/conf.d
+      volumes:
+        - name: conf
+          configMap:
+            name: fallback-nginx-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fallback-page-svc
+spec:
+  selector:
+    app: fallback-page
+  ports:
+    - port: 80
+      targetPort: 80
+```
+
+Die Zeile `return 200 "...";` legt fest, mit welchem Code am Ende geantwortet wird. Für einen
+anderen Code (z.B. `410 Gone`) einfach `return 410 "...";` schreiben.
+
+```
+kubectl apply -f fallback-page.yml
+```
+
+### Step 6: Middleware anlegen, die 503 abfängt
+
+```
+nano middleware.yml
+```
+
+```
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: fallback-on-503
+spec:
+  errors:
+    status:
+      - "503"
+    service:
+      name: fallback-page-svc
+      port:
+        number: 80
+    query: "/"
+```
+
+```
+kubectl apply -f middleware.yml
+```
+
+### Step 7: Middleware am Ingress anhängen
+
+Ein normales `networking.k8s.io/Ingress` kennt Middlewares nicht direkt - Traefik liest sie über
+eine Annotation aus. Format: `<namespace-der-middleware>-<name-der-middleware>@kubernetescrd`.
+
+```
+nano broken-ingress.yml
+```
+
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: broken-ingress
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: <dein-namespace>-fallback-on-503@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: broken-<dein-name>.appv2.do.t3isp.de
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: broken-service
+                port:
+                  number: 80
+```
+
+```
+kubectl apply -f broken-ingress.yml
+```
+
+### Step 8: Testen - Antwort sollte jetzt vom Fallback-Service kommen
+
+```
+curl -i http://broken-<dein-name>.appv2.do.t3isp.de/
+```
+
+Erwartete Antwort jetzt:
+
+```
+HTTP/1.1 200 OK
+Content-Type: text/plain
+...
+Kein Backend verfuegbar - Ersatzantwort mit Code 200 statt 503
+```
+
+Statt `503` kommt jetzt `200` (oder der Code, den ihr in Step 5 in `return` gesetzt habt) beim
+Client an - Traefik hat die komplette Antwort (Code + Body) durch die des Fallback-Service
+ersetzt.
+
+### Aufräumen
+
+```
+kubectl delete -f .
+```
+
+### Zusammenfassung
+
+* Der ursprüngliche Fehler-Code (hier 503) ist bei Traefik **hartverdrahtet** - es gibt kein
+  Config-Feld, das ihn direkt umschreibt.
+* Die `errors`-Middleware fängt Antworten in einem konfigurierten Statusbereich ab und ersetzt sie
+  komplett durch die Antwort eines eigenen Services.
+* Welcher Code am Ende beim Client ankommt, bestimmt **der Fallback-Service selbst** (hier über
+  `return 200 ...;` in der Nginx-Config) - nicht die Middleware-Konfiguration.
+* Ist der Fallback-Service nicht erreichbar, fällt Traefik auf den ursprünglichen Code zurück.
+* **Achtung 404 vs. 503:** Diese Middleware wirkt nur, wenn der Router überhaupt existiert. Matcht
+  ein Service-Selektor von Anfang an keine Pods (0 Endpoints), baut Traefik gar keinen Router -
+  das Ergebnis ist dann ein einfaches 404, an dem keine Router-gebundene Middleware greift.
+
+### Referenzen
+
+* [Traefik Doku: errors-Middleware](https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/errorpages/)
+* [Traefik Doku: Kubernetes Ingress - Middleware-Annotation](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/)
+* [pathtype-implementationspecific.md](pathtype-implementationspecific.md) - wie Traefik Router aus
+  Ingress-Objekten baut (relevant für das Verständnis, warum ein fehlender Router keine Middleware
+  durchläuft).
 
 ## Kubernetes Ingress (HA Proxy)
 
@@ -4292,6 +5016,51 @@ GitLab CI/CD Variable:  SOPS_AGE_KEY  (masked + protected)
 
 ## Hashicorp Vault
 
+### Architektur einfach erklaert
+
+
+### Die Idee: ein Tresorraum fuer Geheimnisse
+
+Stell dir Vault wie den Tresorraum einer Bank vor. Statt Goldbarren liegen
+darin Geheimnisse: Passwoerter, Datenbank-Zugaenge, Zertifikate. Niemand
+schreibt diese Geheimnisse mehr in den Programmcode oder in Konfigurationsdateien -
+wer eines braucht, geht zum Tresor und fragt danach.
+
+![Vault Architektur](img/architektur-einfach-erklaert.svg)
+
+### Die 4 Schritte
+
+1. **Ausweis-Kontrolle (Authentifizierung):** Deine App meldet sich an und
+   beweist, wer sie ist. Dafuer bekommt sie einen Ausweis - den **Token**.
+2. **Regel-Check (Policy):** Vault schaut in seine Regelliste: Was darf
+   dieser Ausweis sehen? Die App bekommt nur genau die Geheimnisse, die
+   fuer sie erlaubt sind - nicht mehr.
+3. **Schublade oeffnen (Secret Engine):** Jede Art von Geheimnis liegt in
+   einer eigenen Schublade. Manche Schubladen geben gespeicherte Passwoerter
+   heraus, andere erzeugen sogar frische Zugangsdaten, die nach kurzer Zeit
+   automatisch wieder ungueltig werden.
+4. **Antwort:** Die App bekommt ihr Geheimnis und kann damit z.B. auf die
+   Datenbank zugreifen.
+
+### Die wichtigsten Begriffe uebersetzt
+
+| Fachbegriff | Einfach gesagt |
+|-------------|----------------|
+| Token | Ausweis, den man nach dem Anmelden bekommt |
+| Policy | Regelliste: wer darf was sehen |
+| Secret Engine | Schublade fuer eine bestimmte Art von Geheimnis |
+| Sealed / Unseal | Tresor verriegelt / Tresor aufschliessen |
+| Audit Log | Besucherbuch: wer hat wann welches Geheimnis geholt |
+
+### Warum der Aufwand?
+
+* Passwoerter stehen nicht mehr im Code oder in Git - dort werden sie
+  am haeufigsten gestohlen.
+* Alle Geheimnisse liegen an EINEM zentralen Ort und sind dort verschluesselt.
+* Jeder Zugriff wird protokolliert - man sieht, wer wann was geholt hat.
+* Geheimnisse lassen sich zentral austauschen oder sperren, ohne dass
+  irgendwo Code angefasst werden muss.
+
 ### Uebersicht Vault in Kubernetes
 
 
@@ -5288,6 +6057,14 @@ kubectl get pods
 helm get values my-mariadb 
 ```
 
+#### Änderung zwischen versionen (Warum trat der Fehler auf) 
+
+```
+helm get manifest my-mariadb --revision 2 > rev2.yaml
+helm get manifest my-mariadb --revision 3 > rev3.yaml
+## schaut nach serviceaccount
+diff rev2.yaml rev3.yaml
+```
 
 
 #### Uninstall 
@@ -5823,6 +6600,159 @@ helm pull oci://registry-1.docker.io/cloudpirates/mariadb
 
 ## Schnelle Variante
 helm pull oci://registry-1.docker.io/cloudpirates/mariadb --version 0.9.0 --untar
+```
+
+### Eigenes Chart in eine Registry pushen (helm push)
+
+
+### Hintergrund
+
+Seit Helm 3.8 werden Charts wie Container-Images in einer OCI-Registry abgelegt
+(Docker Hub, GitLab, Harbor, ...). Der Ablauf ist immer gleich:
+
+| Schritt | Befehl |
+|---------|--------|
+| Chart bauen | `helm create` / eigenes Chart |
+| Chart paketieren (.tgz) | `helm package <chart-ordner>` |
+| An der Registry anmelden | `helm registry login <registry>` |
+| Chart hochladen | `helm push <chart>.tgz oci://<registry>/<pfad>` |
+| Chart nutzen | `helm install ... oci://<registry>/<pfad>/<chart>` |
+
+Fuer das Training laeuft eine gemeinsame Registry im Cluster (siehe
+[Trainer-Setup](push-registry-setup.md)). Jeder Teilnehmer pusht unter seinem
+eigenen Pfad `<dein-name>/...`, dadurch kommt sich niemand in die Quere.
+
+| | |
+|---|---|
+| Registry | `registry.appv2.do.t3isp.de` |
+| Benutzer | `training` |
+| Passwort | `helm-push-2026` |
+
+### Schritt 1: Chart erstellen und paketieren
+
+```
+cd
+mkdir -p helm-push
+cd helm-push
+helm create hello-chart
+helm package hello-chart
+ls
+```
+
+**Erwartete Ausgabe:**
+```
+Successfully packaged chart and saved it to: /home/<dein-name>/helm-push/hello-chart-0.1.0.tgz
+```
+
+### Schritt 2: Push ohne Anmeldung (soll fehlschlagen)
+
+```
+helm push hello-chart-0.1.0.tgz oci://registry.appv2.do.t3isp.de/<dein-name>
+```
+
+**Erwarteter Fehler:**
+```
+Error: failed to perform "Exists" on destination: HEAD "https://registry.appv2.do.t3isp.de/v2/<dein-name>/hello-chart/manifests/sha256:...": basic credential not found
+```
+
+### Schritt 3: An der Registry anmelden
+
+```
+helm registry login registry.appv2.do.t3isp.de -u training
+## Passwort: helm-push-2026
+```
+
+**Erwartete Ausgabe:**
+```
+Login Succeeded
+```
+
+Helm merkt sich die Anmeldung in `~/.config/helm/registry/config.json`.
+
+### Schritt 4: Chart pushen
+
+```
+helm push hello-chart-0.1.0.tgz oci://registry.appv2.do.t3isp.de/<dein-name>
+```
+
+**Erwartete Ausgabe:**
+```
+Pushed: registry.appv2.do.t3isp.de/<dein-name>/hello-chart:0.1.0
+Digest: sha256:...
+```
+
+```
+## Was liegt in der Registry ? (Registry-API, deshalb curl mit Benutzer)
+curl -u training:helm-push-2026 https://registry.appv2.do.t3isp.de/v2/_catalog
+curl -u training:helm-push-2026 https://registry.appv2.do.t3isp.de/v2/<dein-name>/hello-chart/tags/list
+```
+
+### Schritt 5: Chart aus der Registry installieren
+
+```
+helm show chart oci://registry.appv2.do.t3isp.de/<dein-name>/hello-chart
+helm -n helm-push-<dein-name> upgrade --install hello oci://registry.appv2.do.t3isp.de/<dein-name>/hello-chart --version 0.1.0 --create-namespace
+helm -n helm-push-<dein-name> list
+kubectl -n helm-push-<dein-name> get pods
+```
+
+### Schritt 6: Neue Version pushen und upgraden
+
+```
+## Version in Chart.yaml hochsetzen: 0.1.0 -> 0.2.0
+vi hello-chart/Chart.yaml
+```
+
+```
+helm package hello-chart
+helm push hello-chart-0.2.0.tgz oci://registry.appv2.do.t3isp.de/<dein-name>
+curl -u training:helm-push-2026 https://registry.appv2.do.t3isp.de/v2/<dein-name>/hello-chart/tags/list
+```
+
+**Erwartete Ausgabe:**
+```
+{"name":"<dein-name>/hello-chart","tags":["0.2.0","0.1.0"]}
+```
+
+```
+## Ohne --version nimmt helm automatisch die neueste Version
+helm -n helm-push-<dein-name> upgrade --install hello oci://registry.appv2.do.t3isp.de/<dein-name>/hello-chart
+helm -n helm-push-<dein-name> list
+```
+
+**Erwartete Ausgabe:** Spalte `CHART` zeigt `hello-chart-0.2.0`, `REVISION` ist 2.
+
+### Aufraeumen
+
+```
+kubectl delete namespace helm-push-<dein-name>
+helm registry logout registry.appv2.do.t3isp.de
+cd
+rm -rf helm-push
+```
+
+### Zusammenfassung
+
+| Befehl | Zweck |
+|--------|-------|
+| `helm package <ordner>` | Chart als .tgz paketieren |
+| `helm registry login <registry>` | Anmelden (Token wird lokal gespeichert) |
+| `helm push <tgz> oci://<registry>/<pfad>` | Chart hochladen |
+| `helm show chart oci://...` | Chart-Infos aus der Registry anzeigen |
+| `helm pull oci://...` | Chart herunterladen |
+| `helm install/upgrade ... oci://...` | Chart direkt aus der Registry installieren |
+| `helm registry logout <registry>` | Abmelden |
+
+### Variante: Docker Hub
+
+Mit einem eigenen Docker-Hub-Account geht es genauso. Das Chart ist dann
+oeffentlich sichtbar. Statt des Passworts am besten ein Access Token verwenden
+(Docker Hub: Account settings -> Personal access tokens).
+
+```
+helm registry login registry-1.docker.io -u <dockerhub-user>
+helm push hello-chart-0.1.0.tgz oci://registry-1.docker.io/<dockerhub-user>
+helm show chart oci://registry-1.docker.io/<dockerhub-user>/hello-chart
 ```
 
 ### Wie starte ich am besten einfach - mit eigenem Projekt
@@ -7486,6 +8416,1352 @@ kubectl delete namespace debug-<dein-name>
 
 **Merkhilfe:** Endpoints leer → Selector-Problem. Endpoints vorhanden aber falsche Port → targetPort-Problem.
 
+### Übung: nginx als Nicht-Root-User startet nicht - CrashLoopBackOff mit describe/logs/exec debuggen
+
+
+### Hintergrund
+
+Aus Sicherheitsgruenden sollen Container nicht als root laufen. Ueber den
+`securityContext` kann man Kubernetes anweisen, den Prozess im Container mit
+einer anderen User-ID zu starten - und mit `runAsNonRoot: true` sogar erzwingen,
+dass er niemals als root laeuft.
+
+| Feld | Bedeutung |
+|------|-----------|
+| `runAsUser: 1000` | Prozess laeuft mit UID 1000 statt root (UID 0) |
+| `runAsGroup: 1000` | Prozess laeuft mit GID 1000 |
+| `runAsNonRoot: true` | Kubelet verweigert den Start, wenn der Prozess als UID 0 laufen wuerde |
+
+Das Problem: Viele Standard-Images (z.B. `nginx`) gehen davon aus, dass sie als
+root starten. Sie schreiben in Verzeichnisse, die root gehoeren, oder binden
+privilegierte Ports (< 1024). Setzt man dann per `securityContext` einen anderen
+User, crasht der Container - und man muss herausfinden, warum.
+
+Genau das ist die Uebung: Ihr bekommt ein kaputtes Manifest und sollt den
+Fehler mit `kubectl describe`, `kubectl logs` und `kubectl exec` selbst finden
+und beheben.
+
+### Schritt 1: Vorbereitung
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir 22-debug-nginx-nonroot
+cd 22-debug-nginx-nonroot
+```
+
+### Schritt 2: Deployment und Service anlegen
+
+Achtung: Dieses Manifest funktioniert absichtlich nicht.
+
+```
+nano 01-deployment.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-nonroot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-nonroot
+  template:
+    metadata:
+      labels:
+        app: nginx-nonroot
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+      containers:
+      - name: nginx
+        image: nginx:1.30
+        ports:
+        - containerPort: 80
+```
+
+```
+nano 02-service.yml
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-nonroot
+spec:
+  selector:
+    app: nginx-nonroot
+  ports:
+  - port: 80
+    targetPort: 80
+```
+
+```
+kubectl create ns debug-<dein-name>
+kubectl apply -f . -n debug-<dein-name>
+```
+
+### Schritt 3: Symptom beobachten
+
+```
+kubectl get pods -n debug-<dein-name>
+```
+
+**Erwartete Ausgabe** (nach ca. 1 Minute, der Status wechselt zwischen `Error` und `CrashLoopBackOff`):
+
+```
+NAME                             READY   STATUS             RESTARTS      AGE
+nginx-nonroot-8cf677d9b-x2g5f    0/1     CrashLoopBackOff   3 (41s ago)   62s
+```
+
+Der Service hat keine Endpoints, weil der Pod nie `Ready` wird:
+
+```
+kubectl get endpoints nginx-nonroot -n debug-<dein-name>
+```
+
+```
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+NAME            ENDPOINTS   AGE
+nginx-nonroot               1m
+```
+
+Die Warnung koennt ihr ignorieren - entscheidend ist die leere Spalte
+`ENDPOINTS` (auf aelteren Clustern steht dort `<none>`).
+
+### Schritt 4: Aufgabe - Fehler selbst finden
+
+Findet heraus, **warum** der Container abstuerzt, und bringt den Pod nach
+`Running`. Am Ende muss ein `curl` gegen den Service die nginx-Startseite liefern.
+
+Eure Werkzeuge:
+
+```
+kubectl describe pod -n debug-<dein-name> -l app=nginx-nonroot
+kubectl logs -n debug-<dein-name> deploy/nginx-nonroot
+kubectl logs -n debug-<dein-name> deploy/nginx-nonroot --previous
+kubectl exec -n debug-<dein-name> <pod> -- <befehl>
+```
+
+Zwei Loesungswege sind erlaubt:
+
+* **Weg A:** Ein Image nehmen, das fuer Nicht-Root gebaut ist
+* **Weg B:** Das Standard-Image `nginx:1.30` behalten und den Pod so anpassen, dass nginx als UID 1000 laufen kann
+
+Versucht es zuerst ohne die Hinweise. Wenn ihr nicht weiterkommt, klappt die
+Hinweise nacheinander auf.
+
+<details>
+<summary>Hinweis 1: Wo schaue ich zuerst?</summary>
+
+`kubectl describe pod` zeigt euch, **dass** der Container mit `Exit Code: 1`
+beendet wurde und der Kubelet ihn mit `Back-off restarting failed container`
+immer wieder neu startet. Es zeigt euch aber **nicht, warum**.
+
+```
+kubectl describe pod -n debug-<dein-name> -l app=nginx-nonroot | grep -A5 "Last State"
+```
+
+```
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    1
+```
+
+Der Grund steht in den Logs des Containers - `kubectl logs` funktioniert auch
+bei einem abgestuerzten Container, weil der Kubelet die Ausgabe des letzten
+Laufs aufhebt.
+
+</details>
+
+<details>
+<summary>Hinweis 2: Was sagen die Logs?</summary>
+
+```
+kubectl logs -n debug-<dein-name> deploy/nginx-nonroot
+```
+
+```
+10-listen-on-ipv6-by-default.sh: info: can not modify /etc/nginx/conf.d/default.conf (read-only file system?)
+...
+2026/09/25 09:28:44 [warn] 1#1: the "user" directive makes sense only if the master process runs with super-user privileges, ignored in /etc/nginx/nginx.conf:2
+2026/09/25 09:28:44 [emerg] 1#1: mkdir() "/var/cache/nginx/client_temp" failed (13: Permission denied)
+nginx: [emerg] mkdir() "/var/cache/nginx/client_temp" failed (13: Permission denied)
+```
+
+Die Zeile mit `[emerg]` ist entscheidend: nginx will beim Start Unterverzeichnisse
+in `/var/cache/nginx` anlegen und bekommt `Permission denied`. Das Verzeichnis
+gehoert root, der Prozess laeuft aber als UID 1000.
+
+Die `[warn]`-Zeile zur `user`-Direktive ist harmlos - nginx ignoriert die
+Direktive einfach, wenn es nicht als root laeuft.
+
+</details>
+
+<details>
+<summary>Hinweis 3: Der Container crasht sofort - wie komme ich mit exec rein?</summary>
+
+`kubectl exec` braucht einen laufenden Container. Trick: Startet das gleiche
+Image mit dem gleichen `securityContext`, aber mit `sleep` statt nginx. Dann
+koennt ihr in Ruhe nachschauen, wem die Verzeichnisse gehoeren.
+
+```
+nano 99-inspect.yml
+```
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-inspect
+spec:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+  containers:
+  - name: nginx
+    image: nginx:1.30
+    command: ["sleep", "3600"]
+```
+
+```
+kubectl apply -f 99-inspect.yml -n debug-<dein-name>
+kubectl exec -n debug-<dein-name> nginx-inspect -- id
+kubectl exec -n debug-<dein-name> nginx-inspect -- ls -ld /var/cache/nginx /var/run /run /etc/nginx/conf.d
+kubectl exec -n debug-<dein-name> nginx-inspect -- grep -n -E "^pid|^ *listen" /etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+```
+
+```
+uid=1000 gid=1000 groups=1000
+drwxr-xr-x 2 root root 4096 Sep 19 00:20 /etc/nginx/conf.d
+drwxr-xr-x 1 root root 4096 Sep 25 10:08 /run
+drwxr-xr-x 2 root root 4096 Sep 15 14:07 /var/cache/nginx
+lrwxrwxrwx 1 root root    4 Sep 18 00:00 /var/run -> /run
+/etc/nginx/nginx.conf:6:pid        /run/nginx.pid;
+/etc/nginx/conf.d/default.conf:2:    listen       80;
+```
+
+Daraus koennt ihr ablesen, was nginx als UID 1000 alles **nicht** darf:
+
+| nginx will ... | Verzeichnis | Rechte |
+|----------------|-------------|--------|
+| Cache-Verzeichnisse anlegen | `/var/cache/nginx` | root, 755 |
+| PID-Datei schreiben (`/run/nginx.pid`) | `/run` (= `/var/run`) | root, 755 |
+| Port 80 binden | - | privilegierter Port (siehe Hinweis 4) |
+
+Loescht den Inspect-Pod danach wieder:
+
+```
+kubectl delete pod nginx-inspect -n debug-<dein-name>
+```
+
+</details>
+
+<details>
+<summary>Hinweis 4: Ich habe /var/cache/nginx repariert - jetzt kommt der naechste Fehler</summary>
+
+Das ist normal bei dieser Art von Problem: nginx bricht beim **ersten** Fehler
+ab. Erst wenn der behoben ist, seht ihr den naechsten. Schaelt die Zwiebel
+Schicht fuer Schicht - nach jedem Fix wieder `kubectl logs`.
+
+Reihenfolge, die ihr sehen werdet:
+
+1. `mkdir() "/var/cache/nginx/client_temp" failed (13: Permission denied)`
+2. `open() "/run/nginx.pid" failed (13: Permission denied)`
+3. Je nach Cluster: `bind() to 0.0.0.0:80 failed (13: Permission denied)`
+
+Zu Punkt 3: Klassisch darf ein Nicht-Root-Prozess keine Ports unter 1024
+binden. Neuere Container-Runtimes (containerd ab 2.0) setzen im Pod aber
+`net.ipv4.ip_unprivileged_port_start=0`, dann klappt Port 80 auch als UID 1000.
+Ob das bei euch der Fall ist, seht ihr so:
+
+```
+kubectl exec -n debug-<dein-name> nginx-inspect -- cat /proc/sys/net/ipv4/ip_unprivileged_port_start
+```
+
+`0` heisst: Port 80 ist kein Problem. `1024` heisst: nginx muss auf einen
+hoeheren Port (z.B. 8080) umziehen. Auf unserem DOKS-Trainings-Cluster
+(containerd 1.7, Stand 09/2026) steht dort `1024` - Punkt 3 tritt bei euch
+also auf:
+
+```
+2026/09/25 10:13:13 [emerg] 1#1: bind() to 0.0.0.0:80 failed (13: Permission denied)
+```
+ Verlasst euch nicht darauf - eine saubere
+Loesung nutzt einen Port ab 1024, damit sie auf jedem Cluster laeuft.
+
+</details>
+
+<details>
+<summary>Loesung Weg A: Image nginxinc/nginx-unprivileged</summary>
+
+Das Image `nginxinc/nginx-unprivileged` ist die offizielle Variante von nginx
+fuer Nicht-Root: Es lauscht auf **Port 8080**, die Cache-, PID- und Log-Pfade
+liegen in Verzeichnissen, die UID 101 gehoeren, und es laeuft standardmaessig
+als Nicht-Root-User. Mit `runAsUser: 1000` funktioniert es trotzdem, weil die
+Verzeichnisse fuer alle schreibbar sind.
+
+Zwei Aenderungen im Deployment (Image und Port) und eine im Service (targetPort):
+
+```
+nano 01-deployment.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-nonroot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-nonroot
+  template:
+    metadata:
+      labels:
+        app: nginx-nonroot
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+      containers:
+      - name: nginx
+        image: nginxinc/nginx-unprivileged:1.30
+        ports:
+        - containerPort: 8080
+```
+
+```
+nano 02-service.yml
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-nonroot
+spec:
+  selector:
+    app: nginx-nonroot
+  ports:
+  - port: 80
+    targetPort: 8080
+```
+
+```
+kubectl apply -f . -n debug-<dein-name>
+kubectl get pods -n debug-<dein-name>
+```
+
+</details>
+
+<details>
+<summary>Loesung Weg B: Standard-Image nginx:1.30 behalten</summary>
+
+Drei Dinge muessen passieren:
+
+1. `/var/cache/nginx` beschreibbar machen: `emptyDir`-Volume darueber mounten
+2. `/var/run` beschreibbar machen (fuer `nginx.pid`): `emptyDir`-Volume darueber mounten
+3. nginx auf Port 8080 lauschen lassen: eigene `default.conf` per ConfigMap einhaengen
+
+Ein `emptyDir` wird vom Kubelet mit Rechten `777` angelegt - deshalb darf UID
+1000 dort schreiben. Der Inhalt des Image-Verzeichnisses wird dabei
+ueberdeckt, was bei `/var/cache/nginx` und `/var/run` egal ist (beide sind im
+Image leer).
+
+```
+nano 00-configmap.yml
+```
+
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-default-conf
+data:
+  default.conf: |
+    server {
+        listen       8080;
+        server_name  localhost;
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html;
+        }
+    }
+```
+
+```
+nano 01-deployment.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-nonroot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-nonroot
+  template:
+    metadata:
+      labels:
+        app: nginx-nonroot
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+      containers:
+      - name: nginx
+        image: nginx:1.30
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: cache
+          mountPath: /var/cache/nginx
+        - name: run
+          mountPath: /var/run
+        - name: default-conf
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+      volumes:
+      - name: cache
+        emptyDir: {}
+      - name: run
+        emptyDir: {}
+      - name: default-conf
+        configMap:
+          name: nginx-default-conf
+```
+
+```
+nano 02-service.yml
+```
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-nonroot
+spec:
+  selector:
+    app: nginx-nonroot
+  ports:
+  - port: 80
+    targetPort: 8080
+```
+
+```
+kubectl apply -f . -n debug-<dein-name>
+kubectl get pods -n debug-<dein-name>
+```
+
+Kontrolle mit `exec` - jetzt gehoeren die Verzeichnisse zwar immer noch root,
+sind aber fuer alle beschreibbar, und die PID-Datei liegt da:
+
+```
+kubectl exec -n debug-<dein-name> deploy/nginx-nonroot -- sh -c 'id; ls -ld /var/cache/nginx /run; ls /run'
+```
+
+```
+uid=1000 gid=1000 groups=1000
+drwxrwxrwx 3 root root 4096 Sep 25 09:32 /run
+drwxrwxrwx 7 root root 4096 Sep 25 09:32 /var/cache/nginx
+nginx.pid
+secrets
+```
+
+</details>
+
+### Schritt 5: Loesung pruefen
+
+Egal welcher Weg - so muss es am Ende aussehen:
+
+```
+kubectl get pods -n debug-<dein-name>
+kubectl logs -n debug-<dein-name> deploy/nginx-nonroot | tail -3
+kubectl get endpoints nginx-nonroot -n debug-<dein-name>
+```
+
+**Erwartete Ausgabe:**
+
+```
+NAME                             READY   STATUS    RESTARTS   AGE
+nginx-nonroot-79fb6d876c-vq5bc   1/1     Running   0          30s
+
+2026/09/25 09:32:19 [notice] 1#1: start worker processes
+2026/09/25 09:32:19 [notice] 1#1: start worker process 22
+2026/09/25 09:32:19 [notice] 1#1: start worker process 23
+
+NAME            ENDPOINTS           AGE
+nginx-nonroot   10.244.0.125:8080   5m
+```
+
+Und der Test gegen den Service aus einem Wegwerf-Pod heraus:
+
+```
+kubectl run curl-test --rm -i --restart=Never -n debug-<dein-name> \
+  --image=curlimages/curl:8.10.1 -- curl -s http://nginx-nonroot
+```
+
+**Erwartete Ausgabe:** die nginx-Startseite mit `<h1>Welcome to nginx!</h1>`.
+
+### Aufraeumen
+
+```
+kubectl delete namespace debug-<dein-name>
+```
+
+### Zusammenfassung
+
+| Was ihr gesehen habt | Werkzeug | Erkenntnis |
+|----------------------|----------|------------|
+| `CrashLoopBackOff`, `Exit Code: 1` | `kubectl get pods`, `kubectl describe pod` | Container startet und stirbt sofort - der Grund steht hier noch nicht |
+| `[emerg] mkdir() "/var/cache/nginx/client_temp" failed (13: Permission denied)` | `kubectl logs` | nginx darf als UID 1000 nicht in root-Verzeichnisse schreiben |
+| `[emerg] open() "/run/nginx.pid" failed (13: Permission denied)` | `kubectl logs` (nach dem ersten Fix) | Zweite Schicht: PID-Datei |
+| Verzeichnisse gehoeren root mit 755 | `kubectl exec` (Inspect-Pod mit `sleep`) | Ursache bestaetigt |
+
+| Loesung | Aufwand | Wann sinnvoll |
+|---------|---------|---------------|
+| Weg A: `nginxinc/nginx-unprivileged`, Port 8080 | 3 Zeilen | Immer, wenn es ein fertiges Nicht-Root-Image gibt |
+| Weg B: `emptyDir` fuer `/var/cache/nginx` und `/var/run` + ConfigMap mit `listen 8080` | ConfigMap + Volumes | Wenn das Image nicht getauscht werden darf oder es kein Nicht-Root-Image gibt |
+
+**Merkhilfe:** `describe` sagt **dass** es crasht, `logs` sagt **warum**, `exec`
+(notfalls mit `sleep` statt dem echten Prozess) zeigt euch den **Zustand im Container**.
+
+### Übung: Pod laeuft, Anwendung kaputt - Fehler nur in den Logs sichtbar (403/502)
+
+
+### Hintergrund
+
+In der vorherigen Debugging-Uebung hat Kubernetes euch den Fehler quasi
+hinterhergetragen: `CrashLoopBackOff`, `Exit Code: 1`, Restarts - jeder sieht
+sofort, dass etwas nicht stimmt.
+
+Der haeufigere Fall in der Praxis ist unangenehmer: Der Pod ist `Running`,
+`1/1 Ready`, `kubectl describe` zeigt keine Warnung, der Service hat Endpoints -
+und trotzdem liefert die Anwendung Fehler. Kubernetes weiss nichts davon, weil
+der Prozess ja laeuft. Der einzige Ort, an dem der Fehler steht, sind die Logs
+der Anwendung.
+
+| Was Kubernetes sieht | Was der Benutzer sieht | Wo der Grund steht |
+|----------------------|------------------------|--------------------|
+| Pod `Running`, `1/1 Ready` | `403 Forbidden`, `502 Bad Gateway` | nur in `kubectl logs` |
+
+In dieser Uebung baut ihr eine kleine Website (nginx) mit einem `/api/`-Pfad,
+der an ein Backend weitergereicht wird. Beides ist kaputt - und keiner der
+beiden Fehler taucht in `kubectl get` oder `kubectl describe` auf.
+
+### Schritt 1: Vorbereitung
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir 23-debug-fehler-nur-in-logs
+cd 23-debug-fehler-nur-in-logs
+```
+
+### Schritt 2: Backend anlegen
+
+Das Backend ist ein minimaler Python-HTTP-Server, der auf Port 8080 ein
+Verzeichnis-Listing ausliefert.
+
+Achtung: In diesem Manifest steckt einer der beiden Fehler.
+
+```
+nano 01-backend.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: python:3.12-slim
+        command: ["python", "-m", "http.server", "8080"]
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 80
+    targetPort: 80
+```
+
+### Schritt 3: Website-Inhalt und nginx-Konfiguration anlegen
+
+Der Inhalt der Website kommt aus einer ConfigMap. Achtung: Auch hier steckt
+ein Fehler.
+
+```
+nano 02-web-content.yml
+```
+
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-content
+data:
+  index.htm: |
+    <html>
+    <body>
+    <h1>Hallo vom Kubernetes-Training</h1>
+    <p>Backend-Status: <a href="/api/">/api/</a></p>
+    </body>
+    </html>
+```
+
+Die nginx-Konfiguration liefert unter `/` den Inhalt aus und reicht `/api/`
+an das Backend weiter (Reverse Proxy). Diese Datei ist in Ordnung.
+
+```
+nano 03-web-nginx-conf.yml
+```
+
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-nginx-conf
+data:
+  default.conf: |
+    server {
+        listen       80;
+        server_name  localhost;
+
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html;
+        }
+
+        location /api/ {
+            proxy_pass http://backend-svc/;
+        }
+    }
+```
+
+### Schritt 4: Website-Deployment und Service anlegen
+
+Dieses Manifest ist in Ordnung.
+
+```
+nano 04-web.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.27
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: content
+          mountPath: /usr/share/nginx/html
+        - name: conf
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+      volumes:
+      - name: content
+        configMap:
+          name: web-content
+      - name: conf
+        configMap:
+          name: web-nginx-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  selector:
+    app: web
+  ports:
+  - port: 80
+    targetPort: 80
+```
+
+```
+kubectl create ns logs-<dein-name>
+kubectl apply -f . -n logs-<dein-name>
+```
+
+### Schritt 5: Aus Kubernetes-Sicht ist alles in Ordnung
+
+```
+kubectl get pods -n logs-<dein-name>
+kubectl get endpoints -n logs-<dein-name>
+kubectl describe pod -n logs-<dein-name> -l app=web | grep -A10 "^Events:"
+```
+
+**Erwartete Ausgabe:**
+
+```
+NAME                       READY   STATUS    RESTARTS   AGE
+backend-6bfb7b6785-snlc6   1/1     Running   0          30s
+web-7dd7bd48b9-gsjqm       1/1     Running   0          30s
+
+NAME          ENDPOINTS        AGE
+backend-svc   10.244.0.2:80    31s
+web           10.244.0.54:80   30s
+
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  31s   default-scheduler  Successfully assigned ...
+  Normal  Pulled     31s   kubelet            Container image "nginx:1.27" already present on machine
+  Normal  Created    31s   kubelet            Container created
+  Normal  Started    31s   kubelet            Container started
+```
+
+Beide Pods `Running`, beide `Ready`, beide Services haben Endpoints, keine
+einzige Warnung. Kubernetes ist zufrieden.
+
+### Schritt 6: Der Benutzer ist nicht zufrieden
+
+Testet die Website aus einem Wegwerf-Pod heraus:
+
+```
+kubectl run curl-test --rm -i --restart=Never -n logs-<dein-name> \
+  --image=curlimages/curl:8.10.1 -- curl -s -w "\nHTTP %{http_code}\n" http://web/
+```
+
+```
+kubectl run curl-test --rm -i --restart=Never -n logs-<dein-name> \
+  --image=curlimages/curl:8.10.1 -- curl -s -w "\nHTTP %{http_code}\n" http://web/api/
+```
+
+**Erwartete Ausgabe:**
+
+```
+<html>
+<head><title>403 Forbidden</title></head>
+...
+HTTP 403
+```
+
+```
+<html>
+<head><title>502 Bad Gateway</title></head>
+...
+HTTP 502
+```
+
+Die Startseite liefert `403 Forbidden`, der API-Pfad `502 Bad Gateway`.
+
+### Schritt 7: Aufgabe - beide Fehler finden
+
+Findet beide Ursachen und behebt sie. Am Ende muss `curl http://web/` die
+Seite mit `Hallo vom Kubernetes-Training` liefern und `curl http://web/api/`
+das Verzeichnis-Listing des Backends (`HTTP 200`).
+
+Euer Werkzeug ist diesmal vor allem `kubectl logs`. Nuetzliche Varianten:
+
+```
+kubectl logs -n logs-<dein-name> deploy/web
+kubectl logs -n logs-<dein-name> deploy/web --tail=20
+kubectl logs -n logs-<dein-name> deploy/web -f
+kubectl logs -n logs-<dein-name> -l app=web
+kubectl logs -n logs-<dein-name> deploy/web --since=5m
+```
+
+Tipp: Oeffnet ein zweites Terminal mit `kubectl logs -f` und schickt im
+ersten Terminal die `curl`-Anfragen ab. So seht ihr live, was nginx zu jeder
+Anfrage schreibt.
+
+<details>
+<summary>Hinweis 1: Fehler 1 - was steht zum 403 in den Logs?</summary>
+
+```
+kubectl logs -n logs-<dein-name> deploy/web --tail=20
+```
+
+```
+2026/09/25 09:40:59 [error] 20#20: *1 directory index of "/usr/share/nginx/html/" is forbidden, client: 10.244.0.45, server: localhost, request: "GET / HTTP/1.1", host: "web"
+10.244.0.45 - - [25/Sep/2026:09:40:59 +0000] "GET / HTTP/1.1" 403 153 "-" "curl/8.10.1" "-"
+```
+
+nginx schreibt zwei Arten von Zeilen: das **Error-Log** (`[error]`, mit
+Grund) und das **Access-Log** (eine Zeile pro Anfrage mit HTTP-Status).
+
+`directory index of "/usr/share/nginx/html/" is forbidden` heisst: nginx hat
+im Verzeichnis keine `index.html` gefunden und darf ohne Index-Datei kein
+Verzeichnis-Listing zeigen. Also: Was liegt in dem Verzeichnis?
+
+```
+kubectl exec -n logs-<dein-name> deploy/web -- ls -l /usr/share/nginx/html
+```
+
+```
+lrwxrwxrwx 1 root root 16 Sep 25 09:40 index.htm -> ..data/index.htm
+```
+
+Die Datei heisst `index.htm` - nginx sucht `index.html`. Der Tippfehler steckt
+im Key der ConfigMap `web-content`.
+
+</details>
+
+<details>
+<summary>Hinweis 2: Fehler 2 - was steht zum 502 in den Logs?</summary>
+
+```
+2026/09/25 09:41:02 [error] 21#21: *2 connect() failed (111: Connection refused) while connecting to upstream, client: 10.244.0.66, server: localhost, request: "GET /api/ HTTP/1.1", upstream: "http://10.245.229.205:80/", host: "web"
+10.244.0.66 - - [25/Sep/2026:09:41:02 +0000] "GET /api/ HTTP/1.1" 502 157 "-" "curl/8.10.1" "-"
+```
+
+`connect() failed (111: Connection refused) while connecting to upstream` -
+nginx hat versucht, das Backend zu erreichen, und wurde abgewiesen. Die
+Log-Zeile verraet sogar, wohin: `upstream: "http://10.245.229.205:80/"`. Das
+ist die ClusterIP von `backend-svc`, Port 80.
+
+Der Service leitet Port 80 weiter - aber wohin? Und auf welchem Port lauscht
+der Backend-Container wirklich?
+
+```
+kubectl get endpoints backend-svc -n logs-<dein-name>
+kubectl get pods -n logs-<dein-name> -l app=backend -o jsonpath='{.items[0].spec.containers[0].ports}'
+kubectl logs -n logs-<dein-name> deploy/backend
+```
+
+Die Endpoints zeigen `10.244.0.2:80`, der Container lauscht auf `8080`. Das
+Backend-Log ist leer - dort ist nie eine Anfrage angekommen. Fehler: `targetPort`
+im Service `backend-svc`.
+
+</details>
+
+<details>
+<summary>Loesung</summary>
+
+**Fehler 1:** Key in der ConfigMap `web-content` von `index.htm` auf `index.html`
+aendern:
+
+```
+nano 02-web-content.yml
+```
+
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-content
+data:
+  index.html: |
+    <html>
+    <body>
+    <h1>Hallo vom Kubernetes-Training</h1>
+    <p>Backend-Status: <a href="/api/">/api/</a></p>
+    </body>
+    </html>
+```
+
+**Fehler 2:** `targetPort` im Service `backend-svc` von `80` auf `8080` aendern:
+
+```
+nano 01-backend.yml
+```
+
+```
+...
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 80
+    targetPort: 8080
+```
+
+```
+kubectl apply -f . -n logs-<dein-name>
+```
+
+**Achtung, Geduld:** Eine geaenderte ConfigMap, die als Volume gemountet ist,
+wird vom Kubelet erst nach bis zu einer Minute im Pod aktualisiert - ohne
+Neustart des Pods. Wer nicht warten will:
+
+```
+kubectl rollout restart deploy/web -n logs-<dein-name>
+```
+
+Kontrolle, ob die Datei jetzt richtig heisst:
+
+```
+kubectl exec -n logs-<dein-name> deploy/web -- ls /usr/share/nginx/html
+```
+
+```
+index.html
+```
+
+</details>
+
+### Schritt 8: Loesung pruefen
+
+```
+kubectl run curl-test --rm -i --restart=Never -n logs-<dein-name> \
+  --image=curlimages/curl:8.10.1 -- curl -s -w "\nHTTP %{http_code}\n" http://web/
+```
+
+```
+kubectl run curl-test --rm -i --restart=Never -n logs-<dein-name> \
+  --image=curlimages/curl:8.10.1 -- curl -s -w "\nHTTP %{http_code}\n" http://web/api/
+```
+
+**Erwartete Ausgabe:**
+
+```
+<h1>Hallo vom Kubernetes-Training</h1>
+...
+HTTP 200
+```
+
+```
+<title>Directory listing for /</title>
+...
+HTTP 200
+```
+
+Und in den Logs sehen jetzt beide Seiten gut aus - nginx mit `200` im
+Access-Log, und das Backend bekommt endlich Anfragen:
+
+```
+kubectl logs -n logs-<dein-name> deploy/web --tail=2
+kubectl logs -n logs-<dein-name> deploy/backend
+```
+
+```
+10.244.0.107 - - [25/Sep/2026:09:42:32 +0000] "GET / HTTP/1.1" 200 118 "-" "curl/8.10.1" "-"
+10.244.0.103 - - [25/Sep/2026:09:42:39 +0000] "GET /api/ HTTP/1.1" 200 832 "-" "curl/8.10.1" "-"
+
+10.244.0.54 - - [25/Sep/2026 09:42:39] "GET / HTTP/1.0" 200 -
+```
+
+### Aufraeumen
+
+```
+kubectl delete namespace logs-<dein-name>
+```
+
+### Zusammenfassung
+
+| Symptom | `kubectl get` / `describe` | Log-Zeile | Ursache | Fix |
+|---------|---------------------------|-----------|---------|-----|
+| `403 Forbidden` auf `/` | alles gruen | `directory index of "/usr/share/nginx/html/" is forbidden` | ConfigMap-Key `index.htm` statt `index.html` | Key umbenennen |
+| `502 Bad Gateway` auf `/api/` | alles gruen | `connect() failed (111: Connection refused) while connecting to upstream ... upstream: "http://<ClusterIP>:80/"` | `targetPort: 80`, Container lauscht auf 8080 | `targetPort: 8080` |
+
+**Merkhilfe:** `Running` heisst nur "der Prozess lebt", nicht "die Anwendung
+funktioniert". Wenn Kubernetes gruen ist und der Benutzer rot sieht, sind die
+Logs der einzige Zeuge. Und: Ohne Readiness-Probe faellt so ein Fehler
+Kubernetes nie auf - mit einer Probe auf `/` waere der Pod bei Fehler 1 gar
+nicht erst `Ready` geworden.
+
+### Übung: CrashLoopBackOff, aber die Logs sind sauber - OOMKilled (137) und Completed (0) ueber Exit Codes finden
+
+
+### Hintergrund
+
+Bisher hat euch bei einem `CrashLoopBackOff` immer `kubectl logs` gerettet:
+Irgendwo stand ein `[emerg]` oder `[ERROR]`, und damit war die Ursache klar.
+
+Es gibt aber Faelle, in denen die Logs voellig unauffaellig sind - der Prozess
+hat gar keine Gelegenheit, einen Fehler zu schreiben, oder er ist aus seiner
+Sicht ganz normal fertig. Dann hilft nur der Blick auf **wie** der Container
+beendet wurde: `Reason` und `Exit Code` unter `Last State` in
+`kubectl describe`.
+
+| Exit Code | Bedeutung | Typische Ursache |
+|-----------|-----------|------------------|
+| `0` | Prozess hat sich selbst normal beendet | Prozess ist kein Vordergrund-Prozess (Daemon), Skript ist einfach fertig |
+| `1` | Prozess hat sich mit Fehler beendet | Anwendungsfehler - steht in den Logs |
+| `137` | Prozess wurde von aussen mit `SIGKILL` (9) getoetet: 128 + 9 | `OOMKilled` (Memory-Limit) oder Liveness-Probe fehlgeschlagen |
+| `139` | Segmentation Fault: 128 + 11 | Bug im Programm oder in einer Bibliothek |
+| `143` | Prozess wurde mit `SIGTERM` (15) beendet: 128 + 15 | Normales Herunterfahren durch Kubernetes |
+
+Merkregel: Alles ueber 128 heisst "ein Signal hat den Prozess beendet" -
+Exit Code minus 128 ist die Signalnummer.
+
+In dieser Uebung lauft ihr in zwei dieser Faelle. Beide Pods landen im
+`CrashLoopBackOff`, beide Logs sehen gesund aus.
+
+### Schritt 1: Vorbereitung
+
+```
+cd
+mkdir -p manifests
+cd manifests
+mkdir 24-debug-crashloop-exitcodes
+cd 24-debug-crashloop-exitcodes
+```
+
+### Schritt 2: Zwei Deployments anlegen
+
+Beide Manifeste funktionieren absichtlich nicht.
+
+Das erste ist eine kleine Python-Anwendung, die beim Start Daten in einen
+Cache im Arbeitsspeicher laedt.
+
+```
+nano 01-cache-app.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cache-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cache-app
+  template:
+    metadata:
+      labels:
+        app: cache-app
+    spec:
+      containers:
+      - name: cache-app
+        image: python:3.12-slim
+        command: ["python", "-u", "-c"]
+        args:
+        - |
+          import time
+          print("cache-app startet, lade Daten in den Cache ...")
+          cache = []
+          for i in range(20):
+              cache.append(bytearray(10 * 1024 * 1024))
+              print(f"{(i+1)*10} MB geladen")
+              time.sleep(0.5)
+          print("Cache geladen, bereit")
+          while True:
+              time.sleep(60)
+        resources:
+          requests:
+            memory: "32Mi"
+          limits:
+            memory: "64Mi"
+```
+
+Das zweite ist ein nginx, bei dem jemand den Startbefehl explizit ins
+Manifest geschrieben hat.
+
+```
+nano 02-web.yml
+```
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.27
+        command: ["nginx"]
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  selector:
+    app: web
+  ports:
+  - port: 80
+    targetPort: 80
+```
+
+```
+kubectl create ns crash-<dein-name>
+kubectl apply -f . -n crash-<dein-name>
+```
+
+### Schritt 3: Symptom beobachten
+
+```
+kubectl get pods -n crash-<dein-name>
+```
+
+**Erwartete Ausgabe** (nach ca. 1 Minute; die Status wechseln jeweils mit `CrashLoopBackOff` ab):
+
+```
+NAME                         READY   STATUS      RESTARTS      AGE
+cache-app-5d46df6f49-s5wh2   0/1     OOMKilled   3 (48s ago)   73s
+web-55f497cf86-ntgh2         0/1     Completed   3 (60s ago)   73s
+```
+
+Schaut genau hin: Die `STATUS`-Spalte zeigt zwischendurch nicht nur
+`CrashLoopBackOff`, sondern auch `OOMKilled` bzw. `Completed`. Das ist
+bereits der erste Hinweis.
+
+### Schritt 4: Aufgabe - beide Pods nach Running bringen
+
+Findet fuer beide Deployments heraus, warum der Container immer wieder
+beendet wird, und behebt es. Am Ende muss `cache-app` in den Logs
+`Cache geladen, bereit` melden und `curl http://web` die nginx-Startseite liefern.
+
+Fangt mit den Logs an - und wundert euch nicht, wenn ihr dort nichts findet.
+Dann geht es weiter mit:
+
+```
+kubectl describe pod -n crash-<dein-name> <pod> | grep -A6 "Last State"
+```
+
+Praktischer Einzeiler, der `Reason` und `Exit Code` fuer alle Pods im
+Namespace zeigt:
+
+```
+kubectl get pods -n crash-<dein-name> -o custom-columns='NAME:.metadata.name,LAST-REASON:.status.containerStatuses[0].lastState.terminated.reason,EXIT:.status.containerStatuses[0].lastState.terminated.exitCode,RESTARTS:.status.containerStatuses[0].restartCount'
+```
+
+```
+NAME                         LAST-REASON   EXIT   RESTARTS
+cache-app-5d46df6f49-s5wh2   OOMKilled     137    4
+web-55f497cf86-ntgh2         Completed     0      4
+```
+
+<details>
+<summary>Hinweis 1: cache-app - die Logs hoeren einfach auf</summary>
+
+```
+kubectl logs -n crash-<dein-name> deploy/cache-app
+```
+
+```
+cache-app startet, lade Daten in den Cache ...
+10 MB geladen
+20 MB geladen
+30 MB geladen
+40 MB geladen
+50 MB geladen
+```
+
+Kein Fehler, kein Traceback, keine letzte Zeile - das Log bricht mitten im
+Laden ab. Das ist typisch fuer einen Prozess, der von aussen **getoetet**
+wurde: Er konnte nichts mehr schreiben.
+
+```
+kubectl describe pod -n crash-<dein-name> -l app=cache-app | grep -B2 -A12 "Last State"
+```
+
+```
+    Last State:     Terminated
+      Reason:       OOMKilled
+      Exit Code:    137
+    ...
+    Limits:
+      memory:  64Mi
+    Requests:
+      memory:  32Mi
+```
+
+`OOMKilled` (Out Of Memory) mit Exit Code `137` = 128 + 9 = `SIGKILL`. Der
+Kernel hat den Prozess abgeschossen, weil er mehr Speicher wollte als das
+Limit von `64Mi` erlaubt. Die Anwendung hat bei 50 MB Nutzdaten plus dem
+Python-Interpreter selbst das Limit gerissen - sie will aber 200 MB laden.
+
+</details>
+
+<details>
+<summary>Hinweis 2: web - die Logs sehen perfekt aus</summary>
+
+```
+kubectl logs -n crash-<dein-name> deploy/web
+```
+
+```
+2026/09/25 10:03:11 [notice] 1#1: using the "epoll" event method
+2026/09/25 10:03:11 [notice] 1#1: nginx/1.27.5
+2026/09/25 10:03:11 [notice] 1#1: OS: Linux 6.12.96+deb13-amd64
+2026/09/25 10:03:11 [notice] 8#8: start worker processes
+```
+
+nginx startet, startet Worker - alles gut. Und trotzdem:
+
+```
+kubectl describe pod -n crash-<dein-name> -l app=web | grep -A4 "Last State"
+```
+
+```
+    Last State:     Terminated
+      Reason:       Completed
+      Exit Code:    0
+```
+
+Exit Code `0`, `Completed`: Der Prozess hat sich **selbst** normal beendet.
+Kubernetes sieht nur: PID 1 im Container ist weg, also starte ich den
+Container neu. Achtet auf die Log-Zeile `8#8: start worker processes` - die
+Worker wurden von Prozess 8 gestartet, nicht von Prozess 1.
+
+Was macht `nginx` ohne weitere Optionen? Es **daemonisiert**: Der
+Startprozess (PID 1) forkt den eigentlichen Server in den Hintergrund und
+beendet sich mit Exit Code 0. Auf einem normalen Server ist das gewollt -
+in einem Container ist der Container damit fertig, denn ein Container lebt
+genau so lange wie sein Prozess mit PID 1.
+
+Vergleicht mit dem, was das Image selbst als Startbefehl vorsieht:
+
+```
+kubectl run nginx-inspect --image=nginx:1.27 --restart=Never -n crash-<dein-name> --dry-run=client -o yaml > /dev/null
+docker inspect nginx:1.27 --format '{{.Config.Cmd}}'
+```
+
+Falls kein `docker` vorhanden ist: Der Standard-`CMD` des nginx-Images lautet
+`nginx -g "daemon off;"`.
+
+</details>
+
+<details>
+<summary>Loesung</summary>
+
+**cache-app:** Memory-Limit passend zum tatsaechlichen Bedarf setzen. Die App
+laedt 200 MB, plus Interpreter - `256Mi` reicht.
+
+```
+nano 01-cache-app.yml
+```
+
+```
+        resources:
+          requests:
+            memory: "32Mi"
+          limits:
+            memory: "256Mi"
+```
+
+**web:** nginx im Vordergrund laufen lassen. Entweder die `command`-Zeile
+ganz entfernen (dann gilt der `CMD` aus dem Image) oder explizit:
+
+```
+nano 02-web.yml
+```
+
+```
+        command: ["nginx", "-g", "daemon off;"]
+```
+
+```
+kubectl apply -f . -n crash-<dein-name>
+kubectl get pods -n crash-<dein-name>
+```
+
+```
+NAME                         READY   STATUS    RESTARTS   AGE
+cache-app-566bfbd7c6-8tbqt   1/1     Running   0          28s
+web-576c4c5d6d-wv5jv         1/1     Running   0          20s
+```
+
+</details>
+
+### Schritt 5: Loesung pruefen
+
+```
+kubectl logs -n crash-<dein-name> deploy/cache-app | tail -2
+kubectl logs -n crash-<dein-name> deploy/web | tail -2
+```
+
+```
+200 MB geladen
+Cache geladen, bereit
+
+2026/09/25 10:04:46 [notice] 1#1: start worker process 7
+2026/09/25 10:04:46 [notice] 1#1: start worker process 8
+```
+
+Bei nginx starten die Worker jetzt von `1#1` aus - PID 1 ist der
+nginx-Master und bleibt am Leben.
+
+```
+kubectl run curl-test --rm -i --restart=Never -n crash-<dein-name> \
+  --image=curlimages/curl:8.10.1 -- curl -s http://web
+```
+
+**Erwartete Ausgabe:** die nginx-Startseite mit `<h1>Welcome to nginx!</h1>`.
+
+Wer einen Metrics-Server im Cluster hat, kann den echten Verbrauch der
+cache-app jetzt sehen:
+
+```
+kubectl top pod -n crash-<dein-name>
+```
+
+### Aufraeumen
+
+```
+kubectl delete namespace crash-<dein-name>
+```
+
+### Zusammenfassung
+
+| Pod | `STATUS` zwischendurch | `Last State` | Exit Code | Logs | Ursache | Fix |
+|-----|------------------------|--------------|-----------|------|---------|-----|
+| cache-app | `OOMKilled` | `OOMKilled` | `137` | brechen ohne Fehler ab | Memory-Limit `64Mi` zu klein fuer 200 MB Cache | Limit auf `256Mi` |
+| web | `Completed` | `Completed` | `0` | sehen normal aus | `nginx` daemonisiert, PID 1 beendet sich | `nginx -g "daemon off;"` oder `command` entfernen |
+
+**Merkhilfe:** Sind die Logs sauber, frag nach dem Exit Code. `0` heisst
+"der Prozess ist freiwillig gegangen" - meist ein Vordergrund-Problem.
+`137` heisst "jemand hat ihn erschossen" - meist `OOMKilled`, sonst die
+Liveness-Probe (steht dann in den Events).
+
 ## Kubernetes RBAC
 
 ### Kubernetes RBAC - was darf Traefik
@@ -7593,7 +9869,7 @@ The main difference relies on the moment when you want to configure storage. For
 
 ```
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
-helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version 4.13.2 --reset-values 
+helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version 4.13.4 --reset-values 
 ```
 
 ### Step 2: Storage Class 
@@ -7970,6 +10246,118 @@ Quelle: https://www.devopsschool.com/
   * Mit Grafana kann ich einfach Dashboards verwenden 
   * Ich kann sehr leicht festlegen (Durch Data Sources), wo meine Daten herkommen
 
+### Prometheus Metriktypen (Counter, Gauge, Histogram, Summary)
+
+
+### Welche gibt es ?
+
+  * Counter
+  * Gauge
+  * Histogram
+  * Summary
+
+In der Prometheus-Dokumentation werden sie auch explizit als metric types bezeichnet. Wenn du also über „eine Gauge“ sprichst, meinst du korrekt:
+„Eine Metrik vom Typ Gauge“
+
+### 📊 1. **Counter**
+
+Ein Counter ist ein **ständig wachsender Wert**. Er beginnt bei 0 und kann **nur steigen** (außer bei einem Reset, z. B. Pod-Restart).
+
+**Beispiel:**
+
+* `http_requests_total` – zählt, wie viele HTTP-Anfragen es gab
+* `errors_total` – zählt Fehlermeldungen
+
+> ➕ **Nur hochzählend!** Für „Rate“-Abfragen ideal.
+
+🔍 **Typischer PromQL-Ausdruck:**
+
+```promql
+rate(http_requests_total[5m])
+```
+
+Zeigt, wie viele Anfragen pro Sekunde in den letzten 5 Minuten kamen.
+
+---
+
+### 📈 2. **Gauge**
+
+Ein Gauge ist ein **aktueller Messwert**, der **steigen und sinken** kann – wie ein Thermometer.
+
+**Beispiel:**
+
+* `memory_usage_bytes` – aktueller Speicherverbrauch
+* `cpu_temperature` – aktuelle CPU-Temperatur
+
+> 📉 Ideal für Zustände wie Auslastung, offene Verbindungen etc.
+
+🔍 **PromQL:**
+
+```promql
+memory_usage_bytes
+```
+
+zeigt den letzten bekannten Wert.
+
+---
+
+### ⏱️ 3. **Histogram**
+
+Ein Histogram misst **Verteilungen von Werten**, z. B. Antwortzeiten. Es zählt, **wie viele Ereignisse in bestimmte Wertebereiche ("Buckets")** fallen.
+
+**Beispiel:**
+
+* `http_request_duration_seconds_bucket`
+
+Diese Metrik ist gekoppelt mit:
+
+* `_count` (Gesamtanzahl)
+* `_sum` (Summe aller Werte)
+
+> 📊 Sehr nützlich für Latenzen und Antwortzeitverteilungen.
+
+🔍 **PromQL-Beispiel (90. Perzentil über 5 Minuten):**
+
+```promql
+histogram_quantile(0.9, rate(http_request_duration_seconds_bucket[5m]))
+```
+
+---
+
+### 🔣 4. **Summary** (ähnlich wie Histogram, aber clientseitig berechnet)
+
+Ein Summary enthält direkt **Perzentile**, allerdings:
+
+* weniger aggregierbar über mehrere Instanzen
+* erzeugt mehr Metriken
+* eher selten verwendet in modernen Setups
+
+**Beispiel:**
+
+* `http_request_duration_seconds{quantile="0.9"}`
+
+> ⚠️ Für verteilte Systeme nicht gut skalierbar → lieber Histogram verwenden!
+
+---
+
+### 🧠 **Zusammenfassung als Tabelle:**
+
+| Typ       | Eigenschaften            | Beispiel                       | Ideal für...                  |
+| --------- | ------------------------ | ------------------------------ | ----------------------------- |
+| Counter   | nur steigend             | `http_requests_total`          | Events, Fehler, Anfragen      |
+| Gauge     | auf- und absteigend      | `memory_usage_bytes`           | Zustände, Nutzung             |
+| Histogram | Buckets + Summe/Count    | `*_bucket`, `*_sum`, `*_count` | Latenzverteilung, SLA-Analyse |
+| Summary   | Clientseitige Perzentile | `*_quantile`                   | Einfache Latenzmetriken       |
+
+### Achtung: Bitte kein Prometheus-Agent verwenden
+
+
+### Warum ?
+
+ * Coole Objekte wie PodMonitor, ServiceMonitor, PrometheusRules funktionieren
+ * Das ist schlecht und macht Dein unnötig schwer.
+ * Dann musst du nämlich die alten ScrapeConfigs verwenden (IHHHHH !)
+
 ### Prometheus / Grafana Stack installieren
 
 
@@ -8072,6 +10460,254 @@ ssh -L 3000:localhost:3000 tln1@164.92.129.7
 
   
 
+### Prometheus / Grafana mit Ingress, Letsencrypt und BasicAuth (inkl. Alertmanager)
+
+
+**Hinweis:** Der Alertmanager-Teil (Schritt 6) ist aus dem Q3-Advanced-Training uebernommen und an
+unser DOKS-Setup angepasst (kein MetalLB, kein Wildcard-DNS-Script). Komplett live auf einem
+laufenden Trainings-Cluster (kube-prometheus-stack 86.3.1) nachgetestet - Prometheus (401/302),
+Alertmanager (401/200) und Grafana (302 Login-Redirect) funktionieren wie beschrieben.
+
+### Voraussetzungen
+
+  * Traefik installiert (Namespace `ingress`)
+  * **Traefik-CRDs vorhanden** - nicht selbstverstaendlich! Pruefen mit `kubectl get crd | grep traefik.io`.
+    Fehlen sie (kein `middlewares.traefik.io` in der Liste), muss Traefik entweder mit
+    `crds.enabled: true` (Default bei einer sauberen Neuinstallation) neu ausgerollt, oder die CRDs
+    separat nachinstalliert werden - additiv, ohne den laufenden Traefik-Pod anzufassen:
+    ```
+    kubectl apply -f https://raw.githubusercontent.com/traefik/traefik-helm-chart/v40.3.0/traefik/crds/traefik.io_middlewares.yaml
+    ```
+    (Versionsnummer an die installierte Traefik-Chart-Version anpassen, siehe `helm -n ingress list`)
+  * cert-manager installiert + ClusterIssuer `letsencrypt-prod` vorhanden (aus Uebung: https-letsencrypt-ingress-traefik)
+  * `htpasswd` installiert: `apt install apache2-utils`
+
+### Schritt 1: Vorbereitung
+
+```
+cd
+mkdir -p manifests/monitoring
+cd manifests/monitoring
+```
+
+### Schritt 2: values.yml erstellen
+
+```
+vi values.yml
+```
+
+```
+fullnameOverride: prometheus
+
+alertmanager:
+  fullnameOverride: alertmanager
+
+grafana:
+  fullnameOverride: grafana
+  adminPassword: DEIN-PASSWORT
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts:
+      - grafana.<dein-name>.do.t3isp.de
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    tls:
+    - secretName: grafana-tls
+      hosts:
+      - grafana.<dein-name>.do.t3isp.de
+
+kube-state-metrics:
+  fullnameOverride: kube-state-metrics
+
+prometheus-node-exporter:
+  fullnameOverride: node-exporter
+```
+
+### Schritt 3: Prometheus-Stack installieren
+
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm install prometheus prometheus-community/kube-prometheus-stack \
+  -f values.yml --namespace monitoring --create-namespace --version 86.3.1
+kubectl -n monitoring get pods
+```
+
+### Schritt 4: BasicAuth Secret fuer Prometheus erstellen
+
+```
+kubectl create secret generic prometheus-basic-auth \
+  --from-literal=users="$(htpasswd -nb admin DEIN-PASSWORT)" \
+  -n monitoring
+```
+
+### Schritt 5: Traefik Middleware + Prometheus Ingress
+
+```
+vi prometheus-ingress.yml
+```
+
+```
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: prometheus-auth
+  namespace: monitoring
+spec:
+  basicAuth:
+    secret: prometheus-basic-auth
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus-ingress
+  namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    traefik.ingress.kubernetes.io/router.middlewares: monitoring-prometheus-auth@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - prometheus.<dein-name>.do.t3isp.de
+    secretName: prometheus-tls
+  rules:
+  - host: prometheus.<dein-name>.do.t3isp.de
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-prometheus
+            port:
+              number: 9090
+```
+
+```
+kubectl apply -f prometheus-ingress.yml -n monitoring
+```
+
+### Schritt 6: Alertmanager Ingress (gleiche Middleware wiederverwenden)
+
+Die `Middleware` aus Schritt 5 ist nicht an einen Service gebunden - sie laesst sich 1:1 auch am
+Alertmanager-Ingress referenzieren.
+
+Erst den tatsaechlichen Service-Namen pruefen (haengt vom `fullnameOverride` in der values.yml ab):
+
+```
+kubectl -n monitoring get svc | grep alertmanager
+```
+
+```
+vi alertmanager-ingress.yml
+```
+
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alertmanager-ingress
+  namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    traefik.ingress.kubernetes.io/router.middlewares: monitoring-prometheus-auth@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - alertmanager.<dein-name>.do.t3isp.de
+    secretName: alertmanager-tls
+  rules:
+  - host: alertmanager.<dein-name>.do.t3isp.de
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-alertmanager   # Name kommt vom TOP-LEVEL fullnameOverride, nicht vom alertmanager.fullnameOverride
+            port:
+              number: 9093
+```
+
+```
+kubectl apply -f alertmanager-ingress.yml -n monitoring
+```
+
+Der kube-prometheus-stack legt automatisch eine `Watchdog`-Alert an, die dauerhaft feuert - guter
+Beweis dafuer, dass die Alerting-Pipeline lebt:
+
+![Alertmanager mit der staendig aktiven Watchdog-Alert](screenshots/06-alertmanager.png)
+
+### Schritt 7: Zertifikate pruefen
+
+```
+## Alle drei Zertifikate muessen READY=True sein
+kubectl -n monitoring get cert
+```
+
+### Schritt 8: Credentials nachschlagen (falls vergessen)
+
+```
+## Grafana-Passwort aus dem Kubernetes Secret auslesen:
+kubectl -n monitoring get secret grafana -o jsonpath="{.data.admin-password}" | base64 -d
+echo ""
+```
+
+```
+## Prometheus BasicAuth: Benutzername ist immer "admin",
+## Passwort ist das, das du in Schritt 4 mit htpasswd gesetzt hast.
+## Zur Erinnerung: es steht auch in deiner values.yml unter adminPassword
+```
+
+### Schritt 10: Testen
+
+```
+## Ohne Credentials -> 401 (Zugang verweigert)
+curl -s -o /dev/null -w "%{http_code}" https://prometheus.<dein-name>.do.t3isp.de
+
+## Mit Credentials -> 200 (Zugang erlaubt)
+curl -u admin:DEIN-PASSWORT -s -o /dev/null -w "%{http_code}" https://prometheus.<dein-name>.do.t3isp.de
+```
+
+Ohne Auth kommt ein sauberes 401 direkt von der Traefik-Middleware (nicht von Prometheus selbst):
+
+![Prometheus ohne Basic-Auth: 401 Unauthorized von Traefik](screenshots/04-prometheus-401.png)
+
+```
+## Alertmanager genauso testen:
+curl -s -o /dev/null -w "%{http_code}" https://alertmanager.<dein-name>.do.t3isp.de
+curl -u admin:DEIN-PASSWORT -s -o /dev/null -w "%{http_code}" https://alertmanager.<dein-name>.do.t3isp.de
+```
+
+```
+## Grafana im Browser aufrufen:
+https://grafana.<dein-name>.do.t3isp.de
+## Login: admin / DEIN-PASSWORT
+```
+
+![Grafana Login](screenshots/01-grafana-login.png)
+
+### Hintergrund: Warum BasicAuth fuer Prometheus?
+
+Grafana hat einen eigenen Login (Benutzerverwaltung, Rollen, Sessions).
+Prometheus hat kein eingebautes Authentication-System.
+Traefik loest das ueber eine `Middleware` -- kein extra Pod noetig.
+
+Das Muster: Secret (htpasswd) -> Middleware CRD -> Ingress-Annotation
+
+### Aufraeumen
+
+```
+kubectl delete namespace monitoring
+```
+
+### Referenzen
+
+  * https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/README.md
+  * https://doc.traefik.io/traefik/middlewares/http/basicauth/
+
 ### Uebung: Prometheus UI und PromQL
 
 
@@ -8130,6 +10766,8 @@ Wichtige Targets im kube-prometheus-stack:
 
 **Frage zum Nachdenken:** Wie weiss Prometheus, welche Pods es scrapen soll?
 → Antwort: ServiceMonitor CRDs (dazu spaeter mehr)
+
+![Prometheus Target health: alle Targets UP](screenshots/05-prometheus-targets.png)
 
 ### Schritt 2: /metrics direkt ansehen
 
@@ -8238,6 +10876,8 @@ Zeitraum oben rechts einstellen (z.B. **15m** fuer die letzten 15 Minuten).
 Der Graph zeigt den zeitlichen Verlauf - genau diese Daten fragt Grafana
 per PromQL ab und stellt sie als Dashboard dar.
 
+![Prometheus: PromQL-Query mit Graph-Ansicht](screenshots/08-prometheus-query-graph.png)
+
 ### Schritt 5: Labels verstehen
 
 Labels sind das Herzstuck von Prometheus. Jede Metrik kann beliebig viele
@@ -8295,6 +10935,162 @@ https://grafana.<dein-name>.do.t3isp.de
 **Connections → Data Sources** zeigt, dass Grafana bereits mit Prometheus
 verbunden ist. Unter **Dashboards** sind fertige Kubernetes-Dashboards
 bereits importiert.
+
+### PromQL: rate()
+
+
+### Kurzbeschreibung
+
+ * `rate()` ist eine **Funktion in PromQL** – genauer gesagt eine sogenannte **Range-Vector-Funktion**.
+
+#### Details zu `rate()`
+
+* **Typ:** Funktion
+* **Input:** Ein **Range Vector** (also z. B. `metric[5m]`)
+* **Zweck:** Berechnet die **durchschnittliche Änderungsrate pro Sekunde** eines Counters über das angegebene Zeitfenster.
+
+#### Beispiel:
+
+```promql
+rate(http_requests_total[5m])
+```
+
+→ `http_requests_total[5m]` ist der Range Vector: alle Werte dieser Zeitreihe der letzten 5 Minuten.
+→ `rate()` berechnet aus diesen Werten die durchschnittliche Steigerung pro Sekunde (unter Berücksichtigung von Counter-Resets).
+
+---
+
+#### Kurz gesagt:
+
+✅ `rate()` ist eine eingebaute **PromQL-Funktion**
+✅ funktioniert **nur mit Range Vectors**,
+✅ und ist **für Counter-Metriken gedacht**.
+
+### 🧁 Stell dir vor:
+
+Du hast einen **Zähler (metrics type: counter) **, der **jedes Mal um 1 hochzählt**, wenn jemand einen Muffin isst. Du schaust alle paar Minuten auf diesen Zähler.
+
+---
+
+### 🕒 Beispiel:
+
+Du schaust **alle Minute** auf den Zähler und schreibst die Zahl auf:
+
+| Uhrzeit | Gesehene Zahl auf dem Zähler |
+| ------- | ---------------------------- |
+| 12:00   | 100 Muffins gegessen         |
+| 12:01   | 110                          |
+| 12:02   | 125                          |
+| 12:03   | 135                          |
+| 12:04   | 150                          |
+| 12:05   | 160                          |
+
+---
+
+### ❓Frage:
+
+Wie viele Muffins wurden **in den letzten 5 Minuten** gegessen, und **wie viele pro Sekunde**?
+
+---
+
+### 🧮 Schritt für Schritt:
+
+1. **Vergleiche den Anfang und das Ende:**
+
+   * Am Anfang (12:00): 100 Muffins
+   * Am Ende (12:05): 160 Muffins
+
+2. **Wieviel Unterschied?**
+
+   * 160 - 100 = **60 Muffins** in 5 Minuten
+
+3. **Wie viele Sekunden sind das?**
+
+   * 5 Minuten = **300 Sekunden**
+
+4. **Wie viele pro Sekunde?**
+
+   * 60 ÷ 300 = **0,2 Muffins pro Sekunde**
+
+---
+
+### 🧪 Das ist genau das, was `rate()` macht:
+
+```promql
+rate(muffin_eaten_total[5m]) = 0.2
+```
+
+Er schaut:
+
+* Wie stark hat sich die Zahl in den letzten 5 Minuten verändert?
+* Teilt das durch die Zeit (300 Sekunden)
+* Als Ergebnis bekomme ich die durschnittliche Änderung pro Sekunde (in den letzten 5 Minuten)
+
+---
+
+### 📌 Wichtig:
+
+* Er **zählt nicht nur den letzten Wert**.
+* Er **vergleicht Anfang und Ende**.
+* Er **berechnet eine Durchschnittsgeschwindigkeit** (wie schnell gegessen wurde).
+
+---
+
+So wie ein Tacho im Auto zeigt, wie schnell du gerade fährst, zeigt `rate()` wie schnell der Counter gewachsen ist – **pro Sekunde im Durchschnitt**.
+
+### PromQL: irate()
+
+
+#### ⚡ `irate()`: **Sofortiger (instantaner) Anstieg**
+
+* **Verwendet nur die letzten zwei Datenpunkte** im Intervall.
+* Gibt die „momentane“ Rate zum Zeitpunkt des Queries zurück.
+* Ideal für **Alerts**, bei denen eine **schnelle Reaktion** auf Lastspitzen nötig ist.
+
+```promql
+irate(http_requests_total[5m])
+```
+
+#### Vergleich:
+
+| Funktion  | Typ          | Verwendet Samples | Verwendung             |
+| --------- | ------------ | ----------------- | ---------------------- |
+| `rate()`  | Durchschnitt | Alle im Intervall | Graphen, Trends        |
+| `irate()` | Sofortwert   | Nur die letzten 2 | Alarme, Peak-Erkennung |
+
+---
+
+#### Beispiel in der Praxis:
+
+* Du hast ein Scrape-Intervall von 15 s.
+* Dann nutzt `rate(http_requests_total[1m])` **4 Messpunkte**.
+* `irate(http_requests_total[1m])` nutzt **nur die letzten beiden**.
+
+### PromQL: rate() vs. irate()
+
+
+### Vergleich
+
+  * irate nimmt nur die letzten beiden Werte
+  * rate bezieht alle Werte mit ein.
+
+### Wann ist irate() sinnvoll (für:) ?
+
+  * Alarme, bei denen du schnell auf Spikes reagieren willst.
+  * Wenn du den aktuellsten Ausschlag brauchst (z. B. Lastspitzen, Traffic-Peaks).
+
+### Wann ist rate() sinnvoll
+
+  * Dashboards, bei denen Stabilität und Trends im Vordergrund stehen.
+  * Beispiel: Traffic, CPU-Auslastung, Request-Rate über längere Zeiträume.
+
+![image](https://github.com/user-attachments/assets/f4ecc4a0-758e-4997-be73-0f0302bc65d2)
+
+Im Diagramm siehst du deutlich:
+
+* **`rate()` (blau)** ist geglättet und zeigt einen stabileren Verlauf – gut für Trends.
+* **`irate()` (orange gestrichelt)** reagiert stärker auf kurzfristige Schwankungen – gut für Alarme.
+* Die graue Linie zeigt den tatsächlichen Rohwertwechsel pro Sekunde.
 
 ### Uebung: Custom Metriken mit eigener Demo-App
 
@@ -20233,7 +23029,7 @@ Leichtere Updates von Microservices, weil sie nur einen kleinere Funktionalität
   * Pods sind die kleinste verwaltbare Einheit, die in Kubernetes erstellt und verwaltet werden können.
   * Ein Pod (übersetzt Gruppe) ist eine Gruppe von einem oder mehreren Containern
     * gemeinsam genutzter Speicher- und Netzwerkressourcen   
-    * Befinden sich immer auf dem gleich virtuellen Server 
+    * Befinden sich immer auf dem gleichen virtuellen Server 
    
 
 ### Node (Minion) - components 
@@ -20819,6 +23615,9 @@ kubectl delete -f . -R
 kubectl get pods -o wide # weitere informationen 
 ## im json format
 kubectl get pods -o json 
+## eine Werte rausziehen
+## key ist tls.crt (wichtig escapen => \.), sonst funktioniert das nicht
+kubectl get secrets example-tls -o jsonpath='{.data.tls\.crt}' | base64 -d
 
 ## gilt natürluch auch für andere kommandos
 kubectl get deploy -o json 
@@ -24530,6 +27329,9 @@ kubectl delete -f . -R
 kubectl get pods -o wide # weitere informationen 
 ## im json format
 kubectl get pods -o json 
+## eine Werte rausziehen
+## key ist tls.crt (wichtig escapen => \.), sonst funktioniert das nicht
+kubectl get secrets example-tls -o jsonpath='{.data.tls\.crt}' | base64 -d
 
 ## gilt natürluch auch für andere kommandos
 kubectl get deploy -o json 
