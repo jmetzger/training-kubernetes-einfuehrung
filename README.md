@@ -121,6 +121,7 @@
   1. Helm Charts erstellen und analysieren
      * [Eigenes Helm-Chart erstellen](helm/exercises/04a-create-chart-my-app-gruppenarbeit.md)
      * [Chart zur Analyse runterladen und entpacken](helm/commands/pull.md)
+     * [Eigenes Chart in eine Registry pushen (helm push)](helm/commands/push.md)
      * [Wie starte ich am besten einfach - mit eigenem Projekt](helm/exercises/09-create-helm-chart-from-scratch-deployment.md)
 
   1. Helm Spezial: Umgang mit Einrückungen
