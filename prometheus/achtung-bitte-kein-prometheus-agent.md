@@ -2,6 +2,5 @@
 
 ## Warum ?
 
- * Coole Objekte wie PodMonitor, ServiceMonitor, PrometheusRules funktionieren
- * Das ist schlecht und macht Dein unnötig schwer.
+ * Coole Objekte wie PodMonitor, ServiceMonitor, PrometheusRules funktionieren nicht !
  * Dann musst du nämlich die alten ScrapeConfigs verwenden (IHHHHH !)
