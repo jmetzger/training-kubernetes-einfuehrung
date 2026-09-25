@@ -1,5 +1,7 @@
 # Kubernetes Einführung
 
+> **📝 Training 23.09. – 25.09.2026: [Pad-Zusammenfassung – alle Übungen und Infos in Reihenfolge](uebungen/training-2026-09-pad-zusammenfassung.md)**
+
 ## Agenda 
 
   1. Docker-Grundlagen 
@@ -526,6 +528,7 @@
      * [X-Forward-Header-For setzen in Ingress](/ingress-forward-for-header.md)
   
   1. Übungen 
+     * [Training 23.–25.09.2026: Pad-Zusammenfassung (alle Übungen)](/uebungen/training-2026-09-pad-zusammenfassung.md)
      * [übung Tag 3](/uebungen/tag3.md) 
      * [übung Tag 4](/uebungen/tag4.md) 
   
