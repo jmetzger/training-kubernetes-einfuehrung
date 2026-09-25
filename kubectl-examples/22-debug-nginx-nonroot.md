@@ -61,7 +61,7 @@ spec:
         runAsNonRoot: true
       containers:
       - name: nginx
-        image: nginx:1.27
+        image: nginx:1.30
         ports:
         - containerPort: 80
 ```
@@ -108,9 +108,13 @@ kubectl get endpoints nginx-nonroot -n debug-<dein-name>
 ```
 
 ```
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
 NAME            ENDPOINTS   AGE
-nginx-nonroot   <none>      1m
+nginx-nonroot               1m
 ```
+
+Die Warnung koennt ihr ignorieren - entscheidend ist die leere Spalte
+`ENDPOINTS` (auf aelteren Clustern steht dort `<none>`).
 
 ## Schritt 4: Aufgabe - Fehler selbst finden
 
@@ -129,7 +133,7 @@ kubectl exec -n debug-<dein-name> <pod> -- <befehl>
 Zwei Loesungswege sind erlaubt:
 
 * **Weg A:** Ein Image nehmen, das fuer Nicht-Root gebaut ist
-* **Weg B:** Das Standard-Image `nginx:1.27` behalten und den Pod so anpassen, dass nginx als UID 1000 laufen kann
+* **Weg B:** Das Standard-Image `nginx:1.30` behalten und den Pod so anpassen, dass nginx als UID 1000 laufen kann
 
 Versucht es zuerst ohne die Hinweise. Wenn ihr nicht weiterkommt, klappt die
 Hinweise nacheinander auf.
@@ -204,7 +208,7 @@ spec:
     runAsNonRoot: true
   containers:
   - name: nginx
-    image: nginx:1.27
+    image: nginx:1.30
     command: ["sleep", "3600"]
 ```
 
@@ -212,15 +216,15 @@ spec:
 kubectl apply -f 99-inspect.yml -n debug-<dein-name>
 kubectl exec -n debug-<dein-name> nginx-inspect -- id
 kubectl exec -n debug-<dein-name> nginx-inspect -- ls -ld /var/cache/nginx /var/run /run /etc/nginx/conf.d
-kubectl exec -n debug-<dein-name> nginx-inspect -- grep -n -E "^pid|listen" /etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+kubectl exec -n debug-<dein-name> nginx-inspect -- grep -n -E "^pid|^ *listen" /etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf
 ```
 
 ```
 uid=1000 gid=1000 groups=1000
-drwxr-xr-x 2 root root 4096 Jun 10  2025 /etc/nginx/conf.d
-drwxr-xr-x 1 root root 4096 Sep 25 09:30 /run
-drwxr-xr-x 2 root root 4096 Apr 16  2025 /var/cache/nginx
-lrwxrwxrwx 1 root root    4 Jun 10  2025 /var/run -> /run
+drwxr-xr-x 2 root root 4096 Sep 19 00:20 /etc/nginx/conf.d
+drwxr-xr-x 1 root root 4096 Sep 25 10:08 /run
+drwxr-xr-x 2 root root 4096 Sep 15 14:07 /var/cache/nginx
+lrwxrwxrwx 1 root root    4 Sep 18 00:00 /var/run -> /run
 /etc/nginx/nginx.conf:6:pid        /run/nginx.pid;
 /etc/nginx/conf.d/default.conf:2:    listen       80;
 ```
@@ -264,7 +268,14 @@ kubectl exec -n debug-<dein-name> nginx-inspect -- cat /proc/sys/net/ipv4/ip_unp
 ```
 
 `0` heisst: Port 80 ist kein Problem. `1024` heisst: nginx muss auf einen
-hoeheren Port (z.B. 8080) umziehen. Verlasst euch nicht darauf - eine saubere
+hoeheren Port (z.B. 8080) umziehen. Auf unserem DOKS-Trainings-Cluster
+(containerd 1.7, Stand 09/2026) steht dort `1024` - Punkt 3 tritt bei euch
+also auf:
+
+```
+2026/09/25 10:13:13 [emerg] 1#1: bind() to 0.0.0.0:80 failed (13: Permission denied)
+```
+ Verlasst euch nicht darauf - eine saubere
 Loesung nutzt einen Port ab 1024, damit sie auf jedem Cluster laeuft.
 
 </details>
@@ -305,7 +316,7 @@ spec:
         runAsNonRoot: true
       containers:
       - name: nginx
-        image: nginxinc/nginx-unprivileged:1.27
+        image: nginxinc/nginx-unprivileged:1.30
         ports:
         - containerPort: 8080
 ```
@@ -335,7 +346,7 @@ kubectl get pods -n debug-<dein-name>
 </details>
 
 <details>
-<summary>Loesung Weg B: Standard-Image nginx:1.27 behalten</summary>
+<summary>Loesung Weg B: Standard-Image nginx:1.30 behalten</summary>
 
 Drei Dinge muessen passieren:
 
@@ -394,7 +405,7 @@ spec:
         runAsNonRoot: true
       containers:
       - name: nginx
-        image: nginx:1.27
+        image: nginx:1.30
         ports:
         - containerPort: 8080
         volumeMounts:
