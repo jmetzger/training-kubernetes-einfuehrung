@@ -147,6 +147,8 @@
      * [Übung: FE zu Backend Verbindungen debuggen mit kubectl debug und NetworkPolicy](kubectl-examples/20-debug-networkpolicy.md)
      * [Übung: Service-Verbindungsprobleme debuggen mit kubectl debug (ohne NetworkPolicy)](kubectl-examples/21-debug-service.md)
      * [Übung: nginx als Nicht-Root-User startet nicht - CrashLoopBackOff mit describe/logs/exec debuggen](kubectl-examples/22-debug-nginx-nonroot.md)
+     * [Übung: Pod laeuft, Anwendung kaputt - Fehler nur in den Logs sichtbar (403/502)](kubectl-examples/23-debug-fehler-nur-in-logs.md)
+     * [Übung: CrashLoopBackOff bei MariaDB - Konfiguration kommt nicht an (logs vs. describe)](kubectl-examples/24-debug-crashloop-mariadb.md)
 
   1. Kubernetes RBAC
      * [Kubernetes RBAC - was darf Traefik](kubernetes-rbac/was-darf-traefik.md)
