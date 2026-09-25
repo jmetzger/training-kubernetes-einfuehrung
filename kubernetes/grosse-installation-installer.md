@@ -47,7 +47,10 @@
     * Ansible (leichter bestimmte zu Konfigurieren) 
     * kubeadm
 
+## Talos 
 
+    * Installation mit iso 
+    * immutable 
     
 
 
