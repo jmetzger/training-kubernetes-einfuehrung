@@ -1,7 +1,5 @@
 # Kubernetes Einführung
 
-> **📝 Training 23.09. – 25.09.2026: [Pad-Zusammenfassung – alle Übungen und Infos in Reihenfolge](uebungen/training-2026-09-pad-zusammenfassung.md)**
-
 ## Agenda 
 
   1. Docker-Grundlagen 
