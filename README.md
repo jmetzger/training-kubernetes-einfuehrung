@@ -9,6 +9,7 @@
      * [Container vs. Virtuelle Maschine](container-vs-vm.md)
      * [Was ist ein Dockerfile](dockerfile.md) 
      * [Dockerfile - image kleinhalten](dockerfile-image-small.md)
+     * [Übung: Java REST-API mit Multi-Stage Dockerfile](docker/java-rest-api-multistage.md)
 
   1. Kubernetes - Überblick
      * [12-Factor-App - Design Prinzipien fuer Cloud Native Anwendungen](12-factor-app.md)
