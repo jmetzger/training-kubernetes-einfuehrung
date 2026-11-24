@@ -216,6 +216,7 @@
 
   1. Tipps & Tricks
      * [Pods bleiben im terminate-mode stehen](/tipps-tricks/pod-bleibt-in-terminate.md)
+     * [Wie erkennt Kubernetes, dass ein Node ausgefallen ist?](/tipps-tricks/node-ausfall-erkennung.md)
 
   1. Datenbanken
      * [MariaDB Operator](https://github.com/mariadb-operator/mariadb-operator)
