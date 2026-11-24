@@ -55,9 +55,90 @@ Lösung: Language-Mode **Helm** verwenden.
 
 Danach ggf. `Strg+Shift+P` -> **Developer: Reload Window**.
 
+## Was man in VS Code mit Helm machen kann
+
+Alle Beispiele nutzen das Chart, das `helm create testchart` erzeugt. Die Screenshots
+stammen aus VS Code mit Remote - WSL.
+
+### 1. Templates lesen: Syntax-Highlighting
+
+Im Language-Mode **Helm** (Statusleiste unten rechts: `helm-template`) werden die
+Go-Template-Teile vom YAML getrennt eingefärbt:
+
+- `{{` und `}}` sowie Schlüsselwörter wie `include`, `if`, `with`, `end` sind abgesetzt,
+- `.Values.…` und `.Chart.…` erkennt man auf einen Blick,
+- Pipes und Sprig-Funktionen wie `nindent` oder `toYaml` sind eigene Farben,
+- die Breadcrumb-Leiste oben zeigt, wo man sich im YAML befindet (`kind > Deployment`).
+
+Der Nutzen: Man sieht sofort, welche Zeilen vom Chart erzeugt werden und welche feste
+Manifest-Struktur sind. Das hilft vor allem beim Verstehen fremder Charts.
+
+![Template mit Helm-Highlighting](images/vscode-template-highlighting.png)
+
+*Voraussetzung: Ordner ist vertrauenswürdig (siehe oben), sonst bleibt der Editor einfarbig.*
+
+### 2. Auswirkungen von values vergleichen: Dev gegen Prod
+
+Die wichtigste Frage bei Helm lautet: Was ändert sich im fertigen Manifest, wenn ich andere
+Werte übergebe? Dazu rendert man das Chart zweimal und vergleicht die Ergebnisse
+nebeneinander:
+
+```bash
+helm template rel . > demo/render-dev.yaml
+helm template rel . -f values-prod.yaml > demo/render-prod.yaml
+code --diff demo/render-dev.yaml demo/render-prod.yaml
+```
+
+Im Screenshot sieht man links Dev, rechts Prod. Die Unterschiede sind farbig markiert:
+`type: ClusterIP` wird zu `LoadBalancer`, `replicas: 1` zu `5`. Weiter unten im selben
+Vergleich stehen die geänderte Image-Version und die neuen `resources`.
+
+Der Nutzen: Man prüft Änderungen vor dem Rollout, ohne einen Cluster zu brauchen.
+Das Plugin `helm diff` vergleicht dagegen gegen einen laufenden Release und ersetzt dieses
+Vorgehen nicht; der lokale Vergleich ist aber sofort und ohne Cluster verfügbar.
+
+![Vergleich der gerenderten Manifeste für Dev und Prod](images/vscode-diff-dev-prod.png)
+
+### 3. Fehler in values früh erkennen: values.schema.json
+
+Legt man im Chart eine `values.schema.json` an, prüft Helm damit die Werte, und VS Code
+zeigt Verstöße schon beim Tippen an. Dazu kommt oben in die Values-Datei eine Zeile für die
+YAML-Extension (der Pfad ist relativ zur jeweiligen Datei):
+
+```yaml
+# yaml-language-server: $schema=values.schema.json
+replicaCount: "fuenf"        # Fehler: erwartet wird eine Zahl
+service:
+  type: Loadbalancer         # Fehler: erlaubt sind ClusterIP, NodePort, LoadBalancer
+```
+
+Im Screenshot sind die beiden falschen Werte rot unterwellt. Dieselben Fehler fängt auch
+Helm selbst ab, bevor etwas deployt wird:
+
+```
+$ helm lint . -f values-fehler.yaml
+[ERROR] values.yaml: - replicaCount: Invalid type. Expected: integer, given: string
+- service.type: service.type must be one of the following: "ClusterIP", "NodePort", "LoadBalancer"
+```
+
+Der Nutzen: Tippfehler und falsche Typen fallen im Editor auf und nicht erst bei
+`helm install`. Das Schema dient zugleich als Dokumentation der erlaubten Werte.
+
+![values.yaml gegen values.schema.json geprüft](images/vscode-schema-fehler.png)
+
+### 4. Kubernetes-Extension
+
+Die Kubernetes-Extension legt links in der Seitenleiste ein eigenes Symbol (Steuerrad) an.
+Laut Beschreibung der Extension lassen sich darüber Cluster aus der Kubeconfig ansehen. Das
+haben wir hier nicht ausprobiert; die Beispiele oben brauchen keinen Cluster.
+
 ## Prüfen im Terminal
 
 ```bash
-helm lint .
-helm template mein-release . -f values.yaml
+helm lint .                                   # Struktur und Schema prüfen
+helm lint . -f values-prod.yaml               # mit anderen Werten
+helm template mein-release . -f values.yaml   # fertiges YAML ansehen
 ```
+
+Das integrierte Terminal (Menü *Terminal* -> *New Terminal*) läuft bei Remote-Nutzung auf der
+Remote-Maschine (WSL oder Bastion). Dort müssen `helm` und `kubectl` installiert sein.
