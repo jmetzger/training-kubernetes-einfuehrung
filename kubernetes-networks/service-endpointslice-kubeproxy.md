@@ -52,7 +52,9 @@ Die Slice an sich wird nur gelöscht, wenn der Service gelöscht wird (oder der 
 - **Clients brauchen Timeouts und Retries.** Sonst hängen Requests in den ersten 50 s.
 - **`tolerationSeconds` anpassen**, wenn 5 min bis zum Ersatz-Pod zu lang sind (z. B. 30–60 s für zustandslose Apps).
 - **Mehrere Replicas auf verschiedenen Nodes** (topologySpreadConstraints / Anti-Affinity), sonst gibt es nach dem Ausfall keinen gesunden Endpoint.
-- **StatefulSets** werden nicht automatisch auf einen anderen Node verschoben, solange der Node nur „Unknown“ ist (Schutz vor Split-Brain). Hier ist manuelles Eingreifen oder Node-Löschung nötig.
+- **StatefulSets:** Das Pod-Objekt des toten Nodes bleibt nach der Eviction im Status Terminating bestehen, solange das kubelet das Löschen nicht bestätigt. Solange es existiert, gibt es keinen Ersatz-Pod mit demselben Namen (Schutz vor zwei Pods mit gleicher Identität). Nötig ist manuelles Eingreifen: `kubectl delete pod --force`, Node-Objekt löschen oder Taint `node.kubernetes.io/out-of-service` setzen (dann räumt der Pod-GC-Controller die Terminating-Pods ab).
+
+
 
 ## 3. Beobachten in der Übung
 

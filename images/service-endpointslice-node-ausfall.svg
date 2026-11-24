@@ -56,5 +56,5 @@
   <rect x="130" y="525" width="800" height="76" rx="8" fill="#dcfce7" stroke="#15803d"/>
   <text x="145" y="547" fill="#14532d" font-weight="bold">Neuer Pod wird Ready → neuer Endpoint in der EndpointSlice → kube-proxy nimmt ihn auf</text>
   <text x="145" y="566" fill="#14532d" font-size="12">Der tote Pod-Eintrag verschwindet erst endgültig, wenn das Pod-Objekt weg ist: Node-Objekt gelöscht (z. B. Autoscaler/Cloud-Controller),</text>
-  <text x="145" y="581" fill="#14532d" font-size="12">Pod-GC, oder manuelles kubectl delete pod --force bzw. Node kommt zurück und kubelet bestätigt das Löschen.</text>
+  <text x="145" y="581" fill="#14532d" font-size="12">Pod-GC bei Taint node.kubernetes.io/out-of-service (manuell), kubectl delete pod --force, oder der Node kommt zurück.</text>
 </svg>
