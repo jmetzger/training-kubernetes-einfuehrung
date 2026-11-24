@@ -13,10 +13,19 @@ Die Gateway API ist der Nachfolger von Ingress. Statt einer einzigen Ressource g
 Vorteile gegenueber Ingress: Routing-Features (Header-Match, Gewichtung/Canary, Redirects) sind Teil des
 Standards, statt in controller-spezifischen Annotations zu stecken.
 
-Voraussetzung: Traefik ist installiert (siehe `ingress/traefik/install-with-helm.md`), die Gateway-API-CRDs
-sind vorhanden.
+Voraussetzung: Traefik ist installiert (siehe `ingress/traefik/install-with-helm.md`).
 
 ## Schritt 0: Trainer-Vorbereitung (einmalig, nicht fuer Teilnehmer)
+
+Auf DigitalOcean (DOKS) sind Gateway-API-CRDs (v1.2.1, experimental) vorinstalliert, weil Cilium sie mitbringt.
+Traefik 3.7 braucht neuere (u.a. `TLSRoute` v1 und `BackendTLSPolicy`), sonst bleibt die GatewayClass auf `Unknown`
+und die Traefik-Logs zeigen `failed to list *v1.TLSRoute` / `BackendTLSPolicy`. Deshalb die CRDs aktualisieren:
+
+```
+helm template traefik-crds traefik/traefik-crds --set gatewayAPI=true | kubectl apply --server-side --force-conflicts -f -
+kubectl get crd tlsroutes.gateway.networking.k8s.io -o jsonpath='{.spec.versions[*].name}'
+# muss v1 enthalten
+```
 
 Kubernetes-Gateway-Provider in Traefik einschalten:
 
@@ -29,6 +38,7 @@ Pruefen, ob GatewayClass da ist und akzeptiert wurde:
 ```
 kubectl get crd | grep gateway.networking.k8s.io
 kubectl get gatewayclass
+# traefik -> ACCEPTED True (dauert ggf. etwas; es gibt auf DOKS zusaetzlich die GatewayClass "cilium", die ignorieren wir)
 ```
 
 Gemeinsames Gateway fuer alle Teilnehmer anlegen:
@@ -54,8 +64,11 @@ spec:
 ```
 kubectl apply -f gateway.yml
 kubectl -n ingress get gateway shared-gateway
-# PROGRAMMED sollte True sein
+# PROGRAMMED sollte True sein, ADDRESS ist die LoadBalancer-IP von Traefik
 ```
+
+Hinweis: Das Helm-Chart legt bei aktiviertem Provider selbst auch ein Gateway `traefik-gateway` an (nur Namespace `ingress`).
+Wir nutzen `shared-gateway`, weil dort Routen aus allen Namespaces erlaubt sind.
 
 ## Schritt 1: Vorbereitung
 
@@ -145,6 +158,8 @@ spec:
 kubectl apply -f . -n gateway-<dein-name>
 kubectl get pods,svc -n gateway-<dein-name>
 ```
+
+Kurz warten, bis beide Pods `Running` sind, sonst kommt bei den ersten Requests `no available server`.
 
 ## Schritt 3: HTTPRoute mit Pfaden
 
@@ -249,12 +264,12 @@ kubectl describe httproute example-route -n gateway-<dein-name>
 
 Typische Ursachen:
 
-| Symptom in Status | Ursache |
-|-------------------|---------|
+| Symptom | Ursache |
+|---------|---------|
 | `Accepted: False, NotAllowedByListeners` | Gateway erlaubt den Namespace nicht (`allowedRoutes`) |
-| `Accepted: False, NoMatchingParent` | `parentRefs` falsch (Name/Namespace des Gateways) |
-| `ResolvedRefs: False, BackendNotFound` | Service-Name oder Port falsch |
-| `404` von Traefik | Hostname im Request passt nicht zu `hostnames` |
+| `ResolvedRefs: False, BackendNotFound` | Service-Name oder Port falsch, Request liefert `500` |
+| `404 page not found` von Traefik, Status trotzdem `Accepted: True` | `parentRefs` zeigt auf ein nicht existierendes Gateway (Traefik meldet das nicht, die Route wird einfach ignoriert) oder der Hostname im Request passt nicht zu `hostnames` |
+| `no available server` | Pods noch nicht bereit |
 
 ## Ingress vs. Gateway API
 
