@@ -2,20 +2,40 @@
 
 ## Empfohlene Extensions
 
-| Extension | ID | Wofür |
-|---|---|---|
-| Kubernetes | `ms-kubernetes-tools.vscode-kubernetes-tools` | Cluster-Explorer, Logs; bringt den Language-Mode `helm` für `templates/` mit |
-| YAML | `redhat.vscode-yaml` | Validierung und Schemas für YAML |
-| Helm Intellisense | `Tim-Koehler.helm-intellisense` | Vervollständigung für `.Values.*` aus der `values.yaml` |
-| Remote - SSH / WSL | `ms-vscode-remote.remote-ssh`, `ms-vscode-remote.remote-wsl` | Arbeiten direkt auf Bastion bzw. in WSL |
+| Extension (Suchbegriff) | Herausgeber | ID | Wofür |
+|---|---|---|---|
+| Kubernetes | Microsoft | `ms-kubernetes-tools.vscode-kubernetes-tools` | Cluster- und Helm-Repo-Ansicht; bringt den Language-Mode `helm` für `templates/` mit |
+| YAML | Red Hat | `redhat.vscode-yaml` | Validierung und Schemas für YAML |
+| Helm Intellisense | Tim Koehler | `Tim-Koehler.helm-intellisense` | Vervollständigung für `.Values.*` aus der `values.yaml` |
+| Remote - WSL / Remote - SSH | Microsoft | `ms-vscode-remote.remote-wsl`, `ms-vscode-remote.remote-ssh` | Arbeiten direkt in WSL bzw. auf der Bastion |
 
-Installation (Extensions müssen bei Remote-Nutzung auch auf der Remote-Seite installiert sein):
+## Extensions finden und installieren
+
+**Über die Oberfläche:**
+
+1. Links in der Seitenleiste auf das Extensions-Symbol (vier Quadrate) klicken oder `Strg+Shift+X` drücken.
+2. In das Suchfeld den Namen eingeben, z. B. `Helm Intellisense`.
+3. **Den Herausgeber prüfen** (steht unter dem Namen) und dann auf **Install** klicken.
+
+Im Screenshot sieht man, warum der Herausgeber wichtig ist: Die Suche liefert mehrere ähnlich
+klingende Extensions von anderen Herausgebern (z. B. *Flux Helm IntelliSense*, *Helm Helper*).
+Die richtige ist hier die erste, *Helm Intellisense* von **Tim Koehler**. (Sie ist in diesem
+Screenshot schon installiert, deshalb fehlt der Install-Button.) Ebenfalls in den Suchtreffern
+steht eine ältere Extension *vscode-helm*; ihre Beschreibung lautet "Superseded by Kubernetes
+extension", sie wird also von der Kubernetes-Extension abgelöst und muss nicht installiert werden.
+
+![Suche nach Helm Intellisense in der Extensions-Ansicht](images/vscode-extension-suche.png)
+
+**Über die Kommandozeile** (eindeutig über die ID, praktisch für mehrere Rechner):
 
 ```bash
 code --install-extension ms-kubernetes-tools.vscode-kubernetes-tools
 code --install-extension redhat.vscode-yaml
 code --install-extension Tim-Koehler.helm-intellisense
 ```
+
+Bei Remote-Nutzung (WSL oder SSH) müssen die Extensions auch auf der Remote-Seite installiert
+sein, nicht nur lokal unter Windows.
 
 ## Wichtig: Ordner als vertrauenswürdig markieren (Workspace Trust)
 
@@ -180,18 +200,21 @@ Der Nutzen: Tippfehler und falsche Typen fallen im Editor auf und nicht erst bei
 Die Kubernetes-Extension legt links in der Seitenleiste ein eigenes Symbol (Steuerrad) an.
 Die Ansicht hat drei Bereiche:
 
-- **Clusters:** alle Kontexte aus der Kubeconfig. Aufklappen zeigt Namespaces, Workloads usw.
-- **Helm Repos:** die Repos aus `helm repo list` (z. B. `traefik`, `jetstack`, `hashicorp`).
-  Aufklappen zeigt die Charts des Repos.
+- **Clusters:** die Kontexte aus der Kubeconfig.
+- **Helm Repos:** die Repos aus `helm repo list`, im Screenshot z. B. `traefik`, `jetstack`,
+  `hashicorp`. Jedes Repo lässt sich aufklappen.
 - **Clouds:** Anbindung an Cloud-Anbieter (ohne Registrierung leer).
 
 Die Ansicht öffnet man über das Steuerrad-Symbol oder per `Strg+Shift+P` ->
 *Kubernetes: Focus on Helm Repos View*.
 
-Der Nutzen: Man sieht Cluster und verfügbare Charts, ohne `kubectl get` und `helm search`
-im Terminal zu tippen. Aufgeklappt haben wir nur die Listen der Cluster und der Repos; die
-Inhalte darunter wurden nicht ausprobiert. Einen Screenshot gibt es hier bewusst nicht,
-weil die Cluster-Liste echte Kontextnamen zeigt.
+Der Nutzen: Man sieht Cluster und die lokal eingetragenen Helm-Repos, ohne `kubectl config
+get-contexts` und `helm repo list` im Terminal zu tippen. Ausprobiert haben wir nur, dass die
+Listen erscheinen; was sich beim Aufklappen der Einträge zeigt, wurde nicht getestet. Der
+Screenshot zeigt bewusst nur den Bereich *Helm Repos*, weil die Cluster-Liste echte
+Kontextnamen enthält.
+
+![Bereich Helm Repos der Kubernetes-Extension](images/vscode-kubernetes-helm-repos.png)
 
 ## Prüfen im Terminal
 
