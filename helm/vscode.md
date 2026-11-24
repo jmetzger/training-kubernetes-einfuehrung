@@ -77,7 +77,21 @@ Manifest-Struktur sind. Das hilft vor allem beim Verstehen fremder Charts.
 
 *Voraussetzung: Ordner ist vertrauenswürdig (siehe oben), sonst bleibt der Editor einfarbig.*
 
-### 2. Auswirkungen von values vergleichen: Dev gegen Prod
+### 2. Werte vervollständigen: Helm Intellisense
+
+Tippt man in einem Template `{{ .Values.`, schlägt Helm Intellisense die Schlüssel aus der
+`values.yaml` des Charts vor (hier `affinity`, `autoscaling`, `image`, `ingress`, …).
+Die Liste lässt sich auch mit `Strg+Leertaste` aufrufen.
+
+Der Nutzen: Man schreibt keine Tippfehler in Wertnamen und muss die `values.yaml` nicht
+ständig daneben offen haben.
+
+Hinweis: Oben in der Liste stehen zusätzlich Dateien wie `Chart.yaml`. Das sind
+Datei-Vorschläge und keine Werte.
+
+![Vorschläge für .Values. in einem Template](images/vscode-vervollstaendigung.png)
+
+### 3. Auswirkungen von values vergleichen: Dev gegen Prod
 
 Die wichtigste Frage bei Helm lautet: Was ändert sich im fertigen Manifest, wenn ich andere
 Werte übergebe? Dazu rendert man das Chart zweimal und vergleicht die Ergebnisse
@@ -99,7 +113,7 @@ Vorgehen nicht; der lokale Vergleich ist aber sofort und ohne Cluster verfügbar
 
 ![Vergleich der gerenderten Manifeste für Dev und Prod](images/vscode-diff-dev-prod.png)
 
-### 3. Fehler in values früh erkennen: values.schema.json
+### 4. Fehler in values früh erkennen: values.schema.json
 
 Legt man im Chart eine `values.schema.json` an, prüft Helm damit die Werte, und VS Code
 zeigt Verstöße schon beim Tippen an. Dazu kommt oben in die Values-Datei eine Zeile für die
@@ -126,11 +140,23 @@ Der Nutzen: Tippfehler und falsche Typen fallen im Editor auf und nicht erst bei
 
 ![values.yaml gegen values.schema.json geprüft](images/vscode-schema-fehler.png)
 
-### 4. Kubernetes-Extension
+### 5. Kubernetes-Extension: Cluster und Helm-Repos ansehen
 
 Die Kubernetes-Extension legt links in der Seitenleiste ein eigenes Symbol (Steuerrad) an.
-Laut Beschreibung der Extension lassen sich darüber Cluster aus der Kubeconfig ansehen. Das
-haben wir hier nicht ausprobiert; die Beispiele oben brauchen keinen Cluster.
+Die Ansicht hat drei Bereiche:
+
+- **Clusters:** alle Kontexte aus der Kubeconfig. Aufklappen zeigt Namespaces, Workloads usw.
+- **Helm Repos:** die Repos aus `helm repo list` (z. B. `traefik`, `jetstack`, `hashicorp`).
+  Aufklappen zeigt die Charts des Repos.
+- **Clouds:** Anbindung an Cloud-Anbieter (ohne Registrierung leer).
+
+Die Ansicht öffnet man über das Steuerrad-Symbol oder per `Strg+Shift+P` ->
+*Kubernetes: Focus on Helm Repos View*.
+
+Der Nutzen: Man sieht Cluster und verfügbare Charts, ohne `kubectl get` und `helm search`
+im Terminal zu tippen. Aufgeklappt haben wir nur die Listen der Cluster und der Repos; die
+Inhalte darunter wurden nicht ausprobiert. Einen Screenshot gibt es hier bewusst nicht,
+weil die Cluster-Liste echte Kontextnamen zeigt.
 
 ## Prüfen im Terminal
 
