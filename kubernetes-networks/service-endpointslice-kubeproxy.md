@@ -2,6 +2,12 @@
 
 Wie ein Service-Request im Cluster tatsächlich bei einem Pod landet – und was passiert, wenn ein Node ausfällt.
 
+## 0. Der Ablauf Schritt für Schritt
+
+Von `kubectl apply` bis zum ersten Request, mit den beteiligten Komponenten und dem Node, auf dem jeder Pod landet:
+
+![Ablauf von kubectl apply bis zum ersten Request](/images/service-ablauf-erstellen.svg)
+
 ## 1. Das Zusammenspiel
 
 ![Service, EndpointSlice-Controller und kube-proxy](/images/service-endpointslice-kubeproxy-architektur.svg)

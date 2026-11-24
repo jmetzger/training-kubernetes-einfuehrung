@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1170 1188" font-family="Helvetica, Arial, sans-serif" font-size="13">
+<defs>
+<marker id="mk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker>
+<marker id="md" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1d4ed8"/></marker>
+<marker id="mg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#15803d"/></marker>
+</defs>
+<rect width="1170" height="1188" fill="#ffffff"/>
+<text x="585.0" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#0f172a">Ablauf: von „kubectl apply“ bis zum ersten Request</text>
+<rect x="215" y="42" width="590" height="22" rx="4" fill="#eff6ff" stroke="#93c5fd"/>
+<text x="510.0" y="58" text-anchor="middle" fill="#1e3a8a" font-weight="bold">Control Plane</text>
+<rect x="815" y="42" width="340" height="22" rx="4" fill="#f0fdf4" stroke="#86efac"/>
+<text x="985.0" y="58" text-anchor="middle" fill="#14532d" font-weight="bold">Worker-Nodes</text>
+<rect x="20" y="72" width="160" height="52" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="100" y="95" text-anchor="middle" font-weight="bold" fill="#0f172a">kubectl</text>
+<text x="100" y="113" text-anchor="middle" fill="#0f172a" font-size="12">(dein Rechner)</text>
+<line x1="100" y1="124" x2="100" y2="982" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="230" y="72" width="160" height="52" rx="8" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+<text x="310" y="95" text-anchor="middle" font-weight="bold" fill="#1e3a8a">kube-apiserver</text>
+<text x="310" y="113" text-anchor="middle" fill="#1e3a8a" font-size="12">+ etcd</text>
+<line x1="310" y1="124" x2="310" y2="982" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="440" y="72" width="160" height="52" rx="8" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+<text x="520" y="95" text-anchor="middle" font-weight="bold" fill="#78350f">kube-controller-</text>
+<text x="520" y="113" text-anchor="middle" fill="#78350f" font-size="12">manager</text>
+<line x1="520" y1="124" x2="520" y2="982" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="630" y="72" width="160" height="52" rx="8" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+<text x="710" y="103" text-anchor="middle" font-weight="bold" fill="#78350f">kube-scheduler</text>
+<line x1="710" y1="124" x2="710" y2="982" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="820" y="72" width="160" height="52" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<text x="900" y="95" text-anchor="middle" font-weight="bold" fill="#14532d">Node A</text>
+<text x="900" y="113" text-anchor="middle" fill="#14532d" font-size="12">kubelet · kube-proxy</text>
+<line x1="900" y1="124" x2="900" y2="982" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="990" y="72" width="160" height="52" rx="8" fill="#ccfbf1" stroke="#0f766e" stroke-width="2"/>
+<text x="1070" y="95" text-anchor="middle" font-weight="bold" fill="#134e4a">Node B</text>
+<text x="1070" y="113" text-anchor="middle" fill="#134e4a" font-size="12">kubelet · kube-proxy</text>
+<line x1="1070" y1="124" x2="1070" y2="982" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="110" y="146" width="475.5" height="40" rx="4" fill="#ffffff" fill-opacity="0.93"/>
+<text x="116" y="161" font-weight="bold" fill="#0f172a" font-size="13.5">kubectl apply: Deployment (2 Replicas) + Service</text>
+<text x="116" y="180" fill="#334155" font-size="12.5">API-Server prüft und speichert beides in etcd. Es gibt noch keine Pods.</text>
+<circle cx="28" cy="164" r="14" fill="#0f172a"/><text x="28" y="169" text-anchor="middle" fill="#fff" font-weight="bold">1</text>
+<line x1="100" y1="204" x2="304" y2="204" stroke="#334155" stroke-width="2.2" marker-end="url(#mk)"/>
+<rect x="320" y="238" width="483.32" height="40" rx="4" fill="#ffffff" fill-opacity="0.93"/>
+<text x="326" y="253" font-weight="bold" fill="#0f172a" font-size="13.5">Deployment-Controller (im controller-manager) sieht das Deployment</text>
+<text x="326" y="272" fill="#334155" font-size="12.5">Er legt ein ReplicaSet an.</text>
+<circle cx="28" cy="256" r="14" fill="#0f172a"/><text x="28" y="261" text-anchor="middle" fill="#fff" font-weight="bold">2</text>
+<line x1="520" y1="296" x2="316" y2="296" stroke="#334155" stroke-width="2.2" marker-end="url(#mk)"/>
+<rect x="320" y="330" width="495.0" height="40" rx="4" fill="#ffffff" fill-opacity="0.93"/>
+<text x="326" y="345" font-weight="bold" fill="#0f172a" font-size="13.5">ReplicaSet-Controller legt 2 Pod-Objekte an</text>
+<text x="326" y="364" fill="#334155" font-size="12.5">Noch ohne Node (spec.nodeName leer, Status Pending). Es läuft noch nichts.</text>
+<circle cx="28" cy="348" r="14" fill="#0f172a"/><text x="28" y="353" text-anchor="middle" fill="#fff" font-weight="bold">3</text>
+<line x1="520" y1="388" x2="316" y2="388" stroke="#334155" stroke-width="2.2" marker-end="url(#mk)"/>
+<rect x="320" y="422" width="391.0" height="40" rx="4" fill="#ffffff" fill-opacity="0.93"/>
+<text x="326" y="437" font-weight="bold" fill="#0f172a" font-size="13.5">Scheduler sieht Pods ohne Node und entscheidet</text>
+<text x="326" y="456" fill="#334155" font-size="12.5">Trägt spec.nodeName ein:  Pod 1 → Node A,  Pod 2 → Node B.</text>
+<circle cx="28" cy="440" r="14" fill="#0f172a"/><text x="28" y="445" text-anchor="middle" fill="#fff" font-weight="bold">4</text>
+<line x1="710" y1="480" x2="316" y2="480" stroke="#334155" stroke-width="2.2" marker-end="url(#mk)"/>
+<rect x="320" y="514" width="683.5" height="40" rx="4" fill="#ffffff" fill-opacity="0.93"/>
+<text x="326" y="529" font-weight="bold" fill="#0f172a" font-size="13.5">kubelet auf Node A und Node B bekommt je „seinen“ Pod gemeldet (Watch)</text>
+<text x="326" y="548" fill="#334155" font-size="12.5">Startet den Container (CRI), das CNI-Plugin vergibt die Pod-IP: Pod 1 = 10.244.1.5, Pod 2 = 10.244.2.7.</text>
+<circle cx="28" cy="532" r="14" fill="#0f172a"/><text x="28" y="537" text-anchor="middle" fill="#fff" font-weight="bold">5</text>
+<line x1="310" y1="572" x2="894" y2="572" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#md)"/>
+<line x1="310" y1="584" x2="1064" y2="584" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#md)"/>
+<rect x="320" y="606" width="482.0" height="40" rx="4" fill="#ffffff" fill-opacity="0.93"/>
+<text x="326" y="621" font-weight="bold" fill="#0f172a" font-size="13.5">kubelet meldet zurück: status.podIP + Ready=True</text>
+<text x="326" y="640" fill="#334155" font-size="12.5">Erst nach bestandener Readiness-Probe. Ab jetzt sind beide Pods „ready“.</text>
+<circle cx="28" cy="624" r="14" fill="#0f172a"/><text x="28" y="629" text-anchor="middle" fill="#fff" font-weight="bold">6</text>
+<line x1="900" y1="664" x2="316" y2="664" stroke="#334155" stroke-width="2.2" marker-end="url(#mk)"/>
+<line x1="1070" y1="676" x2="316" y2="676" stroke="#334155" stroke-width="2.2" marker-end="url(#mk)"/>
+<rect x="320" y="698" width="755.0" height="40" rx="4" fill="#ffffff" fill-opacity="0.93"/>
+<text x="326" y="713" font-weight="bold" fill="#0f172a" font-size="13.5">EndpointSlice-Controller schreibt die EndpointSlice</text>
+<text x="326" y="732" fill="#334155" font-size="12.5">Liest Service-Selector + Pod-Objekte aus dem API-Server: 10.244.1.5 (Node A) und 10.244.2.7 (Node B), beide ready.</text>
+<circle cx="28" cy="716" r="14" fill="#0f172a"/><text x="28" y="721" text-anchor="middle" fill="#fff" font-weight="bold">7</text>
+<line x1="520" y1="756" x2="316" y2="756" stroke="#334155" stroke-width="2.2" marker-end="url(#mk)"/>
+<rect x="320" y="790" width="592.5" height="40" rx="4" fill="#ffffff" fill-opacity="0.93"/>
+<text x="326" y="805" font-weight="bold" fill="#0f172a" font-size="13.5">kube-proxy auf JEDEM Node bekommt die neue EndpointSlice gemeldet (Watch)</text>
+<text x="326" y="824" fill="#334155" font-size="12.5">Programmiert lokal iptables/nftables: ClusterIP des Service → 10.244.1.5 oder 10.244.2.7.</text>
+<circle cx="28" cy="808" r="14" fill="#0f172a"/><text x="28" y="813" text-anchor="middle" fill="#fff" font-weight="bold">8</text>
+<line x1="310" y1="848" x2="894" y2="848" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#md)"/>
+<line x1="310" y1="860" x2="1064" y2="860" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#md)"/>
+<rect x="410.0" y="882" width="742.0" height="40" rx="4" fill="#ffffff" fill-opacity="0.93"/>
+<text x="416.0" y="897" font-weight="bold" fill="#0f172a" font-size="13.5">Ein Client-Pod auf Node A ruft die ClusterIP auf</text>
+<text x="416.0" y="916" fill="#334155" font-size="12.5">Die Kernel-Regeln auf Node A wählen per DNAT einen Endpoint: Pod 1 (lokal) oder Pod 2 (über das Netz zu Node B).</text>
+<circle cx="28" cy="900" r="14" fill="#0f172a"/><text x="28" y="905" text-anchor="middle" fill="#fff" font-weight="bold">9</text>
+<line x1="900" y1="940" x2="1064" y2="940" stroke="#15803d" stroke-width="2.2" marker-end="url(#mg)"/>
+<text x="30" y="1000" font-weight="bold" fill="#0f172a" font-size="14">Ergebnis: wer läuft wo?</text>
+<rect x="820" y="1014" width="160" height="110" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<text x="830" y="1032" font-weight="bold" fill="#14532d">Node A</text>
+<rect x="832" y="1040" width="136" height="32" rx="6" fill="#ede9fe" stroke="#6d28d9"/>
+<text x="900" y="1061" text-anchor="middle" fill="#4c1d95">Pod 1 · 10.244.1.5</text>
+<rect x="832" y="1080" width="136" height="36" rx="6" fill="#ffffff" stroke="#15803d"/>
+<text x="900" y="1095" text-anchor="middle" fill="#14532d" font-size="12">kube-proxy: Regeln</text>
+<text x="900" y="1109" text-anchor="middle" fill="#14532d" font-size="12">ClusterIP → beide Pods</text>
+<rect x="990" y="1014" width="160" height="110" rx="8" fill="#ccfbf1" stroke="#0f766e" stroke-width="2"/>
+<text x="1000" y="1032" font-weight="bold" fill="#134e4a">Node B</text>
+<rect x="1002" y="1040" width="136" height="32" rx="6" fill="#ede9fe" stroke="#6d28d9"/>
+<text x="1070" y="1061" text-anchor="middle" fill="#4c1d95">Pod 2 · 10.244.2.7</text>
+<rect x="1002" y="1080" width="136" height="36" rx="6" fill="#ffffff" stroke="#0f766e"/>
+<text x="1070" y="1095" text-anchor="middle" fill="#134e4a" font-size="12">kube-proxy: Regeln</text>
+<text x="1070" y="1109" text-anchor="middle" fill="#134e4a" font-size="12">ClusterIP → beide Pods</text>
+<text x="30" y="1038" fill="#334155" font-size="12.5">kubelet und kube-proxy laufen</text>
+<text x="30" y="1054" fill="#334155" font-size="12.5">auf jedem Node. Die Regeln für</text>
+<text x="30" y="1070" fill="#334155" font-size="12.5">den Service sind überall gleich.</text>
+<line x1="330" y1="1008" x2="380" y2="1008" stroke="#334155" stroke-width="2.2" marker-end="url(#mk)"/>
+<text x="390" y="1012" fill="#334155" font-size="12.5">schreibt in den API-Server</text>
+<line x1="330" y1="1032" x2="380" y2="1032" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#md)"/>
+<text x="390" y="1036" fill="#334155" font-size="12.5">Watch-Event vom API-Server</text>
+<line x1="330" y1="1056" x2="380" y2="1056" stroke="#15803d" stroke-width="2.2" marker-end="url(#mg)"/>
+<text x="390" y="1060" fill="#334155" font-size="12.5">Request (Nutzdaten, nicht über den API-Server)</text>
+<text x="330" y="1080" fill="#475569" font-size="12">Die Controller, der Scheduler und die kubelets öffnen die Watch-Verbindung selbst.</text>
+<text x="330" y="1096" fill="#475569" font-size="12">Controller, Scheduler und kubelets koordinieren sich nur über den API-Server, nicht direkt untereinander.</text>
+</svg>
