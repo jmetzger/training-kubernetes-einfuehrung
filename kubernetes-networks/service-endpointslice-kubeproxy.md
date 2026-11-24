@@ -32,6 +32,20 @@ Ablauf:
 
 ![Zeitlicher Ablauf bei Node-Ausfall](/images/service-endpointslice-node-ausfall.svg)
 
+### Was sind die „Heartbeats“ des Kubelets?
+
+Der Kubelet meldet sich auf zwei Wegen beim API-Server:
+
+| | Lease | Node-Status |
+|---|---|---|
+| **Objekt** | `Lease` (`coordination.k8s.io/v1`) im Namespace `kube-node-lease`, Name = Node-Name | `Node`-Objekt, Subresource `status` |
+| **Call** | `GET`, bei Bedarf `CREATE`, dann `UPDATE` (PUT) auf `/apis/coordination.k8s.io/v1/namespaces/kube-node-lease/leases/<node>` | `PATCH /api/v1/nodes/<node>/status` |
+| **Inhalt** | im Wesentlichen `spec.renewTime`, dazu `leaseDurationSeconds: 40` | Conditions (Ready, MemoryPressure, DiskPressure, PIDPressure), Kapazität/Allocatable, Adressen, Node-Info, Images |
+| **Takt** | alle 10 s (0,25 × 40 s) | Prüfung alle 10 s, gepatcht wird nur bei Änderung oder nach `NodeStatusReportFrequency` (Default 5 min) |
+| **Zweck** | billiger Heartbeat (winziges Objekt) | vollständiger Zustand des Nodes |
+
+Bleiben die Updates aus, läuft beim Node-Lifecycle-Controller die `node-monitor-grace-period` (50 s) ab, und der Node wird `Ready=Unknown`. Ob der Controller genau Lease und Status kombiniert auswertet, ist hier nicht im Code geprüft.
+
 ### Welche Controller sind beteiligt?
 
 „Node-Controller“ aus älteren Büchern und Docs ist heute auf mehrere Controller aufgeteilt:
