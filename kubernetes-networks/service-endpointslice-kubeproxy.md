@@ -1,0 +1,75 @@
+# Service → EndpointSlice-Controller → kube-proxy
+
+Wie ein Service-Request im Cluster tatsächlich bei einem Pod landet – und was passiert, wenn ein Node ausfällt.
+
+## 1. Das Zusammenspiel
+
+![Service, EndpointSlice-Controller und kube-proxy](/images/service-endpointslice-kubeproxy-architektur.svg)
+
+| Komponente | Läuft wo | Aufgabe |
+|---|---|---|
+| **Service** | nur ein Objekt in der API (etcd) | Stabile virtuelle IP (ClusterIP) + Selector. Enthält selbst **keine** Pod-IPs. |
+| **EndpointSlice-Controller** | `kube-controller-manager` | Beobachtet Services und Pods. Legt zu jedem Service mit Selector EndpointSlices an (max. 100 Endpoints pro Slice) und hält sie aktuell. Pro Endpoint: Pod-IP, Node, Conditions `ready` / `serving` / `terminating`. |
+| **kube-proxy** | DaemonSet, auf **jedem** Node | Beobachtet Services + EndpointSlices per Watch und programmiert daraus lokale Regeln (iptables, IPVS oder nftables). |
+
+Ablauf:
+
+1. Du legst Deployment + Service an. Die API speichert beides in etcd.
+2. Der EndpointSlice-Controller sieht den neuen Service und die passenden Pods (per Watch).
+3. Er schreibt die EndpointSlice(s) mit allen **ready** Pod-IPs.
+4. kube-proxy auf jedem Node sieht die neue/geänderte Slice und baut seine Regeln um.
+5. Ein Client spricht die ClusterIP an. Die Regeln im Kernel (DNAT) wählen einen Endpoint aus. kube-proxy ist **nicht** im Datenpfad, er konfiguriert nur.
+
+> Der Service-Controller (Name im Titel „ServiceController“) ist etwas anderes: Der kümmert sich nur um `type: LoadBalancer` (Cloud-Loadbalancer anlegen). Für ClusterIP/Endpoints ist der **EndpointSlice-Controller** zuständig.
+
+## 2. Node fällt aus – was passiert?
+
+![Zeitlicher Ablauf bei Node-Ausfall](/images/service-endpointslice-node-ausfall.svg)
+
+### Korrektur zur Annahme „EndpointSlice verschwindet“
+
+Die EndpointSlice **verschwindet nicht**, wenn ein Node ausfällt. Es ändert sich der **Endpoint-Eintrag darin**:
+
+| Zeitpunkt | Zustand des Endpoints von Pod 2 | Wirkung |
+|---|---|---|
+| Node stirbt bis ~40 s | `ready: true` (API weiß noch nichts) | Requests an Pod 2 laufen in Timeouts |
+| ab ~40 s | `ready: false` | kube-proxy entfernt Pod 2 aus den Regeln, Traffic wieder gesund |
+| ab ~5 min 40 s | `terminating: true`, `ready: false` | Pod wird evicted, Ersatz-Pod startet anderswo |
+| Pod-Objekt endgültig weg | Eintrag aus der Slice entfernt | Slice enthält nur noch die gesunden Pods |
+
+Die Slice an sich wird nur gelöscht, wenn der Service gelöscht wird (oder der Controller überzählige Slices zusammenführt). Hat ein Service gar keine Endpoints mehr, bleibt eine **leere** Slice bestehen.
+
+### Was kube-proxy dabei tut
+
+- Er reagiert **nur auf die Änderung in der EndpointSlice**. Er prüft die Nodes oder Pods nicht selbst.
+- Sobald `ready=false` ankommt (typisch 1–2 s später), wird der Endpoint aus der Regelkette entfernt.
+- Hat ein Service **keinen** ready Endpoint mehr, installiert kube-proxy eine REJECT-Regel: Clients bekommen sofort „Connection refused“ statt eines Timeouts.
+- Bestehende TCP-Verbindungen zum toten Pod hängen, bis Retries/Timeouts greifen (conntrack). Das ist eine Eigenheit des Datenpfads, kein kube-proxy-Fehler.
+
+### Konsequenzen für die Praxis
+
+- **Die ~40 s Blindflug sind der teure Teil.** Readiness-Probes helfen hier nicht, weil sie vom kubelet auf dem toten Node ausgeführt werden. Die Verkleinerung geht über `node-monitor-grace-period` (Control-Plane) oder schnellere Heartbeats, hat aber Nebenwirkungen (Flapping).
+- **Clients brauchen Timeouts und Retries.** Sonst hängen Requests in den ersten 40 s.
+- **`tolerationSeconds` anpassen**, wenn 5 min bis zum Ersatz-Pod zu lang sind (z. B. 30–60 s für zustandslose Apps).
+- **Mehrere Replicas auf verschiedenen Nodes** (topologySpreadConstraints / Anti-Affinity), sonst gibt es nach dem Ausfall keinen gesunden Endpoint.
+- **StatefulSets** werden nicht automatisch auf einen anderen Node verschoben, solange der Node nur „Unknown“ ist (Schutz vor Split-Brain). Hier ist manuelles Eingreifen oder Node-Löschung nötig.
+
+## 3. Beobachten in der Übung
+
+```bash
+# Service, Slice und Endpoints ansehen
+kubectl get svc,endpointslice -l kubernetes.io/service-name=<svc-name>
+kubectl get endpointslice <slice> -o yaml   # conditions.ready/serving/terminating
+
+# Node-Ausfall beobachten (zweites Terminal)
+kubectl get nodes -w
+kubectl get endpointslice -l kubernetes.io/service-name=<svc-name> -o yaml -w
+
+# Regeln auf dem Node ansehen (iptables-Modus)
+sudo iptables-save -t nat | grep <svc-name>
+
+# kube-proxy-Modus prüfen
+kubectl -n kube-system get cm kube-proxy -o yaml | grep -i mode
+```
+
+Hinweis: Auf **DOKS** (Managed Kubernetes) ist die Control-Plane fremdverwaltet. Die Timeouts oben sind die Upstream-Defaults. Bei Cilium als CNI mit `kubeProxyReplacement` übernimmt Cilium die Rolle von kube-proxy, das Prinzip (Watch auf EndpointSlices) bleibt gleich.

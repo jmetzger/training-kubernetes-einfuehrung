@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 640" font-family="Helvetica, Arial, sans-serif" font-size="13">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="980" height="640" fill="#ffffff"/>
+  <text x="490" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#0f172a">Node fällt aus – was passiert mit den Endpoints?</text>
+
+  <!-- time axis -->
+  <line x1="95" y1="55" x2="95" y2="600" stroke="#94a3b8" stroke-width="3" marker-end="url(#a)"/>
+
+  <!-- step 1 -->
+  <text x="20" y="85" fill="#b91c1c" font-weight="bold">t = 0</text>
+  <rect x="130" y="55" width="800" height="52" rx="8" fill="#fee2e2" stroke="#b91c1c"/>
+  <text x="145" y="77" fill="#7f1d1d" font-weight="bold">Node B stirbt (Netz weg, VM down, kubelet tot)</text>
+  <text x="145" y="96" fill="#7f1d1d" font-size="12">Pod 2 läuft evtl. noch, aber niemand meldet etwas. Der Service verteilt weiter auch auf Pod 2 → Timeouts bei ~50 % der Requests.</text>
+
+  <!-- step 2 -->
+  <text x="20" y="165" fill="#334155" font-weight="bold">bis ~40 s</text>
+  <rect x="130" y="125" width="800" height="62" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="145" y="147" fill="#0f172a" font-weight="bold">Blindflug: Heartbeats (Lease im kube-node-lease) bleiben aus</text>
+  <text x="145" y="166" fill="#334155" font-size="12">kubelet erneuert die Lease alle 10 s. Der Node-Lifecycle-Controller wartet node-monitor-grace-period (Default 40 s).</text>
+  <text x="145" y="181" fill="#334155" font-size="12">Pod-Status im API ist noch Ready=True → EndpointSlice unverändert, kube-proxy-Regeln unverändert.</text>
+
+  <!-- step 3 -->
+  <text x="20" y="245" fill="#b45309" font-weight="bold">~ 40 s</text>
+  <rect x="130" y="205" width="800" height="62" rx="8" fill="#fef3c7" stroke="#b45309"/>
+  <text x="145" y="227" fill="#78350f" font-weight="bold">Node-Lifecycle-Controller: Node → Ready=Unknown</text>
+  <text x="145" y="246" fill="#78350f" font-size="12">Setzt Taints node.kubernetes.io/unreachable (NoSchedule + NoExecute) und markiert alle Pods auf dem Node als Ready=False.</text>
+  <text x="145" y="261" fill="#78350f" font-size="12">Wichtig: Der Pod bleibt zunächst bestehen – nur seine Ready-Condition kippt.</text>
+
+  <!-- step 4 -->
+  <text x="20" y="325" fill="#15803d" font-weight="bold">+ ~1 s</text>
+  <rect x="130" y="285" width="800" height="62" rx="8" fill="#fde68a" stroke="#b45309"/>
+  <text x="145" y="307" fill="#78350f" font-weight="bold">EndpointSlice-Controller: Endpoint von Pod 2 → conditions.ready = false</text>
+  <text x="145" y="326" fill="#78350f" font-size="12">Der Endpoint wird NICHT gelöscht, nur als nicht-ready markiert. Die EndpointSlice selbst bleibt bestehen</text>
+  <text x="145" y="341" fill="#78350f" font-size="12">(sie verschwindet nie komplett; ohne Pods bleibt eine leere Slice übrig).</text>
+
+  <!-- step 5 -->
+  <text x="20" y="405" fill="#15803d" font-weight="bold">+ ~1–2 s</text>
+  <rect x="130" y="365" width="800" height="62" rx="8" fill="#dcfce7" stroke="#15803d"/>
+  <text x="145" y="387" fill="#14532d" font-weight="bold">kube-proxy (auf JEDEM Node, der noch lebt): Slice-Update per Watch → Regeln neu</text>
+  <text x="145" y="406" fill="#14532d" font-size="12">Pod 2 fliegt aus der Endpoint-Kette in iptables/IPVS/nftables. Neue Verbindungen gehen nur noch an Pod 1. Traffic ist wieder gesund.</text>
+  <text x="145" y="421" fill="#14532d" font-size="12">Bestehende Verbindungen zu Pod 2 hängen bis TCP-Timeout/Retry (conntrack); UDP-Einträge räumt kube-proxy ab.</text>
+
+  <!-- step 6 -->
+  <text x="20" y="485" fill="#b45309" font-weight="bold">+ 5 min</text>
+  <rect x="130" y="445" width="800" height="62" rx="8" fill="#fef3c7" stroke="#b45309"/>
+  <text x="145" y="467" fill="#78350f" font-weight="bold">Eviction: tolerationSeconds=300 für unreachable läuft ab</text>
+  <text x="145" y="486" fill="#78350f" font-size="12">Pod 2 bekommt deletionTimestamp (Status Terminating, Endpoint terminating=true, ready=false).</text>
+  <text x="145" y="501" fill="#78350f" font-size="12">Der Deployment-/ReplicaSet-Controller erzeugt einen Ersatz-Pod auf einem gesunden Node.</text>
+
+  <!-- step 7 -->
+  <text x="20" y="565" fill="#15803d" font-weight="bold">danach</text>
+  <rect x="130" y="525" width="800" height="76" rx="8" fill="#dcfce7" stroke="#15803d"/>
+  <text x="145" y="547" fill="#14532d" font-weight="bold">Neuer Pod wird Ready → neuer Endpoint in der EndpointSlice → kube-proxy nimmt ihn auf</text>
+  <text x="145" y="566" fill="#14532d" font-size="12">Der tote Pod-Eintrag verschwindet erst endgültig, wenn das Pod-Objekt weg ist: Node-Objekt gelöscht (z. B. Autoscaler/Cloud-Controller),</text>
+  <text x="145" y="581" fill="#14532d" font-size="12">Pod-GC, oder manuelles kubectl delete pod --force bzw. Node kommt zurück und kubelet bestätigt das Löschen.</text>
+</svg>
