@@ -95,9 +95,26 @@ Datei-Vorschläge und keine Werte.
 
 Die wichtigste Frage bei Helm lautet: Was ändert sich im fertigen Manifest, wenn ich andere
 Werte übergebe? Dazu rendert man das Chart zweimal und vergleicht die Ergebnisse
-nebeneinander:
+nebeneinander. Als Beispiel dient ein Chart aus `helm create testchart`. Im Chart-Verzeichnis
+legt man zusätzlich eine Datei `values-prod.yaml` an, die nur die abweichenden Werte enthält:
+
+```yaml
+# values-prod.yaml
+replicaCount: 5
+image:
+  tag: "1.27.0"
+service:
+  type: LoadBalancer
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+```
+
+Dann rendert man beide Varianten und öffnet den Vergleich:
 
 ```bash
+mkdir -p demo
 helm template rel . > demo/render-dev.yaml
 helm template rel . -f values-prod.yaml > demo/render-prod.yaml
 code --diff demo/render-dev.yaml demo/render-prod.yaml
@@ -116,21 +133,39 @@ Vorgehen nicht; der lokale Vergleich ist aber sofort und ohne Cluster verfügbar
 ### 4. Fehler in values früh erkennen: values.schema.json
 
 Legt man im Chart eine `values.schema.json` an, prüft Helm damit die Werte, und VS Code
-zeigt Verstöße schon beim Tippen an. Dazu kommt oben in die Values-Datei eine Zeile für die
-YAML-Extension (der Pfad ist relativ zur jeweiligen Datei):
+zeigt Verstöße schon beim Tippen an. Das Schema (im Chart-Verzeichnis neben `values.yaml`):
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "replicaCount": { "type": "integer", "minimum": 1 },
+    "image": { "type": "object", "properties": { "tag": { "type": "string" } } },
+    "service": {
+      "type": "object",
+      "properties": { "type": { "enum": ["ClusterIP", "NodePort", "LoadBalancer"] } }
+    }
+  }
+}
+```
+
+Damit VS Code das Schema für eine Values-Datei verwendet, steht oben in der Datei eine Zeile
+für die YAML-Extension (der Pfad ist relativ zur jeweiligen Datei). Als Beispiel eine Datei
+`demo/values-fehler.yaml` mit zwei absichtlichen Fehlern:
 
 ```yaml
-# yaml-language-server: $schema=values.schema.json
+# yaml-language-server: $schema=../values.schema.json
 replicaCount: "fuenf"        # Fehler: erwartet wird eine Zahl
 service:
   type: Loadbalancer         # Fehler: erlaubt sind ClusterIP, NodePort, LoadBalancer
 ```
 
 Im Screenshot sind die beiden falschen Werte rot unterwellt. Dieselben Fehler fängt auch
-Helm selbst ab, bevor etwas deployt wird:
+Helm selbst ab, bevor etwas deployt wird (Helm liest `values.schema.json` automatisch):
 
 ```
-$ helm lint . -f values-fehler.yaml
+$ helm lint . -f demo/values-fehler.yaml        # Auszug
 [ERROR] values.yaml: - replicaCount: Invalid type. Expected: integer, given: string
 - service.type: service.type must be one of the following: "ClusterIP", "NodePort", "LoadBalancer"
 ```
