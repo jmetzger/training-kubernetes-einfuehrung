@@ -77,8 +77,8 @@
   <!-- watch arrows api -> kube-proxy -->
   <path d="M708,126 C660,150 640,200 600,215" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
   <path d="M708,366 C660,350 640,300 600,275" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
-  <text x="655" y="232" fill="#1d4ed8" font-size="12">④ watch</text>
-  <text x="655" y="300" fill="#1d4ed8" font-size="12">④ watch</text>
+  <text x="612" y="238" fill="#1d4ed8" font-size="12">④ watch</text>
+  <text x="600" y="345" fill="#1d4ed8" font-size="12">④ watch</text>
 
   <!-- legend -->
   <line x1="30" y1="470" x2="70" y2="470" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
