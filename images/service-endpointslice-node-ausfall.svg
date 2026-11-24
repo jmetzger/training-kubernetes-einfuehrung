@@ -47,7 +47,7 @@
   <!-- step 6 -->
   <text x="20" y="485" fill="#b45309" font-weight="bold">+ 5 min</text>
   <rect x="130" y="445" width="800" height="62" rx="8" fill="#fef3c7" stroke="#b45309"/>
-  <text x="145" y="467" fill="#78350f" font-weight="bold">Eviction: tolerationSeconds=300 für unreachable läuft ab</text>
+  <text x="145" y="467" fill="#78350f" font-weight="bold">Taint-Eviction-Controller: tolerationSeconds=300 für unreachable läuft ab</text>
   <text x="145" y="486" fill="#78350f" font-size="12">Pod 2 bekommt deletionTimestamp (Status Terminating, Endpoint terminating=true, ready=false).</text>
   <text x="145" y="501" fill="#78350f" font-size="12">Der Deployment-/ReplicaSet-Controller erzeugt einen Ersatz-Pod auf einem gesunden Node.</text>
 
@@ -55,6 +55,6 @@
   <text x="20" y="565" fill="#15803d" font-weight="bold">danach</text>
   <rect x="130" y="525" width="800" height="76" rx="8" fill="#dcfce7" stroke="#15803d"/>
   <text x="145" y="547" fill="#14532d" font-weight="bold">Neuer Pod wird Ready → neuer Endpoint in der EndpointSlice → kube-proxy nimmt ihn auf</text>
-  <text x="145" y="566" fill="#14532d" font-size="12">Der tote Pod-Eintrag verschwindet erst endgültig, wenn das Pod-Objekt weg ist: Node-Objekt gelöscht (z. B. Autoscaler/Cloud-Controller),</text>
+  <text x="145" y="566" fill="#14532d" font-size="12">Der tote Pod-Eintrag verschwindet erst endgültig, wenn das Pod-Objekt weg ist: Node-Objekt gelöscht (Cloud-Node-Lifecycle-Controller/Autoscaler),</text>
   <text x="145" y="581" fill="#14532d" font-size="12">Pod-GC bei Taint node.kubernetes.io/out-of-service (manuell), kubectl delete pod --force, oder der Node kommt zurück.</text>
 </svg>

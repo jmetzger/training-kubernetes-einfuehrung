@@ -26,6 +26,18 @@ Ablauf:
 
 ![Zeitlicher Ablauf bei Node-Ausfall](/images/service-endpointslice-node-ausfall.svg)
 
+### Welche Controller sind beteiligt?
+
+„Node-Controller“ aus älteren Büchern und Docs ist heute auf mehrere Controller aufgeteilt:
+
+| Controller | Läuft in | Aufgabe beim Node-Ausfall |
+|---|---|---|
+| **Node-Lifecycle-Controller** (`pkg/controller/nodelifecycle`) | kube-controller-manager | Erkennt fehlende Lease/Heartbeat, setzt Node `Ready=Unknown`, setzt die Taints `unreachable`/`not-ready` und markiert die Pods des Nodes als nicht ready. |
+| **Taint-Eviction-Controller** (`pkg/controller/tainteviction`) | kube-controller-manager | Löscht Pods (`Pod.Delete`), wenn `tolerationSeconds` für einen `NoExecute`-Taint abgelaufen ist (Default 300 s). |
+| **EndpointSlice-Controller** | kube-controller-manager | Setzt `ready=false` bzw. `terminating=true` am Endpoint, entfernt ihn, sobald das Pod-Objekt weg ist. |
+| **Cloud-Node-Lifecycle-Controller** | cloud-controller-manager | Nur bei Cloud-Providern (z. B. DOKS): löscht das Node-Objekt, wenn die VM nicht mehr existiert. Danach räumt der Pod-GC die Pods ab (früher als 5 min). |
+| **Node-IPAM-Controller** | kube-controller-manager | Verteilt Pod-CIDRs, hat mit dem Ausfall nichts zu tun. |
+
 ### Korrektur zur Annahme „EndpointSlice verschwindet“
 
 Die EndpointSlice **verschwindet nicht**, wenn ein Node ausfällt. Es ändert sich der **Endpoint-Eintrag darin**:
