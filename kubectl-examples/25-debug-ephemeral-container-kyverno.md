@@ -109,6 +109,9 @@ kubectl get policy -n kyverno-debug-<dein-name>
 
 Es sollte `READY: True` angezeigt werden.
 
+Beim `apply` erscheint evtl. eine Warnung, dass der `kyverno-reports-controller` keine
+Rechte auf `Pod/ephemeralcontainers` hat. Sie ist fuer die Uebung harmlos.
+
 ## Schritt 3: Anwendung ohne Shell deployen
 
 Die App ist ein statisches Go-Binary (`FROM scratch`): keine Shell, keine Tools.
@@ -255,7 +258,7 @@ exit
 **Erwartet:**
 - `id -u` zeigt `10001`
 - `/proc/1/environ` ist lesbar, `DB_PASSWORD` taucht auf
-- `/proc/1/root/` ist lesbar
+- `/proc/1/root/` ist lesbar, darin liegt u.a. die Datei `http-echo` der App
 
 Ohne Aenderung an der Kyverno-Policy: Es ist nur die UID des Debug-Containers angepasst.
 
@@ -303,7 +306,8 @@ Zwei Fehler, die beim Debuggen mit Kyverno haeufig auftauchen:
 kubectl debug -n kyverno-debug-<dein-name> $POD -it --image=nicolaka/netshoot --target=app -- sh
 ```
 
-Kyverno lehnt ab (`runAsNonRoot` fehlt), gleiche Meldung wie in Schritt 7.
+Kyverno lehnt ab (`runAsNonRoot` fehlt), gleiche Policy-Meldung wie in Schritt 7. Nur der Pfad
+am Ende heisst hier `/spec/ephemeralContainers/<n>/securityContext/runAsNonRoot/`.
 
 **b) Profil restricted, aber das Image startet als root**
 
