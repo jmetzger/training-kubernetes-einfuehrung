@@ -103,7 +103,7 @@
 <text x="390" y="1012" fill="#334155" font-size="12.5">schreibt in den API-Server</text>
 <line x1="330" y1="1032" x2="380" y2="1032" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#md)"/>
 <text x="390" y="1036" fill="#334155" font-size="12.5">Watch-Event vom API-Server</text>
-<line x1="330" y1="1056" x2="380" y2="1056" stroke="#15803d" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#mg)"/>
+<line x1="330" y1="1056" x2="380" y2="1056" stroke="#15803d" stroke-width="2.2" marker-end="url(#mg)"/>
 <text x="390" y="1060" fill="#334155" font-size="12.5">Request (Nutzdaten, nicht über den API-Server)</text>
 <text x="330" y="1080" fill="#475569" font-size="12">Controller, Scheduler und kubelets öffnen die Watch-Verbindung selbst.</text>
 <text x="330" y="1096" fill="#475569" font-size="12">Sie koordinieren sich nur über den API-Server,</text>
