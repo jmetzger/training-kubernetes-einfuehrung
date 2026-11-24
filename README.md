@@ -64,6 +64,7 @@
   1. Kubernetes Ingress (Traefik)
      * [Install Traefik-IngressController](/ingress/traefik/install-with-helm.md)
      * [Ingress mit traefik](kubectl-examples/04-ingress-traefik-with-hostnames-deployment.md)
+     * [Gateway API mit Traefik (Ergaenzung zu Ingress)](kubectl-examples/05-gateway-api-traefik.md)
      * [pathType ImplementationSpecific vs. Prefix bei traefik](/ingress/traefik/pathtype-implementationspecific.md)
      * [ingress mit traefik, letsencrypt und cert-manager](/ingress/https-letsencrypt-ingress-traefik.md)
      * [cert-manager HTTP-01 Solver: Wo landet die well-known-Datei?](/ingress/traefik/http01-solver-cert-manager.md)
@@ -117,6 +118,7 @@
      * [Installation, Upgrade, Uninstall helm-Chart exercise - simple (mariadb-cloudpirates)](exercises/install/mariadb-cloudpirates.md)
      * [Installation, Upgrade, Uninstall helm-Chart exercise (wordpress-groundhog2k)](exercises/install/wordpress-groundhog2k.md)
      * [Helm Exercise with nginx](/helm/exercise-nginx.md)
+     * [Helm in Visual Studio Code](/helm/vscode.md)
      * [Helm Spickzettel](/helm/spickzettel.md)
     
   1. Helm Charts erstellen und analysieren
@@ -151,7 +153,7 @@
      * [Übung: nginx als Nicht-Root-User startet nicht - CrashLoopBackOff mit describe/logs/exec debuggen](kubectl-examples/22-debug-nginx-nonroot.md)
      * [Übung: Pod laeuft, Anwendung kaputt - Fehler nur in den Logs sichtbar (403/502)](kubectl-examples/23-debug-fehler-nur-in-logs.md)
      * [Übung: CrashLoopBackOff, aber die Logs sind sauber - OOMKilled (137) und Completed (0) ueber Exit Codes finden](kubectl-examples/24-debug-crashloop-exitcodes.md)
-     * [Übung: Ephemeral Container debuggen und Kyverno (runAsNonRoot) - Debug-Container in Pod ohne Shell](kubectl-examples/25-debug-ephemeral-container-kyverno.md)
+     * [Übung: Ephemeral Container startet, kann aber nicht alles - /proc/1 und --copy-to mit Kyverno (UID, runAsNonRoot)](kubectl-examples/25-debug-ephemeral-container-kyverno.md)
 
   1. Kubernetes RBAC
      * [Kubernetes RBAC - was darf Traefik](kubernetes-rbac/was-darf-traefik.md)

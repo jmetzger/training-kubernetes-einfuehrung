@@ -1,4 +1,4 @@
-# Debugging: Ephemeral Container und Kyverno (runAsNonRoot)
+# Debugging: Ephemeral Container startet, kann aber nicht alles (Kyverno, UID)
 
 ## Hintergrund
 
@@ -17,17 +17,20 @@ zu deployen. Der Debug-Container teilt sich das Netzwerk mit dem Pod
 
 ![Ephemeral Container und Kyverno](img/25-ephemeral-debug-kyverno.svg)
 
-In vielen Clustern erzwingt eine Kyverno-Policy, dass alle Container als
-Nicht-Root laufen (`runAsNonRoot: true`). Diese Policy gilt auch fuer den
-Debug-Container, denn der Ephemeral Container wird ueber die Subresource
-`pods/ephemeralcontainers` angelegt und von Kyverno geprueft.
+### Die Situation in dieser Uebung
 
-| Szenario | Ergebnis |
-|----------|----------|
-| `kubectl debug` ohne weitere Angaben (Root-Image) | Von Kyverno abgelehnt |
-| `--profile=restricted`, aber Image startet als root | Kyverno ok, aber `CreateContainerConfigError` im Kubelet |
-| `--profile=restricted` + UID **anders** als die App | Startet, aber `/proc/1/environ` und `/proc/1/root` gehen nicht |
-| `--profile=restricted` + **gleiche UID wie die App** | Alles geht |
+- Eine Kyverno-Policy erzwingt `runAsNonRoot: true`, auch fuer Debug-Container.
+- Das Debug-Image hat einen **numerischen** `USER` (hier 999), damit es die Policy besteht.
+- Die Anwendung laeuft mit einer **anderen UID** (hier 10001).
+
+Ergebnis: Der Debug-Container **startet**, aber einiges geht nicht.
+
+| Aktion | Mit UID 999 (andere UID als die App) | Loesung |
+|--------|--------------------------------------|---------|
+| `ps`, `curl localhost`, `dig`, `ss` | geht | - |
+| `cat /proc/1/environ` | `Permission denied` | Debug-Container mit **UID der App** starten |
+| `ls /proc/1/root/` (Dateien der App) | `Permission denied` | Debug-Container mit **UID der App** starten |
+| `kubectl debug --copy-to` | von Kyverno abgelehnt | `--profile=restricted --custom=...` |
 
 ## Voraussetzung (Trainer)
 
@@ -41,11 +44,11 @@ helm install kyverno kyverno/kyverno --version 3.7.2 -n kyverno --create-namespa
 kubectl get pods -n kyverno
 ```
 
-Hinweis: Ab Kyverno 1.20 werden `kyverno.io/v1` `Policy` und `ClusterPolicy` nicht
-mehr angenommen. Diese Uebung nutzt deshalb Kyverno 1.17 (Chart 3.7.2).
-
 `global.image.registry=ghcr.io` holt die Images von GitHub statt von `reg.kyverno.io`
 (die Registry war beim Test zeitweise nicht erreichbar, 502/503).
+
+Hinweis: Ab Kyverno 1.20 werden `kyverno.io/v1` `Policy` und `ClusterPolicy` nicht
+mehr angenommen. Diese Uebung nutzt deshalb Kyverno 1.17 (Chart 3.7.2).
 
 Alle Pods in `kyverno` muessen `Running` sein.
 
@@ -165,56 +168,70 @@ kubectl exec -n kyverno-debug-<dein-name> $POD -- sh
 exec: "sh": executable file not found in $PATH
 ```
 
-## Schritt 4: Debug-Container ohne Profil - von Kyverno abgelehnt
+## Schritt 4: Debug-Container startet, aber mit anderer UID als die App
 
 `nicolaka/netshoot` ist ein Debug-Image mit `curl`, `dig`, `ss`, `ps` und mehr. Es startet
-als root.
+eigentlich als root. Damit es die Policy besteht, wird es hier wie ein Image mit
+`USER 999` gestartet. Die UID wird per `--custom` angegeben (kubectl ab 1.31):
 
 ```
-kubectl debug -n kyverno-debug-<dein-name> $POD -it --image=nicolaka/netshoot --target=app -- sh
+# vi debug-999.json
+{"securityContext": {"runAsUser": 999, "runAsNonRoot": true}}
+```
+
+```
+kubectl debug -n kyverno-debug-<dein-name> $POD -it --image=nicolaka/netshoot --target=app \
+  --profile=restricted --custom=debug-999.json --container=dbg-999 -- sh
+```
+
+Der Debug-Container **startet**. Im Debug-Container:
+
+```
+id -u
+ps -ef
+curl localhost:5678
+```
+
+**Erwartet:**
+- `id -u` zeigt `999`
+- `ps -ef` zeigt `/http-echo ...` als PID 1 (wegen `--target=app`)
+- `curl` zeigt `hallo aus dem Pod`
+
+Netzwerk und Prozessliste funktionieren also.
+
+## Schritt 5: Was nicht geht - /proc/1
+
+Weiter im Debug-Container:
+
+```
+cat /proc/1/environ
+ls /proc/1/root/
+exit
 ```
 
 **Erwarteter Fehler:**
 ```
-resource Pod/kyverno-debug-<dein-name>/app-... was blocked due to the following policies
-
-require-run-as-nonroot:
-  run-as-non-root: 'validation error: Alle Container (auch Ephemeral Container) muessen
-    runAsNonRoot: true setzen. rule run-as-non-root failed at path /spec/ephemeralContainers/0/securityContext/runAsNonRoot/'
+cat: can't open '/proc/1/environ': Permission denied
+ls: /proc/1/root/: Permission denied
 ```
 
-## Schritt 5: Profil restricted - Kyverno ok, aber Kubelet lehnt ab
+Das ist **kein Kyverno-Problem**, sondern Linux: `/proc/<pid>/environ` und
+`/proc/<pid>/root` darf nur lesen, wer dieselbe UID wie der Prozess hat (oder
+`CAP_SYS_PTRACE`). Der Debug-Container laeuft als 999, die App als 10001.
 
-Das Profil `restricted` (kubectl ab 1.31) setzt `runAsNonRoot: true`. Damit besteht der
-Container die Policy. Das Image startet aber als root:
+Auch `printenv DB_PASSWORD` im Debug-Container hilft nicht: Der Debug-Container hat
+seine eigene Umgebung. Die Variablen der App stehen nur in `/proc/1/environ`.
 
-```
-kubectl debug -n kyverno-debug-<dein-name> $POD -it --image=nicolaka/netshoot --target=app \
-  --profile=restricted --container=dbg-restricted -- id
-```
+## Schritt 6: Loesung - Debug-Container mit der UID der App
 
-Der Befehl haengt. In einem zweiten Terminal (oder mit Strg+C abbrechen):
+Erst die UID der App herausfinden (hier ist sie im Manifest bekannt):
 
 ```
 kubectl get pod $POD -n kyverno-debug-<dein-name> \
-  -o jsonpath='{range .status.ephemeralContainerStatuses[*]}{.name}{" -> "}{.state}{"\n"}{end}'
+  -o jsonpath='{.spec.containers[0].securityContext.runAsUser}{"\n"}'
 ```
 
-**Erwartete Ausgabe:**
-```
-dbg-restricted -> {"waiting":{"message":"container has runAsNonRoot and image has non-numeric user (root), cannot verify user is non-root ...","reason":"CreateContainerConfigError"}}
-```
-
-Der Kubelet kann bei `runAsNonRoot` nur mit einer **numerischen UID** pruefen. Ein Image mit
-`USER root` oder `USER tekton` (Name statt Zahl) scheitert. Eigene Debug-Images
-deshalb immer mit numerischem User bauen, z.B. `USER 999`.
-
-Ein Ephemeral Container laesst sich nicht mehr entfernen. Er bleibt im Pod, bis der Pod
-ersetzt wird.
-
-## Schritt 6: Debug-Container mit eigener UID - es klappt
-
-Die UID wird per `--custom` angegeben (kubectl ab 1.31):
+Dann den Debug-Container mit genau dieser UID starten. `runAsNonRoot` bleibt erfuellt:
 
 ```
 # vi debug.json
@@ -230,8 +247,6 @@ Im Debug-Container:
 
 ```
 id -u
-ps -ef
-curl localhost:5678
 cat /proc/1/environ | tr "\0" "\n" | grep DB_
 ls /proc/1/root/
 exit
@@ -239,52 +254,15 @@ exit
 
 **Erwartet:**
 - `id -u` zeigt `10001`
-- `ps -ef` zeigt `/http-echo ...` als PID 1 (wegen `--target=app`)
-- `curl` zeigt `hallo aus dem Pod`
 - `/proc/1/environ` ist lesbar, `DB_PASSWORD` taucht auf
 - `/proc/1/root/` ist lesbar
 
-Beachte: `printenv DB_PASSWORD` im Debug-Container zeigt **nichts**. Der Debug-Container hat
-seine eigene Umgebung. Die Variablen der App sieht man nur ueber `/proc/1/environ`.
+Ohne Aenderung an der Kyverno-Policy: Es ist nur die UID des Debug-Containers angepasst.
 
-## Schritt 7: Andere UID - /proc/1 bleibt gesperrt
-
-Jetzt ein Debug-Container mit einer anderen UID, so wie ein Image mit `USER 999`:
-
-```
-# vi debug-999.json
-{"securityContext": {"runAsUser": 999, "runAsNonRoot": true}}
-```
-
-```
-kubectl debug -n kyverno-debug-<dein-name> $POD -it --image=nicolaka/netshoot --target=app \
-  --profile=restricted --custom=debug-999.json --container=dbg-999 -- sh
-```
-
-```
-id -u
-curl localhost:5678
-ps -ef
-cat /proc/1/environ | tr "\0" "\n" | grep DB_
-ls /proc/1/root/
-exit
-```
-
-**Erwartet:**
-- `curl` und `ps -ef` funktionieren (Netzwerk und Prozessliste brauchen keine gleiche UID)
-- `cat /proc/1/environ` meldet `Permission denied`, `grep` findet keine Variablen
-- `ls /proc/1/root/` meldet `Permission denied`
-
-Das ist **kein Kyverno-Problem**, sondern Linux: `/proc/<pid>/environ` und
-`/proc/<pid>/root` darf nur lesen, wer dieselbe UID hat (oder `CAP_SYS_PTRACE`). Wer
-`/proc/1/...` braucht, startet den Debug-Container mit der UID der Anwendung.
-
-## Schritt 8: kubectl debug --copy-to
+## Schritt 7: Was nicht geht - kubectl debug --copy-to
 
 Mit `--copy-to` wird nicht der laufende Pod veraendert, sondern eine Kopie angelegt, in der
 der Debug-Container ein normaler Container ist.
-
-Standardprofil:
 
 ```
 kubectl debug -n kyverno-debug-<dein-name> $POD --copy-to=app-debug1 \
@@ -299,7 +277,9 @@ require-run-as-nonroot:
   run-as-non-root: 'validation error: ... failed at path /spec/containers/1/securityContext/runAsNonRoot/'
 ```
 
-Das Standardprofil setzt keinen `securityContext`. Mit `restricted` und der UID klappt es:
+Das Standardprofil setzt keinen `securityContext`, der Container liefe als root.
+
+## Schritt 8: Loesung - copy-to mit Profil restricted und UID
 
 ```
 kubectl debug -n kyverno-debug-<dein-name> $POD --copy-to=app-debug2 \
@@ -312,6 +292,43 @@ kubectl get pods -n kyverno-debug-<dein-name>
 ```
 
 **Erwartet:** `app-debug2` mit `2/2 Running`.
+
+## Schritt 9: Weitere Stolpersteine
+
+Zwei Fehler, die beim Debuggen mit Kyverno haeufig auftauchen:
+
+**a) Kein Profil, kein securityContext**
+
+```
+kubectl debug -n kyverno-debug-<dein-name> $POD -it --image=nicolaka/netshoot --target=app -- sh
+```
+
+Kyverno lehnt ab (`runAsNonRoot` fehlt), gleiche Meldung wie in Schritt 7.
+
+**b) Profil restricted, aber das Image startet als root**
+
+```
+kubectl debug -n kyverno-debug-<dein-name> $POD -it --image=nicolaka/netshoot --target=app \
+  --profile=restricted --container=dbg-restricted -- id
+```
+
+Der Befehl haengt (mit Strg+C abbrechen). Der Grund:
+
+```
+kubectl get pod $POD -n kyverno-debug-<dein-name> \
+  -o jsonpath='{range .status.ephemeralContainerStatuses[*]}{.name}{" -> "}{.state}{"\n"}{end}'
+```
+
+```
+dbg-restricted -> {"waiting":{"message":"container has runAsNonRoot and image has non-numeric user (root), cannot verify user is non-root ...","reason":"CreateContainerConfigError"}}
+```
+
+Kyverno besteht, aber der Kubelet kann bei `runAsNonRoot` nur mit einer **numerischen UID**
+pruefen. Eigene Debug-Images deshalb mit numerischem User bauen, z.B. `USER 999` statt
+`USER root` oder `USER tekton`.
+
+Ein Ephemeral Container laesst sich nicht mehr entfernen. Er bleibt im Pod, bis der Pod
+ersetzt wird.
 
 ## Aufraeumen
 
@@ -328,11 +345,10 @@ kubectl delete namespace kyverno
 
 ## Zusammenfassung
 
-| Befehl | Ergebnis |
-|--------|----------|
-| `kubectl debug ... --image=netshoot` | Abgelehnt von Kyverno (kein `runAsNonRoot`) |
-| `... --profile=restricted` (Image startet als root) | `CreateContainerConfigError` (nicht-numerischer User) |
-| `... --profile=restricted --custom=debug.json` (UID wie App) | Alles geht, auch `/proc/1/environ` |
-| `... --custom=debug-999.json` (andere UID) | `curl`/`ps` gehen, `/proc/1/...` gesperrt |
-| `--copy-to` mit Standardprofil | Abgelehnt von Kyverno |
-| `--copy-to --profile=restricted --custom=...` | Funktioniert |
+| Befehl | Ergebnis | Loesung |
+|--------|----------|---------|
+| Debug-Container mit UID 999 (App: 10001) | startet, `ps`/`curl` gehen | - |
+| `/proc/1/environ`, `/proc/1/root` mit UID 999 | `Permission denied` | UID der App per `--custom` |
+| `--copy-to` mit Standardprofil | Von Kyverno abgelehnt | `--profile=restricted --custom=...` |
+| `kubectl debug` ohne Profil | Von Kyverno abgelehnt | `--profile=restricted --custom=...` |
+| `--profile=restricted`, Image startet als root | `CreateContainerConfigError` | Numerische UID per `--custom` oder `USER` im Image |
