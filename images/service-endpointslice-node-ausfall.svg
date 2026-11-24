@@ -17,14 +17,14 @@
   <text x="145" y="96" fill="#7f1d1d" font-size="12">Pod 2 läuft evtl. noch, aber niemand meldet etwas. Der Service verteilt weiter auch auf Pod 2 → Timeouts bei ~50 % der Requests.</text>
 
   <!-- step 2 -->
-  <text x="20" y="165" fill="#334155" font-weight="bold">bis ~40 s</text>
+  <text x="20" y="165" fill="#334155" font-weight="bold">bis ~50 s</text>
   <rect x="130" y="125" width="800" height="62" rx="8" fill="#f1f5f9" stroke="#64748b"/>
   <text x="145" y="147" fill="#0f172a" font-weight="bold">Blindflug: Heartbeats (Lease im kube-node-lease) bleiben aus</text>
-  <text x="145" y="166" fill="#334155" font-size="12">kubelet erneuert die Lease alle 10 s. Der Node-Lifecycle-Controller wartet node-monitor-grace-period (Default 40 s).</text>
+  <text x="145" y="166" fill="#334155" font-size="12">kubelet erneuert die Lease alle 10 s. Der Node-Lifecycle-Controller wartet node-monitor-grace-period (Default 50 s ab v1.32, davor 40 s).</text>
   <text x="145" y="181" fill="#334155" font-size="12">Pod-Status im API ist noch Ready=True → EndpointSlice unverändert, kube-proxy-Regeln unverändert.</text>
 
   <!-- step 3 -->
-  <text x="20" y="245" fill="#b45309" font-weight="bold">~ 40 s</text>
+  <text x="20" y="245" fill="#b45309" font-weight="bold">~ 50 s</text>
   <rect x="130" y="205" width="800" height="62" rx="8" fill="#fef3c7" stroke="#b45309"/>
   <text x="145" y="227" fill="#78350f" font-weight="bold">Node-Lifecycle-Controller: Node → Ready=Unknown</text>
   <text x="145" y="246" fill="#78350f" font-size="12">Setzt Taints node.kubernetes.io/unreachable (NoSchedule + NoExecute) und markiert alle Pods auf dem Node als Ready=False.</text>

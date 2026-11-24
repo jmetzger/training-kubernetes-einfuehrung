@@ -32,9 +32,9 @@ Die EndpointSlice **verschwindet nicht**, wenn ein Node ausfällt. Es ändert si
 
 | Zeitpunkt | Zustand des Endpoints von Pod 2 | Wirkung |
 |---|---|---|
-| Node stirbt bis ~40 s | `ready: true` (API weiß noch nichts) | Requests an Pod 2 laufen in Timeouts |
-| ab ~40 s | `ready: false` | kube-proxy entfernt Pod 2 aus den Regeln, Traffic wieder gesund |
-| ab ~5 min 40 s | `terminating: true`, `ready: false` | Pod wird evicted, Ersatz-Pod startet anderswo |
+| Node stirbt bis ~50 s | `ready: true` (API weiß noch nichts) | Requests an Pod 2 laufen in Timeouts |
+| ab ~50 s | `ready: false` | kube-proxy entfernt Pod 2 aus den Regeln, Traffic wieder gesund |
+| ab ~5 min 50 s | `terminating: true`, `ready: false` | Pod wird evicted, Ersatz-Pod startet anderswo |
 | Pod-Objekt endgültig weg | Eintrag aus der Slice entfernt | Slice enthält nur noch die gesunden Pods |
 
 Die Slice an sich wird nur gelöscht, wenn der Service gelöscht wird (oder der Controller überzählige Slices zusammenführt). Hat ein Service gar keine Endpoints mehr, bleibt eine **leere** Slice bestehen.
@@ -48,8 +48,8 @@ Die Slice an sich wird nur gelöscht, wenn der Service gelöscht wird (oder der 
 
 ### Konsequenzen für die Praxis
 
-- **Die ~40 s Blindflug sind der teure Teil.** Readiness-Probes helfen hier nicht, weil sie vom kubelet auf dem toten Node ausgeführt werden. Die Verkleinerung geht über `node-monitor-grace-period` (Control-Plane) oder schnellere Heartbeats, hat aber Nebenwirkungen (Flapping).
-- **Clients brauchen Timeouts und Retries.** Sonst hängen Requests in den ersten 40 s.
+- **Die ~50 s Blindflug sind der teure Teil.** Readiness-Probes helfen hier nicht, weil sie vom kubelet auf dem toten Node ausgeführt werden. Die Verkleinerung geht über `node-monitor-grace-period` (Control-Plane) oder schnellere Heartbeats, hat aber Nebenwirkungen (Flapping).
+- **Clients brauchen Timeouts und Retries.** Sonst hängen Requests in den ersten 50 s.
 - **`tolerationSeconds` anpassen**, wenn 5 min bis zum Ersatz-Pod zu lang sind (z. B. 30–60 s für zustandslose Apps).
 - **Mehrere Replicas auf verschiedenen Nodes** (topologySpreadConstraints / Anti-Affinity), sonst gibt es nach dem Ausfall keinen gesunden Endpoint.
 - **StatefulSets** werden nicht automatisch auf einen anderen Node verschoben, solange der Node nur „Unknown“ ist (Schutz vor Split-Brain). Hier ist manuelles Eingreifen oder Node-Löschung nötig.
