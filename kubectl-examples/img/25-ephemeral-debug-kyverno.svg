@@ -1,0 +1,57 @@
+<svg width="820" height="440" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="820" height="440" fill="#F8FAFC" rx="12"/>
+  <text x="410" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#1E293B">Ephemeral Container + Kyverno: Wer darf in den Pod?</text>
+
+  <!-- kubectl -->
+  <rect x="24" y="70" width="140" height="64" fill="#E0F2FE" stroke="#0284C7" stroke-width="2" rx="8"/>
+  <text x="94" y="96" text-anchor="middle" font-size="13" font-weight="bold" fill="#075985">kubectl debug</text>
+  <text x="94" y="116" text-anchor="middle" font-size="11" fill="#075985">-it pod --image=...</text>
+
+  <!-- API server -->
+  <rect x="214" y="70" width="140" height="64" fill="#EEF2FF" stroke="#4F46E5" stroke-width="2" rx="8"/>
+  <text x="284" y="96" text-anchor="middle" font-size="13" font-weight="bold" fill="#3730A3">API-Server</text>
+  <text x="284" y="116" text-anchor="middle" font-size="11" fill="#3730A3">pods/ephemeralcontainers</text>
+
+  <!-- Kyverno -->
+  <rect x="404" y="70" width="170" height="64" fill="#FEF3C7" stroke="#D97706" stroke-width="2" rx="8"/>
+  <text x="489" y="96" text-anchor="middle" font-size="13" font-weight="bold" fill="#92400E">Kyverno (Webhook)</text>
+  <text x="489" y="116" text-anchor="middle" font-size="11" fill="#92400E">Policy: runAsNonRoot</text>
+
+  <line x1="164" y1="102" x2="212" y2="102" stroke="#334155" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="354" y1="102" x2="402" y2="102" stroke="#334155" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- decision -->
+  <text x="596" y="90" font-size="12" font-weight="bold" fill="#166534">numerische UID -> erlaubt</text>
+  <text x="596" y="112" font-size="12" font-weight="bold" fill="#991B1B">Root / Name -> abgelehnt</text>
+  <line x1="576" y1="102" x2="592" y2="102" stroke="#334155" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Pod -->
+  <rect x="24" y="170" width="772" height="170" fill="#F1F5F9" stroke="#64748B" stroke-width="2" stroke-dasharray="6 4" rx="10"/>
+  <text x="40" y="194" font-size="13" font-weight="bold" fill="#334155">Pod (gemeinsamer Network-Namespace)</text>
+
+  <rect x="48" y="212" width="320" height="110" fill="#DCFCE7" stroke="#16A34A" stroke-width="2" rx="8"/>
+  <text x="208" y="238" text-anchor="middle" font-size="13" font-weight="bold" fill="#166534">App-Container (Distroless)</text>
+  <text x="208" y="262" text-anchor="middle" font-size="11" fill="#166534">keine Shell, kein curl, kein dig</text>
+  <text x="208" y="282" text-anchor="middle" font-size="11" fill="#166534">laeuft als UID 10001</text>
+  <text x="208" y="302" text-anchor="middle" font-size="11" fill="#166534">PID 1 = die Anwendung</text>
+
+  <rect x="450" y="212" width="320" height="110" fill="#FEF9C3" stroke="#CA8A04" stroke-width="2" rx="8"/>
+  <text x="610" y="238" text-anchor="middle" font-size="13" font-weight="bold" fill="#854D0E">Ephemeral Debug-Container</text>
+  <text x="610" y="262" text-anchor="middle" font-size="11" fill="#854D0E">Tools: curl, dig, ss, ps, ip</text>
+  <text x="610" y="282" text-anchor="middle" font-size="11" fill="#854D0E">--target = Prozesse sichtbar</text>
+  <text x="610" y="302" text-anchor="middle" font-size="11" fill="#854D0E">UID noetig: gleiche wie App fuer /proc/1</text>
+
+  <line x1="450" y1="267" x2="370" y2="267" stroke="#334155" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="410" y="258" text-anchor="middle" font-size="10" fill="#334155">localhost</text>
+
+  <!-- legend -->
+  <text x="40" y="366" font-size="12" font-weight="bold" fill="#1E293B">Merke:</text>
+  <text x="40" y="388" font-size="12" fill="#1E293B">1. Der Debug-Container ist ein normaler Container und unterliegt denselben Policies wie jeder andere Pod.</text>
+  <text x="40" y="408" font-size="12" fill="#1E293B">2. Ohne eigene UID-Angabe scheitert er an runAsNonRoot; mit der UID der App darf er auch /proc/1 lesen.</text>
+  <text x="40" y="428" font-size="12" fill="#1E293B">3. Ein Ephemeral Container kann nie wieder entfernt werden; der Pod muss neu gestartet werden.</text>
+</svg>

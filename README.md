@@ -151,6 +151,7 @@
      * [Übung: nginx als Nicht-Root-User startet nicht - CrashLoopBackOff mit describe/logs/exec debuggen](kubectl-examples/22-debug-nginx-nonroot.md)
      * [Übung: Pod laeuft, Anwendung kaputt - Fehler nur in den Logs sichtbar (403/502)](kubectl-examples/23-debug-fehler-nur-in-logs.md)
      * [Übung: CrashLoopBackOff, aber die Logs sind sauber - OOMKilled (137) und Completed (0) ueber Exit Codes finden](kubectl-examples/24-debug-crashloop-exitcodes.md)
+     * [Übung: Ephemeral Container debuggen und Kyverno (runAsNonRoot) - Debug-Container in Pod ohne Shell](kubectl-examples/25-debug-ephemeral-container-kyverno.md)
 
   1. Kubernetes RBAC
      * [Kubernetes RBAC - was darf Traefik](kubernetes-rbac/was-darf-traefik.md)
