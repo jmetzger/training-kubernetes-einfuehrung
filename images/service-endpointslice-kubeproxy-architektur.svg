@@ -45,7 +45,7 @@
   <text x="330" y="98" fill="#334155" font-size="12">① anlegen</text>
 
   <!-- controller watch / write -->
-  <line x1="360" y1="225" x2="270" y2="225" stroke="#1d4ed8" stroke-width="2" marker-end="url(#b)" stroke-dasharray="6 3"/>
+  <line x1="270" y1="225" x2="360" y2="225" stroke="#1d4ed8" stroke-width="2" marker-end="url(#b)" stroke-dasharray="6 3"/>
   <text x="315" y="215" text-anchor="middle" fill="#1d4ed8" font-size="12">② watch</text>
   <line x1="270" y1="270" x2="360" y2="270" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
   <text x="315" y="289" text-anchor="middle" fill="#15803d" font-size="12">③ schreibt</text>
@@ -75,14 +75,14 @@
   <line x1="825" y1="397" x2="825" y2="410" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
 
   <!-- watch arrows api -> kube-proxy -->
-  <path d="M600,215 C640,200 660,150 708,126" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
-  <path d="M600,275 C640,300 660,350 708,366" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
+  <path d="M708,126 C660,150 640,200 600,215" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
+  <path d="M708,366 C660,350 640,300 600,275" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
   <text x="655" y="232" fill="#1d4ed8" font-size="12">④ watch</text>
   <text x="655" y="300" fill="#1d4ed8" font-size="12">④ watch</text>
 
   <!-- legend -->
   <line x1="30" y1="470" x2="70" y2="470" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
-  <text x="80" y="474" fill="#334155">Watch (Lesen, Event-Stream)</text>
+  <text x="80" y="474" fill="#334155">Watch (Client öffnet die Verbindung zum API-Server, Events kommen zurück)</text>
   <line x1="30" y1="495" x2="70" y2="495" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
   <text x="80" y="499" fill="#334155">Schreiben / Programmieren</text>
   <text x="30" y="535" fill="#475569" font-size="12">⑤ Client → ClusterIP: DNAT in den Regeln wählt einen ready-Endpoint aus (kein Proxy-Prozess im Datenpfad).</text>
