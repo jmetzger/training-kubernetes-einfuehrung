@@ -38,6 +38,19 @@ Ablauf:
 | **Cloud-Node-Lifecycle-Controller** | cloud-controller-manager | Nur bei Cloud-Providern (z. B. DOKS): löscht das Node-Objekt, wenn die VM nicht mehr existiert. Danach räumt der Pod-GC die Pods ab (früher als 5 min). |
 | **Node-IPAM-Controller** | kube-controller-manager | Verteilt Pod-CIDRs, hat mit dem Ausfall nichts zu tun. |
 
+### Historie: vom „Node-Controller“ zu mehreren Controllern
+
+Früher gab es einen einzigen **Node-Controller** (`pkg/controller/node`). Er machte CIDR-Verwaltung, Überwachung des Node-Status und Pod-Eviction in einem Prozess und löschte außerdem Nodes, die beim Cloud-Provider nicht mehr existieren. Aufgeteilt wurde er schrittweise:
+
+| Zeitpunkt | Änderung | Beleg |
+|---|---|---|
+| 2017-10 | Split in **Node-Lifecycle-** und **Node-IPAM-Controller**. Motivation laut Commit: Cloud-Provider-Abhängigkeit aus dem Node-Controller entfernen. | Commit `9187b343e` in kubernetes/kubernetes |
+| 2018-10 | Löschlogik für Nodes, die in der Cloud nicht mehr existieren, zwischen Node-Lifecycle- und Cloud-Node-Controller zusammengeführt. | Commit `5329f0966` |
+| 2020-05 | Cloud-Node-Lifecycle-Controller nach `k8s.io/cloud-provider` verschoben, damit externe Cloud-Provider ihn nutzen können. | Commit `41dc075a8` |
+| 2023-07 | **Taint-Eviction-Controller** aus dem Node-Lifecycle-Controller herausgelöst (vorher „TaintManager“). Beta v1.29, Stable v1.34. Ziel: Separation of Concerns, Wartbarkeit, austauschbare Eviction. | KEP-3902, Commit `ccda2d6fd` |
+
+Die Cloud-Aufgaben des alten Node-Controllers beschreibt KEP-2392 (cloud-controller-manager). Quellen: `kubernetes/kubernetes` (Git-Verlauf) und `kubernetes/enhancements` (KEP-2392, KEP-3902).
+
 ### Korrektur zur Annahme „EndpointSlice verschwindet“
 
 Die EndpointSlice **verschwindet nicht**, wenn ein Node ausfällt. Es ändert sich der **Endpoint-Eintrag darin**:
