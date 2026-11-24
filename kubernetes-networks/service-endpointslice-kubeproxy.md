@@ -10,7 +10,7 @@ Wie ein Service-Request im Cluster tatsächlich bei einem Pod landet – und was
 |---|---|---|
 | **Service** | nur ein Objekt in der API (etcd) | Stabile virtuelle IP (ClusterIP) + Selector. Enthält selbst **keine** Pod-IPs. |
 | **EndpointSlice-Controller** | `kube-controller-manager` | Beobachtet Services und Pods. Legt zu jedem Service mit Selector EndpointSlices an (max. 100 Endpoints pro Slice) und hält sie aktuell. Pro Endpoint: Pod-IP, Node, Conditions `ready` / `serving` / `terminating`. |
-| **kube-proxy** | DaemonSet, auf **jedem** Node | Beobachtet Services + EndpointSlices per Watch und programmiert daraus lokale Regeln (iptables, IPVS oder nftables). |
+| **kube-proxy** | DaemonSet, auf **jedem** Node | Beobachtet Services + EndpointSlices per Watch und programmiert daraus lokale Regeln (iptables oder nftables; der IPVS-Modus ist deprecated, KEP-5495). |
 
 Ablauf:
 
