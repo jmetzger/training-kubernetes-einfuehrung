@@ -1,89 +1,81 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 560" font-family="Helvetica, Arial, sans-serif" font-size="13">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 570" font-family="Helvetica, Arial, sans-serif" font-size="13">
   <defs>
-    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
-    </marker>
-    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#15803d"/>
-    </marker>
-    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#1d4ed8"/>
-    </marker>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#15803d"/></marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d4ed8"/></marker>
   </defs>
-  <rect width="980" height="560" fill="#ffffff"/>
-  <text x="490" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#0f172a">Service → EndpointSlice-Controller → kube-proxy</text>
+  <rect width="1050" height="570" fill="#ffffff"/>
+  <text x="525" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#0f172a">Service → EndpointSlice-Controller → kube-proxy</text>
 
-  <!-- kubectl -->
   <rect x="30" y="60" width="200" height="56" rx="8" fill="#f1f5f9" stroke="#64748b"/>
   <text x="130" y="84" text-anchor="middle" font-weight="bold" fill="#0f172a">kubectl apply</text>
   <text x="130" y="102" text-anchor="middle" fill="#334155">Service + Deployment</text>
 
-  <!-- API server -->
-  <rect x="360" y="190" width="240" height="110" rx="10" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
-  <text x="480" y="218" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="15">kube-apiserver</text>
-  <text x="480" y="242" text-anchor="middle" fill="#1e3a8a">Service · Pod · Node</text>
-  <text x="480" y="262" text-anchor="middle" fill="#1e3a8a">EndpointSlice</text>
-  <text x="480" y="284" text-anchor="middle" fill="#475569" font-size="12">(Watch-Streams für alle)</text>
+  <rect x="420" y="190" width="240" height="160" rx="10" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="540" y="222" text-anchor="middle" font-weight="bold" fill="#1e3a8a" font-size="15">kube-apiserver</text>
+  <text x="540" y="250" text-anchor="middle" fill="#1e3a8a">Service · Pod · Node</text>
+  <text x="540" y="270" text-anchor="middle" fill="#1e3a8a">Lease · EndpointSlice</text>
+  <text x="540" y="300" text-anchor="middle" fill="#475569" font-size="12">(Watch-Streams für alle)</text>
 
-  <!-- etcd -->
-  <rect x="400" y="380" width="160" height="50" rx="8" fill="#f1f5f9" stroke="#64748b"/>
-  <text x="480" y="410" text-anchor="middle" font-weight="bold" fill="#0f172a">etcd</text>
-  <line x1="480" y1="300" x2="480" y2="380" stroke="#334155" stroke-width="2" marker-end="url(#a)"/>
+  <rect x="460" y="400" width="160" height="50" rx="8" fill="#f1f5f9" stroke="#64748b"/>
+  <text x="540" y="430" text-anchor="middle" font-weight="bold" fill="#0f172a">etcd</text>
+  <line x1="540" y1="350" x2="540" y2="400" stroke="#334155" stroke-width="2" marker-end="url(#a)"/>
 
-  <!-- controller manager -->
-  <rect x="30" y="170" width="240" height="150" rx="10" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <rect x="30" y="170" width="240" height="190" rx="10" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
   <text x="150" y="196" text-anchor="middle" font-weight="bold" fill="#78350f" font-size="14">kube-controller-manager</text>
   <rect x="48" y="212" width="204" height="44" rx="6" fill="#fde68a" stroke="#b45309"/>
   <text x="150" y="231" text-anchor="middle" fill="#78350f" font-weight="bold">EndpointSlice-Controller</text>
   <text x="150" y="248" text-anchor="middle" fill="#78350f" font-size="12">Selector → Pods → Slices</text>
-  <rect x="48" y="266" width="204" height="40" rx="6" fill="#fde68a" stroke="#b45309"/>
-  <text x="150" y="283" text-anchor="middle" fill="#78350f" font-weight="bold">Node-Lifecycle-Controller</text>
-  <text x="150" y="298" text-anchor="middle" fill="#78350f" font-size="12">Heartbeat, Taints</text>
+  <rect x="48" y="292" width="204" height="44" rx="6" fill="#fde68a" stroke="#b45309"/>
+  <text x="150" y="311" text-anchor="middle" fill="#78350f" font-weight="bold">Node-Lifecycle-Controller</text>
+  <text x="150" y="328" text-anchor="middle" fill="#78350f" font-size="12">Heartbeat prüfen, Taints setzen</text>
 
-  <!-- arrows kubectl -> api -->
-  <path d="M230,88 C360,88 420,120 450,190" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#a)"/>
-  <text x="330" y="98" fill="#334155" font-size="12">① anlegen</text>
+  <path d="M230,88 C400,88 480,120 510,190" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#a)"/>
+  <text x="400" y="98" fill="#334155" font-size="12">① anlegen</text>
 
-  <!-- controller watch / write -->
-  <line x1="270" y1="222" x2="360" y2="222" stroke="#1d4ed8" stroke-width="2" marker-end="url(#b)" stroke-dasharray="6 3"/>
-  <text x="315" y="212" text-anchor="middle" fill="#1d4ed8" font-size="12">② watch</text>
-  <line x1="270" y1="246" x2="360" y2="246" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
-  <text x="315" y="266" text-anchor="middle" fill="#15803d" font-size="12">③ schreibt</text>
-  <text x="315" y="280" text-anchor="middle" fill="#15803d" font-size="12">EndpointSlice</text>
+  <!-- EndpointSlice-Controller -->
+  <line x1="252" y1="224" x2="420" y2="224" stroke="#1d4ed8" stroke-width="2" marker-end="url(#b)" stroke-dasharray="6 3"/>
+  <text x="336" y="216" text-anchor="middle" fill="#1d4ed8" font-size="12">② watch Pod/Service</text>
+  <line x1="252" y1="246" x2="420" y2="246" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
+  <text x="336" y="264" text-anchor="middle" fill="#15803d" font-size="12">③ schreibt Slices</text>
+
+  <!-- Node-Lifecycle-Controller -->
+  <line x1="252" y1="302" x2="420" y2="302" stroke="#1d4ed8" stroke-width="2" marker-end="url(#b)" stroke-dasharray="6 3"/>
+  <text x="336" y="294" text-anchor="middle" fill="#1d4ed8" font-size="12">watch Node/Pod/Lease</text>
+  <line x1="252" y1="324" x2="420" y2="324" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
+  <text x="336" y="342" text-anchor="middle" fill="#15803d" font-size="12">Taints, Pod-Status</text>
 
   <!-- Nodes -->
-  <rect x="690" y="60" width="270" height="200" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
-  <text x="705" y="82" fill="#0f172a" font-weight="bold">Node A</text>
-  <rect x="708" y="95" width="234" height="62" rx="6" fill="#dcfce7" stroke="#15803d"/>
-  <text x="825" y="118" text-anchor="middle" fill="#14532d" font-weight="bold">kube-proxy</text>
-  <text x="825" y="138" text-anchor="middle" fill="#14532d" font-size="12">watch Service + EndpointSlice</text>
-  <rect x="708" y="170" width="234" height="38" rx="6" fill="#e2e8f0" stroke="#475569"/>
-  <text x="825" y="194" text-anchor="middle" fill="#0f172a">iptables / nftables-Regeln</text>
-  <rect x="708" y="218" width="110" height="32" rx="6" fill="#ede9fe" stroke="#6d28d9"/>
-  <text x="763" y="239" text-anchor="middle" fill="#4c1d95">Pod 1</text>
-  <line x1="825" y1="157" x2="825" y2="170" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
+  <rect x="750" y="60" width="270" height="200" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="765" y="82" fill="#0f172a" font-weight="bold">Node A</text>
+  <rect x="768" y="95" width="234" height="62" rx="6" fill="#dcfce7" stroke="#15803d"/>
+  <text x="885" y="118" text-anchor="middle" fill="#14532d" font-weight="bold">kube-proxy</text>
+  <text x="885" y="138" text-anchor="middle" fill="#14532d" font-size="12">watch Service + EndpointSlice</text>
+  <rect x="768" y="170" width="234" height="38" rx="6" fill="#e2e8f0" stroke="#475569"/>
+  <text x="885" y="194" text-anchor="middle" fill="#0f172a">iptables / nftables-Regeln</text>
+  <rect x="768" y="218" width="110" height="32" rx="6" fill="#ede9fe" stroke="#6d28d9"/>
+  <text x="823" y="239" text-anchor="middle" fill="#4c1d95">Pod 1</text>
+  <line x1="885" y1="157" x2="885" y2="170" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
 
-  <rect x="690" y="300" width="270" height="200" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
-  <text x="705" y="322" fill="#0f172a" font-weight="bold">Node B</text>
-  <rect x="708" y="335" width="234" height="62" rx="6" fill="#dcfce7" stroke="#15803d"/>
-  <text x="825" y="358" text-anchor="middle" fill="#14532d" font-weight="bold">kube-proxy</text>
-  <text x="825" y="378" text-anchor="middle" fill="#14532d" font-size="12">watch Service + EndpointSlice</text>
-  <rect x="708" y="410" width="234" height="38" rx="6" fill="#e2e8f0" stroke="#475569"/>
-  <text x="825" y="434" text-anchor="middle" fill="#0f172a">iptables / nftables-Regeln</text>
-  <rect x="708" y="458" width="110" height="32" rx="6" fill="#ede9fe" stroke="#6d28d9"/>
-  <text x="763" y="479" text-anchor="middle" fill="#4c1d95">Pod 2</text>
-  <line x1="825" y1="397" x2="825" y2="410" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
+  <rect x="750" y="300" width="270" height="200" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <text x="765" y="322" fill="#0f172a" font-weight="bold">Node B</text>
+  <rect x="768" y="335" width="234" height="62" rx="6" fill="#dcfce7" stroke="#15803d"/>
+  <text x="885" y="358" text-anchor="middle" fill="#14532d" font-weight="bold">kube-proxy</text>
+  <text x="885" y="378" text-anchor="middle" fill="#14532d" font-size="12">watch Service + EndpointSlice</text>
+  <rect x="768" y="410" width="234" height="38" rx="6" fill="#e2e8f0" stroke="#475569"/>
+  <text x="885" y="434" text-anchor="middle" fill="#0f172a">iptables / nftables-Regeln</text>
+  <rect x="768" y="458" width="110" height="32" rx="6" fill="#ede9fe" stroke="#6d28d9"/>
+  <text x="823" y="479" text-anchor="middle" fill="#4c1d95">Pod 2</text>
+  <line x1="885" y1="397" x2="885" y2="410" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
 
-  <!-- watch arrows api -> kube-proxy -->
-  <path d="M708,126 C660,150 640,200 600,215" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
-  <path d="M708,366 C660,350 640,300 600,275" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
-  <text x="612" y="238" fill="#1d4ed8" font-size="12">④ watch</text>
-  <text x="600" y="345" fill="#1d4ed8" font-size="12">④ watch</text>
+  <path d="M768,126 C720,150 700,200 660,222" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
+  <path d="M768,366 C720,350 700,300 660,290" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
+  <text x="676" y="250" fill="#1d4ed8" font-size="12">④ watch</text>
+  <text x="676" y="352" fill="#1d4ed8" font-size="12">④ watch</text>
 
-  <!-- legend -->
-  <line x1="30" y1="470" x2="70" y2="470" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
-  <text x="80" y="474" fill="#334155">Watch (Client öffnet die Verbindung zum API-Server, Events kommen zurück)</text>
-  <line x1="30" y1="495" x2="70" y2="495" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
-  <text x="80" y="499" fill="#334155">Schreiben / Programmieren</text>
-  <text x="30" y="535" fill="#475569" font-size="12">⑤ Client → ClusterIP: DNAT in den Regeln wählt einen ready-Endpoint aus (kein Proxy-Prozess im Datenpfad).</text>
+  <line x1="30" y1="490" x2="70" y2="490" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#b)"/>
+  <text x="80" y="494" fill="#334155">Watch (Client öffnet die Verbindung zum API-Server, Events kommen zurück)</text>
+  <line x1="30" y1="515" x2="70" y2="515" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
+  <text x="80" y="519" fill="#334155">Schreiben / Programmieren</text>
+  <text x="30" y="552" fill="#475569" font-size="12">⑤ Client → ClusterIP: DNAT in den Regeln wählt einen ready-Endpoint aus (kein Proxy-Prozess im Datenpfad).</text>
 </svg>
