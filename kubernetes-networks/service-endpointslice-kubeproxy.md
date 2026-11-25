@@ -54,7 +54,7 @@ Kurz gefasst (nach `node_lifecycle_controller.go`):
 
 1. Der **kubelet** schreibt alle 10 s die Lease seines Nodes (`UPDATE`, `spec.renewTime`).
 2. Der Node-Lifecycle-Controller hat einen **Lease-Informer** (Watch auf Leases). Sobald eine neuere `renewTime` ankommt, merkt er sich seinen **eigenen** Zeitpunkt („probeTimestamp“). Er vergleicht nie die Uhr des Kubelets mit seiner eigenen.
-3. Alle 5 s (`node-monitor-period`) prüft er: „jetzt − probeTimestamp > 50 s?“ (`node-monitor-grace-period`).
+3. Alle 5 s (`node-monitor-period`) prüft er: „now − probeTimestamp > 50 s?“ (`now` = aktuelle Uhrzeit des Controllers) (`node-monitor-grace-period`).
 4. Wenn ja: Node-Status `Ready` (und Memory-/Disk-/PIDPressure) auf `Unknown`, `unreachable`-Taints am Node, Pods des Nodes auf `Ready=False`.
 5. Alles Weitere passiert per Watch bei anderen Controllern (EndpointSlice-Controller, Taint-Eviction-Controller).
 
