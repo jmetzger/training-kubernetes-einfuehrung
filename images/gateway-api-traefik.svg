@@ -36,14 +36,14 @@
 <text x="700" y="104" text-anchor="end" font-size="11" fill="#1e3a8a">Trainer</text>
 <rect x="430" y="115" width="260" height="42" rx="6" fill="#dbeafe" stroke="#1d4ed8"/>
 <text x="560" y="133" text-anchor="middle" font-weight="bold" fill="#1e3a8a">GatewayClass traefik</text>
-<text x="560" y="149" text-anchor="middle" font-size="11" fill="#1e3a8a">legt fest: Traefik ist der Controller</text>
+<text x="560" y="149" text-anchor="middle" font-size="11" fill="#1e3a8a">Traefik ist der Controller (Konfig-Objekt)</text>
 <rect x="430" y="167" width="260" height="46" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
 <text x="560" y="185" text-anchor="middle" font-weight="bold" fill="#1e3a8a">Pod Traefik</text>
-<text x="560" y="203" text-anchor="middle" font-size="11" fill="#1e3a8a">Entrypoint web :8000, verteilt Requests</text>
+<text x="560" y="203" text-anchor="middle" font-size="11" fill="#1e3a8a">per Helm installiert, Entrypoint web :8000</text>
 <rect x="430" y="224" width="260" height="56" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
 <text x="560" y="242" text-anchor="middle" font-weight="bold" fill="#1e3a8a">Gateway shared-gateway</text>
-<text x="560" y="259" text-anchor="middle" font-size="11" fill="#1e3a8a">Listener web :8000 (HTTP)</text>
-<text x="560" y="273" text-anchor="middle" font-size="11" fill="#1e3a8a">allowedRoutes: Routen aus allen Namespaces</text>
+<text x="560" y="259" text-anchor="middle" font-size="11" fill="#1e3a8a">nur Konfiguration (Traefik liest sie), kein Pod</text>
+<text x="560" y="273" text-anchor="middle" font-size="11" fill="#1e3a8a">Listener web :8000, Routen aus allen Namespaces</text>
 
 <!-- LB -> Traefik -->
 <path d="M365,286 L398,286 L398,190 L430,190" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#mk)"/>
