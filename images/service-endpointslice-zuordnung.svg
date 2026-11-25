@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 600">
+<defs><marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1d4ed8"/></marker><marker id="k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+<rect width="1040" height="600" fill="#ffffff"/>
+<text x="520" y="28" font-size="18" font-weight="bold" fill="#0f172a" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">Wie kube-proxy Service und EndpointSlice zusammenführt</text>
+<rect x="30" y="60" width="330" height="200" rx="10" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+<text x="46" y="84" font-size="14" font-weight="bold" fill="#1e3a8a" text-anchor="start" font-family="Helvetica, Arial, sans-serif">Service (API-Objekt)</text>
+<text x="46" y="112" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">metadata:</text>
+<text x="62" y="130" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">namespace: default</text>
+<text x="62" y="148" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">name: <tspan fill="#c2410c" font-weight="bold">my-svc</tspan></text>
+<text x="46" y="172" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">spec:</text>
+<text x="62" y="190" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">clusterIP: 10.96.0.15</text>
+<text x="62" y="208" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">ports:</text>
+<text x="78" y="226" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">- name: <tspan fill="#6d28d9" font-weight="bold">http</tspan>  port: 80</text>
+<text x="78" y="244" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">  targetPort: 8080</text>
+<rect x="30" y="320" width="330" height="240" rx="10" fill="#fde68a" stroke="#b45309" stroke-width="2"/>
+<text x="46" y="344" font-size="14" font-weight="bold" fill="#78350f" text-anchor="start" font-family="Helvetica, Arial, sans-serif">EndpointSlice (API-Objekt)</text>
+<text x="46" y="372" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">metadata:</text>
+<text x="62" y="390" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">namespace: default</text>
+<text x="62" y="408" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">labels:</text>
+<text x="78" y="426" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">kubernetes.io/service-name:</text>
+<text x="78" y="444" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">  <tspan fill="#c2410c" font-weight="bold">my-svc</tspan></text>
+<text x="46" y="468" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">ports:</text>
+<text x="62" y="486" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">- name: <tspan fill="#6d28d9" font-weight="bold">http</tspan>  port: 8080</text>
+<text x="46" y="510" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">endpoints:</text>
+<text x="62" y="528" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">- 10.244.1.5  (Node A, ready)</text>
+<text x="62" y="546" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">- 10.244.2.7  (Node B, ready)</text>
+<rect x="470" y="60" width="540" height="500" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+<text x="486" y="84" font-size="14" font-weight="bold" fill="#14532d" text-anchor="start" font-family="Helvetica, Arial, sans-serif">kube-proxy (auf jedem Node)</text>
+<rect x="490" y="100" width="500" height="92" rx="6" fill="#ffffff" stroke="#15803d"/>
+<text x="504" y="120" font-size="13" font-weight="bold" fill="#14532d" text-anchor="start" font-family="Helvetica, Arial, sans-serif">1  Service-Cache</text>
+<text x="504" y="142" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">Schlüssel: default/<tspan fill="#c2410c" font-weight="bold">my-svc</tspan></text>
+<text x="504" y="160" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">Port-Name: <tspan fill="#6d28d9" font-weight="bold">http</tspan>  →  ClusterIP 10.96.0.15, Port 80</text>
+<rect x="490" y="212" width="500" height="92" rx="6" fill="#ffffff" stroke="#15803d"/>
+<text x="504" y="232" font-size="13" font-weight="bold" fill="#14532d" text-anchor="start" font-family="Helvetica, Arial, sans-serif">2  EndpointSlice-Cache</text>
+<text x="504" y="254" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">Label service-name → Schlüssel default/<tspan fill="#c2410c" font-weight="bold">my-svc</tspan></text>
+<text x="504" y="272" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">Port-Name: <tspan fill="#6d28d9" font-weight="bold">http</tspan>  →  10.244.1.5:8080, 10.244.2.7:8080</text>
+<rect x="490" y="326" width="500" height="64" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="2"/>
+<text x="504" y="346" font-size="13" font-weight="bold" fill="#14532d" text-anchor="start" font-family="Helvetica, Arial, sans-serif">3  Zusammenführen über den ServicePortName</text>
+<text x="504" y="372" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">default / <tspan fill="#c2410c" font-weight="bold">my-svc</tspan> : <tspan fill="#6d28d9" font-weight="bold">http</tspan> / TCP</text>
+<rect x="490" y="410" width="500" height="130" rx="6" fill="#ffffff" stroke="#15803d"/>
+<text x="504" y="430" font-size="13" font-weight="bold" fill="#14532d" text-anchor="start" font-family="Helvetica, Arial, sans-serif">4  Regeln im Kernel (iptables / nftables)</text>
+<text x="504" y="454" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">Ziel 10.96.0.15 : 80  (ClusterIP des Service)</text>
+<text x="504" y="476" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">  → 50 %  DNAT auf 10.244.1.5 : 8080</text>
+<text x="504" y="494" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">  → 50 %  DNAT auf 10.244.2.7 : 8080</text>
+<text x="504" y="520" font-size="12" fill="#334155" text-anchor="start" font-family="Helvetica, Arial, sans-serif">Die ClusterIP stammt aus dem Service, die Pod-IPs aus der EndpointSlice.</text>
+<path d="M360,150 C410,150 430,146 490,146" fill="none" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#b)"/>
+<text x="366" y="138" font-size="12" fill="#1d4ed8" text-anchor="start" font-family="Helvetica, Arial, sans-serif">Watch</text>
+<path d="M360,430 C420,430 430,262 490,262" fill="none" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#b)"/>
+<text x="368" y="420" font-size="12" fill="#1d4ed8" text-anchor="start" font-family="Helvetica, Arial, sans-serif">Watch</text>
+<line x1="740" y1="192" x2="740" y2="212" stroke="#334155" stroke-width="2" marker-end="url(#k)"/>
+<line x1="740" y1="304" x2="740" y2="326" stroke="#334155" stroke-width="2" marker-end="url(#k)"/>
+<line x1="740" y1="390" x2="740" y2="410" stroke="#334155" stroke-width="2" marker-end="url(#k)"/>
+<text x="30" y="586" font-size="12" fill="#475569" text-anchor="start" font-family="Helvetica, Arial, sans-serif">Farben: gleiche Farbe = gleicher Wert, über den die beiden Objekte zusammenfinden (Orange: Service-Name, Violett: Port-Name). Beispielwerte.</text>
+</svg>

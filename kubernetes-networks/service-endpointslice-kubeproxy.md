@@ -28,6 +28,14 @@ Ablauf:
 
 > Der Service-Controller (Name im Titel „ServiceController“) ist etwas anderes: Der kümmert sich nur um `type: LoadBalancer` (Cloud-Loadbalancer anlegen). Für ClusterIP/Endpoints ist der **EndpointSlice-Controller** zuständig.
 
+### Wie ordnet kube-proxy EndpointSlice und Service zu?
+
+![Zuordnung von Service und EndpointSlice in kube-proxy](/images/service-endpointslice-zuordnung.svg)
+
+- Die EndpointSlice trägt das Label `kubernetes.io/service-name: <service>`. Daraus und aus dem Namespace baut kube-proxy den Schlüssel `Namespace/Service`.
+- Service-Port und EndpointSlice-Port werden über den **Port-Namen** verbunden. Der Schlüssel in kube-proxy ist der `ServicePortName` (Namespace, Name, Port-Name, Protokoll).
+- Die **ClusterIP** kommt aus dem Service-Objekt, die **Pod-IPs** aus der EndpointSlice. kube-proxy beobachtet beides getrennt und führt es erst beim Erzeugen der Regeln zusammen.
+
 ## 2. Node fällt aus – was passiert?
 
 ![Zeitlicher Ablauf bei Node-Ausfall](/images/service-endpointslice-node-ausfall.svg)
