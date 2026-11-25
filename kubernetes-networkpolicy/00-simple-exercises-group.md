@@ -4,6 +4,9 @@
 
 ```
 KURZ=jm
+```
+
+```
 kubectl create ns policy-demo-$KURZ 
 ```
 
