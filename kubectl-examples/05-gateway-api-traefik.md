@@ -76,22 +76,28 @@ Wir nutzen `shared-gateway`, weil dort Routen aus allen Namespaces erlaubt sind.
 
 ## Schritt 1: Vorbereitung
 
+Traegt zuerst euren Namen als Variable ein (klein, ohne Leerzeichen und Umlaute). Alle weiteren Befehle
+verwenden diese Variable und koennen 1:1 kopiert werden.
+
+```
+NAME=josef
+```
+
+Wichtig: Die Variable gilt nur in dieser Terminal-Sitzung. Bei einem neuen Terminal bitte erneut setzen.
+
 ```
 cd
 mkdir -p manifests
 cd manifests
-mkdir gateway
+mkdir -p gateway
 cd gateway
-```
-
-```
-kubectl create namespace gateway-<dein-name>
+kubectl create namespace gateway-$NAME
 ```
 
 ## Schritt 2: Anwendungen und Services
 
 ```
-# vi 01-apple.yml
+cat > 01-apple.yml <<EOF
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -110,7 +116,7 @@ spec:
         - name: web
           image: hashicorp/http-echo
           args:
-            - "-text=apple-<dein-name>"
+            - "-text=apple-$NAME"
 ---
 apiVersion: v1
 kind: Service
@@ -122,10 +128,11 @@ spec:
   ports:
     - port: 80
       targetPort: 5678
+EOF
 ```
 
 ```
-# vi 02-banana.yml
+cat > 02-banana.yml <<EOF
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -144,7 +151,7 @@ spec:
         - name: web
           image: hashicorp/http-echo
           args:
-            - "-text=banana-<dein-name>"
+            - "-text=banana-$NAME"
 ---
 apiVersion: v1
 kind: Service
@@ -156,11 +163,12 @@ spec:
   ports:
     - port: 80
       targetPort: 5678
+EOF
 ```
 
 ```
-kubectl apply -f . -n gateway-<dein-name>
-kubectl get pods,svc -n gateway-<dein-name>
+kubectl apply -f . -n gateway-$NAME
+kubectl get pods,svc -n gateway-$NAME
 ```
 
 Kurz warten, bis beide Pods `Running` sind, sonst kommt bei den ersten Requests `no available server`.
@@ -168,7 +176,7 @@ Kurz warten, bis beide Pods `Running` sind, sonst kommt bei den ersten Requests 
 ## Schritt 3: HTTPRoute mit Pfaden
 
 ```
-# vi 03-httproute.yml
+cat > 03-httproute.yml <<EOF
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -178,7 +186,7 @@ spec:
     - name: shared-gateway
       namespace: ingress
   hostnames:
-    - "<dein-name>.app-gw.do.t3isp.de"
+    - "$NAME.app-gw.do.t3isp.de"
   rules:
     - matches:
         - path:
@@ -194,12 +202,13 @@ spec:
       backendRefs:
         - name: banana-service
           port: 80
+EOF
 ```
 
 ```
-kubectl apply -f . -n gateway-<dein-name>
-kubectl get httproute -n gateway-<dein-name>
-kubectl describe httproute example-route -n gateway-<dein-name>
+kubectl apply -f . -n gateway-$NAME
+kubectl get httproute -n gateway-$NAME
+kubectl describe httproute example-route -n gateway-$NAME
 ```
 
 In `describe` unter `Status > Parents` muessen die Conditions `Accepted` und `ResolvedRefs` auf `True` stehen.
@@ -207,17 +216,28 @@ In `describe` unter `Status > Parents` muessen die Conditions `Accepted` und `Re
 ## Schritt 4: Testen
 
 ```
-curl http://<dein-name>.app-gw.do.t3isp.de/apple
-curl http://<dein-name>.app-gw.do.t3isp.de/banana
-curl http://<dein-name>.app-gw.do.t3isp.de/apple/foo
+curl http://$NAME.app-gw.do.t3isp.de/apple
+curl http://$NAME.app-gw.do.t3isp.de/banana
+curl http://$NAME.app-gw.do.t3isp.de/apple/foo
 ```
 
 ## Schritt 5: Header-Match
 
 Nur wenn der Header `X-Version: 2` gesetzt ist, soll banana antworten, sonst apple.
+Wir ueberschreiben dazu die Datei `03-httproute.yml` komplett.
 
 ```
-# vi 03-httproute.yml  (Rules ersetzen)
+cat > 03-httproute.yml <<EOF
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: example-route
+spec:
+  parentRefs:
+    - name: shared-gateway
+      namespace: ingress
+  hostnames:
+    - "$NAME.app-gw.do.t3isp.de"
   rules:
     - matches:
         - headers:
@@ -229,20 +249,35 @@ Nur wenn der Header `X-Version: 2` gesetzt ist, soll banana antworten, sonst app
     - backendRefs:
         - name: apple-service
           port: 80
+EOF
 ```
 
 ```
-kubectl apply -f . -n gateway-<dein-name>
-curl http://<dein-name>.app-gw.do.t3isp.de/
-curl -H "X-Version: 2" http://<dein-name>.app-gw.do.t3isp.de/
+kubectl apply -f . -n gateway-$NAME
+curl http://$NAME.app-gw.do.t3isp.de/
+curl -H "X-Version: 2" http://$NAME.app-gw.do.t3isp.de/
 ```
+
+Hinweis: Direkt nach dem `apply` kann der erste Request kurz `404 page not found` liefern, bis Traefik die Route
+uebernommen hat. Dann einfach nach 2-3 Sekunden wiederholen.
 
 ## Schritt 6: Traffic-Splitting (Canary) per Gewichtung
 
 Das geht mit Ingress nur ueber controller-spezifische Annotations, mit der Gateway API ist es Standard.
+Wieder wird die Datei komplett ueberschrieben.
 
 ```
-# vi 03-httproute.yml  (Rules ersetzen)
+cat > 03-httproute.yml <<EOF
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: example-route
+spec:
+  parentRefs:
+    - name: shared-gateway
+      namespace: ingress
+  hostnames:
+    - "$NAME.app-gw.do.t3isp.de"
   rules:
     - backendRefs:
         - name: apple-service
@@ -251,11 +286,12 @@ Das geht mit Ingress nur ueber controller-spezifische Annotations, mit der Gatew
         - name: banana-service
           port: 80
           weight: 20
+EOF
 ```
 
 ```
-kubectl apply -f . -n gateway-<dein-name>
-for i in $(seq 1 20); do curl -s http://<dein-name>.app-gw.do.t3isp.de/; done | sort | uniq -c
+kubectl apply -f . -n gateway-$NAME
+for i in $(seq 1 20); do curl -s http://$NAME.app-gw.do.t3isp.de/; done | sort | uniq -c
 ```
 
 Erwartet: ca. 80 % apple, 20 % banana (bei 20 Requests nur grob).
@@ -263,7 +299,7 @@ Erwartet: ca. 80 % apple, 20 % banana (bei 20 Requests nur grob).
 ## Schritt 7: Fehlersuche (Route wird nicht angenommen)
 
 ```
-kubectl describe httproute example-route -n gateway-<dein-name>
+kubectl describe httproute example-route -n gateway-$NAME
 ```
 
 Typische Ursachen:
@@ -288,7 +324,7 @@ Typische Ursachen:
 ## Aufraeumen
 
 ```
-kubectl delete namespace gateway-<dein-name>
+kubectl delete namespace gateway-$NAME
 ```
 
 Trainer (nach dem Training):
