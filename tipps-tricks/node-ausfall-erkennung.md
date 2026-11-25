@@ -35,22 +35,22 @@ sequenceDiagram
     participant S as Scheduler / ReplicaSet
 
     N-xA: Heartbeats bleiben aus (t = 0)
-    Note over C: node-monitor-grace-period = 40 s
-    C->>A: Ready = Unknown (t ≈ 40 s)
+    Note over C: node-monitor-grace-period = 50 s
+    C->>A: Ready = Unknown (t ≈ 50 s)
     C->>A: Taints setzen: unreachable / not-ready (NoExecute)
     Note over S: Keine neuen Pods mehr auf diesen Node
     Note over A: tolerationSeconds = 300 läuft ab
-    A->>S: Pods werden gelöscht (t ≈ 5 min 40 s)
+    A->>S: Pods werden gelöscht (t ≈ 5 min 50 s)
     S->>S: Pods auf gesunden Nodes neu erzeugen
 ```
 
 1. **t = 0:** Der Node fällt aus (kubelet, VM oder Netzwerk). Es kommt kein Lease-Update mehr an.
-2. **t ≈ 40 s:** Die Grace Period (`--node-monitor-grace-period`, Standard 40 s) ist abgelaufen. Der Node-Lifecycle-Controller im `kube-controller-manager` setzt `Ready` auf `Unknown`. `kubectl get nodes` zeigt `NotReady`.
+2. **t ≈ 50 s:** Die Grace Period (`--node-monitor-grace-period`, Standard 50 s ab Kubernetes 1.32, davor 40 s) ist abgelaufen. Der Node-Lifecycle-Controller im `kube-controller-manager` setzt `Ready` auf `Unknown`. `kubectl get nodes` zeigt `NotReady`.
 3. **Gleichzeitig:** Der Controller setzt die Taints
    - `node.kubernetes.io/unreachable:NoExecute`
    - `node.kubernetes.io/not-ready:NoExecute`
 4. **Ab dem Taint:** Der Scheduler platziert keine neuen Pods mehr auf dem Node.
-5. **t ≈ 5 min 40 s:** Jeder Pod hat automatisch eine Toleration für diese Taints mit `tolerationSeconds: 300`. Sie läuft 5 Minuten nach dem Taint ab. Dann werden die Pods gelöscht, und ReplicaSet bzw. Deployment erzeugen sie auf gesunden Nodes neu.
+5. **t ≈ 5 min 50 s:** Jeder Pod hat automatisch eine Toleration für diese Taints mit `tolerationSeconds: 300`. Sie läuft 5 Minuten nach dem Taint ab. Dann werden die Pods gelöscht, und ReplicaSet bzw. Deployment erzeugen sie auf gesunden Nodes neu.
 
 ## Wichtige Details
 
@@ -94,4 +94,32 @@ sudo systemctl stop kubelet
 kubectl get nodes -w
 ```
 
-Nach ca. 40 s steht der Node auf `NotReady`, nach ca. 5 min 40 s werden die Pods neu geplant.
+Nach ca. 50 s steht der Node auf `NotReady`, nach ca. 5 min 50 s werden die Pods neu geplant.
+
+## Messung im Cluster
+
+Nachgestellt auf einem kubeadm-Cluster (Kubernetes v1.37.2, CNI Antrea 2.7.0) mit 1 Control Plane und 2 Workern. Auf `k8s-tln1-w1` wurde der kubelet gestoppt, ein Deployment mit 4 Replicas lief verteilt auf beide Worker.
+
+| Zeit nach Stopp | Beobachtung |
+|-----------------|-------------|
+| 0 s | alle Nodes `Ready`, Leases werden erneuert |
+| ca. 47 s | `k8s-tln1-w1` ist `NotReady`, Taints `unreachable:NoSchedule` und `unreachable:NoExecute` gesetzt |
+| ca. 346 s | Pods von `w1` werden evakuiert, 4 Pods laufen auf `w2`, die alten stehen auf `Terminating` |
+
+Die Zeiten passen zu 50 s Grace Period plus 300 s `tolerationSeconds` (gemessen ab dem letzten Heartbeat, nicht ab dem Stopp).
+
+**1. Node erreichbar:** Leases aktuell, alle Nodes `Ready`
+
+![Node erreichbar](../images/node-ausfall/1-node-erreichbar.png)
+
+**2. Node ausgefallen:** Lease von `w1` steht, `NotReady`, Taints gesetzt
+
+![Node NotReady](../images/node-ausfall/2-node-notready.png)
+
+**3. Nach 5 Minuten:** Pods werden auf `w2` neu erzeugt
+
+![Pods evakuiert](../images/node-ausfall/3-pods-evakuiert.png)
+
+**Zeitachse**
+
+![Zeitachse Node-Ausfall](../images/node-ausfall/zeitachse.png)
