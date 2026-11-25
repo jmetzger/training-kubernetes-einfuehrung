@@ -7,7 +7,7 @@ kubectl run ephemeral-demo --image=registry.k8s.io/pause:3.1 --restart=Never
 kubectl exec -it ephemeral-demo -- sh
 
 # Variante - sieht nur prozesse von nicolaka/netshoot 
-kubectl debug -it ephemeral-demo --image=nicolaka/netshoot
+kubectl debug -it ephemeral-demo --image=nicolaka/netshoot --profile=netadmin
 
 ```
 
@@ -21,7 +21,8 @@ exit
 ```
 # --target=<name-des-containers>
 # mit run hat der container den gleichen namen wie der pod
-kubectl debug -it ephemeral-demo --image=nicolaka/netshoot --target=ephemeral-demo 
+# mit --profile=sysadmin auch zugriff aufs host-system -> /host 
+kubectl debug -it ephemeral-demo --image=nicolaka/netshoot --target=ephemeral-demo  --profile=netadmin
 ```
 
 
