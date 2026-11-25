@@ -45,11 +45,11 @@
   <text x="330" y="98" fill="#334155" font-size="12">① anlegen</text>
 
   <!-- controller watch / write -->
-  <line x1="270" y1="225" x2="360" y2="225" stroke="#1d4ed8" stroke-width="2" marker-end="url(#b)" stroke-dasharray="6 3"/>
-  <text x="315" y="215" text-anchor="middle" fill="#1d4ed8" font-size="12">② watch</text>
-  <line x1="270" y1="270" x2="360" y2="270" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
-  <text x="315" y="289" text-anchor="middle" fill="#15803d" font-size="12">③ schreibt</text>
-  <text x="315" y="303" text-anchor="middle" fill="#15803d" font-size="12">EndpointSlice</text>
+  <line x1="270" y1="222" x2="360" y2="222" stroke="#1d4ed8" stroke-width="2" marker-end="url(#b)" stroke-dasharray="6 3"/>
+  <text x="315" y="212" text-anchor="middle" fill="#1d4ed8" font-size="12">② watch</text>
+  <line x1="270" y1="246" x2="360" y2="246" stroke="#15803d" stroke-width="2" marker-end="url(#g)"/>
+  <text x="315" y="266" text-anchor="middle" fill="#15803d" font-size="12">③ schreibt</text>
+  <text x="315" y="280" text-anchor="middle" fill="#15803d" font-size="12">EndpointSlice</text>
 
   <!-- Nodes -->
   <rect x="690" y="60" width="270" height="200" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
