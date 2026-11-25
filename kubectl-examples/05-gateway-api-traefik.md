@@ -4,83 +4,24 @@
 
 ![Gateway API mit Traefik: Weg eines Requests](/images/gateway-api-traefik.svg)
 
-Die Gateway API ist der Nachfolger von Ingress. Statt einer einzigen Ressource gibt es Rollen-getrennte Objekte:
+Die Gateway API ist der Nachfolger von Ingress. Statt einer Ressource gibt es drei, mit getrennten Rollen:
 
-| Ressource | Wer pflegt sie? | Aufgabe |
-|-----------|-----------------|---------|
-| GatewayClass | Infrastruktur-Anbieter | Welcher Controller (hier: Traefik) |
-| Gateway | Cluster-Betreiber (Trainer) | Listener: Port, Protokoll, welche Namespaces duerfen anhaengen |
-| HTTPRoute | Anwendungsentwickler (Teilnehmer) | Hostnamen, Pfade, Backends, Gewichtung |
+| Ressource | Pflegt | Aufgabe |
+|-----------|--------|---------|
+| GatewayClass | Infrastruktur | welcher Controller (hier: Traefik) |
+| Gateway | Trainer | Listener: Port, Protokoll, welche Namespaces anhaengen duerfen |
+| HTTPRoute | Teilnehmer | Hostnamen, Pfade, Backends, Gewichtung |
 
-Wichtig: Ein `Gateway` ist bei Traefik nur ein Konfigurationsobjekt und startet **keinen eigenen Pod**. Es gibt genau
-einen Traefik-Pod (per Helm installiert), der alle Gateways und Routen liest und die passenden Listener oeffnet.
-(Andere Implementierungen wie Cilium oder Envoy Gateway legen teils pro Gateway einen eigenen Proxy an.)
+Gut zu wissen:
 
-Vorteile gegenueber Ingress: Routing-Features (Header-Match, Gewichtung/Canary, Redirects) sind Teil des
-Standards, statt in controller-spezifischen Annotations zu stecken.
+* **Ein Traefik fuer beides:** Derselbe Pod bedient Ingress und Gateway API, mit derselben LoadBalancer-IP.
+  Getrennt werden die Uebungen nur ueber die Domain: Ingress `*.appv2.do.t3isp.de`, Gateway API `*.app-gw.do.t3isp.de`.
+* **Gateway = nur Konfiguration:** Bei Traefik startet ein Gateway keinen eigenen Pod. Traefik liest die Gateways und
+  Routen und oeffnet die passenden Listener.
+* **Mehr Standard:** Header-Match, Gewichtung (Canary) und Redirects gehoeren zur API, keine controller-spezifischen Annotations.
 
-Voraussetzung: Traefik ist installiert (siehe `ingress/traefik/install-with-helm.md`).
-Es braucht **keine zweite Installation**: Derselbe Traefik bedient Ingress (`ingressClassName: traefik`) und
-Gateway API (`gatewayClassName: traefik`) gleichzeitig, mit derselben LoadBalancer-IP. Die Trennung der beiden
-Uebungen laeuft nur ueber die Domain: Ingress nutzt `*.appv2.do.t3isp.de`, Gateway API nutzt `*.app-gw.do.t3isp.de`
-(beide Wildcards zeigen auf die LoadBalancer-IP von Traefik).
-
-## Schritt 0: Trainer-Vorbereitung (einmalig, nicht fuer Teilnehmer)
-
-Auf DigitalOcean (DOKS) sind Gateway-API-CRDs (v1.2.1, experimental) vorinstalliert, weil Cilium sie mitbringt.
-Traefik 3.7 braucht neuere (u.a. `TLSRoute` v1 und `BackendTLSPolicy`), sonst bleibt die GatewayClass auf `Unknown`
-und die Traefik-Logs zeigen `failed to list *v1.TLSRoute` / `BackendTLSPolicy`. Deshalb die CRDs aktualisieren:
-
-```
-helm template traefik-crds traefik/traefik-crds --set gatewayAPI=true | kubectl apply --server-side --force-conflicts -f -
-kubectl get crd tlsroutes.gateway.networking.k8s.io -o jsonpath='{.spec.versions[*].name}'
-# muss v1 enthalten
-```
-
-Kubernetes-Gateway-Provider in Traefik einschalten:
-
-```
-helm upgrade -n ingress traefik traefik/traefik --version 40.3.0 --reuse-values --skip-crds --set providers.kubernetesGateway.enabled=true
-```
-
-Pruefen, ob GatewayClass da ist und akzeptiert wurde:
-
-```
-kubectl get crd | grep gateway.networking.k8s.io
-kubectl get gatewayclass
-# traefik -> ACCEPTED True (dauert ggf. etwas; es gibt auf DOKS zusaetzlich die GatewayClass "cilium", die ignorieren wir)
-```
-
-Gemeinsames Gateway fuer alle Teilnehmer anlegen:
-
-```
-# vi gateway.yml
-apiVersion: gateway.networking.k8s.io/v1
-kind: Gateway
-metadata:
-  name: shared-gateway
-  namespace: ingress
-spec:
-  gatewayClassName: traefik
-  listeners:
-    - name: web
-      port: 8000        # interner Traefik-Entrypoint "web"
-      protocol: HTTP
-      allowedRoutes:
-        namespaces:
-          from: All
-```
-
-```
-kubectl apply -f gateway.yml
-kubectl -n ingress get gateway shared-gateway
-# PROGRAMMED sollte True sein, ADDRESS ist die LoadBalancer-IP von Traefik
-kubectl -n ingress get pods
-# es gibt weiterhin nur den einen Traefik-Pod, das Gateway erzeugt keinen neuen
-```
-
-Hinweis: Das Helm-Chart legt bei aktiviertem Provider selbst auch ein Gateway `traefik-gateway` an (nur Namespace `ingress`).
-Wir nutzen `shared-gateway`, weil dort Routen aus allen Namespaces erlaubt sind.
+Das Gateway `shared-gateway` hat der Trainer schon angelegt, siehe
+[Trainer-Vorbereitung](05a-gateway-api-traefik-trainer-setup.md). Ihr braucht nur eine HTTPRoute.
 
 ## Schritt 1: Vorbereitung
 
@@ -333,12 +274,6 @@ Typische Ursachen:
 
 ```
 kubectl delete namespace gateway-$NAME
-```
-
-Trainer (nach dem Training):
-
-```
-kubectl -n ingress delete gateway shared-gateway
 ```
 
 ## Referenz
