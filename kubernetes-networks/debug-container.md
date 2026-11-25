@@ -6,9 +6,24 @@
 kubectl run ephemeral-demo --image=registry.k8s.io/pause:3.1 --restart=Never
 kubectl exec -it ephemeral-demo -- sh
 
-kubectl debug -it ephemeral-demo --image=ubuntu --target=<container-name>
+# Variante - sieht nur prozesse von nicolaka/netshoot 
+kubectl debug -it ephemeral-demo --image=nicolaka/netshoot
 
 ```
+
+```
+# Im Container  tcpdump starten
+tcpdump -i eth0
+STRG+C
+exit
+```
+
+```
+# --target=<name-des-containers>
+# mit run hat der container den gleichen namen wie der pod
+kubectl debug -it ephemeral-demo --image=nicolaka/netshoot --target=ephemeral-demo 
+```
+
 
 ## Beispiel 1b: Walkthrough Debug Container with apple-app 
 
