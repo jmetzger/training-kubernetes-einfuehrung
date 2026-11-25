@@ -46,6 +46,39 @@ Der Kubelet meldet sich auf zwei Wegen beim API-Server:
 
 Bleiben die Updates aus, läuft beim Node-Lifecycle-Controller die `node-monitor-grace-period` (50 s) ab, und der Node wird `Ready=Unknown`. Ob der Controller genau Lease und Status kombiniert auswertet, ist hier nicht im Code geprüft.
 
+### Wie erkennt der Node-Lifecycle-Controller den Ausfall?
+
+![Node-Lifecycle-Controller: Lease beobachten, Node-Status und Taints setzen](/images/service-node-lifecycle-controller.svg)
+
+Kurz gefasst (nach `node_lifecycle_controller.go`):
+
+1. Der **kubelet** schreibt alle 10 s die Lease seines Nodes (`UPDATE`, `spec.renewTime`).
+2. Der Node-Lifecycle-Controller hat einen **Lease-Informer** (Watch auf Leases). Sobald eine neuere `renewTime` ankommt, merkt er sich seinen **eigenen** Zeitpunkt („probeTimestamp“). Er vergleicht nie die Uhr des Kubelets mit seiner eigenen.
+3. Alle 5 s (`node-monitor-period`) prüft er: „jetzt − probeTimestamp > 50 s?“ (`node-monitor-grace-period`).
+4. Wenn ja: Node-Status `Ready` (und Memory-/Disk-/PIDPressure) auf `Unknown`, `unreachable`-Taints am Node, Pods des Nodes auf `Ready=False`.
+5. Alles Weitere passiert per Watch bei anderen Controllern (EndpointSlice-Controller, Taint-Eviction-Controller).
+
+Leases ansehen (zum Kopieren; auf einem Cluster mit `kubectl`-Zugriff):
+
+```bash
+# alle Node-Leases (eine pro Node)
+kubectl get leases -n kube-node-lease
+
+# eine Lease komplett: renewTime, leaseDurationSeconds, holderIdentity
+kubectl get lease <node-name> -n kube-node-lease -o yaml
+
+# nur Name, letzte Erneuerung und Dauer, alle Nodes
+kubectl get leases -n kube-node-lease \
+  -o custom-columns=NODE:.metadata.name,RENEW:.spec.renewTime,DAUER_S:.spec.leaseDurationSeconds
+
+# live beobachten: renewTime ändert sich etwa alle 10 s
+watch -n 2 "kubectl get leases -n kube-node-lease -o custom-columns=NODE:.metadata.name,RENEW:.spec.renewTime"
+
+# Zustand und Taints des Nodes dazu
+kubectl get node <node-name> -o jsonpath='{.spec.taints}{"\n"}'
+kubectl describe node <node-name> | grep -A6 -E "Taints|Conditions"
+```
+
 ### Welche Controller sind beteiligt?
 
 „Node-Controller“ aus älteren Büchern und Docs ist heute auf mehrere Controller aufgeteilt:
