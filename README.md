@@ -64,6 +64,7 @@
   1. Kubernetes Ingress (Traefik)
      * [Install Traefik-IngressController](/ingress/traefik/install-with-helm.md)
      * [Ingress mit traefik](kubectl-examples/04-ingress-traefik-with-hostnames-deployment.md)
+     * [Traefik: Services und Backend-Server direkt im Pod auslesen](kubectl-examples/04a-traefik-backend-server-im-pod.md)
      * [Gateway API mit Traefik (Ergaenzung zu Ingress)](kubectl-examples/05-gateway-api-traefik.md)
      * [pathType ImplementationSpecific vs. Prefix bei traefik](/ingress/traefik/pathtype-implementationspecific.md)
      * [ingress mit traefik, letsencrypt und cert-manager](/ingress/https-letsencrypt-ingress-traefik.md)
