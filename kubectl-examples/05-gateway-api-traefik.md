@@ -14,6 +14,10 @@ Vorteile gegenueber Ingress: Routing-Features (Header-Match, Gewichtung/Canary, 
 Standards, statt in controller-spezifischen Annotations zu stecken.
 
 Voraussetzung: Traefik ist installiert (siehe `ingress/traefik/install-with-helm.md`).
+Es braucht **keine zweite Installation**: Derselbe Traefik bedient Ingress (`ingressClassName: traefik`) und
+Gateway API (`gatewayClassName: traefik`) gleichzeitig, mit derselben LoadBalancer-IP. Die Trennung der beiden
+Uebungen laeuft nur ueber die Domain: Ingress nutzt `*.appv2.do.t3isp.de`, Gateway API nutzt `*.app-gw.do.t3isp.de`
+(beide Wildcards zeigen auf die LoadBalancer-IP von Traefik).
 
 ## Schritt 0: Trainer-Vorbereitung (einmalig, nicht fuer Teilnehmer)
 
@@ -174,7 +178,7 @@ spec:
     - name: shared-gateway
       namespace: ingress
   hostnames:
-    - "gw-<dein-name>.appv2.do.t3isp.de"
+    - "<dein-name>.app-gw.do.t3isp.de"
   rules:
     - matches:
         - path:
@@ -203,9 +207,9 @@ In `describe` unter `Status > Parents` muessen die Conditions `Accepted` und `Re
 ## Schritt 4: Testen
 
 ```
-curl http://gw-<dein-name>.appv2.do.t3isp.de/apple
-curl http://gw-<dein-name>.appv2.do.t3isp.de/banana
-curl http://gw-<dein-name>.appv2.do.t3isp.de/apple/foo
+curl http://<dein-name>.app-gw.do.t3isp.de/apple
+curl http://<dein-name>.app-gw.do.t3isp.de/banana
+curl http://<dein-name>.app-gw.do.t3isp.de/apple/foo
 ```
 
 ## Schritt 5: Header-Match
@@ -229,8 +233,8 @@ Nur wenn der Header `X-Version: 2` gesetzt ist, soll banana antworten, sonst app
 
 ```
 kubectl apply -f . -n gateway-<dein-name>
-curl http://gw-<dein-name>.appv2.do.t3isp.de/
-curl -H "X-Version: 2" http://gw-<dein-name>.appv2.do.t3isp.de/
+curl http://<dein-name>.app-gw.do.t3isp.de/
+curl -H "X-Version: 2" http://<dein-name>.app-gw.do.t3isp.de/
 ```
 
 ## Schritt 6: Traffic-Splitting (Canary) per Gewichtung
@@ -251,7 +255,7 @@ Das geht mit Ingress nur ueber controller-spezifische Annotations, mit der Gatew
 
 ```
 kubectl apply -f . -n gateway-<dein-name>
-for i in $(seq 1 20); do curl -s http://gw-<dein-name>.appv2.do.t3isp.de/; done | sort | uniq -c
+for i in $(seq 1 20); do curl -s http://<dein-name>.app-gw.do.t3isp.de/; done | sort | uniq -c
 ```
 
 Erwartet: ca. 80 % apple, 20 % banana (bei 20 Requests nur grob).
