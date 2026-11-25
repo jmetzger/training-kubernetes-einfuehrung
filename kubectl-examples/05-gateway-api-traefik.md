@@ -12,6 +12,10 @@ Die Gateway API ist der Nachfolger von Ingress. Statt einer einzigen Ressource g
 | Gateway | Cluster-Betreiber (Trainer) | Listener: Port, Protokoll, welche Namespaces duerfen anhaengen |
 | HTTPRoute | Anwendungsentwickler (Teilnehmer) | Hostnamen, Pfade, Backends, Gewichtung |
 
+Wichtig: Ein `Gateway` ist bei Traefik nur ein Konfigurationsobjekt und startet **keinen eigenen Pod**. Es gibt genau
+einen Traefik-Pod (per Helm installiert), der alle Gateways und Routen liest und die passenden Listener oeffnet.
+(Andere Implementierungen wie Cilium oder Envoy Gateway legen teils pro Gateway einen eigenen Proxy an.)
+
 Vorteile gegenueber Ingress: Routing-Features (Header-Match, Gewichtung/Canary, Redirects) sind Teil des
 Standards, statt in controller-spezifischen Annotations zu stecken.
 
@@ -71,6 +75,8 @@ spec:
 kubectl apply -f gateway.yml
 kubectl -n ingress get gateway shared-gateway
 # PROGRAMMED sollte True sein, ADDRESS ist die LoadBalancer-IP von Traefik
+kubectl -n ingress get pods
+# es gibt weiterhin nur den einen Traefik-Pod, das Gateway erzeugt keinen neuen
 ```
 
 Hinweis: Das Helm-Chart legt bei aktiviertem Provider selbst auch ein Gateway `traefik-gateway` an (nur Namespace `ingress`).
