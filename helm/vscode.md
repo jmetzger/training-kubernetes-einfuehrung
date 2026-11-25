@@ -83,7 +83,18 @@ stammen aus VS Code mit Remote - WSL.
 ### 1. Templates lesen: Syntax-Highlighting
 
 Im Language-Mode **Helm** (Statusleiste unten rechts: `helm-template`) werden die
-Go-Template-Teile vom YAML getrennt eingefärbt:
+Go-Template-Teile vom YAML getrennt eingefärbt.
+
+![Statusleiste: Sprachmodus helm-template](images/vscode-statusbar-helm-template.png)
+
+Diesen Sprachmodus bringt die **Kubernetes-Extension** (`ms-kubernetes-tools.vscode-kubernetes-tools`)
+mit: Sie definiert die Sprache `helm` mit dem Anzeigenamen `helm-template` und wählt sie
+automatisch für Dateien in `templates/` (`*.yaml`, `*.yml`, `*.tpl`). Helm Intellisense
+und die YAML-Extension definieren keinen eigenen Sprachmodus. Steht dort stattdessen `YAML`,
+fehlt die Kubernetes-Extension (oder sie ist nicht aktiv, siehe Workspace Trust), und man kann
+den Modus über einen Klick auf die Anzeige oder über `files.associations` (siehe unten) setzen.
+
+Was der Modus bewirkt:
 
 - `{{` und `}}` sowie Schlüsselwörter wie `include`, `if`, `with`, `end` sind abgesetzt,
 - `.Values.…` und `.Chart.…` erkennt man auf einen Blick,
@@ -215,6 +226,96 @@ Screenshot zeigt bewusst nur den Bereich *Helm Repos*, weil die Cluster-Liste ec
 Kontextnamen enthält.
 
 ![Bereich Helm Repos der Kubernetes-Extension](images/vscode-kubernetes-helm-repos.png)
+
+## Remote: Arbeiten auf dem Trainings-Client per SSH
+
+Statt lokal zu arbeiten, kann man VS Code mit der Bastion verbinden. Editor, Terminal, `helm`
+und `kubectl` laufen dann auf dem Client, die Oberfläche bleibt auf dem eigenen Rechner.
+Das Beispiel ist mit dem Benutzer `tln1` auf einem Client `client-<projekt>.do.t3isp.de`
+getestet. Die Verbindung per SSH-Key wurde geprüft. Die Anmeldung per Passwort wurde hier
+nicht ausprobiert.
+
+### 1. Remote - SSH installieren
+
+Extension **Remote - SSH** (Herausgeber Microsoft, ID `ms-vscode-remote.remote-ssh`) wie im
+Abschnitt "Extensions finden und installieren" installieren. Danach VS Code **einmal
+komplett schließen und neu starten**. Ein bereits laufendes Fenster kennt die neue Extension
+sonst nicht und meldet beim Verbinden `Unable to resolve resource vscode-remote://...`.
+
+### 2. Verbindung eintragen
+
+Die Datei `C:\Users\<Name>\.ssh\config` (Windows) anlegen oder ergänzen:
+
+```
+Host training-tln1
+    HostName client-<projekt>.do.t3isp.de
+    User tln1
+```
+
+Der Name hinter `Host` ist frei wählbar und erscheint später links unten und in der
+Titelleiste. Alternativ in VS Code `F1` -> *Remote-SSH: Connect to Host...* ->
+*Add New SSH Host...* und `ssh tln1@client-<projekt>.do.t3isp.de` eingeben.
+
+### 3. Verbinden
+
+`F1` -> *Remote-SSH: Connect to Host...* -> `training-tln1`. Beim ersten Mal fragt VS Code
+nach dem Fingerprint des Servers (bestätigen) und nach dem Passwort. VS Code installiert dann
+automatisch den VS Code Server in `~/.vscode-server` auf dem Client. Das dauert beim ersten
+Mal etwas. Anschließend *File* -> *Open Folder...* und den Chart-Ordner wählen.
+Links unten zeigt `SSH: training-tln1`, dass man auf dem Client arbeitet.
+
+![VS Code mit SSH-Verbindung zum Client, Chart-Ordner geöffnet](images/vscode-remote-ssh.png)
+
+### 4. Extensions auf dem Client
+
+Lokal installierte Extensions gelten **nicht** automatisch auf dem Client. Entweder in der
+Extensions-Ansicht im Bereich *SSH: ...* auf *Install in SSH: ...* klicken, oder einmalig in den
+lokalen Benutzer-Einstellungen (`settings.json`) festlegen, was bei jeder neuen Verbindung
+installiert wird:
+
+```json
+{
+  "remote.SSH.defaultExtensions": [
+    "ms-kubernetes-tools.vscode-kubernetes-tools",
+    "redhat.vscode-yaml",
+    "Tim-Koehler.helm-intellisense"
+  ]
+}
+```
+
+Geprüft: Nach dem Verbinden lagen die drei Extensions in `~/.vscode-server/extensions`
+auf dem Client, und eine Datei in `templates/` stand im Modus `helm-template` mit
+Template-Highlighting.
+
+### 5. Login ohne Passwort (optional)
+
+Wer sich nicht jedes Mal anmelden will, legt einen eigenen Key an und trägt den öffentlichen
+Teil auf dem Client ein:
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_training
+ssh-copy-id -i ~/.ssh/id_ed25519_training.pub tln1@client-<projekt>.do.t3isp.de
+```
+
+Dazu in der `config` unter dem `Host`-Eintrag ergänzen:
+
+```
+    IdentityFile ~/.ssh/id_ed25519_training
+    IdentitiesOnly yes
+```
+
+Unter Windows heißt das Kommando `ssh-keygen` in der PowerShell genauso. `ssh-copy-id` gibt
+es dort nicht. Dann den Inhalt der `.pub`-Datei an die Datei `~/.ssh/authorized_keys` des
+Benutzers auf dem Client anhängen.
+
+### Stolpersteine
+
+- **`Unable to resolve resource vscode-remote://...`:** Remote - SSH wurde nach dem Start von
+  VS Code installiert. VS Code komplett schließen und neu starten.
+- **Auf dem Client fehlt Highlighting oder Vervollständigung:** Die Extensions sind nur lokal
+  installiert (siehe Schritt 4).
+- **`~/.kube/config` enthält ein Zugangs-Token.** Die Datei nicht in Screenshots oder Chats
+  zeigen, auch nicht, wenn sie als Tab noch offen ist.
 
 ## Prüfen im Terminal
 
