@@ -2,6 +2,8 @@
 
 ## Hintergrund
 
+![Gateway API mit Traefik: Weg eines Requests](/images/gateway-api-traefik.svg)
+
 Die Gateway API ist der Nachfolger von Ingress. Statt einer einzigen Ressource gibt es Rollen-getrennte Objekte:
 
 | Ressource | Wer pflegt sie? | Aufgabe |
