@@ -43,12 +43,12 @@
 <text x="504" y="476" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">  → 50 %  DNAT auf 10.244.1.5 : 8080</text>
 <text x="504" y="494" font-size="13" font-weight="normal" fill="#0f172a" text-anchor="start" font-family="ui-monospace, Menlo, Consolas, monospace">  → 50 %  DNAT auf 10.244.2.7 : 8080</text>
 <text x="504" y="520" font-size="12" fill="#334155" text-anchor="start" font-family="Helvetica, Arial, sans-serif">Die ClusterIP stammt aus dem Service, die Pod-IPs aus der EndpointSlice.</text>
-<path d="M360,150 C410,150 430,146 490,146" fill="none" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#b)"/>
-<text x="366" y="138" font-size="12" fill="#1d4ed8" text-anchor="start" font-family="Helvetica, Arial, sans-serif">Watch</text>
-<path d="M360,430 C420,430 430,262 490,262" fill="none" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#b)"/>
-<text x="368" y="420" font-size="12" fill="#1d4ed8" text-anchor="start" font-family="Helvetica, Arial, sans-serif">Watch</text>
+<path d="M490,146 C430,146 410,150 360,150" fill="none" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#b)"/>
+<text x="425" y="138" font-size="12" fill="#1d4ed8" text-anchor="middle" font-family="Helvetica, Arial, sans-serif">Watch</text>
+<path d="M490,262 C430,262 420,430 360,430" fill="none" stroke="#1d4ed8" stroke-width="2.2" stroke-dasharray="7 4" marker-end="url(#b)"/>
+<text x="412" y="352" font-size="12" fill="#1d4ed8" text-anchor="end" font-family="Helvetica, Arial, sans-serif">Watch</text>
 <line x1="740" y1="192" x2="740" y2="212" stroke="#334155" stroke-width="2" marker-end="url(#k)"/>
 <line x1="740" y1="304" x2="740" y2="326" stroke="#334155" stroke-width="2" marker-end="url(#k)"/>
 <line x1="740" y1="390" x2="740" y2="410" stroke="#334155" stroke-width="2" marker-end="url(#k)"/>
-<text x="30" y="586" font-size="12" fill="#475569" text-anchor="start" font-family="Helvetica, Arial, sans-serif">Farben: gleiche Farbe = gleicher Wert, über den die beiden Objekte zusammenfinden (Orange: Service-Name, Violett: Port-Name). Beispielwerte.</text>
+<text x="30" y="586" font-size="12" fill="#475569" text-anchor="start" font-family="Helvetica, Arial, sans-serif">Farben: gleiche Farbe = gleicher Wert, über den die beiden Objekte zusammenfinden (Orange: Service-Name, Violett: Port-Name). Beispielwerte. Watch: kube-proxy öffnet die Verbindung zum API-Server, die Events kommen zurück.</text>
 </svg>
