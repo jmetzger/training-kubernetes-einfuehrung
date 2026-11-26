@@ -165,9 +165,163 @@ kubectl delete -f .
 ```
 
 
-## Teil 2: Vorhandenes Share wiederverwenden (statisches PV)
+## Teil 2: Verzeichnisname selbst bestimmen (dynamisch mit subDir)
 
-  * In Teil 1 legt der Treiber für jeden PVC ein neues Unterverzeichnis (`pvc-<uid>`) an.
+  * In Teil 1 heißt das Verzeichnis auf dem NFS-Server `pvc-<uid>`. Bei jedem neuen PVC entsteht ein neues.
+  * Mit dem Parameter `subDir` in der StorageClass bestimmen wir den Namen. Der Treiber legt das Verzeichnis automatisch an.
+  * Existiert das Verzeichnis schon, wird es mit seinem Inhalt weiterverwendet.
+  * `subDir` und die Variablen `${pvc.metadata.name}`, `${pvc.metadata.namespace}`, `${pv.metadata.name}` sind ein Feature des **csi-driver-nfs**, nicht von Kubernetes.
+
+### Step 1: Variablen setzen 
+
+  * Nur die erste Zeile anpassen (deine Teilnehmernummer)
+  * Neues Terminal ? Dann diesen Block erneut ausführen.
+
+```
+NAME=tln1
+```
+
+```
+NFS_SERVER=$(cat ~/nfs-server-ip.txt)
+echo "$NAME $NFS_SERVER"
+mkdir -p ~/manifests/csi-named
+cd ~/manifests/csi-named
+```
+
+### Step 2: StorageClass (nur Trainer, einmal je Cluster) 
+
+  * `\$` im Here-Document: `${pvc...}` soll unverändert in der Datei stehen, `${NFS_SERVER}` wird ersetzt.
+  * Eine StorageClass reicht für beliebig viele Verzeichnisse.
+
+```
+cat <<EOF > 01-storageclass.yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-csi-named
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: ${NFS_SERVER}
+  share: /var/nfs
+  subDir: \${pvc.metadata.namespace}-\${pvc.metadata.name}
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+EOF
+```
+
+```
+cat 01-storageclass.yaml
+kubectl apply -f 01-storageclass.yaml
+```
+
+### Step 3: PersistentVolumeClaim 
+
+  * Die Teilnehmerkennung gehört in den Namen: Nutzen mehrere Cluster denselben NFS-Server, landen gleiche Namespace/PVC-Namen im selben Verzeichnis.
+
+```
+cat <<EOF > 02-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dyn-${NAME}
+spec:
+  storageClassName: nfs-csi-named
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+EOF
+```
+
+```
+kubectl apply -f 02-pvc.yaml
+kubectl wait --for=jsonpath='{.status.phase}'=Bound pvc/dyn-${NAME} --timeout=60s
+kubectl get pvc dyn-${NAME}
+```
+
+```
+# Wie heißt das Verzeichnis ? -> <namespace>-dyn-<name>
+PV=$(kubectl get pvc dyn-${NAME} -o jsonpath='{.spec.volumeName}')
+echo $PV
+kubectl get pv $PV -o jsonpath='{.spec.csi.volumeAttributes.subdir}{"\n"}'
+```
+
+### Step 4: Pod 
+
+```
+cat <<EOF > 03-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-dyn-${NAME}
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.23
+      command:
+        - "/bin/bash"
+        - "-c"
+        - echo "start \$(date)" >> /mnt/share/starts.txt; exec nginx -g 'daemon off;'
+      volumeMounts:
+        - name: share
+          mountPath: /mnt/share
+  volumes:
+    - name: share
+      persistentVolumeClaim:
+        claimName: dyn-${NAME}
+EOF
+```
+
+```
+kubectl apply -f 03-pod.yaml
+kubectl wait --for=condition=Ready pod/nginx-dyn-${NAME} --timeout=120s
+kubectl exec nginx-dyn-${NAME} -- cat /mnt/share/starts.txt
+```
+
+### Step 5: Pod und PVC löschen 
+
+```
+kubectl delete -f 03-pod.yaml
+kubectl delete -f 02-pvc.yaml
+# STATUS: Released - altes PV und Verzeichnis bleiben (Retain)
+kubectl get pv $PV
+```
+
+### Step 6: PVC und Pod neu anlegen 
+
+```
+kubectl apply -f 02-pvc.yaml -f 03-pod.yaml
+kubectl wait --for=condition=Ready pod/nginx-dyn-${NAME} --timeout=120s
+```
+
+```
+# neues PV, aber dasselbe Verzeichnis
+kubectl get pvc dyn-${NAME}
+# zwei Zeilen: die alten Daten sind noch da
+kubectl exec nginx-dyn-${NAME} -- cat /mnt/share/starts.txt
+```
+
+  * Anders als beim statischen PV (Teil 3) muss kein `claimRef` entfernt werden.
+
+### Step 7: Cleanup 
+
+```
+kubectl delete -f 03-pod.yaml
+kubectl delete -f 02-pvc.yaml
+```
+
+```
+# die beiden PVs im Status Released löschen (nur deine)
+kubectl get pv -o jsonpath="{.items[?(@.spec.claimRef.name=='dyn-${NAME}')].metadata.name}" | xargs -r kubectl delete pv
+```
+
+  * Das Verzeichnis und die Daten bleiben auf dem NFS-Server.
+  * Achtung: Mit `reclaimPolicy: Delete` würde beim Löschen des PVC auch das benannte Verzeichnis gelöscht.
+
+## Teil 3: Vorhandenes Share wiederverwenden (statisches PV)
+
+  * In Teil 1 und 2 legt der Treiber das Verzeichnis selbst an (dynamische Provisionierung).
   * Hier binden wir gezielt ein **bestehendes Share** mit festem Namen ein: `share-tln1`, `share-tln2` usw.
   * So kommt ein neuer PVC (auch nach dem Löschen) wieder an dieselben Daten.
 
@@ -350,7 +504,9 @@ kubectl delete -f 01-pv.yaml
 | Pod löschen | PVC, PV, Daten bleiben | PVC, PV, Daten bleiben |
 | PVC löschen: PV | bleibt (`Released`) | wird gelöscht |
 | PVC löschen: Daten | bleiben | werden gelöscht (Unterverzeichnis auf dem NFS-Server) |
-| Neuer PVC mit gleichem Namen | neues, leeres Volume (dynamisch) bzw. `Pending` (statisch, bis `claimRef` entfernt ist) | neues, leeres Volume |
+| Neuer PVC: dynamisch ohne `subDir` (Teil 1) | neues, leeres Volume | neues, leeres Volume |
+| Neuer PVC: dynamisch mit `subDir` (Teil 2) | altes Verzeichnis, Daten sind da | neues, leeres Verzeichnis |
+| Neuer PVC: statisches PV (Teil 3) | `Pending`, bis `claimRef` entfernt ist | - |
 
   * Statisches PV mit `Delete`: In unserem Test (csi-driver-nfs 4.13.4) verschwand das PV, die Daten blieben, weil der Treiber den frei gewählten `volumeHandle` keinem Verzeichnis zuordnen kann. Darauf nicht verlassen: Wer Daten behalten will, nimmt `Retain`.
   * Merke: Der Pod hat mit dem Löschen der Daten nichts zu tun. Es zählt, was mit dem **PVC** passiert.
