@@ -351,8 +351,10 @@ kubectl delete namespace kyverno
 
 | Befehl | Ergebnis | Loesung |
 |--------|----------|---------|
+| `kubectl debug` ohne Profil | Von Kyverno abgelehnt | `--profile=restricted --custom=...` |
 | Debug-Container mit UID 999 (App: 10001) | startet, `ps`/`curl` gehen | - |
 | `/proc/1/environ`, `/proc/1/root` mit UID 999 | `Permission denied` | UID der App per `--custom` |
+| Debug-Container mit UID 10001 (UID der App) | `/proc/1/environ` und `/proc/1/root` lesbar | - |
 | `--copy-to` mit Standardprofil | Von Kyverno abgelehnt | `--profile=restricted --custom=...` |
-| `kubectl debug` ohne Profil | Von Kyverno abgelehnt | `--profile=restricted --custom=...` |
-| `--profile=restricted`, Image startet als root | `CreateContainerConfigError` | Numerische UID per `--custom` oder `USER` im Image |
+| `--copy-to` mit `--profile=restricted` und UID per `--custom` | Pod laeuft `2/2` | - |
+| `--profile=restricted` ohne UID, Image startet als root | Von Kyverno durchgelassen, nach ca. 15-20 s `CreateContainerConfigError` (Kubelet) | Numerische UID per `--custom` oder `USER` im Image |
