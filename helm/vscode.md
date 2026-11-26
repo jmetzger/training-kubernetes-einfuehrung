@@ -232,8 +232,7 @@ Kontextnamen enthält.
 Statt lokal zu arbeiten, kann man VS Code mit der Bastion verbinden. Editor, Terminal, `helm`
 und `kubectl` laufen dann auf dem Client, die Oberfläche bleibt auf dem eigenen Rechner.
 Das Beispiel ist mit dem Benutzer `tln1` auf einem Client `client-<projekt>.do.t3isp.de`
-getestet. Die Verbindung per SSH-Key wurde geprüft. Die Anmeldung per Passwort wurde hier
-nicht ausprobiert.
+getestet. Die Verbindung wurde per SSH-Key und per Passwort ausprobiert.
 
 ### 1. Remote - SSH installieren
 
@@ -266,9 +265,36 @@ Links unten zeigt `SSH: training-tln1`, dass man auf dem Client arbeitet.
 
 ![VS Code mit SSH-Verbindung zum Client, Chart-Ordner geöffnet](images/vscode-remote-ssh.png)
 
+**Passwortabfrage:** VS Code zeigt das Eingabefeld oben in der Mitte. Solange es offen ist,
+steht unten rechts *Setting up SSH Host ...*, und es sieht aus, als würde die Verbindung
+hängen. Passwort eingeben und mit `Enter` bestätigen (`Escape` bricht ab). Die Abfrage kann
+**mehrmals** erscheinen. Bleibt es trotzdem stehen, zeigt *details* in der Meldung unten rechts
+das Protokoll.
+
+### Warum öffnet sich ein neues Fenster?
+
+Ein VS-Code-Fenster arbeitet immer in genau **einer** Umgebung: lokal, in WSL oder auf einem
+SSH-Server. Dateien, Terminal und Extensions kommen alle von dort. Das neue Fenster gehört zum
+Server, das bisherige bleibt unverändert. Links unten steht, wo man gerade ist (`SSH: ...`).
+Wer kein zweites Fenster will, nimmt `F1` -> *Remote-SSH: Connect Current Window to Host...*.
+
+### Was wird auf dem Linux-System installiert?
+
+Im Home-Verzeichnis des Benutzers, ohne root-Rechte, unter `~/.vscode-server`:
+
+- der **VS Code Server** (VS Code ohne Oberfläche), er wird beim ersten Verbinden aus dem
+  Internet geladen,
+- die **Extensions**, die auf dem Server laufen.
+
+Jeder Benutzer bekommt seine eigene Installation. Im Test waren es mit den drei Extensions
+unten rund 750 MB. Bei vielen Teilnehmern auf einem gemeinsamen Client sollte man deshalb
+Platte und vor allem Arbeitsspeicher im Blick behalten (der Speicherbedarf pro Verbindung
+wurde nicht gemessen).
+
 ### 4. Extensions auf dem Client
 
-Lokal installierte Extensions gelten **nicht** automatisch auf dem Client. Entweder in der
+Lokal installierte Extensions gelten **nicht** automatisch auf dem Client. Reine
+Oberflächen-Extensions wie Farbthemen bleiben lokal. Entweder in der
 Extensions-Ansicht im Bereich *SSH: ...* auf *Install in SSH: ...* klicken, oder einmalig in den
 lokalen Benutzer-Einstellungen (`settings.json`) festlegen, was bei jeder neuen Verbindung
 installiert wird:
